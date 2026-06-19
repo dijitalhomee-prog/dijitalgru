@@ -20,8 +20,6 @@ if not RAILWAY_TOKEN:
     print("❌ HATA: master.env veya environment variables içinde RAILWAY_TOKEN bulunamadı.")
     sys.exit(1)
 
-print(f"🔑 Kullanılan Token (Maskeli): {RAILWAY_TOKEN[:4]}...{RAILWAY_TOKEN[-4:] if len(RAILWAY_TOKEN) > 4 else ''}")
-
 HEADERS = {
     "Content-Type": "application/json",
     "Authorization": f"Bearer {RAILWAY_TOKEN}",
@@ -36,85 +34,67 @@ def run_query(query):
         with urllib.request.urlopen(req) as response:
             return json.loads(response.read().decode())
     except Exception as e:
-        print("❌ HATA: Railway API'sine bağlanırken bir sorun oluştu.")
-        print("Detay:", e)
-        if hasattr(e, 'read'):
-            try:
-                print("Sunucu Yanıtı:", e.read().decode())
-            except:
-                pass
+        print("❌ HATA:", e)
         return {}
 
-# Query to list all projects, environments, services, and custom domains
-query = """
+# 1. Query workspaces to find team/org spaces
+workspace_query = """
 query {
-  projects {
-    edges {
-      node {
-        id
-        name
-        description
-        environments {
-          edges {
-            node {
-              id
-              name
-            }
-          }
-        }
-        services {
-          edges {
-            node {
-              id
-              name
-            }
-          }
-        }
-      }
+  me {
+    workspaces {
+      id
+      name
     }
   }
 }
 """
 
-print("🔍 Railway üzerindeki projeleriniz taranıyor...")
-res = run_query(query)
+print("🔍 Railway Workspaceleri sorgulanıyor...")
+w_res = run_query(workspace_query)
 
-if not res or 'data' not in res or not res['data'].get('projects'):
-    print("❌ Railway üzerinde herhangi bir proje bulunamadı veya yetkilendirme hatası.")
-    sys.exit(1)
+workspaces = []
+if w_res and 'data' in w_res and w_res['data'].get('me'):
+    workspaces = w_res['data']['me']['workspaces']
 
-projects = res['data']['projects']['edges']
-found_project = None
+print(f"Found {len(workspaces)} workspaces.")
 
-for p_edge in projects:
-    p = p_edge['node']
-    p_name = p['name'].lower()
-    p_id = p['id']
+# 2. Query projects for each workspace
+for ws in workspaces:
+    print(f"\n📂 Workspace: {ws['name']} (ID: {ws['id']})")
     
-    # Check if project name contains "dijital" or "gru"
-    is_match = "dijital" in p_name or "gru" in p_name
+    project_query = f"""
+    query {{
+      projects(workspaceId: "{ws['id']}") {{
+        edges {{
+          node {{
+            id
+            name
+            description
+            services {{
+              edges {{
+                node {{
+                  id
+                  name
+                }}
+              }}
+            }}
+          }}
+        }}
+      }}
+    }}
+    """
     
-    if is_match:
-        found_project = p
-        break
-
-if found_project:
-    print(f"\n🎉 EŞLEŞEN PROJE BULUNDU!")
-    print(f"📌 Proje Adı: {found_project['name']}")
-    print(f"🆔 Proje ID: {found_project['id']}")
-    
-    env_edges = found_project.get('environments', {}).get('edges', [])
-    env_id = env_edges[0]['node']['id'] if env_edges else None
-    print(f"🌐 Ortam (Environment) ID: {env_id}")
-    
-    services = found_project.get('services', {}).get('edges', [])
-    print("\n🛠️ Servisler:")
-    for s_edge in services:
-        s = s_edge['node']
-        print(f" - Servis Adı: {s['name']} (ID: {s['id']})")
-else:
-    print("\n⚠️ Dijital Gru ile ilgili bir Railway projesi bulunamadı.")
-    print("Mevcut projeleriniz:")
-    for p_edge in projects:
-        p = p_edge['node']
-        print(f" - {p['name']} (ID: {p['id']})")
+    p_res = run_query(project_query)
+    if p_res and 'data' in p_res and p_res['data'].get('projects'):
+        edges = p_res['data']['projects']['edges']
+        if not edges:
+            print("  (Bu workspace altında proje bulunmuyor)")
+        for edge in edges:
+            p = edge['node']
+            print(f"  📌 Proje: {p['name']} (ID: {p['id']})")
+            services = p.get('services', {}).get('edges', [])
+            for s_edge in services:
+                s = s_edge['node']
+                print(f"     - Servis: {s['name']} (ID: {s['id']})")
+    else:
+        print("  ❌ Projeler listelenirken hata oluştu.")
