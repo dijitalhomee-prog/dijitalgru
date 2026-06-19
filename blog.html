@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog & Yayınlarımız | Dijital Gru Kreatif Reklam Ajansı</title>
+    <meta name="description" content="Yapay zeka, dijital marka konumlandırma stratejileri ve kullanıcı deneyimi (UX) tasarımı üzerine en güncel makaleler ve sektörel içgörüler.">
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.dijitalgru.com/blog.html" />
+
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.dijitalgru.com/blog.html" />
+    <meta property="og:title" content="Blog & Yayınlarımız | Dijital Gru Kreatif Reklam Ajansı" />
+    <meta property="og:description" content="Yapay zeka, dijital marka konumlandırma stratejileri ve kullanıcı deneyimi (UX) tasarımı üzerine en güncel makaleler ve sektörel içgörüler." />
+    <meta property="og:image" content="https://www.dijitalgru.com/Logo/logo-dikey-krem.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://www.dijitalgru.com/blog.html" />
+    <meta name="twitter:title" content="Blog & Yayınlarımız | Dijital Gru Kreatif Reklam Ajansı" />
+    <meta name="twitter:description" content="Yapay zeka, dijital marka konumlandırma stratejileri ve kullanıcı deneyimi (UX) tasarımı üzerine en güncel makaleler ve sektörel içgörüler." />
+    <meta name="twitter:image" content="https://www.dijitalgru.com/Logo/logo-dikey-krem.png" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Primary Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Custom Split-Screen Layout for Blog Portal -->
+    <style>
+        body {
+            background-color: var(--navy-primary);
+            color: var(--text-light);
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .split-portfolio-layout {
+            display: flex;
+            min-height: 100vh;
+            width: 100vw;
+        }
+
+        /* Left Sidebar Styling (Fixed on Desktop) */
+        .portfolio-sidebar {
+            width: 320px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #060a1a;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+            z-index: 100;
+        }
+
+        .sidebar-top {
+            text-align: center;
+        }
+
+        .logo-img-dikey {
+            max-width: 130px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .sidebar-search-wrapper {
+            margin-top: 30px;
+            position: relative;
+        }
+
+        .sidebar-search-input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-light);
+            font-size: 13px;
+            transition: var(--transition-quick);
+            font-family: var(--font-body);
+        }
+
+        .sidebar-search-input:focus {
+            border-color: var(--accent-gold);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 15px rgba(220, 169, 99, 0.15);
+        }
+
+        .sidebar-search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light-muted);
+            font-size: 13px;
+            pointer-events: none;
+            transition: var(--transition-quick);
+        }
+
+        .sidebar-search-input:focus + .sidebar-search-icon {
+            color: var(--accent-gold);
+        }
+
+        .sidebar-projects-nav {
+            margin: 30px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Custom Scrollbar for Sidebar */
+        .sidebar-projects-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-projects-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-projects-nav::-webkit-scrollbar-thumb {
+            background: rgba(220, 169, 99, 0.15);
+            border-radius: 2px;
+        }
+
+        .sidebar-nav-title {
+            font-family: var(--font-headings);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-gold);
+            display: block;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(220, 169, 99, 0.15);
+            padding-bottom: 8px;
+        }
+
+        .sidebar-project-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .sidebar-project-item {
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-project-item a {
+            color: var(--text-light-muted);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            display: block;
+            line-height: 1.4;
+            cursor: pointer;
+            border-left: 2px solid transparent;
+            padding-left: 0;
+        }
+
+        .sidebar-project-item a:hover {
+            color: var(--text-light);
+            padding-left: 8px;
+        }
+        
+        .sidebar-project-item.active a {
+            color: var(--accent-gold);
+            font-weight: 700;
+            padding-left: 10px;
+            border-left-color: var(--accent-gold);
+        }
+
+        .sidebar-bottom {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+        }
+
+        .sidebar-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light-muted);
+            text-decoration: none;
+            font-family: var(--font-headings);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-back-link:hover {
+            color: var(--accent-gold);
+            transform: translateX(-4px);
+        }
+
+        .sidebar-socials {
+            display: flex;
+            gap: 16px;
+        }
+
+        .sidebar-socials a {
+            color: var(--text-light-muted);
+            font-size: 18px;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-socials a:hover {
+            color: var(--accent-gold);
+            transform: translateY(-2px);
+        }
+
+        .sidebar-copyright {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Right Content Area Styling (Scrollable on Desktop) */
+        .portfolio-main-content {
+            flex-grow: 1;
+            margin-left: 320px; /* sidebar spacing */
+            padding: 60px 80px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .mobile-portfolio-header {
+            display: none;
+        }
+
+        .portfolio-content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .content-header {
+            margin-bottom: 40px;
+        }
+
+        .content-tag {
+            font-family: var(--font-headings);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-gold);
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .content-title {
+            font-size: 38px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            color: var(--text-light);
+        }
+
+        .content-subtitle {
+            color: var(--text-light-muted);
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        /* Filter Tabs */
+        .portfolio-tabs {
+            justify-content: flex-start;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 6px;
+            border-radius: 30px;
+            display: inline-flex;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        /* Custom Project Card Styling for Clean Look */
+        .portfolio-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(220, 169, 99, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .no-results {
+            grid-column: span 2;
+            text-align: center;
+            padding: 80px 0;
+            color: var(--text-light-muted);
+            font-family: var(--font-headings);
+            font-size: 16px;
+            display: none;
+        }
+
+        /* Custom spacing & styles for full-post Modal */
+        .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 15px;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .modal-body::-webkit-scrollbar-thumb {
+            background: rgba(220, 169, 99, 0.2);
+            border-radius: 2px;
+        }
+
+        .blog-post-content h3 {
+            font-family: var(--font-headings);
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            color: #fff;
+            border-left: 3px solid var(--accent-gold);
+            padding-left: 12px;
+        }
+
+        .blog-post-content p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-light-muted);
+            margin-bottom: 18px;
+        }
+
+        .blog-post-content blockquote {
+            background: rgba(220, 169, 99, 0.05);
+            border-left: 4px solid var(--accent-gold);
+            padding: 16px 20px;
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+            font-size: 15px;
+            color: var(--text-light);
+            margin: 25px 0;
+        }
+
+        .author-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 40px;
+            padding-top: 24px;
+        }
+
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            color: var(--navy-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-family: var(--font-headings);
+            font-size: 16px;
+            border: 2px solid rgba(220, 169, 99, 0.3);
+        }
+
+        .author-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .author-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .author-role {
+            font-size: 12px;
+            color: var(--text-light-muted);
+        }
+
+        /* Responsive Layout Overrides */
+        @media (max-width: 1200px) {
+            .portfolio-sidebar {
+                width: 260px;
+                padding: 30px 20px;
+            }
+            .portfolio-main-content {
+                margin-left: 260px;
+                padding: 40px;
+            }
+            .content-title {
+                font-size: 32px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .split-portfolio-layout {
+                flex-direction: column;
+            }
+
+            .portfolio-sidebar {
+                display: none; /* Hide sidebar completely on tablets/mobiles */
+            }
+
+            .portfolio-main-content {
+                margin-left: 0;
+                padding: 30px 20px;
+            }
+
+            .mobile-portfolio-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }
+
+            .logo-img-yatay {
+                height: 32px;
+                width: auto;
+            }
+
+            .mobile-back-btn {
+                color: var(--accent-gold);
+                text-decoration: none;
+                font-family: var(--font-headings);
+                font-size: 13px;
+                font-weight: 700;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: var(--transition-smooth);
+            }
+
+            .mobile-back-btn:hover {
+                transform: translateX(-2px);
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr; /* Single column grid */
+                gap: 20px;
+            }
+
+            .no-results {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-74RKNLN04N"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-74RKNLN04N');
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18158374918"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-18158374918');
+    </script>
+
+    <!-- Dynamic Glow Orb Background Tracker -->
+    <div class="glow-orb" id="glow-orb"></div>
+    <div class="grid-background"></div>
+
+    <!-- Main Split Layout Container -->
+    <div class="split-portfolio-layout">
+        
+        <!-- Left Sidebar (Fixed on Desktop) -->
+        <aside class="portfolio-sidebar">
+            <div class="sidebar-top">
+                <a href="index.html" class="sidebar-logo">
+                    <img src="Logo/logo-dikey-krem.png" alt="Dijital Gru" class="logo-img-dikey">
+                </a>
+                
+                <!-- Search bar in sidebar -->
+                <div class="sidebar-search-wrapper">
+                    <input type="text" id="blog-search" class="sidebar-search-input" placeholder="Makale ara...">
+                    <i class="fa-solid fa-magnifying-glass sidebar-search-icon"></i>
+                </div>
+            </div>
+            
+            <nav class="sidebar-projects-nav">
+                <span class="sidebar-nav-title">Son Makaleler</span>
+                <ul class="sidebar-project-list" id="sidebar-project-list">
+                    <!-- Dynamically populated vertical article list by blog.js -->
+                </ul>
+            </nav>
+            
+            <div class="sidebar-bottom">
+                <a href="index.html" class="sidebar-back-link"><i class="fa-solid fa-arrow-left"></i> Ana Sayfaya Dön</a>
+                <div class="sidebar-socials">
+                    <a href="https://www.instagram.com/dijitalgru/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.youtube.com/@DijitalGru" target="_blank" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+                <div class="sidebar-copyright">&copy; 2026 Dijital Gru.</div>
+            </div>
+        </aside>
+
+        <!-- Right Content Column (Scrolls on Desktop) -->
+        <main class="portfolio-main-content">
+            
+            <!-- Mobile Header (Visible only on mobile/tablet) -->
+            <header class="mobile-portfolio-header">
+                <a href="index.html" class="mobile-logo">
+                    <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru" class="logo-img-yatay">
+                </a>
+                <a href="index.html" class="mobile-back-btn"><i class="fa-solid fa-arrow-left"></i> Ana Sayfa</a>
+            </header>
+
+            <div class="portfolio-content-wrapper">
+                
+                <!-- Header content -->
+                <div class="content-header scroll-reveal revealed">
+                    <span class="content-tag">Blog & Yayınlar</span>
+                    <h1 class="content-title">Kreatif Dünyadan Güncel İçgörüler</h1>
+                    <p class="content-subtitle">
+                        Yapay zeka teknolojileri, marka konumlandırma stratejileri ve modern web tasarım trendleri üzerine hazırladığımız sektörel analizler.
+                    </p>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="portfolio-tabs scroll-reveal revealed">
+                    <button class="tab-btn active" data-filter="all">Tümü</button>
+                    <button class="tab-btn" data-filter="Teknoloji">Teknoloji</button>
+                    <button class="tab-btn" data-filter="Strateji">Strateji</button>
+                    <button class="tab-btn" data-filter="Pazarlama">Pazarlama</button>
+                    <button class="tab-btn" data-filter="Tasarım">Tasarım</button>
+                    <button class="tab-btn" data-filter="Sosyal Medya">Sosyal Medya</button>
+                </div>
+
+                <!-- Designs Grid (Blog posts) -->
+                <div class="portfolio-grid" id="designs-grid">
+                    <!-- Dynamically populated 2-column card grid by blog.js -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="no-results" id="no-results">
+                    <i class="fa-regular fa-folder-open" style="font-size: 40px; margin-bottom: 15px; color: var(--accent-gold); display: block;"></i>
+                    Seçilen kriterlere uygun yayın bulunamadı.
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Premium Case-Study Lightbox Modal for Blog Articles -->
+    <div class="case-study-modal" id="case-study-modal">
+        <div class="modal-overlay" id="modal-overlay"></div>
+        <div class="modal-container">
+            <!-- Left Side: Color gradient visual artboard block -->
+            <div class="modal-visual-side">
+                <div class="modal-visual-bg" id="modal-visual-bg">
+                    <i class="modal-visual-icon fa-solid" id="modal-visual-icon"></i>
+                    <div class="portfolio-particles"></div>
+                </div>
+            </div>
+
+            <!-- Right Side: Structured Text Details Column -->
+            <div class="modal-content-side">
+                <div class="modal-header-info">
+                    <span class="modal-cat" id="modal-cat">Kategori</span>
+                    <h3 class="modal-title" id="modal-title">Makale Başlığı</h3>
+                    <div class="modal-client" id="modal-client"><i class="fa-regular fa-calendar"></i> 26 Mayıs 2026 | <i class="fa-regular fa-clock"></i> 5 Dk</div>
+                </div>
+
+                <div class="modal-body">
+                    <!-- Loaded dynamically via blog.js -->
+                </div>
+
+                <div class="modal-footer">
+                    <!-- Slider Navigation (Left/Right arrow triggers) -->
+                    <div class="modal-nav">
+                        <button class="modal-nav-btn" id="modal-prev-btn" aria-label="Önceki Yazı">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <button class="modal-nav-btn" id="modal-next-btn" aria-label="Sonraki Yazı">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <button class="modal-close-btn" id="modal-close-btn" aria-label="Pencereyi Kapat">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dedicated Blog Page Engine -->
+    <script src="blog.js"></script>
+</body>
+</html>

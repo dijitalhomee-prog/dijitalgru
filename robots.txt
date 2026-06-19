@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /designs.html
+Allow: /Logo/
+Allow: /style.css
+Allow: /app.js
+Allow: /designs.js
+
+Sitemap: https://www.dijitalgru.com/sitemap.xml
