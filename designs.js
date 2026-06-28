@@ -517,6 +517,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 { val: "Premium", lbl: "Mat Baskı" }
             ],
             challenge: "Çevre güvenliği ve panel çit sistemleri gibi endüstriyel ve teknik bir sektörü, sıkıcı olmaktan uzaklaştırarak; modern grid yapıları, yüksek kaliteli ürün fotoğrafları, teknik çizim şablonları ve premium mat kuşe kâğıt detaylarıyla donatılmış prestijli bir basılı ürün kataloğu haline getirmek."
+        },
+        {
+            id: 35,
+            title: "Shiso Menü Tasarımı",
+            client: "Shiso Sushi & More",
+            category: "print",
+            catLabel: "Menü & Basılı Grafik",
+            desc: "Premium Uzak Doğu restoran konsepti için hazırlanan; minimalist Japon estetiğini, modern gastronomi trendlerini ve özel dokulu kağıt konseptini birleştiren şık menü tasarımı.",
+            icon: "fa-utensils",
+            gradient: "brand-gradient",
+            pdfPath: "tum-markalar/Shiso Menu\u0308 Tasar\u0131m\u0131.pdf",
+            metrics: [
+                { val: "Minimalist", lbl: "Japon Estetiği" },
+                { val: "Premium", lbl: "Özel Dokulu Baskı" }
+            ],
+            challenge: "Uzak Doğu mutfağının en seçkin temsilcilerinden Shiso için; hem markanın sade ve dingin Uzak Doğu felsefesini yansıtan hem de misafirlerin premium gastronomi deneyimini görsel ve dokunsal olarak zenginleştiren, özel kağıt seçimli ve minimalist tipografili bütünsel bir menü sunum tasarımı hazırlamak."
         }
     ];
 
