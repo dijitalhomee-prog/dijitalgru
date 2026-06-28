@@ -578,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
             desc: "Premium Uzak Doğu restoran konsepti için hazırlanan; minimalist Japon estetiğini, modern gastronomi trendlerini ve özel dokulu kağıt konseptini birleştiren şık menü tasarımı.",
             icon: "fa-utensils",
             gradient: "brand-gradient",
-            pdfPath: "tum-markalar/Shiso Menu\u0308 Tasar\u0131m\u0131.pdf",
+            pdfPath: "tum-markalar/shiso-menu-tasarimi.pdf",
             metrics: [
                 { val: "Minimalist", lbl: "Japon Estetiği" },
                 { val: "Premium", lbl: "Özel Dokulu Baskı" }
