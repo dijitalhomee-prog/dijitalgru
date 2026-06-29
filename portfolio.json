@@ -1,5 +1,27 @@
 [
     {
+        "id": 36,
+        "title": "Shiso Menü Tasarımı",
+        "client": "Shiso Garden",
+        "category": "print",
+        "catLabel": "Menü & Basılı Grafik",
+        "desc": "Shiso’nun Uzak Doğu mutfağındaki dingin ve estetik duruşunu, müşterileriyle buluştuğu ilk nokta olan menü tasarımına entegre ettik. ",
+        "icon": "fa-utensils",
+        "gradient": "brand-gradient",
+        "metrics": [
+            {
+                "val": "Minimalist",
+                "lbl": "Japon Estetiği"
+            },
+            {
+                "val": "Premium",
+                "lbl": "Özel Dokulu Baskı"
+            }
+        ],
+        "challenge": " Japon minimalizminin temiz çizgilerini temel alarak hazırladığımız bu bütünsel sunum çalışmasında, özel kağıt dokusu ve sade yazı karakterleriyle premium bir deneyim kurguladık. Shiso Sushi & More’un seçkin menüsünü görsel bir şölene dönüştürürken, okunabilirliği ve estetiği en üst seviyede birleştirmeyi başardık.",
+        "pdfPath": "tum-markalar/basili-ve-editoryal/shiso-menu-tasarimi.pdf"
+    },
+    {
         "id": 1,
         "title": "Grid Planner Web Sitesi",
         "client": "Dijital Gru Labs",
