@@ -6,4 +6,4 @@ Allow: /style.css
 Allow: /app.js
 Allow: /designs.js
 
-Sitemap: https://www.dijitalgru.com/sitemap.xml
+Sitemap: https://dijitalgru.com/sitemap.xml

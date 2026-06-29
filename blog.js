@@ -97,7 +97,7 @@ window.BLOG_DATA = [
 
                     <blockquote style="border-left: 3px solid #dca963; padding-left: 16px; margin: 20px 0; font-style: italic; color: #fce7cf;">
                         <strong>Dijital Gru Sosyal Medya Yönetimi Hizmeti:</strong> Profesyonel içerik üretimi · Günlük moderasyon · Hedef kitle analizleri · Yüksek dönüşümlü Meta & TikTok reklam kampanyaları · Aylık performans raporları<br>
-                        <span style="font-style: normal; display: block; margin-top: 8px;">Hizmet detayları ve fiyat teklifi için: <a href="index.html#services" style="color: #dca963; text-decoration: underline;">www.dijitalgru.com/#services</a></span>
+                        <span style="font-style: normal; display: block; margin-top: 8px;">Hizmet detayları ve fiyat teklifi için: <a href="index.html#services" style="color: #dca963; text-decoration: underline;">dijitalgru.com/#services</a></span>
                     </blockquote>
 
                     <h3>Sonuç: Threads'i Şimdi Stratejinize Dahil Edin</h3>

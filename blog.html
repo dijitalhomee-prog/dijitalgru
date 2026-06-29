@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+    <!-- Redirect www to non-www -->
+    <script>
+      if (window.location.hostname.startsWith('www.')) {
+        window.location.replace('https://' + window.location.hostname.slice(4) + window.location.pathname + window.location.search + window.location.hash);
+      }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog & Yayınlarımız | Dijital Gru Kreatif Reklam Ajansı</title>
     <meta name="description" content="Yapay zeka, dijital marka konumlandırma stratejileri ve kullanıcı deneyimi (UX) tasarımı üzerine en güncel makaleler ve sektörel içgörüler.">
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://www.dijitalgru.com/blog.html" />
+    <link rel="canonical" href="https://dijitalgru.com/blog.html" />
 
     <!-- Open Graph / Facebook / LinkedIn -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.dijitalgru.com/blog.html" />
+    <meta property="og:url" content="https://dijitalgru.com/blog.html" />
     <meta property="og:title" content="Blog & Yayınlarımız | Dijital Gru Kreatif Reklam Ajansı" />
     <meta property="og:description" content="Yapay zeka, dijital marka konumlandırma stratejileri ve kullanıcı deneyimi (UX) tasarımı üzerine en güncel makaleler ve sektörel içgörüler." />
-    <meta property="og:image" content="https://www.dijitalgru.com/Logo/logo-dikey-krem.png" />
+    <meta property="og:image" content="https://dijitalgru.com/Logo/logo-dikey-krem.png" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://www.dijitalgru.com/blog.html" />
+    <meta name="twitter:url" content="https://dijitalgru.com/blog.html" />
     <meta name="twitter:title" content="Blog & Yayınlarımız | Dijital Gru Kreatif Reklam Ajansı" />
     <meta name="twitter:description" content="Yapay zeka, dijital marka konumlandırma stratejileri ve kullanıcı deneyimi (UX) tasarımı üzerine en güncel makaleler ve sektörel içgörüler." />
-    <meta name="twitter:image" content="https://www.dijitalgru.com/Logo/logo-dikey-krem.png" />
+    <meta name="twitter:image" content="https://dijitalgru.com/Logo/logo-dikey-krem.png" />
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
