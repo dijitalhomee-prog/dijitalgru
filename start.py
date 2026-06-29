@@ -10,7 +10,8 @@ import json
 import base64
 import subprocess
 
-PORT = 8000
+PORT = int(os.environ.get("PORT", 8000))
+BIND_HOST = "0.0.0.0" if "PORT" in os.environ else "127.0.0.1"
 DIRECTORY = "."
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -351,8 +352,8 @@ def open_browser():
 
 def run_server():
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", PORT), Handler) as httpd:
-        print(f"🚀 Dijital Gru Yerel Sunucusu http://localhost:{PORT} adresinde aktif.")
+    with socketserver.TCPServer((BIND_HOST, PORT), Handler) as httpd:
+        print(f"🚀 Dijital Gru Sunucusu http://{BIND_HOST}:{PORT} adresinde aktif.")
         print("🛑 Sunucuyu kapatmak için Terminal'de Ctrl+C tuşlarına basın.\n")
         try:
             httpd.serve_forever()
@@ -361,7 +362,8 @@ def run_server():
             sys.exit(0)
 
 if __name__ == "__main__":
-    # Start browser thread
-    threading.Thread(target=open_browser, daemon=True).start()
+    # Start browser thread locally
+    if "PORT" not in os.environ:
+        threading.Thread(target=open_browser, daemon=True).start()
     # Start server
     run_server()
