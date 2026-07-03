@@ -96,6 +96,7 @@
         "desc": "Ege'nin kalbindeki popüler mekanın yaz sezonu odaklı enerjik sosyal medya stratejisi ve PR kurguları.",
         "icon": "fa-umbrella-beach",
         "gradient": "social-gradient",
+        "pdfPath": "tum-markalar/Sosyal Medya Yönetimi/KortoAlaçatı_Sm.pdf",
         "metrics": [
             {
                 "val": "+310%",
@@ -652,6 +653,7 @@
         "desc": "Ajansımızın kreatif vizyonunu, ödüllü projelerini ve özgün tasarım felsefesini yansıtan, minimalist ve brütalist tarzda tasarlanmış premium tanıtım kataloğu.",
         "icon": "fa-book-open",
         "gradient": "creative-gradient",
+        "pdfPath": "tum-markalar/basili-ve-editoryal/dijital gru tasarım kataloğu.pdf",
         "metrics": [
             {
                 "val": "Mat Kuşe",
@@ -729,5 +731,132 @@
             }
         ],
         "challenge": "Çevre güvenliği ve panel çit sistemleri gibi endüstriyel ve teknik bir sektörü, sıkıcı olmaktan uzaklaştırarak; modern grid yapıları, yüksek kaliteli ürün fotoğrafları, teknik çizim şablonları ve premium mat kuşe kâğıt detaylarıyla donatılmış prestijli bir basılı ürün kataloğu haline getirmek."
+    },
+    {
+        "id": 37,
+        "title": "Kastel Etkinlik Afişleri",
+        "client": "Kastel İstanbul",
+        "category": "poster",
+        "catLabel": "Afiş & Flyer",
+        "desc": "Kastel'in mistik ve elektronik müzik odaklı gece hayatı ruhunu yansıtan, yaratıcı ve tipografik etkinlik afişi tasarımları.",
+        "icon": "fa-compact-disc",
+        "gradient": "creative-gradient",
+        "metrics": [
+            {
+                "val": "Fütüristik",
+                "lbl": "Tasarım Dili"
+            },
+            {
+                "val": "Neon Kontrast",
+                "lbl": "Renk Harmonisi"
+            }
+        ],
+        "challenge": "Kastel'in yerli ve yabancı DJ etkinlikleri için; karanlık kulüp atmosferini, neon renk kontrastları ve fütüristik grafik ögelerle birleştirerek sosyal medya ve sokak afişlerine uyarlamak."
+    },
+    {
+        "id": 38,
+        "title": "Kalt İzmir Etkinlik Afişleri",
+        "client": "Kalt İzmir",
+        "category": "poster",
+        "catLabel": "Afiş & Flyer",
+        "desc": "Kalt İzmir'in endüstriyel elektronik müzik kimliğine uygun, minimal ve brütalist tarzda etkinlik afişi ve flyer tasarımları. Bu çalışma <a href=\"https://athinkstudio.myportfolio.com/\" target=\"_blank\" style=\"color: var(--accent-gold); text-decoration: underline;\">A Think Studio</a> ortaklığıyla hazırlanmıştır.",
+        "icon": "fa-sliders",
+        "gradient": "tech-gradient",
+        "pdfPath": "tum-markalar/afis-ve-flyer/Kalt_Poster.pdf",
+        "metrics": [
+            {
+                "val": "Brütalist",
+                "lbl": "Tasarım Dili"
+            },
+            {
+                "val": "Minimalist",
+                "lbl": "Grid Düzeni"
+            }
+        ],
+        "challenge": "İzmir'in en prestijli elektronik müzik kulüplerinden Kalt İzmir için; her etkinliğin konseptine uygun, özgün görsel sanat ögeleri ve güçlü tipografik yeronlar barındıran dijital ve basılı posterler üretmek. Bu çalışma <a href=\"https://athinkstudio.myportfolio.com/\" target=\"_blank\" style=\"color: var(--accent-gold); text-decoration: underline;\">A Think Studio</a> ortaklığıyla hazırlanmıştır."
+    },
+    {
+        "id": 39,
+        "title": "Ev Harviye Etkinlik Afişleri",
+        "client": "Ev Harviye",
+        "category": "poster",
+        "catLabel": "Afiş & Flyer",
+        "desc": "Harbiye'nin nezih ve eğlenceli canlı müzik atmosferini yansıtan, şık ve retro tarzda etkinlik duyuru afişleri.",
+        "icon": "fa-microphone",
+        "gradient": "brand-gradient",
+        "metrics": [
+            {
+                "val": "Retro-Şık",
+                "lbl": "Görsel Çizgi"
+            },
+            {
+                "val": "Premium",
+                "lbl": "Renk Harmonisi"
+            }
+        ],
+        "challenge": "Ev Harviye sahnesinde yer alan sanatçıların ve özel etkinliklerin ruhunu yansıtan; sıcak, samimi ama bir o kadar da seçkin ve dikkat çekici görsel tasarımlar hazırlayarak sosyal medya paylaşımlarına ve basılı mecralara uyarlamak."
+    },
+    {
+        "id": 40,
+        "title": "Cahide Palazzo Şov Afişleri",
+        "client": "Cahide Palazzo",
+        "category": "poster",
+        "catLabel": "Afiş & Flyer",
+        "desc": "Cahide Palazzo'nun ihtişamlı ve görkemli şov dünyasını yansıtan, avangart ve gold detaylı etkinlik afişleri.",
+        "icon": "fa-masks-theater",
+        "gradient": "creative-gradient",
+        "metrics": [
+            {
+                "val": "Maksimalist",
+                "lbl": "Görsel Dil"
+            },
+            {
+                "val": "Palazzo Gold",
+                "lbl": "Yaldız Baskı"
+            }
+        ],
+        "challenge": "Cahide Palazzo'nun benzersiz kabare şovları, özel gala geceleri ve ünlü sanatçı konserleri için; markanın gösterişli saray konseptini yansıtan maksimalist afiş tasarımları üretmek."
+    },
+    {
+        "id": 41,
+        "title": "Restart İzmir Parti Afişleri",
+        "client": "Restart İzmir",
+        "category": "poster",
+        "catLabel": "Afiş & Flyer",
+        "desc": "Restart İzmir'in elektronik müzik festivalleri ve konsept partileri için hazırlanan enerjik, fütüristik afiş tasarımları.",
+        "icon": "fa-bolt",
+        "gradient": "social-gradient",
+        "metrics": [
+            {
+                "val": "Fütüristik",
+                "lbl": "Tasarım Dili"
+            },
+            {
+                "val": "Rave Kültürü",
+                "lbl": "Konsept Çizgi"
+            }
+        ],
+        "challenge": "Restart İzmir'in büyük ölçekli parti serileri ve açık hava festivalleri için; genç ve dinamik hedef kitleyi yakalayacak 3D ögelerle zenginleştirilmiş, ışıl ışıl ve rave kültürünü yansıtan afiş setleri kurgulamak."
+    },
+    {
+        "id": 42,
+        "title": "Snap İzmir Kampanya Flyerları",
+        "client": "Snap İzmir",
+        "category": "poster",
+        "catLabel": "Afiş & Flyer",
+        "desc": "Snap İzmir'in lezzetli burger dünyasını ve genç kentsel dinamizmini yansıtan, iştah açıcı ve pop-art tarzda flyer tasarımları.",
+        "icon": "fa-burger",
+        "gradient": "brand-gradient",
+        "metrics": [
+            {
+                "val": "Pop-Art",
+                "lbl": "Görsel Stil"
+            },
+            {
+                "val": "Dinamik",
+                "lbl": "Genç Kitle"
+            }
+        ],
+        "challenge": "Snap İzmir'in sokak lezzetleri ve dinamik hamburger menülerini, sokak kültürü ve pop-art illüstrasyonlarla harmanlayarak; genç kitleyi harekete geçirecek dinamik ve eğlenceli flyer/kampanya tasarımları hazırlamak."
     }
 ]

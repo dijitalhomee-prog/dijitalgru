@@ -111,7 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // - social: ID 8 (Sinopia Mantı), 12 (Pozitif Başarı)
                 // - branding: ID 25 (Pizza Dino), 26 (Letafia)
                 // - print: ID 31 (Vela Ship), 33 (Galleria)
-                const curatedIds = [1, 2, 34, 8, 12, 25, 26, 31, 33, 35];
+                // - poster: ID 37 (Kastel), 38 (Kalt İzmir)
+                const curatedIds = [1, 2, 34, 8, 12, 25, 26, 31, 33, 35, 37, 38];
                 filtered = portfolioData.filter(item => curatedIds.includes(item.id));
             } else {
                 // Show all items of this category
@@ -191,7 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const bindCardClicks = () => {
             const cards = document.querySelectorAll('.portfolio-item');
             cards.forEach(card => {
-                card.addEventListener('click', () => {
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('a')) {
+                        return;
+                    }
                     const id = card.getAttribute('data-id');
                     openCaseStudyModal(id);
                 });
@@ -255,9 +259,21 @@ document.addEventListener('DOMContentLoaded', () => {
             // Set visual side content
             const visualSide = document.querySelector('.modal-visual-side');
             if (item.pdfPath) {
-                visualSide.innerHTML = `
-                    <iframe src="${item.pdfPath}#view=FitH&toolbar=0" style="width: 100%; height: 100%; min-height: 450px; border: none; border-radius: 24px 0 0 24px; display: block; background: #060a1a;" onclick="event.stopPropagation();"></iframe>
-                `;
+                if (window.innerWidth <= 768) {
+                    visualSide.innerHTML = `
+                        <div class="modal-pdf-fallback-card ${item.gradient || 'tech-gradient'}">
+                            <i class="fa-solid fa-file-pdf pdf-fallback-icon"></i>
+                            <a href="${item.pdfPath}" target="_blank" class="modal-pdf-btn">
+                                <i class="fa-solid fa-expand"></i> Tasarımları Gör (PDF)
+                            </a>
+                            <div class="portfolio-particles"></div>
+                        </div>
+                    `;
+                } else {
+                    visualSide.innerHTML = `
+                        <iframe src="${item.pdfPath}#view=FitH&toolbar=0" style="width: 100%; height: 100%; min-height: 450px; border: none; border-radius: 24px 0 0 24px; display: block; background: #060a1a;" onclick="event.stopPropagation();"></iframe>
+                    `;
+                }
             } else {
                 visualSide.innerHTML = `
                     <div class="modal-visual-bg" id="modal-visual-bg">
