@@ -802,9 +802,10 @@
         "client": "Cahide Palazzo",
         "category": "poster",
         "catLabel": "Afiş & Flyer",
-        "desc": "Cahide Palazzo'nun ihtişamlı ve görkemli şov dünyasını yansıtan, avangart ve gold detaylı etkinlik afişleri.",
+        "desc": "Cahide Palazzo'nun ihtişamlı ve görkemli şov dünyasını yansıtan, avangart ve gold detaylı etkinlik afişleri. <br><br><span style='font-size: 0.85em; opacity: 0.85;'>Bu çalışma, kurucumuz F. Egemen Güneş'in Cahide Palazzo ve Çapa Marka bünyesinde çalıştığı 4 yıllık dönemde gerçekleştirdiği tasarımlardan oluşmaktadır.</span>",
         "icon": "fa-masks-theater",
         "gradient": "creative-gradient",
+        "pdfPath": "tum-markalar/afis-ve-flyer/CahidePalazzo.pdf",
         "metrics": [
             {
                 "val": "Maksimalist",
@@ -815,7 +816,7 @@
                 "lbl": "Yaldız Baskı"
             }
         ],
-        "challenge": "Cahide Palazzo'nun benzersiz kabare şovları, özel gala geceleri ve ünlü sanatçı konserleri için; markanın gösterişli saray konseptini yansıtan maksimalist afiş tasarımları üretmek."
+        "challenge": "Cahide Palazzo'nun benzersiz kabare şovları, özel gala geceleri ve ünlü sanatçı konserleri için; markanın gösterişli saray konseptini yansıtan maksimalist afiş tasarımları üretmek. <br><br><span style='font-size: 0.9em; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.1); display: block; padding-top: 12px; margin-top: 12px;'>Bu çalışma, kurucumuz <b>F. Egemen Güneş</b>'in Cahide Palazzo ve Çapa Marka bünyesinde çalıştığı 4 yıllık dönemde gerçekleştirdiği tasarımlardan oluşmaktadır.</span>"
     },
     {
         "id": 41,
