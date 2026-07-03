@@ -738,9 +738,10 @@
         "client": "Kastel İstanbul",
         "category": "poster",
         "catLabel": "Afiş & Flyer",
-        "desc": "Kastel'in mistik ve elektronik müzik odaklı gece hayatı ruhunu yansıtan, yaratıcı ve tipografik etkinlik afişi tasarımları.",
+        "desc": "Kastel'in mistik ve elektronik müzik odaklı gece hayatı ruhunu yansıtan, yaratıcı ve tipografik etkinlik afişi tasarımları. Bu çalışma <a href=\"https://athinkstudio.myportfolio.com/\" target=\"_blank\" style=\"color: var(--accent-gold); text-decoration: underline;\">A Think Studio</a> ortaklığıyla hazırlanmıştır.",
         "icon": "fa-compact-disc",
         "gradient": "creative-gradient",
+        "pdfPath": "tum-markalar/afis-ve-flyer/Kastel_Afiş.pdf",
         "metrics": [
             {
                 "val": "Fütüristik",
@@ -751,7 +752,7 @@
                 "lbl": "Renk Harmonisi"
             }
         ],
-        "challenge": "Kastel'in yerli ve yabancı DJ etkinlikleri için; karanlık kulüp atmosferini, neon renk kontrastları ve fütüristik grafik ögelerle birleştirerek sosyal medya ve sokak afişlerine uyarlamak."
+        "challenge": "Kastel'in yerli ve yabancı DJ etkinlikleri için; karanlık kulüp atmosferini, neon renk kontrastları ve fütüristik grafik ögelerle birleştirerek sosyal medya ve sokak afişlerine uyarlamak. Bu çalışma <a href=\"https://athinkstudio.myportfolio.com/\" target=\"_blank\" style=\"color: var(--accent-gold); text-decoration: underline;\">A Think Studio</a> ortaklığıyla hazırlanmıştır."
     },
     {
         "id": 38,
