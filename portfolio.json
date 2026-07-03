@@ -902,5 +902,27 @@
             }
         ],
         "challenge": "Nuba İstanbul'un seçkin etkinliklerini, canlı sahnesini ve gece hayatı atmosferini, genç ve trend odaklı kitleyi yakalayacak kreatif Reels videoları ve özel tasarım şablonlarıyla sosyal medyada büyütmek."
+    },
+    {
+        "id": 45,
+        "title": "Dolce Far Niente Sosyal Medya",
+        "client": "Dolce Far Niente",
+        "category": "social",
+        "catLabel": "Sosyal Medya Yönetimi",
+        "desc": "Dolce Far Niente'nin İtalyan tatlı ve keyif konseptini yansıtan, iştah açıcı ve estetik sosyal medya içerik tasarımları.",
+        "icon": "fa-ice-cream",
+        "gradient": "social-gradient",
+        "pdfPath": "tum-markalar/Sosyal Medya Yönetimi/DolceFarNıente.pdf",
+        "metrics": [
+            {
+                "val": "Estetik",
+                "lbl": "Görsel Çizgi"
+            },
+            {
+                "val": "+150%",
+                "lbl": "Erişim Artışı"
+            }
+        ],
+        "challenge": "Dolce Far Niente'nin keyifli İtalyan kafesi ruhunu ve nefis menüsünü, takipçilerinde merak ve iştah uyandıracak estetik Reels serileri ve zengin görsel şablonlarla sosyal medyada konumlandırmak."
     }
 ]

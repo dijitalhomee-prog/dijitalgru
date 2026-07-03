@@ -111,9 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // - social: ID 8 (Sinopia Mantı), 12 (Pozitif Başarı)
                 // - branding: ID 25 (Pizza Dino), 26 (Letafia)
                 // - print: ID 31 (Vela Ship), 33 (Galleria)
-                // - poster: ID 37 (Kastel), 38 (Kalt İzmir), 43 (The Beach In İstanbul)
-                // - social: ID 44 (Nuba İstanbul)
-                const curatedIds = [1, 2, 34, 8, 12, 25, 26, 31, 33, 35, 37, 38, 43, 44];
+                // - social: ID 44 (Nuba İstanbul), 45 (Dolce Far Niente)
+                const curatedIds = [1, 2, 34, 8, 12, 25, 26, 31, 33, 35, 37, 38, 43, 44, 45];
                 filtered = portfolioData.filter(item => curatedIds.includes(item.id));
             } else {
                 // Show all items of this category
