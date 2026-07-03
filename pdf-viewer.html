@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proje Tasarımları | Dijital Gru</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #060a1a;
+            --card-dark: #0c1330;
+            --accent-gold: #d4af37;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-shadow: border-box;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Sticky Premium Header */
+        .viewer-header {
+            position: sticky;
+            top: 0;
+            height: 70px;
+            background: rgba(6, 10, 26, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: var(--accent-gold);
+            color: var(--bg-dark);
+            border-color: var(--accent-gold);
+            transform: scale(1.05);
+        }
+
+        .logo-wrapper img {
+            height: 30px;
+            display: block;
+        }
+
+        .header-right {
+            text-align: right;
+            max-width: 50%;
+        }
+
+        .project-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .project-subtitle {
+            font-size: 11px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* PDF Pages Container */
+        .viewer-content {
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+        }
+
+        .pdf-pages-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .pdf-page-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            transition: transform 0.4s ease;
+        }
+
+        .pdf-page-canvas:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Loading Spinner */
+        .loading-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 50px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent-gold);
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 15px;
+            font-weight: 500;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 16px 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Mobile Styles */
+        @media (max-width: 768px) {
+            .viewer-header {
+                padding: 0 16px;
+                height: 60px;
+            }
+
+            .logo-wrapper img {
+                height: 24px;
+            }
+
+            .project-title {
+                font-size: 14px;
+            }
+
+            .project-subtitle {
+                font-size: 9px;
+            }
+
+            .viewer-content {
+                padding: 20px 10px;
+                min-height: calc(100vh - 60px);
+            }
+
+            .pdf-pages-container {
+                gap: 15px;
+            }
+
+            .pdf-page-canvas {
+                border-radius: 8px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Bar -->
+    <header class="viewer-header">
+        <div class="header-left">
+            <a href="index.html#portfolio" class="back-btn" title="Geri Dön">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div class="logo-wrapper">
+                <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru Logo">
+            </div>
+        </div>
+        <div class="header-right">
+            <h1 class="project-title" id="project-title">Proje Tasarımları</h1>
+            <div class="project-subtitle">Dijital Gru Showcase</div>
+        </div>
+    </header>
+
+    <!-- Main View Content -->
+    <main class="viewer-content">
+        <!-- Spinner -->
+        <div class="loading-wrapper" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Tasarım Katalogları Yükleniyor...</div>
+        </div>
+
+        <!-- Rendered Canvases -->
+        <div class="pdf-pages-container" id="pdf-pages-container"></div>
+    </main>
+
+    <!-- PDF.js Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const pdfUrl = urlParams.get('file');
+        const projectTitle = urlParams.get('title') || 'Proje Tasarımları';
+
+        document.getElementById('project-title').textContent = projectTitle;
+
+        // Set up custom header bar brand accent color if provided
+        const brandColor = urlParams.get('brandColor');
+        if (brandColor) {
+            document.querySelector('.viewer-header').style.borderBottomColor = brandColor;
+            document.querySelector('.project-subtitle').style.color = brandColor;
+        }
+
+        if (pdfUrl) {
+            // Configure PDF.js Worker
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+            const loadingEl = document.getElementById('loading');
+            const container = document.getElementById('pdf-pages-container');
+
+            pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+                loadingEl.style.display = 'none';
+
+                // Sequentially render PDF pages as canvases
+                const renderPage = (pageNum) => {
+                    pdf.getPage(pageNum).then(page => {
+                        // Detect client width for responsive scale
+                        const containerWidth = container.clientWidth || window.innerWidth;
+                        const unscaledViewport = page.getViewport({ scale: 1 });
+                        
+                        // Calculate scale to match container width (with padding/margins considered)
+                        let targetWidth = Math.min(containerWidth, 900);
+                        if (window.innerWidth <= 768) {
+                            targetWidth = window.innerWidth - 20;
+                        }
+                        const scale = targetWidth / unscaledViewport.width;
+                        const viewport = page.getViewport({ scale: scale });
+
+                        const canvas = document.createElement('canvas');
+                        canvas.className = 'pdf-page-canvas';
+                        const context = canvas.getContext('2d');
+
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+
+                        container.appendChild(canvas);
+
+                        const renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+
+                        page.render(renderContext).promise.then(() => {
+                            if (pageNum < pdf.numPages) {
+                                renderPage(pageNum + 1);
+                            }
+                        });
+                    });
+                };
+
+                renderPage(1);
+            }).catch(err => {
+                console.error("Failed to load PDF:", err);
+                loadingEl.innerHTML = '<div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> Tasarımlar yüklenirken bir sorun oluştu. Lütfen bağlantınızı kontrol edip tekrar deneyin.</div>';
+            });
+        } else {
+            document.getElementById('loading').innerHTML = '<div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> Dosya yolu bulunamadı.</div>';
+        }
+    </script>
+</body>
+</html>

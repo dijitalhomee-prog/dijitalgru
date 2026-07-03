@@ -858,5 +858,27 @@
             }
         ],
         "challenge": "Snap İzmir'in sokak lezzetleri ve dinamik hamburger menülerini, sokak kültürü ve pop-art illüstrasyonlarla harmanlayarak; genç kitleyi harekete geçirecek dinamik ve eğlenceli flyer/kampanya tasarımları hazırlamak."
+    },
+    {
+        "id": 43,
+        "title": "The Beach In İstanbul Afişleri",
+        "client": "The Beach In İstanbul",
+        "category": "poster",
+        "catLabel": "Afiş & Flyer",
+        "desc": "The Beach In İstanbul'un yazlık sahil enerjisini ve plaj partisi ruhunu yansıtan canlı, dinamik etkinlik afişi tasarımları.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "brand-gradient",
+        "pdfPath": "tum-markalar/afis-ve-flyer/TheBeachInİstanbul.pdf",
+        "metrics": [
+            {
+                "val": "Sahil & Plaj",
+                "lbl": "Konsept Çizgi"
+            },
+            {
+                "val": "Canlı",
+                "lbl": "Renk Paleti"
+            }
+        ],
+        "challenge": "İstanbul'un gözde sahil kulüplerinden The Beach In İstanbul'un yaz etkinlikleri ve plaj partileri için; denizin ve güneşin enerjisini modern grafik ögelerle birleştiren canlı afiş tasarımları kurgulamak."
     }
 ]

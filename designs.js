@@ -218,14 +218,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.pdfPath) {
                 if (window.innerWidth <= 768) {
                     visualSide.innerHTML = `
-                        <div class="modal-pdf-fallback-card ${item.gradient || 'tech-gradient'}">
-                            <i class="fa-solid fa-file-pdf pdf-fallback-icon"></i>
-                            <a href="${item.pdfPath}" target="_blank" class="modal-pdf-btn">
+                        <div class="modal-pdf-fallback-card">
+                            <div class="pdf-fallback-canvas-wrapper" id="pdf-canvas-wrap-${item.id}">
+                                <div class="spinner" style="width: 30px; height: 30px; border-width: 2px;"></div>
+                            </div>
+                            <div class="pdf-fallback-overlay"></div>
+                            <a href="pdf-viewer.html?file=${encodeURIComponent(item.pdfPath)}&title=${encodeURIComponent(item.title)}" target="_blank" class="modal-pdf-btn">
                                 <i class="fa-solid fa-expand"></i> Tasarımları Gör (PDF)
                             </a>
-                            <div class="portfolio-particles"></div>
                         </div>
                     `;
+                    // Render PDF thumbnail as background
+                    setTimeout(() => {
+                        renderPdfFirstPageThumbnail(item.pdfPath, `pdf-canvas-wrap-${item.id}`);
+                    }, 50);
                 } else {
                     visualSide.innerHTML = `
                         <iframe src="${item.pdfPath}#view=FitH&toolbar=0" style="width: 100%; height: 100%; min-height: 450px; border: none; border-radius: 24px 0 0 24px; display: block; background: #060a1a;" onclick="event.stopPropagation();"></iframe>
@@ -303,6 +309,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalNextBtn.click();
             }
         });
+
+        // Helper: Render first page of PDF onto a thumbnail canvas
+        const renderPdfFirstPageThumbnail = (pdfUrl, containerId) => {
+            if (typeof pdfjsLib === 'undefined') return;
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            
+            pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+                pdf.getPage(1).then(page => {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    
+                    // Render at a low scale for thumbnail performance
+                    const viewport = page.getViewport({ scale: 0.8 });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        container.innerHTML = ''; // Clear spinner
+                        container.appendChild(canvas);
+                        page.render(renderContext);
+                    }
+                });
+            }).catch(err => {
+                console.error("PDF thumbnail rendering failed:", err);
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = '<i class="fa-solid fa-file-pdf" style="font-size: 40px; color: rgba(255,255,255,0.15);"></i>';
+                }
+            });
+        };
 
         // --- 7. Initial Execution ---
         renderAllDesigns();
