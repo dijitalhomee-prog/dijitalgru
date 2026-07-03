@@ -880,5 +880,27 @@
             }
         ],
         "challenge": "İstanbul'un gözde sahil kulüplerinden The Beach In İstanbul'un yaz etkinlikleri ve plaj partileri için; denizin ve güneşin enerjisini modern grafik ögelerle birleştiren canlı afiş tasarımları kurgulamak."
+    },
+    {
+        "id": 44,
+        "title": "Nuba İstanbul Sosyal Medya",
+        "client": "Nuba İstanbul",
+        "category": "social",
+        "catLabel": "Sosyal Medya Yönetimi",
+        "desc": "Nuba İstanbul'un eğlence, müzik ve dinamizm dolu dünyasını estetik görsel dille sosyal medyaya aktaran özgün içerik serileri.",
+        "icon": "fa-music",
+        "gradient": "social-gradient",
+        "pdfPath": "tum-markalar/Sosyal Medya Yönetimi/Nubaİstanbul.pdf",
+        "metrics": [
+            {
+                "val": "Dinamik",
+                "lbl": "İçerik Stratejisi"
+            },
+            {
+                "val": "+180%",
+                "lbl": "Etkileşim Artışı"
+            }
+        ],
+        "challenge": "Nuba İstanbul'un seçkin etkinliklerini, canlı sahnesini ve gece hayatı atmosferini, genç ve trend odaklı kitleyi yakalayacak kreatif Reels videoları ve özel tasarım şablonlarıyla sosyal medyada büyütmek."
     }
 ]
