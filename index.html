@@ -879,6 +879,29 @@
         </a>
     </div>
 
+    <!-- Debug Overlay Script (temporary) -->
+    <div id="debug-log-panel" style="position: fixed; bottom: 80px; left: 20px; right: 20px; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.85); color: #ff5555; padding: 10px; font-family: monospace; font-size: 11px; border-radius: 8px; z-index: 10000; border: 1px solid #ff3333; display: none;"></div>
+    <script>
+        (function() {
+            var panel = document.getElementById('debug-log-panel');
+            function logError(msg) {
+                panel.style.display = 'block';
+                panel.innerHTML += '<div>[Error] ' + msg + '</div>';
+                panel.scrollTop = panel.scrollHeight;
+            }
+            window.onerror = function(message, source, lineno, colno, error) {
+                logError(message + ' (' + source + ':' + lineno + ')');
+                return false;
+            };
+            var oldError = console.error;
+            console.error = function() {
+                var args = Array.prototype.slice.call(arguments);
+                logError(args.join(' '));
+                oldError.apply(console, arguments);
+            };
+        })();
+    </script>
+
     <!-- Data Backup (local fallback support) -->
     <script src="data-backup.js?v=3.0"></script>
     <!-- Blog Data (shared dataset) -->
