@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const noResults = document.getElementById('no-results');
         const searchInput = document.getElementById('blog-search');
     
+        if (!designsGrid) {
+            return;
+        }
+    
         let currentCategory = 'all';
         let searchQuery = '';
 
