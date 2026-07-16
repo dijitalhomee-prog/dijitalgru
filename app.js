@@ -216,8 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 if (item.pdfPath) {
                     mediaContent = `
-                        <div class="portfolio-img-placeholder pdf-thumbnail-container" id="pdf-thumb-${item.id}" style="background: #060a1a; padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
-                            <div class="spinner" style="width: 30px; height: 30px; border-width: 2px;"></div>
+                        <div class="portfolio-img-placeholder pdf-thumbnail-container ${item.gradient}" id="pdf-thumb-${item.id}" style="padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                            <i class="fa-solid ${item.icon} portfolio-icon" style="font-size: 48px; color: rgba(255, 255, 255, 0.25);"></i>
+                            <div class="spinner" style="width: 30px; height: 30px; border-width: 2px; position: absolute; border-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1) rgba(255, 255, 255, 0.1) rgba(255, 255, 255, 0.1);"></div>
                         </div>
                     `;
                 }
@@ -681,7 +682,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (typeof pdfjsLib === 'undefined') {
-                container.innerHTML = '<i class="fa-solid fa-file-pdf" style="font-size: 40px; color: rgba(255,255,255,0.15);"></i>';
+                const spinner = container.querySelector('.spinner');
+                if (spinner) spinner.remove();
+                const icon = container.querySelector('.portfolio-icon');
+                if (icon) {
+                    icon.style.color = '#ffffff';
+                    icon.style.opacity = '1';
+                }
                 return;
             }
 
@@ -726,7 +733,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }).catch(err => {
                 console.error("PDF thumbnail rendering failed:", err);
-                container.innerHTML = '<i class="fa-solid fa-file-pdf" style="font-size: 40px; color: rgba(255,255,255,0.15);"></i>';
+                const spinner = container.querySelector('.spinner');
+                if (spinner) spinner.remove();
+                const icon = container.querySelector('.portfolio-icon');
+                if (icon) {
+                    icon.style.color = '#ffffff';
+                    icon.style.opacity = '1';
+                }
             });
         };
     }).catch(err => {
