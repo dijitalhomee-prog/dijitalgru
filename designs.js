@@ -58,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 if (item.pdfPath) {
                     mediaContent = `
-                        <div class="portfolio-img-placeholder" style="background: #060a1a; padding: 0;">
-                            <iframe src="${item.pdfPath}#view=FitH&toolbar=0" style="width: 100%; height: 100%; border: none; display: block; background: #060a1a; pointer-events: none;"></iframe>
+                        <div class="portfolio-img-placeholder pdf-thumbnail-container" id="pdf-thumb-${item.id}" style="background: #060a1a; padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                            <div class="spinner" style="width: 30px; height: 30px; border-width: 2px;"></div>
                         </div>
                     `;
                 }
@@ -133,6 +133,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             applyMagneticHover();
             bindCardClicks();
+
+            // Trigger thumbnail renders
+            filtered.forEach(item => {
+                if (item.pdfPath) {
+                    renderPdfThumbnail(item.pdfPath, `pdf-thumb-${item.id}`);
+                }
+            });
         };
 
         // --- 4. Cards Magnetic Hover Micro-Interaction Helper ---
@@ -230,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     // Render PDF thumbnail as background
                     setTimeout(() => {
-                        renderPdfFirstPageThumbnail(item.pdfPath, `pdf-canvas-wrap-${item.id}`);
+                        renderPdfThumbnail(item.pdfPath, `pdf-canvas-wrap-${item.id}`);
                     }, 50);
                 } else {
                     visualSide.innerHTML = `
@@ -310,43 +317,82 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Helper: Render first page of PDF onto a thumbnail canvas
-        const renderPdfFirstPageThumbnail = (pdfUrl, containerId) => {
-            if (typeof pdfjsLib === 'undefined') return;
+        // Helper: Render first page of PDF onto a thumbnail canvas (with caching and fixed width)
+        const renderPdfThumbnail = (pdfUrl, containerId) => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const cacheKey = 'pdf-thumb-cache-' + pdfUrl;
+            let cachedData = null;
+            try {
+                cachedData = sessionStorage.getItem(cacheKey);
+            } catch (e) {
+                console.warn("sessionStorage is not accessible:", e);
+            }
+
+            if (cachedData) {
+                container.innerHTML = `<img src="${cachedData}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block;" loading="lazy">`;
+                return;
+            }
+
+            if (typeof pdfjsLib === 'undefined') {
+                container.innerHTML = '<i class="fa-solid fa-file-pdf" style="font-size: 40px; color: rgba(255,255,255,0.15);"></i>';
+                return;
+            }
+
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-            
+
             pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
-                pdf.getPage(1).then(page => {
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    
-                    // Render at a low scale for thumbnail performance
-                    const viewport = page.getViewport({ scale: 0.8 });
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-                    
-                    const renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
-                    
-                    const container = document.getElementById(containerId);
-                    if (container) {
-                        container.innerHTML = ''; // Clear spinner
-                        container.appendChild(canvas);
-                        page.render(renderContext);
+                return pdf.getPage(1);
+            }).then(page => {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                // Render at a high-quality fixed width to prevent layout-dependency bugs (e.g. 0px width on hidden elements)
+                const targetWidth = 600;
+                const unscaledViewport = page.getViewport({ scale: 1.0 });
+                const scale = targetWidth / unscaledViewport.width;
+                const viewport = page.getViewport({ scale: scale });
+
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.objectFit = 'cover';
+                canvas.style.objectPosition = 'top center';
+                canvas.style.display = 'block';
+
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+
+                // Clear container and append canvas immediately so it loads visibly in real-time
+                container.innerHTML = '';
+                container.appendChild(canvas);
+
+                return page.render(renderContext).promise.then(() => {
+                    try {
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                        sessionStorage.setItem(cacheKey, dataUrl);
+                    } catch (e) {
+                        console.warn("Could not cache PDF thumbnail:", e);
                     }
                 });
             }).catch(err => {
                 console.error("PDF thumbnail rendering failed:", err);
-                const container = document.getElementById(containerId);
-                if (container) {
-                    container.innerHTML = '<i class="fa-solid fa-file-pdf" style="font-size: 40px; color: rgba(255,255,255,0.15);"></i>';
-                }
+                container.innerHTML = '<i class="fa-solid fa-file-pdf" style="font-size: 40px; color: rgba(255,255,255,0.15);"></i>';
             });
         };
 
         // --- 7. Initial Execution ---
         renderAllDesigns();
+    }).catch(err => {
+        console.error("Failed to load portfolio data:", err);
+        // Fallback: reveal scroll elements so the page content is visible even if fetch fails (e.g. on local file:// protocol)
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            el.classList.add('revealed');
+        });
     });
 });
+

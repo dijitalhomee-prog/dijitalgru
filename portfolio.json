@@ -778,8 +778,8 @@
     },
     {
         "id": 39,
-        "title": "Ev Harviye Etkinlik Afişleri",
-        "client": "Ev Harviye",
+        "title": "Ev Harbiye Etkinlik Afişleri",
+        "client": "Ev Harbiye",
         "category": "poster",
         "catLabel": "Afiş & Flyer",
         "desc": "Harbiye'nin nezih ve eğlenceli canlı müzik atmosferini yansıtan, şık ve retro tarzda etkinlik duyuru afişleri.",
@@ -795,7 +795,7 @@
                 "lbl": "Renk Harmonisi"
             }
         ],
-        "challenge": "Ev Harviye sahnesinde yer alan sanatçıların ve özel etkinliklerin ruhunu yansıtan; sıcak, samimi ama bir o kadar da seçkin ve dikkat çekici görsel tasarımlar hazırlayarak sosyal medya paylaşımlarına ve basılı mecralara uyarlamak."
+        "challenge": "Ev Harbiye sahnesinde yer alan sanatçıların ve özel etkinliklerin ruhunu yansıtan; sıcak, samimi ama bir o kadar da seçkin ve dikkat çekici görsel tasarımlar hazırlayarak sosyal medya paylaşımlarına ve basılı mecralara uyarlamak."
     },
     {
         "id": 40,
@@ -926,5 +926,27 @@
             }
         ],
         "challenge": "Dolce Far Niente'nin keyifli İtalyan kafesi ruhunu ve nefis menüsünü, takipçilerinde merak ve iştah uyandıracak estetik Reels serileri ve zengin görsel şablonlarla sosyal medyada konumlandırmak."
+    },
+    {
+        "id": 46,
+        "title": "Limoni Hotel Menü Tasarımı",
+        "client": "Limoni Urla",
+        "category": "print",
+        "catLabel": "Menü & Basılı Grafik",
+        "desc": "Urla'nın huzurlu atmosferini ve Limoni Hotel'in narenciye kokulu konseptini sofralara taşıyan, Akdeniz esintili premium menü tasarımı.",
+        "icon": "fa-lemon",
+        "gradient": "brand-gradient",
+        "pdfPath": "tum-markalar/basili-ve-editoryal/limoniotel-menu.pdf",
+        "metrics": [
+            {
+                "val": "Akdeniz",
+                "lbl": "Tasarım Konsepti"
+            },
+            {
+                "val": "Premium",
+                "lbl": "Özel Dokulu Baskı"
+            }
+        ],
+        "challenge": "Limoni Hotel bünyesindeki restoranın taze ve doğal lezzetlerini yansıtmak amacıyla; narenciye tonlarında pastel renk harmonisi, özel illüstrasyonlar ve okumayı kolaylaştıran minimalist grid yapısıyla bezenmiş, otelin samimi ve lüks ruhuna uygun bir menü tasarımı ve baskı kurgusu gerçekleştirmek."
     }
 ]

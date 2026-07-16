@@ -18,8 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 2. Header Scroll Transition ---
+    // --- 2. Header & Floating Contact Bar Scroll Transition ---
     const header = document.getElementById('main-header');
+    const floatingBar = document.getElementById('floating-contact-bar');
     
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
@@ -27,7 +28,76 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             header.classList.remove('scrolled');
         }
+
+        // Show floating contact bar after scrolling 200px down on mobile/tablet
+        if (floatingBar) {
+            if (window.scrollY > 200) {
+                floatingBar.classList.add('active');
+            } else {
+                floatingBar.classList.remove('active');
+            }
+        }
     });
+
+    // Initial check on page load
+    if (floatingBar && window.scrollY > 200) {
+        floatingBar.classList.add('active');
+    }
+
+    // --- 2.5 Floating Contact Bar Event Listeners & Conversion Tracking ---
+    const floatingCallBtn = document.getElementById('floating-call-btn');
+    const floatingWaBtn = document.getElementById('floating-wa-btn');
+    const footerPhoneLink = document.querySelector('a[href^="tel:"]');
+
+    if (floatingCallBtn) {
+        floatingCallBtn.addEventListener('click', (e) => {
+            if (typeof gtag_report_conversion === 'function') {
+                e.preventDefault();
+                gtag_report_conversion(floatingCallBtn.href);
+            }
+        });
+    }
+
+    if (floatingWaBtn) {
+        floatingWaBtn.addEventListener('click', (e) => {
+            if (typeof gtag_report_conversion === 'function') {
+                // Let the browser open the new tab as normal, and send conversion in background
+                gtag_report_conversion();
+            }
+        });
+    }
+
+    if (footerPhoneLink) {
+        footerPhoneLink.addEventListener('click', (e) => {
+            if (typeof gtag_report_conversion === 'function') {
+                e.preventDefault();
+                gtag_report_conversion(footerPhoneLink.href);
+            }
+        });
+    }
+
+    const headerCallBtn = document.getElementById('header-call-btn');
+    const mobileCallBtn = document.getElementById('mobile-call-btn');
+
+    if (headerCallBtn) {
+        headerCallBtn.addEventListener('click', (e) => {
+            if (typeof gtag_report_conversion === 'function') {
+                e.preventDefault();
+                gtag_report_conversion(headerCallBtn.href);
+            }
+        });
+    }
+
+    if (mobileCallBtn) {
+        mobileCallBtn.addEventListener('click', (e) => {
+            if (typeof gtag_report_conversion === 'function') {
+                e.preventDefault();
+                gtag_report_conversion(mobileCallBtn.href);
+            }
+        });
+    }
+
+
 
     // --- 3. Mobile Hamburger Menu Toggle ---
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
@@ -106,14 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let filtered = [];
             if (currentCategory === 'all') {
                 // Curated premium selection for "Tümü":
-                // 2 items from each key category:
                 // - tech: ID 1, 2, 34
                 // - social: ID 8 (Sinopia Mantı), 12 (Pozitif Başarı)
                 // - branding: ID 25 (Pizza Dino), 26 (Letafia)
-                // - print: ID 31 (Vela Ship), 33 (Galleria)
+                // - print: ID 31 (Vela Ship), 33 (Galleria), 46 (Limoni Hotel Menü)
                 // - social: ID 44 (Nuba İstanbul), 45 (Dolce Far Niente)
                 // - poster: ID 40 (Cahide Palazzo)
-                const curatedIds = [1, 2, 34, 8, 12, 25, 26, 31, 33, 35, 37, 38, 40, 43, 44, 45];
+                const curatedIds = [1, 2, 34, 8, 12, 25, 26, 31, 33, 37, 38, 40, 43, 44, 45, 46];
                 filtered = portfolioData.filter(item => curatedIds.includes(item.id));
             } else {
                 // Show all items of this category
@@ -130,8 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 if (item.pdfPath) {
                     mediaContent = `
-                        <div class="portfolio-img-placeholder" style="background: #060a1a; padding: 0;">
-                            <iframe src="${item.pdfPath}#view=FitH&toolbar=0" style="width: 100%; height: 100%; border: none; display: block; background: #060a1a; pointer-events: none;"></iframe>
+                        <div class="portfolio-img-placeholder pdf-thumbnail-container" id="pdf-thumb-${item.id}" style="background: #060a1a; padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                            <div class="spinner" style="width: 30px; height: 30px; border-width: 2px;"></div>
                         </div>
                     `;
                 }
@@ -153,6 +222,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Apply interactive hover animations and click bindings
             applyMagneticHover();
             bindCardClicks();
+
+            // Trigger thumbnail renders
+            filtered.forEach(item => {
+                if (item.pdfPath) {
+                    renderPdfThumbnail(item.pdfPath, `pdf-thumb-${item.id}`);
+                }
+            });
         };
 
         tabBtns.forEach(btn => {
@@ -274,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     // Render PDF thumbnail as background
                     setTimeout(() => {
-                        renderPdfFirstPageThumbnail(item.pdfPath, `pdf-canvas-wrap-${item.id}`);
+                        renderPdfThumbnail(item.pdfPath, `pdf-canvas-wrap-${item.id}`);
                     }, 50);
                 } else {
                     visualSide.innerHTML = `
@@ -485,25 +561,80 @@ document.addEventListener('DOMContentLoaded', () => {
                 const subjectVal = document.getElementById('subject').value || "Dijital Gru - Yeni Proje Teklifi";
                 const messageVal = document.getElementById('message').value;
 
-                // Simulate secure submission API delay
-                setTimeout(() => {
+                // Web3Forms API Submission
+                // Get your free access key at https://web3forms.com
+                const WEB3FORMS_ACCESS_KEY = "f3e85c7b-b674-469d-8399-ae4d85dfadf5"; // Buraya Web3Forms access_key'inizi girin.
+
+                if (WEB3FORMS_ACCESS_KEY === "YOUR_ACCESS_KEY_HERE" || !WEB3FORMS_ACCESS_KEY) {
+                    console.warn("Web3Forms Access Key is not configured. Falling back to mailto link.");
+                    
+                    // Fallback to mailto
+                    const emailTarget = "dijitalgru@gmail.com";
+                    const mailtoBody = `Gönderen: ${nameVal}\nE-posta: ${emailVal}\n\nMesaj:\n${messageVal}`;
+                    const mailtoUrl = `mailto:${emailTarget}?subject=${encodeURIComponent(subjectVal)}&body=${encodeURIComponent(mailtoBody)}`;
+                    
                     // Reset button state
                     submitBtn.disabled = false;
                     submitBtn.querySelector('.btn-text').textContent = originalText;
                     submitBtn.querySelector('.btn-icon').innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
-
-                    // Construct mailto link dynamically
-                    const emailTarget = "dijitalgru@gmail.com";
-                    const mailtoBody = `Gönderen: ${nameVal}\nE-posta: ${emailVal}\n\nMesaj:\n${messageVal}`;
-                    const mailtoUrl = `mailto:${emailTarget}?subject=${encodeURIComponent(subjectVal)}&body=${encodeURIComponent(mailtoBody)}`;
-                
+                    
                     // Trigger mail client opening
                     window.location.href = mailtoUrl;
 
                     // Show success screen
                     contactFormCard.classList.add('success');
                     contactForm.reset();
-                }, 1800);
+                    
+                    // Trigger Google Ads conversion tracking for form submission
+                    if (typeof gtag_report_conversion === 'function') {
+                        gtag_report_conversion();
+                    }
+                    return;
+                }
+
+                const formData = {
+                    access_key: WEB3FORMS_ACCESS_KEY,
+                    name: nameVal,
+                    email: emailVal,
+                    subject: subjectVal,
+                    message: messageVal,
+                    from_name: "Dijital Gru Web İletişim"
+                };
+
+                fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(async (response) => {
+                    let json = await response.json();
+                    if (response.status == 200) {
+                        // Show success screen
+                        contactFormCard.classList.add('success');
+                        contactForm.reset();
+                        
+                        // Trigger Google Ads conversion tracking for form submission
+                        if (typeof gtag_report_conversion === 'function') {
+                            gtag_report_conversion();
+                        }
+                    } else {
+                        console.error("Web3Forms Error:", json);
+                        alert("Mesaj gönderilirken bir hata oluştu: " + (json.message || "Bilinmeyen hata"));
+                    }
+                })
+                .catch(error => {
+                    console.error("Connection Error:", error);
+                    alert("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin.");
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.btn-text').textContent = originalText;
+                    submitBtn.querySelector('.btn-icon').innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+                });
             });
         }
 
@@ -514,40 +645,79 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Helper: Render first page of PDF onto a thumbnail canvas
-        const renderPdfFirstPageThumbnail = (pdfUrl, containerId) => {
-            if (typeof pdfjsLib === 'undefined') return;
+        // Helper: Render first page of PDF onto a thumbnail canvas (with caching and fixed width)
+        const renderPdfThumbnail = (pdfUrl, containerId) => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const cacheKey = 'pdf-thumb-cache-' + pdfUrl;
+            let cachedData = null;
+            try {
+                cachedData = sessionStorage.getItem(cacheKey);
+            } catch (e) {
+                console.warn("sessionStorage is not accessible:", e);
+            }
+
+            if (cachedData) {
+                container.innerHTML = `<img src="${cachedData}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block;" loading="lazy">`;
+                return;
+            }
+
+            if (typeof pdfjsLib === 'undefined') {
+                container.innerHTML = '<i class="fa-solid fa-file-pdf" style="font-size: 40px; color: rgba(255,255,255,0.15);"></i>';
+                return;
+            }
+
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-            
+
             pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
-                pdf.getPage(1).then(page => {
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    
-                    // Render at a low scale for thumbnail performance
-                    const viewport = page.getViewport({ scale: 0.8 });
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-                    
-                    const renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
-                    
-                    const container = document.getElementById(containerId);
-                    if (container) {
-                        container.innerHTML = ''; // Clear spinner
-                        container.appendChild(canvas);
-                        page.render(renderContext);
+                return pdf.getPage(1);
+            }).then(page => {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                // Render at a high-quality fixed width to prevent layout-dependency bugs (e.g. 0px width on hidden elements)
+                const targetWidth = 600;
+                const unscaledViewport = page.getViewport({ scale: 1.0 });
+                const scale = targetWidth / unscaledViewport.width;
+                const viewport = page.getViewport({ scale: scale });
+
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.objectFit = 'cover';
+                canvas.style.objectPosition = 'top center';
+                canvas.style.display = 'block';
+
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+
+                // Clear container and append canvas immediately so it loads visibly in real-time
+                container.innerHTML = '';
+                container.appendChild(canvas);
+
+                return page.render(renderContext).promise.then(() => {
+                    try {
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                        sessionStorage.setItem(cacheKey, dataUrl);
+                    } catch (e) {
+                        console.warn("Could not cache PDF thumbnail:", e);
                     }
                 });
             }).catch(err => {
                 console.error("PDF thumbnail rendering failed:", err);
-                const container = document.getElementById(containerId);
-                if (container) {
-                    container.innerHTML = '<i class="fa-solid fa-file-pdf" style="font-size: 40px; color: rgba(255,255,255,0.15);"></i>';
-                }
+                container.innerHTML = '<i class="fa-solid fa-file-pdf" style="font-size: 40px; color: rgba(255,255,255,0.15);"></i>';
             });
         };
+    }).catch(err => {
+        console.error("Failed to load portfolio or blog data:", err);
+        // Fallback: reveal scroll elements so the page content is visible even if fetch fails (e.g. on local file:// protocol)
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            el.classList.add('revealed');
+        });
     });
 });
+
