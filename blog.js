@@ -1,9 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
-    fetch('blog.json?t=' + Date.now())
-        .then(response => response.json())
-        .then(blogData => {
-            window.BLOG_DATA = blogData;
-        const blogData = window.BLOG_DATA;
+    const loadBlogData = () => {
+        if (window.location.protocol === 'file:') {
+            console.log("Local file protocol detected. Using embedded dataset.");
+            return Promise.resolve(window.BLOG_DATA_BACKUP);
+        }
+        return fetch('blog.json?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) throw new Error("Blog fetch failed");
+                return response.json();
+            })
+            .catch(err => {
+                console.warn("Fetch failed, falling back to embedded dataset:", err);
+                return window.BLOG_DATA_BACKUP;
+            });
+    };
+
+    loadBlogData().then(blogData => {
+        window.BLOG_DATA = blogData;
 
         // --- 2. Dynamic Mouse Tracker Glow Orb ---
         const glowOrb = document.getElementById('glow-orb');

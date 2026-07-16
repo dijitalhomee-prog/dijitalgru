@@ -121,11 +121,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 4. Portfolio Dataset (20 Real-World Prestige Brand Case Studies) ---
-    // --- 1. Fetch Databases dynamically with Cache-busting ---
-    Promise.all([
-        fetch('portfolio.json?t=' + Date.now()).then(r => r.json()),
-        fetch('blog.json?t=' + Date.now()).then(r => r.json())
-    ]).then(([portfolioData, blogData]) => {
+    // --- 1. Fetch Databases dynamically with Cache-busting and Local Fallback ---
+    const loadData = () => {
+        if (window.location.protocol === 'file:') {
+            console.log("Local file protocol detected. Using embedded dataset.");
+            return Promise.resolve([window.PORTFOLIO_DATA_BACKUP, window.BLOG_DATA_BACKUP]);
+        }
+        return Promise.all([
+            fetch('portfolio.json?t=' + Date.now()).then(r => {
+                if (!r.ok) throw new Error("Portfolio fetch failed");
+                return r.json();
+            }),
+            fetch('blog.json?t=' + Date.now()).then(r => {
+                if (!r.ok) throw new Error("Blog fetch failed");
+                return r.json();
+            })
+        ]).catch(err => {
+            console.warn("Fetch failed, falling back to embedded dataset:", err);
+            return [window.PORTFOLIO_DATA_BACKUP, window.BLOG_DATA_BACKUP];
+        });
+    };
+
+    loadData().then(([portfolioData, blogData]) => {
         window.BLOG_DATA = blogData;
         // --- 4.5 Dynamic Notice Injection for Brands without PDFs ---
         portfolioData.forEach(item => {

@@ -1,8 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Portfolio Dataset (20 Real-World Prestige Brand Case Studies) ---
-    fetch('portfolio.json?t=' + Date.now())
-        .then(response => response.json())
-        .then(portfolioData => {
+    const loadPortfolioData = () => {
+        if (window.location.protocol === 'file:') {
+            console.log("Local file protocol detected. Using embedded dataset.");
+            return Promise.resolve(window.PORTFOLIO_DATA_BACKUP);
+        }
+        return fetch('portfolio.json?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) throw new Error("Portfolio fetch failed");
+                return response.json();
+            })
+            .catch(err => {
+                console.warn("Fetch failed, falling back to embedded dataset:", err);
+                return window.PORTFOLIO_DATA_BACKUP;
+            });
+    };
+
+    loadPortfolioData().then(portfolioData => {
         // --- 1.5 Dynamic Notice Injection for Brands without PDFs ---
         portfolioData.forEach(item => {
             if (!item.pdfPath) {
