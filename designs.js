@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Helper: Render first page of PDF onto a thumbnail canvas (with caching and fixed width)
-        const renderPdfThumbnail = (pdfUrl, containerId) => {
+        function renderPdfThumbnail(pdfUrl, containerId) {
             const container = document.getElementById(containerId);
             if (!container) return;
 
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     icon.style.opacity = '1';
                 }
             });
-        };
+        }
 
         // --- 7. Initial Execution ---
         renderAllDesigns();
