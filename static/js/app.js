@@ -3,25 +3,31 @@ let currentQrType = "url";
 let currentCycle = "monthly";
 let uploadedPdfUrl = null;
 
-// Cycle Pricing Config (Opening Sale 1st Month %50 OFF | 6-Month %20 OFF | Annual %10 OFF)
+// Cycle Pricing Config (1st Month %50 OFF | 6-Month %20 OFF | Annual %10 OFF)
 const CYCLE_PRICES = {
     monthly: {
         starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span>',
         advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #ef4444; font-weight: 800;">₺199</span>',
         business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #ef4444; font-weight: 800;">₺449</span>',
-        text: "🔥 İlk Aya Özel 1 Aylık Net %50 İndirimli Ödeme"
+        subtextStarter: '🔥 İlk Aya Özel 1 Aylık Net %50 İndirimli Ödeme',
+        subtextAdvanced: '🔥 İlk Aya Özel 1 Aylık Net %50 İndirimli Ödeme',
+        subtextBusiness: '🔥 İlk Aya Özel 1 Aylık Net %50 İndirimli Ödeme'
     },
     semi_annual: {
-        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #34d399; font-weight: 800;">₺159</span>',
-        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #34d399; font-weight: 800;">₺319</span>',
-        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #34d399; font-weight: 800;">₺719</span>',
-        text: "🔥 6 Aylık Peşin Ödemede %20 İndirimli (1 Yıl Geçerli)"
+        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #10b981; font-weight: 800;">₺159</span>',
+        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #10b981; font-weight: 800;">₺319</span>',
+        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #10b981; font-weight: 800;">₺719</span>',
+        subtextStarter: '🔥 Tek Çekim 6 Aylık Toplam: 954 ₺ (Aylık 159 ₺)',
+        subtextAdvanced: '🔥 Tek Çekim 6 Aylık Toplam: 1.914 ₺ (Aylık 319 ₺)',
+        subtextBusiness: '🔥 Tek Çekim 6 Aylık Toplam: 4.314 ₺ (Aylık 719 ₺)'
     },
     annual: {
-        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #818cf8; font-weight: 800;">₺179</span>',
-        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #818cf8; font-weight: 800;">₺359</span>',
-        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #818cf8; font-weight: 800;">₺809</span>',
-        text: "🔥 Yıllık Peşin Ödemede %10 İndirimli (1 Yıl Geçerli)"
+        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #6366f1; font-weight: 800;">₺179</span>',
+        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #6366f1; font-weight: 800;">₺359</span>',
+        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #6366f1; font-weight: 800;">₺809</span>',
+        subtextStarter: '🔥 Tek Çekim Yıllık Toplam: 2.148 ₺ (Aylık 179 ₺ - 1 Yıl)',
+        subtextAdvanced: '🔥 Tek Çekim Yıllık Toplam: 4.308 ₺ (Aylık 359 ₺ - 1 Yıl)',
+        subtextBusiness: '🔥 Tek Çekim Yıllık Toplam: 9.708 ₺ (Aylık 809 ₺ - 1 Yıl)'
     }
 };
 
@@ -732,9 +738,9 @@ function setBillingCycle(cycle) {
     document.getElementById("price-advanced").innerHTML = `${p.advanced} <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span>`;
     document.getElementById("price-business").innerHTML = `${p.business} <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span>`;
 
-    document.getElementById("subtext-starter").innerText = p.text;
-    document.getElementById("subtext-advanced").innerText = p.text;
-    document.getElementById("subtext-business").innerText = p.text;
+    document.getElementById("subtext-starter").innerText = p.subtextStarter;
+    document.getElementById("subtext-advanced").innerText = p.subtextAdvanced;
+    document.getElementById("subtext-business").innerText = p.subtextBusiness;
 }
 
 // Buy Plan with iyzico Checkout
