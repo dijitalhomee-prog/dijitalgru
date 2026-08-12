@@ -523,10 +523,15 @@ def api_qr_list():
     cursor = conn.cursor()
     
     cursor.execute("""
-    SELECT id, short_code, title, type, target_url, is_dynamic, custom_settings, status, scans_count, COALESCE(folder_name, 'Genel') as folder_name, created_at, updated_at
-    FROM qr_codes 
-    WHERE user_id = ? 
-    ORDER BY created_at DESC
+    SELECT 
+        q.id, q.short_code, q.title, q.type, q.target_url, q.is_dynamic, q.custom_settings, q.status, q.scans_count, 
+        COALESCE(q.folder_name, 'Genel') as folder_name, q.created_at, q.updated_at,
+        COUNT(DISTINCT sl.ip_address) as unique_scans
+    FROM qr_codes q
+    LEFT JOIN scan_logs sl ON q.id = sl.qr_id
+    WHERE q.user_id = ?
+    GROUP BY q.id, q.short_code, q.title, q.type, q.target_url, q.is_dynamic, q.custom_settings, q.status, q.scans_count, q.folder_name, q.created_at, q.updated_at
+    ORDER BY q.created_at DESC
     """, (user["id"],))
     rows = cursor.fetchall()
     
@@ -537,6 +542,7 @@ def api_qr_list():
         short_code = item.get("short_code", "")
         item["short_url"] = f"{app_url}/r/{short_code}"
         item["scan_count"] = item.get("scans_count", 0)
+        item["unique_scans"] = item.get("unique_scans", 0)
         item["folder_name"] = item.get("folder_name", "Genel")
         
         try:
@@ -578,6 +584,17 @@ def api_export_qr(qr_id):
         response.headers["Content-Disposition"] = f'attachment; filename="{title}.svg"'
         return response
         
+    elif export_format == "eps":
+        png_bytes = generate_qr_image(short_url, settings, format="png")
+        img = Image.open(io.BytesIO(png_bytes)).convert("RGB")
+        eps_buffer = io.BytesIO()
+        img.save(eps_buffer, format="EPS")
+        eps_buffer.seek(0)
+        
+        response = Response(eps_buffer.getvalue(), mimetype="application/postscript")
+        response.headers["Content-Disposition"] = f'attachment; filename="{title}.eps"'
+        return response
+        
     elif export_format == "pdf":
         png_bytes = generate_qr_image(short_url, settings, format="png")
         img = Image.open(io.BytesIO(png_bytes))
@@ -594,6 +611,18 @@ def api_export_qr(qr_id):
         response = Response(png_bytes, mimetype="image/png")
         response.headers["Content-Disposition"] = f'attachment; filename="{title}.png"'
         return response
+
+@app.route("/api/qr/<int:qr_id>", methods=["DELETE"])
+def api_delete_qr(qr_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Yetkisiz erişim."}), 401
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM qr_codes WHERE id = ? AND user_id = ?", (qr_id, user["id"]))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success"})
 
 @app.route("/api/qr/<int:qr_id>/update_folder", methods=["POST"])
 def api_update_qr_folder(qr_id):

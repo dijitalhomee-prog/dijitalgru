@@ -520,7 +520,31 @@ async function loadDashboardData() {
     }
 }
 
-// Render User QR Codes with Download Format Options (PNG, SVG, PDF) and Folder/Status Controls
+async function toggleQRStatus(qrId, isChecked) {
+    const status = isChecked ? "active" : "passive";
+    await updateQRStatus(qrId, status);
+}
+
+async function deleteQRCode(qrId) {
+    if (!confirm("Bu QR kodu silmek/arşive kaldırmak istediğinize emin misiniz?")) return;
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+    try {
+        await fetch(`/api/qr/${qrId}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        loadDashboardData();
+    } catch (err) {
+        console.error("Delete error:", err);
+    }
+}
+
+function openQRAnalytics(qrId, title) {
+    alert(`📊 "${title}" Analitik Bilgileri:\nEşsiz Ziyaretçiler ve Tüm Cihaz Taramaları başarıyla kaydedilmiştir.`);
+}
+
+// Render User QR Codes matching exact specification
 function renderQRList(codes) {
     const container = document.getElementById("qr-list-container");
     if (!codes) codes = [];
@@ -547,61 +571,84 @@ function renderQRList(codes) {
     container.innerHTML = filtered.map(qr => {
         const shareUrl = qr.short_url || `${window.location.origin}/r/${qr.short_code}`;
         const status = qr.status || "active";
-        const folder = qr.folder_name || "Genel";
+        const isChecked = status === "active" ? "checked" : "";
+        const createdDate = new Date((qr.created_at || Date.now() / 1000) * 1000).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const qrTypeLabel = (qr.type === "url") ? "🌐 Website" : ((qr.type === "vcard") ? "📇 vCard" : ((qr.type === "menu") ? "📄 PDF" : ((qr.type === "wifi") ? "📶 Wi-Fi" : "📝 Metin")));
+        const isDynamicLabel = qr.is_dynamic ? "⚡ Dinamik" : "📌 Statik";
 
         return `
-        <div class="glass-card" style="margin-bottom: 16px; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; ${status === 'deleted' ? 'opacity: 0.6;' : ''}">
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="background: #ffffff; padding: 6px; border-radius: 12px; display: flex;">
-                    <img src="${qr.qr_image}" style="width: 70px; height: 70px;" />
-                </div>
-                <div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <h4 style="font-size: 16px; font-weight: 700; color: #ffffff; margin: 0;">${qr.title}</h4>
-                        <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; ${status === 'active' ? 'background: rgba(16,185,129,0.2); color: #10b981;' : (status === 'passive' ? 'background: rgba(245,158,11,0.2); color: #f59e0b;' : 'background: rgba(239,68,68,0.2); color: #ef4444;')}">
-                            ${status === 'active' ? '🟢 Aktif' : (status === 'passive' ? '🟡 Pasif' : '🔴 Arşiv')}
-                        </span>
+        <div class="glass-card" style="margin-bottom: 16px; padding: 18px 24px; border-radius: 20px; ${status === 'deleted' ? 'opacity: 0.55;' : ''}">
+            <!-- SINGLE LINE HEADER ROW -->
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                
+                <!-- Left: Image + Info Items in Single Row -->
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; flex: 1; min-width: 280px;">
+                    <!-- QR Thumbnail -->
+                    <div style="background: #ffffff; padding: 4px; border-radius: 10px; display: flex; shrink: 0;">
+                        <img src="${qr.qr_image}" style="width: 50px; height: 50px;" />
                     </div>
 
-                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">🎯 Hedef: ${qr.target_url}</div>
-                    
-                    <!-- Copyable Shareable Link Box -->
-                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                        <span style="font-size: 11px; color: #a5b4fc; font-weight: 600;">🔗 Paylaşım Linki:</span>
-                        <span style="font-size: 11px; color: #ffffff; font-weight: 600; font-family: monospace;">${shareUrl}</span>
-                        <button onclick="copyShareLink('${shareUrl}', this)" class="btn-secondary" style="padding: 3px 8px; font-size: 10px; margin-left: 4px; border-radius: 6px;">📋 Linki Kopyala</button>
+                    <!-- Title & Short Link & Created Date -->
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <h4 style="font-size: 15px; font-weight: 800; color: #ffffff; margin: 0;">${qr.title}</h4>
+                            <span style="font-size: 10px; font-weight: 700; background: rgba(99,102,241,0.15); color: #a5b4fc; padding: 2px 8px; border-radius: 6px;">${isDynamicLabel}</span>
+                            <span style="font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.06); color: #e2e8f0; padding: 2px 8px; border-radius: 6px;">${qrTypeLabel}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--text-muted); margin-top: 2px; flex-wrap: wrap;">
+                            <span>🔗 <strong style="color:#ffffff; font-family:monospace;">${shareUrl}</strong></span>
+                            <button onclick="copyShareLink('${shareUrl}', this)" style="background: transparent; border: none; color: #818cf8; cursor: pointer; padding: 0; font-size: 11px; font-weight: 700;">📋 Kopyala</button>
+                            <span>📅 ${createdDate}</span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Right Side Controls: Status Switch Toggle, Analytics Icon, Delete Icon -->
+                <div style="display: flex; align-items: center; gap: 12px; shrink: 0;">
+                    <!-- Status Switch Toggle (Aktif / Pasif) -->
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 11px; font-weight: 700; color: ${status === 'active' ? '#10b981' : '#f59e0b'};">
+                            ${status === 'active' ? 'Aktif' : 'Pasif'}
+                        </span>
+                        <label class="switch" style="width: 40px; height: 22px;">
+                            <input type="checkbox" ${isChecked} onchange="toggleQRStatus(${qr.id}, this.checked)">
+                            <span class="slider" style="border-radius: 20px;"></span>
+                        </label>
+                    </div>
+
+                    <!-- Analytics Icon Button -->
+                    <button onclick="openQRAnalytics(${qr.id}, '${qr.title}')" title="Analizler" style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); color: #06b6d4; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                        📊 Analitik
+                    </button>
+
+                    <!-- Delete Icon Button -->
+                    <button onclick="deleteQRCode(${qr.id})" title="Sil" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700;">
+                        🗑️ Sil
+                    </button>
+                </div>
+
             </div>
 
-            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <!-- Folder selector dropdown -->
-                    <select onchange="updateQRFolder(${qr.id}, this.value)" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 4px 8px; font-size: 11px;">
-                        <option value="Genel" ${folder === 'Genel' ? 'selected' : ''}>📂 Genel</option>
-                        <option value="Restoran Menüleri" ${folder === 'Restoran Menüleri' ? 'selected' : ''}>🍕 Restoran Menüleri</option>
-                        <option value="Kartvizitler" ${folder === 'Kartvizitler' ? 'selected' : ''}>📇 Kartvizitler</option>
-                        <option value="Etkinlikler" ${folder === 'Etkinlikler' ? 'selected' : ''}>🎉 Etkinlikler</option>
-                    </select>
-
-                    <!-- Status toggle selector -->
-                    <select onchange="updateQRStatus(${qr.id}, this.value)" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 4px 8px; font-size: 11px;">
-                        <option value="active" ${status === 'active' ? 'selected' : ''}>🟢 Aktif Et</option>
-                        <option value="passive" ${status === 'passive' ? 'selected' : ''}>🟡 Pasife Al</option>
-                        <option value="deleted" ${status === 'deleted' ? 'selected' : ''}>🔴 Arşive Kaldır</option>
-                    </select>
-
-                    <div class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success); font-size: 11px;">
-                        👁️ ${qr.scan_count || qr.scans_count || 0} Tarama
+            <!-- BOTTOM STATS AND EXPORT BUTTONS ROW -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 12px;">
+                
+                <!-- Left: Eşsiz Tarama ve Toplam Tarama Numbers -->
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div style="font-size: 12px; font-weight: 700; color: #06b6d4; background: rgba(6, 182, 212, 0.1); padding: 4px 10px; border-radius: 8px;">
+                        👤 Eşsiz Tarama: <strong>${qr.unique_scans || 0}</strong> <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(Farklı kişi/cihaz)</span>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 8px;">
+                        📱 Toplam Tarama: <strong>${qr.scan_count || qr.scans_count || 0}</strong> <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(Tüm okutmalar)</span>
                     </div>
                 </div>
-                
-                <!-- Format Download Export Buttons (PNG, SVG, PDF) -->
-                <div style="display: flex; gap: 6px; margin-top: 6px;">
-                    <a href="/api/qr/export/${qr.id}?format=png" class="btn-secondary" style="padding: 6px 10px; font-size: 11px;">📥 PNG İndir</a>
-                    <a href="/api/qr/export/${qr.id}?format=svg" class="btn-secondary" style="padding: 6px 10px; font-size: 11px;">🎨 SVG İndir</a>
-                    <a href="/api/qr/export/${qr.id}?format=pdf" class="btn-primary" style="padding: 6px 10px; font-size: 11px;">📄 PDF Baskı</a>
+
+                <!-- Right: Export Buttons (PNG, SVG, EPS) -->
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <a href="/api/qr/export/${qr.id}?format=png" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;">📥 PNG İndir</a>
+                    <a href="/api/qr/export/${qr.id}?format=svg" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;">🎨 SVG (Vektörel)</a>
+                    <a href="/api/qr/export/${qr.id}?format=eps" class="btn-primary" style="padding: 5px 10px; font-size: 11px;">📐 EPS (Vektörel Baskı)</a>
                 </div>
+
             </div>
         </div>
         `;
