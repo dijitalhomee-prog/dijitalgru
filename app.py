@@ -316,8 +316,9 @@ def serve_pdf(file_code):
     conn = get_db()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM pdf_files WHERE file_code = ?", (file_code,))
+        cursor.execute("SELECT filename, content_type, data_b64 FROM pdf_files WHERE file_code = ?", (file_code,))
         row = cursor.fetchone()
+        cursor.close()
     except Exception as ex:
         conn.rollback()
         conn.close()
