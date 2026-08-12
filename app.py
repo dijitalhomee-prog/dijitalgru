@@ -893,6 +893,297 @@ def api_iyzico_callback():
     </html>
     """, 200
 
+# --- Admin System Helpers & Audit Logger ---
+
+def log_admin_action(admin_id, target_user_id, action_type, details=""):
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        now = int(time.time())
+        cursor.execute("""
+        INSERT INTO admin_actions (admin_id, target_user_id, action_type, details, created_at)
+        VALUES (?, ?, ?, ?, ?)
+        """, (admin_id, target_user_id, action_type, details, now))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print("⚠️ log_admin_action error:", e)
+
+def require_admin():
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return None, (jsonify({"error": "Yetkisiz erişim. Lütfen giriş yapın."}), 401)
+        
+    token = auth_header.replace("Bearer ", "").strip()
+    payload = decode_token(token)
+    if not payload:
+        return None, (jsonify({"error": "Geçersiz veya süresi dolmuş oturum."}), 401)
+        
+    user = get_user_by_id(payload["user_id"])
+    if not user:
+        return None, (jsonify({"error": "Kullanıcı bulunamadı."}), 401)
+        
+    if not user.get("is_admin"):
+        return None, (jsonify({"error": "Erişim engellendi. Yalnızca yöneticiler bu alana erişebilir."}), 403)
+        
+    if user.get("account_status") == "suspended":
+        return None, (jsonify({"error": "Hesabınız askıya alınmıştır."}), 403)
+        
+    return user, None
+
+# --- Admin Page Route ---
+
+@app.route("/admin")
+def admin_page():
+    return render_template("admin.html")
+
+# --- Admin API Endpoints ---
+
+@app.route("/api/admin/stats", methods=["GET"])
+def api_admin_stats():
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT COUNT(*) as total FROM users")
+    total_users = cursor.fetchone()["total"]
+    
+    cursor.execute("SELECT COUNT(*) as active_paid FROM users WHERE plan != 'free'")
+    active_paid = cursor.fetchone()["active_paid"]
+    
+    now = int(time.time())
+    month_start = now - (86400 * 30)
+    cursor.execute("SELECT COUNT(*) as new_month FROM users WHERE created_at >= ?", (month_start,))
+    new_users_month = cursor.fetchone()["new_month"]
+    
+    cursor.execute("SELECT COUNT(*) as total_qrs FROM qr_codes")
+    total_qrs = cursor.fetchone()["total_qrs"]
+    
+    cursor.execute("SELECT COUNT(*) as total_scans FROM scan_logs")
+    total_scans = cursor.fetchone()["total_scans"]
+    
+    conn.close()
+    
+    return jsonify({
+        "total_users": total_users,
+        "active_paid_users": active_paid,
+        "new_users_this_month": new_users_month,
+        "total_qr_codes": total_qrs,
+        "total_scans": total_scans
+    })
+
+@app.route("/api/admin/users", methods=["GET"])
+def api_admin_users():
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    q = (request.args.get("q") or "").strip().lower()
+    plan_filter = (request.args.get("plan") or "").strip()
+    status_filter = (request.args.get("status") or "").strip()
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+    SELECT 
+        u.id, u.name, u.email, u.plan, u.subscription_end, u.dynamic_qr_limit, 
+        COALESCE(u.is_admin, FALSE) as is_admin, COALESCE(u.account_status, 'active') as account_status, u.created_at,
+        COUNT(q.id) as total_qr_count
+    FROM users u
+    LEFT JOIN qr_codes q ON u.id = q.user_id
+    GROUP BY u.id, u.name, u.email, u.plan, u.subscription_end, u.dynamic_qr_limit, u.is_admin, u.account_status, u.created_at
+    ORDER BY u.created_at DESC
+    """)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    users = []
+    for r in rows:
+        d = dict(r)
+        d["is_admin"] = bool(d["is_admin"])
+        
+        # Apply filters
+        if q and (q not in d["name"].lower() and q not in d["email"].lower()):
+            continue
+        if plan_filter and d["plan"] != plan_filter:
+            continue
+        if status_filter and d["account_status"] != status_filter:
+            continue
+            
+        users.append(d)
+        
+    return jsonify({"users": users})
+
+@app.route("/api/admin/users/<int:user_id>", methods=["GET"])
+def api_admin_user_detail(user_id):
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit, COALESCE(is_admin, FALSE) as is_admin, COALESCE(account_status, 'active') as account_status, created_at FROM users WHERE id = ?", (user_id,))
+    user_row = cursor.fetchone()
+    if not user_row:
+        conn.close()
+        return jsonify({"error": "Kullanıcı bulunamadı."}), 404
+        
+    user = dict(user_row)
+    user["is_admin"] = bool(user["is_admin"])
+    
+    # User's QRs
+    cursor.execute("SELECT id, title, type, short_code, target_url, scans_count, created_at FROM qr_codes WHERE user_id = ? ORDER BY created_at DESC", (user_id,))
+    qrs = cursor.fetchall()
+    
+    # User's Subscriptions
+    cursor.execute("SELECT id, plan_name, amount, status, iyzico_sub_id, invoice_no, created_at FROM subscriptions WHERE user_id = ? ORDER BY created_at DESC", (user_id,))
+    subs = cursor.fetchall()
+    
+    conn.close()
+    
+    return jsonify({
+        "user": user,
+        "qr_codes": qrs,
+        "subscriptions": subs
+    })
+
+@app.route("/api/admin/users/<int:user_id>/update-plan", methods=["POST"])
+def api_admin_update_plan(user_id):
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    data = request.json or {}
+    new_plan = data.get("plan")
+    days = int(data.get("days", 30))
+    
+    if new_plan not in ["free", "starter", "advanced", "business"]:
+        return jsonify({"error": "Geçersiz plan seçimi."}), 400
+        
+    limits = {"free": 3, "starter": 20, "advanced": 100, "business": 10000}
+    qr_limit = limits.get(new_plan, 3)
+    
+    now = int(time.time())
+    sub_end = now + (86400 * days) if new_plan != "free" else 0
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT email, plan FROM users WHERE id = ?", (user_id,))
+    target_user = cursor.fetchone()
+    if not target_user:
+        conn.close()
+        return jsonify({"error": "Kullanıcı bulunamadı."}), 404
+        
+    old_plan = target_user["plan"]
+    cursor.execute("UPDATE users SET plan = ?, subscription_end = ?, dynamic_qr_limit = ? WHERE id = ?", (new_plan, sub_end, qr_limit, user_id))
+    conn.commit()
+    conn.close()
+    
+    log_admin_action(
+        admin_id=admin["id"],
+        target_user_id=user_id,
+        action_type="UPDATE_PLAN",
+        details=f"Plan {old_plan} -> {new_plan} (Bitiş: {days} gün sonra) olarak manuel güncellendi."
+    )
+    
+    return jsonify({"status": "success", "message": f"Kullanıcı planı {new_plan.upper()} olarak güncellendi."})
+
+@app.route("/api/admin/users/<int:user_id>/suspend", methods=["POST"])
+def api_admin_suspend_user(user_id):
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    if admin["id"] == user_id:
+        return jsonify({"error": "Kendi admin hesabınızı askıya alamazsınız."}), 400
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET account_status = 'suspended' WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+    
+    log_admin_action(admin["id"], user_id, "SUSPEND_USER", "Hesap askıya alındı.")
+    return jsonify({"status": "success", "message": "Kullanıcı hesabı askıya alındı."})
+
+@app.route("/api/admin/users/<int:user_id>/activate", methods=["POST"])
+def api_admin_activate_user(user_id):
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET account_status = 'active' WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+    
+    log_admin_action(admin["id"], user_id, "ACTIVATE_USER", "Hesap tekrar aktif edildi.")
+    return jsonify({"status": "success", "message": "Kullanıcı hesabı tekrar aktif edildi."})
+
+@app.route("/api/admin/users/<int:user_id>", methods=["DELETE"])
+def api_admin_delete_user(user_id):
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    if admin["id"] == user_id:
+        return jsonify({"error": "Kendi admin hesabınızı silemezsiniz."}), 400
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT email FROM users WHERE id = ?", (user_id,))
+    target_user = cursor.fetchone()
+    if not target_user:
+        conn.close()
+        return jsonify({"error": "Kullanıcı bulunamadı."}), 404
+        
+    target_email = target_user["email"]
+    
+    # Delete user and cascading data
+    cursor.execute("DELETE FROM scan_logs WHERE qr_id IN (SELECT id FROM qr_codes WHERE user_id = ?)", (user_id,))
+    cursor.execute("DELETE FROM vcard_pages WHERE qr_id IN (SELECT id FROM qr_codes WHERE user_id = ?)", (user_id,))
+    cursor.execute("DELETE FROM menu_pages WHERE qr_id IN (SELECT id FROM qr_codes WHERE user_id = ?)", (user_id,))
+    cursor.execute("DELETE FROM qr_codes WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM subscriptions WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+    
+    log_admin_action(admin["id"], None, "DELETE_USER", f"Kullanıcı ({target_email}, ID: {user_id}) ve tüm verileri kalıcı olarak silindi.")
+    return jsonify({"status": "success", "message": "Kullanıcı ve tüm verileri kalıcı olarak silindi."})
+
+@app.route("/api/admin/audit-logs", methods=["GET"])
+def api_admin_audit_logs():
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT 
+        a.id, a.admin_id, a.target_user_id, a.action_type, a.details, a.created_at,
+        u_admin.name as admin_name, u_admin.email as admin_email,
+        u_target.name as target_name, u_target.email as target_email
+    FROM admin_actions a
+    LEFT JOIN users u_admin ON a.admin_id = u_admin.id
+    LEFT JOIN users u_target ON a.target_user_id = u_target.id
+    ORDER BY a.created_at DESC
+    LIMIT 100
+    """)
+    logs = cursor.fetchall()
+    conn.close()
+    
+    return jsonify({"audit_logs": logs})
+
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({"error": "Sunucu hatası oluştu. Lütfen tekrar deneyin."}), 500

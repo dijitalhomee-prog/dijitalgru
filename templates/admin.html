@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Yönetici Paneli — Dijitalgru QR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css?v=20260812_v5">
+    <style>
+        .admin-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-free { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+        .badge-starter { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-advanced { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge-business { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        
+        .badge-active { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-suspended { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+        .admin-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+        .admin-table td {
+            padding: 14px 16px;
+            background: rgba(30, 41, 59, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        .admin-table tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        .admin-table tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+        
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            margin-right: 4px;
+        }
+        .btn-plan { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.4); }
+        .btn-plan:hover { background: #6366f1; color: white; }
+        .btn-suspend { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .btn-suspend:hover { background: #f59e0b; color: white; }
+        .btn-activate { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .btn-activate:hover { background: #10b981; color: white; }
+        .btn-delete { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .btn-delete:hover { background: #ef4444; color: white; }
+        .btn-view { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); }
+        .btn-view:hover { background: #64748b; color: white; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-card {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 28px;
+            width: 100%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body style="background: #0f172a; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif;">
+
+    <!-- Admin Header -->
+    <header style="border-bottom: 1px solid rgba(255,255,255,0.08); padding: 18px 32px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100;">
+        <div style="max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="background: linear-gradient(135deg, #6366f1, #a855f7); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🛡️</div>
+                <div>
+                    <h1 style="font-size: 20px; font-weight: 800; margin: 0;">Yönetici Paneli (Admin)</h1>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 0;">Dijitalgru QR Sistem & Kullanıcı Yönetim Merkezi</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <a href="/panel" style="background: rgba(255,255,255,0.08); color: #e2e8f0; text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1);">🏠 Kullanıcı Paneline Dön</a>
+                <button onclick="logoutAdmin()" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer;">Çıkış Yap</button>
+            </div>
+        </div>
+    </header>
+
+    <main style="max-width: 1280px; margin: 32px auto; padding: 0 24px;">
+
+        <!-- Metrik Kartları -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 32px;">
+            <div class="glass-card" style="padding: 20px; border-radius: 16px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Toplam Üye</div>
+                <div id="stat-total-users" style="font-size: 32px; font-weight: 800; color: #60a5fa; margin-top: 8px;">-</div>
+            </div>
+            <div class="glass-card" style="padding: 20px; border-radius: 16px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Aktif Ücretli Üye</div>
+                <div id="stat-paid-users" style="font-size: 32px; font-weight: 800; color: #34d399; margin-top: 8px;">-</div>
+            </div>
+            <div class="glass-card" style="padding: 20px; border-radius: 16px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Bu Ay Yeni Kayıt</div>
+                <div id="stat-new-users" style="font-size: 32px; font-weight: 800; color: #c084fc; margin-top: 8px;">-</div>
+            </div>
+            <div class="glass-card" style="padding: 20px; border-radius: 16px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Toplam QR Kodu</div>
+                <div id="stat-total-qrs" style="font-size: 32px; font-weight: 800; color: #facc15; margin-top: 8px;">-</div>
+            </div>
+            <div class="glass-card" style="padding: 20px; border-radius: 16px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Toplam Tarama</div>
+                <div id="stat-total-scans" style="font-size: 32px; font-weight: 800; color: #f472b6; margin-top: 8px;">-</div>
+            </div>
+        </div>
+
+        <!-- Filtreleme ve Arama Çubuğu -->
+        <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 16px; margin-bottom: 24px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+            <div style="display: flex; gap: 12px; flex: 1; min-width: 280px;">
+                <input type="text" id="admin-search-input" placeholder="İsim veya e-posta ile ara..." onkeyup="filterAdminUsers()" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px 16px; border-radius: 12px; width: 100%; font-size: 14px; outline: none;">
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <select id="admin-filter-plan" onchange="filterAdminUsers()" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px 16px; border-radius: 12px; font-size: 14px; outline: none;">
+                    <option value="">Tüm Planlar</option>
+                    <option value="free">Ücretsiz (Free)</option>
+                    <option value="starter">Starter</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="business">Business</option>
+                </select>
+                <select id="admin-filter-status" onchange="filterAdminUsers()" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px 16px; border-radius: 12px; font-size: 14px; outline: none;">
+                    <option value="">Tüm Hesap Durumları</option>
+                    <option value="active">Aktif Hesaplar</option>
+                    <option value="suspended">Askıya Alınmışlar</option>
+                </select>
+                <button onclick="loadAdminData()" style="background: #6366f1; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer;">🔄 Yenile</button>
+            </div>
+        </div>
+
+        <!-- Üye Listesi Tablosu -->
+        <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin-bottom: 40px;">
+            <h2 style="font-size: 18px; font-weight: 800; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                👥 Kayıtlı Kullanıcılar Listesi
+            </h2>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Kullanıcı Bilgileri</th>
+                            <th>Plan</th>
+                            <th>Bitiş Tarihi</th>
+                            <th>QR Sayısı</th>
+                            <th>Durum</th>
+                            <th>Kayıt Tarihi</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-tbody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 30px; color: #94a3b8;">Veriler yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Audit Log Aktivite Geçmişi -->
+        <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px;">
+            <h2 style="font-size: 18px; font-weight: 800; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                📜 Yönetici Aktivite Günlüğü (Audit Log)
+            </h2>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Yönetici</th>
+                            <th>İşlem Türü</th>
+                            <th>Hedef Kullanıcı</th>
+                            <th>Detaylar</th>
+                            <th>Tarih</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-logs-tbody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">Aktivite verileri yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal 1: Kullanıcı Detay Modalı -->
+    <div id="modal-user-detail" class="modal-overlay">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 800;">👤 Kullanıcı Detayı ve QR İstatistikleri</h3>
+                <button onclick="closeModal('modal-user-detail')" style="background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <div id="user-detail-content">Yükleniyor...</div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Plan Manuel Güncelleme Modalı -->
+    <div id="modal-update-plan" class="modal-overlay">
+        <div class="modal-card" style="max-width: 480px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 800;">⭐ Planı Manuel Güncelle</h3>
+                <button onclick="closeModal('modal-update-plan')" style="background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <input type="hidden" id="plan-modal-user-id">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">Kullanıcı:</label>
+                <div id="plan-modal-user-info" style="font-weight: 800; font-size: 15px; color: white;">-</div>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">Yeni Abonelik Paketi:</label>
+                <select id="plan-modal-select" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 10px; font-size: 14px; outline: none;">
+                    <option value="free">Free (Ücretsiz - 3 QR)</option>
+                    <option value="starter">Starter (Başlangıç - 20 QR)</option>
+                    <option value="advanced">Advanced (Gelişmiş - 100 QR)</option>
+                    <option value="business">Business (Kurumsal - Sınırsız)</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">Abonelik Süresi (Gün):</label>
+                <input type="number" id="plan-modal-days" value="30" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 10px; font-size: 14px; outline: none;">
+            </div>
+            <button onclick="submitPlanUpdate()" style="width: 100%; background: #6366f1; color: white; padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 15px;">Planı Kaydet ve Güncelle</button>
+        </div>
+    </div>
+
+    <!-- Modal 3: KVKK Çift Onaylı Kullanıcı Silme Modalı -->
+    <div id="modal-delete-user" class="modal-overlay">
+        <div class="modal-card" style="max-width: 480px; border: 1px solid rgba(239, 68, 68, 0.4);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(239, 68, 68, 0.2); padding-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #ef4444;">⚠️ KVKK Hesap Silme Onayı</h3>
+                <button onclick="closeModal('modal-delete-user')" style="background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <input type="hidden" id="delete-modal-user-id">
+            <input type="hidden" id="delete-modal-expected-email">
+            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+                Bu işlem geri alınamaz! Kullanıcıya ait <strong>tüm QR kodlar, tarama istatistikleri ve abonelik kayıtları</strong> kalıcı olarak silinecektir.
+            </p>
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.4); padding: 14px; border-radius: 12px; margin-bottom: 20px;">
+                <div style="font-size: 12px; color: #f87171; font-weight: 700; margin-bottom: 4px;">Onaylamak için aşağıdaki e-posta adresini birebir yazın:</div>
+                <div id="delete-modal-email-display" style="font-weight: 800; color: white; font-size: 14px;">-</div>
+            </div>
+            <input type="text" id="delete-modal-confirm-input" placeholder="E-posta adresini buraya yazın..." style="width: 100%; background: #0f172a; border: 1px solid rgba(239, 68, 68, 0.4); color: white; padding: 12px; border-radius: 10px; font-size: 14px; outline: none; margin-bottom: 20px;">
+            <button onclick="submitUserDelete()" style="width: 100%; background: #ef4444; color: white; padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 15px;">Kullanıcıyı ve Tüm Verilerini Kalıcı Olarak Sil</button>
+        </div>
+    </div>
+
+    <script src="/static/js/admin.js?v=20260812_v1"></script>
+</body>
+</html>

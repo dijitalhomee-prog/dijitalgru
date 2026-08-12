@@ -244,5 +244,88 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertNotEqual(migrated_hash, legacy_hash)
         self.assertTrue("scrypt:" in migrated_hash or "pbkdf2:" in migrated_hash or "$" in migrated_hash)
 
+    def test_11_admin_panel_security_and_management(self):
+        # 1. Non-admin user hitting /api/admin/users MUST receive 403 Forbidden
+        normal_email = f"normal_user_{int(time.time())}@dijitalgru.com"
+        reg_n = self.client.post("/api/auth/register", json={
+            "name": "Normal User",
+            "email": normal_email,
+            "password": "Password123!"
+        })
+        normal_token = reg_n.get_json()["token"]
+
+        forbidden_res = self.client.get("/api/admin/users", headers={"Authorization": f"Bearer {normal_token}"})
+        self.assertEqual(forbidden_res.status_code, 403)
+        self.assertIn("Erişim engellendi", forbidden_res.get_json()["error"])
+
+        # 2. Promote user to admin in DB
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET is_admin = 1 WHERE email = ?", (normal_email,))
+        conn.commit()
+        conn.close()
+
+        # Re-login to get updated admin token
+        login_a = self.client.post("/api/auth/login", json={
+            "email": normal_email,
+            "password": "Password123!"
+        })
+        admin_token = login_a.get_json()["token"]
+
+        # 3. GET /api/admin/stats as Admin
+        stats_res = self.client.get("/api/admin/stats", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(stats_res.status_code, 200)
+        self.assertIn("total_users", stats_res.get_json())
+
+        # 4. GET /api/admin/users as Admin
+        users_res = self.client.get("/api/admin/users", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(users_res.status_code, 200)
+
+        # 5. Create a target test user
+        target_email = f"target_sub_{int(time.time())}@dijitalgru.com"
+        reg_t = self.client.post("/api/auth/register", json={
+            "name": "Target User",
+            "email": target_email,
+            "password": "Password123!"
+        })
+        target_id = reg_t.get_json()["user"]["id"]
+
+        # 6. Admin updates target user's plan to 'business'
+        plan_up_res = self.client.post(f"/api/admin/users/{target_id}/update-plan", json={
+            "plan": "business",
+            "days": 60
+        }, headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(plan_up_res.status_code, 200)
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT plan FROM users WHERE id = ?", (target_id,))
+        self.assertEqual(cursor.fetchone()["plan"], "business")
+        conn.close()
+
+        # 7. Admin suspends target user
+        sus_res = self.client.post(f"/api/admin/users/{target_id}/suspend", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(sus_res.status_code, 200)
+
+        # Suspended user CANNOT login
+        failed_login = self.client.post("/api/auth/login", json={
+            "email": target_email,
+            "password": "Password123!"
+        })
+        self.assertIn("askıya alınmıştır", failed_login.get_json()["error"])
+
+        # 8. Admin activates target user
+        act_res = self.client.post(f"/api/admin/users/{target_id}/activate", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(act_res.status_code, 200)
+
+        # 9. Admin deletes target user
+        del_res = self.client.delete(f"/api/admin/users/{target_id}", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(del_res.status_code, 200)
+
+        # 10. Audit logs contain recorded actions
+        audit_res = self.client.get("/api/admin/audit-logs", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(audit_res.status_code, 200)
+        self.assertTrue(len(audit_res.get_json()["audit_logs"]) > 0)
+
 if __name__ == "__main__":
     unittest.main()

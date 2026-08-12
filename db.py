@@ -106,6 +106,8 @@ def init_db():
                 plan VARCHAR(50) DEFAULT 'free',
                 subscription_end BIGINT DEFAULT 0,
                 dynamic_qr_limit INT DEFAULT 3,
+                is_admin BOOLEAN DEFAULT FALSE,
+                account_status VARCHAR(50) DEFAULT 'active',
                 created_at BIGINT NOT NULL
             )
             """,
@@ -186,6 +188,16 @@ def init_db():
                 data_b64 TEXT NOT NULL,
                 created_at BIGINT NOT NULL
             )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS admin_actions (
+                id SERIAL PRIMARY KEY,
+                admin_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                target_user_id INT,
+                action_type VARCHAR(100) NOT NULL,
+                details TEXT,
+                created_at BIGINT NOT NULL
+            )
             """
         ]
         for tbl_sql in tables:
@@ -206,7 +218,20 @@ def init_db():
                 plan TEXT DEFAULT 'free',
                 subscription_end INTEGER DEFAULT 0,
                 dynamic_qr_limit INTEGER DEFAULT 3,
+                is_admin INTEGER DEFAULT 0,
+                account_status TEXT DEFAULT 'active',
                 created_at INTEGER NOT NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS admin_actions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                admin_id INTEGER NOT NULL,
+                target_user_id INTEGER,
+                action_type TEXT NOT NULL,
+                details TEXT,
+                created_at INTEGER NOT NULL,
+                FOREIGN KEY (admin_id) REFERENCES users (id)
             )
             """,
             """

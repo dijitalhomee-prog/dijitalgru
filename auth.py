@@ -58,6 +58,8 @@ def create_token(user):
         "name": user["name"],
         "email": user["email"],
         "plan": user["plan"],
+        "is_admin": bool(user.get("is_admin")),
+        "account_status": user.get("account_status", "active"),
         "exp": int(time.time()) + (86400 * 30) # 30 days valid
     }
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
@@ -101,7 +103,7 @@ def register_user(name, email, password):
         user_id = cursor.lastrowid
         conn.commit()
         
-        cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit FROM users WHERE id = ?", (user_id,))
+        cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit, is_admin, account_status FROM users WHERE id = ?", (user_id,))
         user = dict(cursor.fetchone())
         conn.close()
         
@@ -124,6 +126,10 @@ def login_user(email, password):
         return None, "E-posta veya şifre hatalı."
         
     user = dict(row)
+    if user.get("account_status") == "suspended":
+        conn.close()
+        return None, "Hesabınız askıya alınmıştır. Lütfen destek ekibi ile iletişime geçin."
+        
     is_valid, needs_migration = verify_password_with_migration(password, user["password_hash"])
     
     if not is_valid:
@@ -149,7 +155,7 @@ def login_user(email, password):
 def get_user_by_id(user_id):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit, created_at FROM users WHERE id = ?", (user_id,))
+    cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit, is_admin, account_status, created_at FROM users WHERE id = ?", (user_id,))
     row = cursor.fetchone()
     conn.close()
     return dict(row) if row else None

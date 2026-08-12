@@ -44,6 +44,26 @@ def run_migrations():
         conn.rollback()
         print("⚠️ Index migration note:", e)
         
+    # 4. Ensure is_admin and account_status columns on users
+    try:
+        if is_postgres():
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;")
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS account_status VARCHAR(50) DEFAULT 'active';")
+        else:
+            try:
+                cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0;")
+            except Exception:
+                pass
+            try:
+                cursor.execute("ALTER TABLE users ADD COLUMN account_status TEXT DEFAULT 'active';")
+            except Exception:
+                pass
+        conn.commit()
+        print("✅ Admin & account_status columns ensured.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ Admin migration note:", e)
+        
     conn.close()
 
 if __name__ == "__main__":
