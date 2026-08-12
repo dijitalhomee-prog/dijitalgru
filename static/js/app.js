@@ -4,24 +4,25 @@ let currentCycle = "monthly";
 let uploadedPdfUrl = null;
 
 // Cycle Pricing Config (Opening Sale %50 OFF)
+// Cycle Pricing Config (Opening Sale %50 OFF)
 const CYCLE_PRICES = {
     monthly: {
         starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span>',
         advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #ef4444; font-weight: 800;">₺199</span>',
         business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #ef4444; font-weight: 800;">₺449</span>',
-        text: "🔥 Açılışa Özel %50 İndirimli Aylık Ödeme"
+        text: "🔥 Açılışa Özel %50 İndirimli Aylık Düzenli Ödeme"
     },
     semi_annual: {
-        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺169</s> <span style="color: #ef4444; font-weight: 800;">₺84</span>',
-        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺339</s> <span style="color: #ef4444; font-weight: 800;">₺169</span>',
-        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺764</s> <span style="color: #ef4444; font-weight: 800;">₺379</span>',
-        text: "🔥 Açılışa Özel %50 İndirimli 6 Aylık Peşin Ödeme"
+        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span>',
+        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #ef4444; font-weight: 800;">₺199</span>',
+        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #ef4444; font-weight: 800;">₺449</span>',
+        text: "6 Aylık Peşin Toplam Ödeme (594 ₺ / 1194 ₺ / 2694 ₺)"
     },
     annual: {
-        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺139</s> <span style="color: #ef4444; font-weight: 800;">₺69</span>',
-        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺279</s> <span style="color: #ef4444; font-weight: 800;">₺139</span>',
-        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺629</s> <span style="color: #ef4444; font-weight: 800;">₺314</span>',
-        text: "🔥 Açılışa Özel %50 İndirimli Yıllık Peşin Ödeme"
+        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span>',
+        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #ef4444; font-weight: 800;">₺199</span>',
+        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #ef4444; font-weight: 800;">₺449</span>',
+        text: "Yıllık Peşin Toplam Ödeme (1188 ₺ / 2388 ₺ / 5388 ₺)"
     }
 };
 

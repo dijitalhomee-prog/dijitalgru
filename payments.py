@@ -15,27 +15,27 @@ PLANS = {
         "name": "Başlangıç (Starter)",
         "dynamic_limit": 5,
         "pricing": {
-            "monthly": {"price_per_month": 99.00, "total_price": 99.00, "months": 1, "label": "Aylık (Açılışa Özel %50 İndirim)"},
-            "semi_annual": {"price_per_month": 84.00, "total_price": 504.00, "months": 6, "label": "6 Aylık (Açılışa Özel %50 İndirim)"},
-            "annual": {"price_per_month": 69.00, "total_price": 828.00, "months": 12, "label": "Yıllık (Açılışa Özel %50 İndirim)"}
+            "monthly": {"price_per_month": 99.00, "total_price": 99.00, "months": 1, "label": "Aylık"},
+            "semi_annual": {"price_per_month": 99.00, "total_price": 594.00, "months": 6, "label": "6 Aylık Peşin"},
+            "annual": {"price_per_month": 99.00, "total_price": 1188.00, "months": 12, "label": "Yıllık Peşin"}
         }
     },
     "advanced": {
         "name": "Profesyonel (Advanced)",
         "dynamic_limit": 25,
         "pricing": {
-            "monthly": {"price_per_month": 199.00, "total_price": 199.00, "months": 1, "label": "Aylık (Açılışa Özel %50 İndirim)"},
-            "semi_annual": {"price_per_month": 169.00, "total_price": 1014.00, "months": 6, "label": "6 Aylık (Açılışa Özel %50 İndirim)"},
-            "annual": {"price_per_month": 139.00, "total_price": 1668.00, "months": 12, "label": "Yıllık (Açılışa Özel %50 İndirim)"}
+            "monthly": {"price_per_month": 199.00, "total_price": 199.00, "months": 1, "label": "Aylık"},
+            "semi_annual": {"price_per_month": 199.00, "total_price": 1194.00, "months": 6, "label": "6 Aylık Peşin"},
+            "annual": {"price_per_month": 199.00, "total_price": 2388.00, "months": 12, "label": "Yıllık Peşin"}
         }
     },
     "business": {
         "name": "Kurumsal (Business)",
         "dynamic_limit": 100,
         "pricing": {
-            "monthly": {"price_per_month": 449.00, "total_price": 449.00, "months": 1, "label": "Aylık (Açılışa Özel %50 İndirim)"},
-            "semi_annual": {"price_per_month": 379.00, "total_price": 2274.00, "months": 6, "label": "6 Aylık (Açılışa Özel %50 İndirim)"},
-            "annual": {"price_per_month": 314.00, "total_price": 3768.00, "months": 12, "label": "Yıllık (Açılışa Özel %50 İndirim)"}
+            "monthly": {"price_per_month": 449.00, "total_price": 449.00, "months": 1, "label": "Aylık"},
+            "semi_annual": {"price_per_month": 449.00, "total_price": 2694.00, "months": 6, "label": "6 Aylık Peşin"},
+            "annual": {"price_per_month": 449.00, "total_price": 5388.00, "months": 12, "label": "Yıllık Peşin"}
         }
     }
 }
