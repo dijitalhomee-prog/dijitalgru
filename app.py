@@ -401,7 +401,58 @@ def api_qr_delete(qr_id):
     conn.commit()
     conn.close()
     
-    return jsonify({"status": "success", "message": "QR kod silindi."})
+@app.route("/api/qr/list", methods=["GET"])
+def api_qr_list():
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Lütfen önce giriş yapın."}), 401
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+    SELECT id, short_code, title, type, target_url, is_dynamic, custom_settings, status, scans_count, created_at, updated_at
+    FROM qr_codes 
+    WHERE user_id = ? 
+    ORDER BY created_at DESC
+    """, (user["id"],))
+    rows = cursor.fetchall()
+    
+    qr_codes = []
+    app_url = request.host_url.rstrip("/")
+    for r in rows:
+        item = dict(r)
+        short_code = item.get("short_code", "")
+        item["short_url"] = f"{app_url}/r/{short_code}"
+        item["scan_count"] = item.get("scans_count", 0)
+        
+        try:
+            settings = json.loads(item["custom_settings"]) if item.get("custom_settings") else {}
+        except Exception:
+            settings = {}
+            
+        item["settings"] = settings
+        item["qr_image"] = generate_qr_image(item["short_url"], settings, format="base64")
+        qr_codes.append(item)
+        
+    # Stats
+    cursor.execute("SELECT COUNT(*) as total_qr, SUM(scans_count) as total_scans FROM qr_codes WHERE user_id = ?", (user["id"],))
+    tot_row = cursor.fetchone()
+    total_qr = (tot_row["total_qr"] if (tot_row and "total_qr" in tot_row) else 0) if tot_row else 0
+    total_scans = (tot_row["total_scans"] if (tot_row and "total_scans" in tot_row) else 0) if tot_row else 0
+    
+    conn.close()
+    
+    return jsonify({
+        "status": "success",
+        "qr_codes": qr_codes,
+        "stats": {
+            "total_qr": total_qr or len(qr_codes),
+            "total_scans": total_scans or 0,
+            "dynamic_qr_count": len(qr_codes)
+        },
+        "user": user
+    })
 
 @app.route("/api/analytics/dashboard", methods=["GET"])
 def api_analytics_dashboard():
