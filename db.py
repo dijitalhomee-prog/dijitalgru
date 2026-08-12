@@ -165,6 +165,14 @@ def init_db():
             invoice_no VARCHAR(100),
             created_at BIGINT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS pdf_files (
+            id SERIAL PRIMARY KEY,
+            file_code VARCHAR(100) UNIQUE NOT NULL,
+            filename TEXT NOT NULL,
+            content_type VARCHAR(100) DEFAULT 'application/pdf',
+            data_b64 TEXT NOT NULL,
+            created_at BIGINT NOT NULL
+        );
         """)
         try:
             cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email));")
