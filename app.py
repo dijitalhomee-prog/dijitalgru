@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, send_file, make_response, Response
+from flask import Flask, render_template, request, jsonify, redirect, send_file, Response
 import time
 import json
 import uuid
@@ -507,30 +507,6 @@ def api_qr_download(qr_id):
     filename = f"{safe_title}.{fmt}"
     
     return send_file(buffer, mimetype=mimetype, as_attachment=True, download_name=filename)
-def api_qr_list():
-    user = get_current_user()
-    if not user:
-        return jsonify({"error": "Yetkisiz erişim"}), 401
-        
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM qr_codes WHERE user_id = ? ORDER BY created_at DESC", (user["id"],))
-    rows = cursor.fetchall()
-    conn.close()
-    
-    app_url = request.host_url.rstrip("/")
-    qrs = []
-    for r in rows:
-        d = dict(r)
-        d["short_url"] = f"{app_url}/r/{d['short_code']}"
-        try:
-            d["custom_settings"] = json.loads(d["custom_settings"])
-        except Exception:
-            d["custom_settings"] = {}
-        d["qr_image"] = generate_qr_image(d["short_url"], d["custom_settings"], format="base64")
-        qrs.append(d)
-        
-    return jsonify({"qr_codes": qrs})
 
 @app.route("/api/qr/<int:qr_id>/update", methods=["POST"])
 def api_qr_update(qr_id):
@@ -564,6 +540,7 @@ def api_qr_update(qr_id):
     
     return jsonify({"status": "success", "message": "QR Kod güncellendi!"})
 
+@app.route("/api/qr/<int:qr_id>", methods=["DELETE"])
 @app.route("/api/qr/<int:qr_id>/delete", methods=["DELETE", "POST"])
 def api_qr_delete(qr_id):
     user = get_current_user()
@@ -578,6 +555,8 @@ def api_qr_delete(qr_id):
     cursor.execute("DELETE FROM menu_pages WHERE qr_id = ?", (qr_id,))
     conn.commit()
     conn.close()
+    
+    return jsonify({"status": "success", "message": "QR kod başarıyla silindi."})
     
 @app.route("/api/qr/list", methods=["GET"])
 def api_qr_list():
@@ -723,18 +702,6 @@ def api_export_qr(qr_id):
         response = Response(png_bytes, mimetype="image/png")
         response.headers["Content-Disposition"] = f'attachment; filename="{title}.png"'
         return response
-
-@app.route("/api/qr/<int:qr_id>", methods=["DELETE"])
-def api_delete_qr(qr_id):
-    user = get_current_user()
-    if not user:
-        return jsonify({"error": "Yetkisiz erişim."}), 401
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM qr_codes WHERE id = ? AND user_id = ?", (qr_id, user["id"]))
-    conn.commit()
-    conn.close()
-    return jsonify({"status": "success"})
 
 @app.route("/api/qr/<int:qr_id>/update_folder", methods=["POST"])
 def api_update_qr_folder(qr_id):
