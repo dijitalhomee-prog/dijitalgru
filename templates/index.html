@@ -218,6 +218,21 @@
                     <!-- Type 3: Menu -->
                     <div id="form-menu" class="type-form" style="display: none;">
                         <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">🍽️ Dijital Menü & PDF Katalog Ayarları</h4>
+
+                        <!-- Direct PDF Redirect Switch -->
+                        <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 6px;">⚡ Doğrudan PDF Yönlendirmesi</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Aktifleştiğinde kullanıcılar herhangi bir sayfa görmez, doğrudan PDF belgesine yönlendirilir.</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="direct-pdf-redirect" checked onchange="updateLivePreview()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="form-label">Mekan / İşletme Adı</label>
                             <input type="text" id="menu-title" class="form-input" placeholder="İşletme / Restoran Adı (Örn: Lezzet Cafe)">
@@ -581,6 +596,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=20260812_v4"></script>
+    <script src="/static/js/app.js?v=20260812_v5"></script>
 </body>
 </html>

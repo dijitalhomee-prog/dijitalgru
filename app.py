@@ -278,6 +278,8 @@ def api_qr_create():
         if pdf_url in ["None", "null", "undefined", ""]:
             pdf_url = None
 
+        direct_redirect = menu_payload.get("direct_redirect", True)
+
         cursor.execute("""
         INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -290,8 +292,8 @@ def api_qr_create():
             json.dumps(menu_payload.get("categories", []))
         ))
         
-        # If PDF is uploaded, redirect QR scans DIRECTLY to the PDF file!
-        if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")):
+        # If PDF is uploaded AND direct_redirect is True, redirect QR scans DIRECTLY to the PDF file!
+        if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")) and direct_redirect:
             cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (pdf_url, qr_id))
         else:
             cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))

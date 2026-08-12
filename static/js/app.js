@@ -198,10 +198,12 @@ function getQRFormPayload() {
             bio: getVal("vcard-bio", "")
         };
     } else if (currentQrType === "menu") {
+        const directPdfEl = document.getElementById("direct-pdf-redirect");
         menu_payload = {
             title: getVal("menu-title", "Restoran / İşletme Adı"),
             description: getVal("menu-desc", "Menümüz ve Lezzetlerimiz"),
             pdf_url: uploadedPdfUrl,
+            direct_redirect: directPdfEl ? directPdfEl.checked : true,
             categories: [
                 {
                     name: "Menü Kategori 1",
@@ -383,7 +385,9 @@ function renderQRList(codes) {
         return;
     }
 
-    container.innerHTML = codes.map(qr => `
+    container.innerHTML = codes.map(qr => {
+        const shareUrl = qr.short_url || `${window.location.origin}/r/${qr.short_code}`;
+        return `
         <div class="glass-card" style="margin-bottom: 16px; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div style="background: #ffffff; padding: 6px; border-radius: 12px; display: flex;">
@@ -391,14 +395,20 @@ function renderQRList(codes) {
                 </div>
                 <div>
                     <h4 style="font-size: 16px; font-weight: 700; color: #ffffff;">${qr.title}</h4>
-                    <div style="font-size: 12px; color: var(--accent); margin-top: 4px;">🎯 Hedef: ${qr.target_url}</div>
-                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Kısa Link: ${window.location.origin}/r/${qr.short_code}</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">🎯 Hedef: ${qr.target_url}</div>
+                    
+                    <!-- Copyable Shareable Link Box -->
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <span style="font-size: 11px; color: #a5b4fc; font-weight: 600;">🔗 Paylaşım Linki:</span>
+                        <span style="font-size: 11px; color: #ffffff; font-weight: 600; font-family: monospace;">${shareUrl}</span>
+                        <button onclick="copyShareLink('${shareUrl}', this)" class="btn-secondary" style="padding: 3px 8px; font-size: 10px; margin-left: 4px; border-radius: 6px;">📋 Linki Kopyala</button>
+                    </div>
                 </div>
             </div>
 
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                 <div class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success); font-size: 12px;">
-                    👁️ ${qr.scan_count} Tarama
+                    👁️ ${qr.scan_count || qr.scans_count || 0} Tarama
                 </div>
                 
                 <!-- Format Download Buttons -->
@@ -409,7 +419,28 @@ function renderQRList(codes) {
                 </div>
             </div>
         </div>
-    `).join("");
+        `;
+    }).join("");
+}
+
+function copyShareLink(url, btn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            const orig = btn.innerText;
+            btn.innerText = "✅ Kopyalandı!";
+            btn.style.background = "#10b981";
+            btn.style.color = "#ffffff";
+            setTimeout(() => {
+                btn.innerText = orig;
+                btn.style.background = "";
+                btn.style.color = "";
+            }, 2000);
+        }).catch(() => {
+            prompt("Paylaşım Linkiniz:", url);
+        });
+    } else {
+        prompt("Paylaşım Linkiniz:", url);
+    }
 }
 
 // Modal Helpers
