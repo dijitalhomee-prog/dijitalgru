@@ -455,10 +455,12 @@ async function loadDashboardData() {
         });
         const data = await res.json();
         if (res.ok) {
-            document.getElementById("stat-total-qr").innerText = data.stats.total_qr;
-            document.getElementById("stat-total-scans").innerText = data.stats.total_scans;
-            document.getElementById("stat-limit").innerText = `${data.stats.dynamic_qr_count} / ${data.user.dynamic_qr_limit}`;
-            document.getElementById("stat-plan").innerText = data.user.plan.toUpperCase();
+            if (document.getElementById("stat-total-qr")) document.getElementById("stat-total-qr").innerText = data.stats.total_qr;
+            if (document.getElementById("stat-total-scans")) document.getElementById("stat-total-scans").innerText = data.stats.total_scans;
+            if (document.getElementById("stat-unique-visitors")) document.getElementById("stat-unique-visitors").innerText = data.stats.unique_visitors || 0;
+            if (document.getElementById("stat-avg-scans")) document.getElementById("stat-avg-scans").innerText = data.stats.avg_scans_per_qr || 0.0;
+            if (document.getElementById("stat-limit")) document.getElementById("stat-limit").innerText = `${data.stats.dynamic_qr_count} / ${data.user.dynamic_qr_limit}`;
+            if (document.getElementById("stat-plan")) document.getElementById("stat-plan").innerText = data.user.plan.toUpperCase();
 
             renderQRList(data.qr_codes);
         }

@@ -552,6 +552,17 @@ def api_qr_list():
     total_qr = (tot_row["total_qr"] if (tot_row and "total_qr" in tot_row) else 0) if tot_row else 0
     total_scans = (tot_row["total_scans"] if (tot_row and "total_scans" in tot_row) else 0) if tot_row else 0
     
+    # Unique visitors (IP based) & avg scans
+    cursor.execute("""
+    SELECT COUNT(DISTINCT sl.ip_address) as unique_visitors 
+    FROM scan_logs sl 
+    JOIN qr_codes q ON sl.qr_id = q.id 
+    WHERE q.user_id = ?
+    """, (user["id"],))
+    uv_row = cursor.fetchone()
+    unique_visitors = (uv_row["unique_visitors"] if (uv_row and "unique_visitors" in uv_row) else 0) or 0
+    avg_scans = round(total_scans / total_qr, 1) if total_qr > 0 else 0.0
+    
     conn.close()
     
     return jsonify({
@@ -560,6 +571,8 @@ def api_qr_list():
         "stats": {
             "total_qr": total_qr or len(qr_codes),
             "total_scans": total_scans or 0,
+            "unique_visitors": unique_visitors,
+            "avg_scans_per_qr": avg_scans,
             "dynamic_qr_count": len(qr_codes)
         },
         "user": user
@@ -580,6 +593,16 @@ def api_analytics_dashboard():
     total_qr = tot_row["total_qr"] or 0
     total_scans = tot_row["total_scans"] or 0
     
+    cursor.execute("""
+    SELECT COUNT(DISTINCT sl.ip_address) as unique_visitors 
+    FROM scan_logs sl 
+    JOIN qr_codes q ON sl.qr_id = q.id 
+    WHERE q.user_id = ?
+    """, (user["id"],))
+    uv_row = cursor.fetchone()
+    unique_visitors = (uv_row["unique_visitors"] if (uv_row and "unique_visitors" in uv_row) else 0) or 0
+    avg_scans = round(total_scans / total_qr, 1) if total_qr > 0 else 0.0
+    
     # Device breakdown
     cursor.execute("""
     SELECT sl.device_type, COUNT(*) as count 
@@ -595,6 +618,8 @@ def api_analytics_dashboard():
     return jsonify({
         "total_qr": total_qr,
         "total_scans": total_scans,
+        "unique_visitors": unique_visitors,
+        "avg_scans_per_qr": avg_scans,
         "dynamic_limit": user["dynamic_qr_limit"],
         "plan": user["plan"],
         "devices": devices
