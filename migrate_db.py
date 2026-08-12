@@ -53,6 +53,46 @@ def ensure_admin_user():
     finally:
         conn.close()
 
+def cleanup_test_accounts():
+    """
+    Deletes all temporary test accounts created during live verification tests.
+    Preserves real user accounts (e.g. dijitalgru@gmail.com).
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+    test_patterns = [
+        '%_test_%', 'user_test_%', 'admin_test_%', 'normal_anon_%', 
+        'live_pwd_sec_%', 'clean_tester_%', 'prod_pay_security_%', 
+        'live_verify_test_%', 'acc_admin_%', 'acc_cust_%', 'acc_target_%', 
+        'acc_live_%', 'test_admin_%', 'contract_test_%', 'anon_user_%'
+    ]
+    
+    try:
+        for pat in test_patterns:
+            if is_postgres():
+                cursor.execute("SELECT id FROM users WHERE email LIKE %s AND LOWER(email) != LOWER('dijitalgru@gmail.com')", (pat,))
+                rows = cursor.fetchall()
+                for r in rows:
+                    uid = r['id']
+                    cursor.execute("DELETE FROM qr_codes WHERE user_id = %s", (uid,))
+                    cursor.execute("DELETE FROM subscriptions WHERE user_id = %s", (uid,))
+                    cursor.execute("DELETE FROM users WHERE id = %s", (uid,))
+            else:
+                cursor.execute("SELECT id FROM users WHERE email LIKE ? AND LOWER(email) != LOWER('dijitalgru@gmail.com')", (pat,))
+                rows = cursor.fetchall()
+                for r in rows:
+                    uid = r['id']
+                    cursor.execute("DELETE FROM qr_codes WHERE user_id = ?", (uid,))
+                    cursor.execute("DELETE FROM subscriptions WHERE user_id = ?", (uid,))
+                    cursor.execute("DELETE FROM users WHERE id = ?", (uid,))
+        conn.commit()
+        print("✅ Production test accounts cleanup complete.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ cleanup_test_accounts note:", e)
+    finally:
+        conn.close()
+
 def run_migrations():
     conn = get_db()
     cursor = conn.cursor()
@@ -143,8 +183,9 @@ def run_migrations():
         
     conn.close()
 
-    # Always ensure primary admin user is configured
+    # Always ensure primary admin user is configured and test accounts cleaned up
     ensure_admin_user()
+    cleanup_test_accounts()
 
 if __name__ == "__main__":
     run_migrations()
