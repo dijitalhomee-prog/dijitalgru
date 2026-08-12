@@ -50,73 +50,97 @@ def index():
     }, format="base64")
     return render_template("index.html", initial_qr_image=initial_qr)
 
-def async_log_scan(qr_id, ip_addr, user_agent, device_type, browser):
+def _log_scan_async(qr_id, visitor_ip, user_agent):
+    """
+    Background Thread: Asynchronously logs scan analytics without blocking user redirect.
+    Opens and closes its own DB connection safely.
+    """
+    conn = None
     try:
         conn = get_db()
         cursor = conn.cursor()
         now = int(time.time())
+        device_type = "Mobile" if ("Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent) else "Desktop"
+        browser = "Chrome" if "Chrome" in user_agent else ("Safari" if "Safari" in user_agent else "Other")
+        
         cursor.execute("""
         INSERT INTO scan_logs (qr_id, scanned_at, ip_address, user_agent, device_type, browser, country, city)
         VALUES (?, ?, ?, ?, ?, ?, 'Türkiye', 'İstanbul')
-        """, (qr_id, now, ip_addr, user_agent, device_type, browser))
-        cursor.execute("UPDATE qr_codes SET scans_count = scans_count + 1 WHERE id = ?", (qr_id,))
+        """, (qr_id, now, visitor_ip, user_agent, device_type, browser))
+        
+        cursor.execute("UPDATE qr_codes SET scans_count = COALESCE(scans_count, 0) + 1 WHERE id = ?", (qr_id,))
         conn.commit()
-        conn.close()
-    except Exception as ex:
-        print("Async scan log error:", ex)
+        cursor.close()
+    except Exception as e:
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+        print(f"[scan log error] qr_id={qr_id}: {e}")
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 @app.route("/r/<short_code>")
 def redirect_qr(short_code):
     """
-    Ultra-fast Dynamic QR short URL redirect engine with async background analytics logging.
+    Ultra-fast Dynamic QR short URL redirect engine (<50ms).
+    Target is ALWAYS the QR's own target_url/file, NEVER /panel or static admin page.
     """
     conn = get_db()
     cursor = conn.cursor()
     
     try:
-        cursor.execute("SELECT * FROM qr_codes WHERE short_code = ?", (short_code,))
+        cursor.execute("SELECT id, type, target_url, status FROM qr_codes WHERE short_code = ?", (short_code,))
         qr_row = cursor.fetchone()
+        cursor.close()
     except Exception as ex:
         conn.rollback()
         conn.close()
-        return "Veritabanı hatası oluştu.", 500
+        print(f"[/r/{short_code}] DB lookup error:", ex)
+        return "<h3>⚠️ Sunucu Hatası</h3><p>Yönlendirme sırasında bir Hata oluştu.</p>", 500
         
     conn.close()
     
     if not qr_row:
-        return "<h3>⚠️ QR Kod Bulunamadı</h3><p>Aradığınız QR kod sistemde mevcut değil veya silinmiş olabilir.</p>", 404
+        return "<h3>⚠️ QR Kod Bulunamadı</h3><p>Aradığınız QR kod sistemde bulunamadı veya silinmiş olabilir.</p>", 404
         
     qr = dict(qr_row)
+    qr_id = qr["id"]
+    status = qr.get("status", "active")
+    target_url = (qr.get("target_url") or "").strip()
     
-    # Check status
-    if qr.get("status") in ["passive", "paused", "deleted", "archived"]:
+    if status in ["passive", "paused", "deleted", "archived"]:
         return "<h3>🟡 Bu QR Kod Pasife Alınmıştır</h3><p>Bu QR kod şu anda aktif değildir.</p>", 403
         
-    # Dispatch Async Analytics Logging in Background Thread (Instant & Non-blocking!)
-    user_agent = request.headers.get("User-Agent", "Unknown")
-    ip_addr = request.headers.get("X-Forwarded-For", request.remote_addr or "127.0.0.1").split(',')[0].strip()
-    device_type = "Mobile" if ("Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent) else "Desktop"
-    browser = "Chrome" if "Chrome" in user_agent else ("Safari" if "Safari" in user_agent else "Other")
+    if not target_url:
+        return "<h3>⚠️ Hedef Adres Bulunamadı</h3><p>Bu QR kod için geçerli bir hedef bulunamadı.</p>", 404
+
+    # ---- Async Scan Analytics Logging (Non-blocking Thread) ----
+    visitor_ip = request.headers.get("X-Forwarded-For", request.remote_addr or "127.0.0.1").split(',')[0].strip()
+    user_agent = request.headers.get("User-Agent", "")
     
     threading.Thread(
-        target=async_log_scan,
-        args=(qr["id"], ip_addr, user_agent, device_type, browser),
+        target=_log_scan_async,
+        args=(qr_id, visitor_ip, user_agent),
         daemon=True
     ).start()
-    
-    # Handle Target URL Resolution
-    target = qr.get("target_url", "").strip()
-    
-    if target.startswith("micropage://vcard") or target == "vcard":
-        return redirect(f"/p/vcard/{qr['id']}")
-    elif target.startswith("micropage://menu") or target == "menu" or target == "pdf":
-        return redirect(f"/p/menu/{qr['id']}")
-    elif target.startswith("/"):
-        return redirect(target)
-    elif not (target.startswith("http://") or target.startswith("https://")):
-        target = "https://" + target
+
+    # ---- Target Resolution: ALWAYS redirect instantly to target_url ----
+    if target_url.startswith("micropage://vcard") or target_url == "vcard":
+        return redirect(f"/p/vcard/{qr_id}", code=302)
+    elif target_url.startswith("micropage://menu") or target_url == "menu" or target_url == "pdf":
+        return redirect(f"/p/menu/{qr_id}", code=302)
+    elif target_url.startswith("/"):
+        return redirect(target_url, code=302)
+    elif not (target_url.startswith("http://") or target_url.startswith("https://")):
+        target_url = "https://" + target_url
         
-    return redirect(target, code=302)
+    return redirect(target_url, code=302)
 
 @app.route("/p/vcard/<int:qr_id>")
 def public_vcard(qr_id):
@@ -265,8 +289,13 @@ def serve_legacy_static_pdf(filename):
     file_code = filename.replace("menu_", "").replace(".pdf", "")
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM pdf_files WHERE file_code = ? OR filename = ?", (file_code, filename))
-    row = cursor.fetchone()
+    try:
+        cursor.execute("SELECT * FROM pdf_files WHERE file_code = ? OR filename = ?", (file_code, filename))
+        row = cursor.fetchone()
+    except Exception as ex:
+        conn.rollback()
+        conn.close()
+        return "PDF Bulunamadı", 404
     conn.close()
     
     if row:
@@ -286,8 +315,13 @@ def serve_pdf(file_code):
         
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM pdf_files WHERE file_code = ?", (file_code,))
-    row = cursor.fetchone()
+    try:
+        cursor.execute("SELECT * FROM pdf_files WHERE file_code = ?", (file_code,))
+        row = cursor.fetchone()
+    except Exception as ex:
+        conn.rollback()
+        conn.close()
+        return "PDF Bulunamadı", 404
     conn.close()
     
     if not row:
