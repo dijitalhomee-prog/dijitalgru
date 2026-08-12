@@ -535,29 +535,11 @@ def api_qr_list():
         ORDER BY q.created_at DESC
         """, (user["id"],))
         rows = cursor.fetchall()
-    except Exception:
-        # Auto-heal: add folder_name column if missing
-        try:
-            if is_postgres():
-                cursor.execute("ALTER TABLE qr_codes ADD COLUMN IF NOT EXISTS folder_name VARCHAR(100) DEFAULT 'Genel';")
-            else:
-                cursor.execute("ALTER TABLE qr_codes ADD COLUMN folder_name TEXT DEFAULT 'Genel';")
-            conn.commit()
-        except Exception:
-            pass
-        
-        cursor.execute("""
-        SELECT 
-            q.id, q.short_code, q.title, q.type, q.target_url, q.is_dynamic, q.custom_settings, q.status, q.scans_count, 
-            'Genel' as folder_name, q.created_at, q.updated_at,
-            COUNT(DISTINCT sl.ip_address) as unique_scans
-        FROM qr_codes q
-        LEFT JOIN scan_logs sl ON q.id = sl.qr_id
-        WHERE q.user_id = ?
-        GROUP BY q.id, q.short_code, q.title, q.type, q.target_url, q.is_dynamic, q.custom_settings, q.status, q.scans_count, q.created_at, q.updated_at
-        ORDER BY q.created_at DESC
-        """, (user["id"],))
-        rows = cursor.fetchall()
+    except Exception as ex:
+        conn.rollback()
+        conn.close()
+        print("Error in api_qr_list:", ex)
+        return jsonify({"error": "QR listesi alınırken sunucu hatası oluştu."}), 500
     
     qr_codes = []
     app_url = request.host_url.rstrip("/")
