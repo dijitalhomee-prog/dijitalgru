@@ -140,5 +140,32 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertEqual(len(data["qr_codes"]), 1)
         self.assertEqual(data["stats"]["total_qr"], 1)
 
+    def test_08_redirect_qr_speed_and_target(self):
+        email = f"redir_tester_{int(time.time())}@dijitalgru.com"
+        reg_res = self.client.post("/api/auth/register", json={
+            "name": "Redir Tester",
+            "email": email,
+            "password": "Password123!"
+        })
+        token = reg_res.get_json()["token"]
+
+        # Create QR code
+        c_res = self.client.post("/api/qr/create", json={
+            "title": "Hızlı Yönlendirme Testi",
+            "type": "url",
+            "target_url": "https://dijitalgru.com/hedef-sayfa",
+            "settings": {}
+        }, headers={"Authorization": f"Bearer {token}"})
+        short_code = c_res.get_json()["short_code"]
+
+        # Simulate unauthenticated QR scan (no login, no token)
+        t0 = time.time()
+        r_res = self.client.get(f"/r/{short_code}")
+        duration = time.time() - t0
+
+        self.assertLess(duration, 1.0, f"Redirection took too long: {duration:.3f}s")
+        self.assertEqual(r_res.status_code, 302)
+        self.assertEqual(r_res.location, "https://dijitalgru.com/hedef-sayfa")
+
 if __name__ == "__main__":
     unittest.main()

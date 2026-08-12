@@ -5,6 +5,7 @@ import uuid
 import os
 import io
 import base64
+import threading
 
 from PIL import Image
 from db import init_db, get_db, is_postgres
@@ -49,56 +50,73 @@ def index():
     }, format="base64")
     return render_template("index.html", initial_qr_image=initial_qr)
 
+def async_log_scan(qr_id, ip_addr, user_agent, device_type, browser):
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        now = int(time.time())
+        cursor.execute("""
+        INSERT INTO scan_logs (qr_id, scanned_at, ip_address, user_agent, device_type, browser, country, city)
+        VALUES (?, ?, ?, ?, ?, ?, 'Türkiye', 'İstanbul')
+        """, (qr_id, now, ip_addr, user_agent, device_type, browser))
+        cursor.execute("UPDATE qr_codes SET scans_count = scans_count + 1 WHERE id = ?", (qr_id,))
+        conn.commit()
+        conn.close()
+    except Exception as ex:
+        print("Async scan log error:", ex)
+
 @app.route("/r/<short_code>")
 def redirect_qr(short_code):
     """
-    Dynamic QR short URL redirect engine with analytics logging.
+    Ultra-fast Dynamic QR short URL redirect engine with async background analytics logging.
     """
     conn = get_db()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT * FROM qr_codes WHERE short_code = ?", (short_code,))
-    qr_row = cursor.fetchone()
+    try:
+        cursor.execute("SELECT * FROM qr_codes WHERE short_code = ?", (short_code,))
+        qr_row = cursor.fetchone()
+    except Exception as ex:
+        conn.rollback()
+        conn.close()
+        return "Veritabanı hatası oluştu.", 500
+        
+    conn.close()
     
     if not qr_row:
-        conn.close()
-        return "QR Kod Bulunamadı", 404
+        return "<h3>⚠️ QR Kod Bulunamadı</h3><p>Aradığınız QR kod sistemde mevcut değil veya silinmiş olabilir.</p>", 404
         
     qr = dict(qr_row)
     
-    if qr["status"] == "paused":
-        conn.close()
-        return render_template("index.html", error="Bu QR kod pasife alınmıştır.")
+    # Check status
+    if qr.get("status") in ["passive", "paused", "deleted", "archived"]:
+        return "<h3>🟡 Bu QR Kod Pasife Alınmıştır</h3><p>Bu QR kod şu anda aktif değildir.</p>", 403
         
-    # Log scan analytics
+    # Dispatch Async Analytics Logging in Background Thread (Instant & Non-blocking!)
     user_agent = request.headers.get("User-Agent", "Unknown")
-    ip_addr = request.remote_addr or "127.0.0.1"
-    now = int(time.time())
-    
+    ip_addr = request.headers.get("X-Forwarded-For", request.remote_addr or "127.0.0.1").split(',')[0].strip()
     device_type = "Mobile" if ("Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent) else "Desktop"
     browser = "Chrome" if "Chrome" in user_agent else ("Safari" if "Safari" in user_agent else "Other")
     
-    cursor.execute("""
-    INSERT INTO scan_logs (qr_id, scanned_at, ip_address, user_agent, device_type, browser, country, city)
-    VALUES (?, ?, ?, ?, ?, ?, 'Türkiye', 'İstanbul')
-    """, (qr["id"], now, ip_addr, user_agent, device_type, browser))
+    threading.Thread(
+        target=async_log_scan,
+        args=(qr["id"], ip_addr, user_agent, device_type, browser),
+        daemon=True
+    ).start()
     
-    cursor.execute("UPDATE qr_codes SET scans_count = scans_count + 1 WHERE id = ?", (qr["id"],))
-    conn.commit()
-    conn.close()
+    # Handle Target URL Resolution
+    target = qr.get("target_url", "").strip()
     
-    # Handle dynamic redirect or micro-page
-    target = qr["target_url"]
-    if target.startswith("micropage://vcard"):
+    if target.startswith("micropage://vcard") or target == "vcard":
         return redirect(f"/p/vcard/{qr['id']}")
-    elif target.startswith("micropage://menu"):
+    elif target.startswith("micropage://menu") or target == "menu" or target == "pdf":
         return redirect(f"/p/menu/{qr['id']}")
     elif target.startswith("/"):
         return redirect(target)
     elif not (target.startswith("http://") or target.startswith("https://")):
         target = "https://" + target
         
-    return redirect(target)
+    return redirect(target, code=302)
 
 @app.route("/p/vcard/<int:qr_id>")
 def public_vcard(qr_id):
@@ -825,8 +843,8 @@ def internal_error(error):
 def not_found_error(error):
     if request.path.startswith("/api/"):
         return jsonify({"error": "İstenen kaynak bulunamadı."}), 404
-    elif request.path.startswith("/static/") or request.path.startswith("/p/pdf/"):
-        return "Dosya veya içerik bulunamadı.", 404
+    elif request.path.startswith("/static/") or request.path.startswith("/p/pdf/") or request.path.startswith("/p/") or request.path.startswith("/r/"):
+        return "<h3>⚠️ Sayfa veya İçerik Bulunamadı</h3><p>İstediğiniz sayfa veya QR kod mevcut değil.</p>", 404
     return render_template("index.html"), 404
 
 if __name__ == "__main__":
