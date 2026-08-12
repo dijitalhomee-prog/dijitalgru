@@ -940,5 +940,6 @@ def not_found_error(error):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 3000))
-    print(f"🚀 Dijitalgru QR SaaS Sunucusu Başlatılıyor: http://localhost:{port}")
-    app.run(host="0.0.0.0", port=port, debug=True)
+    debug_mode = os.environ.get("FLASK_ENV") == "development" or os.environ.get("FLASK_DEBUG") == "1"
+    print(f"🚀 Dijitalgru QR SaaS Sunucusu Başlatılıyor: http://localhost:{port} (debug={debug_mode})")
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
