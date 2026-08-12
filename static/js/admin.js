@@ -78,9 +78,12 @@ async function loadAccountingData() {
             const dataTx = await resTx.json();
             allTransactionsCache = dataTx.transactions || [];
             renderAccountingTransactionsTable(allTransactionsCache);
+        } else {
+            renderAccountingTransactionsTable([]);
         }
     } catch (err) {
         console.error("Accounting load error:", err);
+        renderAccountingTransactionsTable([]);
     }
 }
 

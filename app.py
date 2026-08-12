@@ -13,12 +13,17 @@ from auth import register_user, login_user, decode_token, get_user_by_id
 from qr_engine import generate_qr_image
 from payments import create_checkout_form, verify_and_process_iyzico_callback, PLANS
 from cloud_storage import upload_file_to_cloud
+from migrate_db import run_migrations
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.config["SECRET_KEY"] = os.environ.get("JWT_SECRET", "dijitalgru_qr_secret_key_2026")
 
-# Ensure DB initialized on startup
-init_db()
+# Initialize Database and Migrations on Startup
+try:
+    init_db()
+    run_migrations()
+except Exception as e:
+    print(f"⚠️ DB initialization/migration note: {e}")
 
 # --- Helper Auth Middleware ---
 def get_current_user():
@@ -30,12 +35,6 @@ def get_current_user():
     if not payload:
         return None
     return get_user_by_id(payload["user_id"])
-
-# Initialize Database on Startup
-try:
-    init_db()
-except Exception as e:
-    print(f"⚠️ DB initialization note: {e}")
 
 # --- Public Routes ---
 
@@ -1212,7 +1211,16 @@ def api_admin_accounting_transactions():
 def api_admin_accounting_export():
     admin, err_resp = require_admin()
     if err_resp:
-        return err_resp
+        token = request.args.get("token")
+        if token:
+            payload = decode_token(token)
+            if payload:
+                user = get_user_by_id(payload["user_id"])
+                if user and user.get("is_admin"):
+                    admin = user
+                    err_resp = None
+        if err_resp:
+            return err_resp
         
     conn = get_db()
     cursor = conn.cursor()

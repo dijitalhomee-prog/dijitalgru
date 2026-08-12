@@ -1,5 +1,57 @@
 import os
+import time
+from werkzeug.security import generate_password_hash
 from db import get_db, is_postgres
+
+def ensure_admin_user():
+    """
+    Ensures that dijitalgru@gmail.com exists with password '459683758' (hashed via Werkzeug pbkdf2:sha256)
+    and is set as is_admin = True in both PostgreSQL and SQLite.
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+    admin_email = "dijitalgru@gmail.com"
+    admin_pass = "459683758"
+    hashed = generate_password_hash(admin_pass, method="pbkdf2:sha256")
+    now = int(time.time())
+    sub_end = now + (86400 * 3650) # 10 years
+    
+    try:
+        if is_postgres():
+            cursor.execute("SELECT id FROM users WHERE LOWER(email) = LOWER(%s)", (admin_email,))
+            row = cursor.fetchone()
+            if row:
+                cursor.execute("""
+                UPDATE users 
+                SET password_hash = %s, is_admin = TRUE, account_status = 'active', plan = 'business', dynamic_qr_limit = 10000 
+                WHERE id = %s
+                """, (hashed, row['id']))
+            else:
+                cursor.execute("""
+                INSERT INTO users (name, email, password_hash, plan, subscription_end, dynamic_qr_limit, is_admin, account_status, created_at)
+                VALUES (%s, %s, %s, 'business', %s, 10000, TRUE, 'active', %s)
+                """, ('Furkan Egemen Güneş', admin_email, hashed, sub_end, now))
+        else:
+            cursor.execute("SELECT id FROM users WHERE LOWER(email) = LOWER(?)", (admin_email,))
+            row = cursor.fetchone()
+            if row:
+                cursor.execute("""
+                UPDATE users 
+                SET password_hash = ?, is_admin = 1, account_status = 'active', plan = 'business', dynamic_qr_limit = 10000 
+                WHERE id = ?
+                """, (hashed, row['id']))
+            else:
+                cursor.execute("""
+                INSERT INTO users (name, email, password_hash, plan, subscription_end, dynamic_qr_limit, is_admin, account_status, created_at)
+                VALUES (?, ?, ?, 'business', ?, 10000, 1, 'active', ?)
+                """, ('Furkan Egemen Güneş', admin_email, hashed, sub_end, now))
+        conn.commit()
+        print("✅ Primary Admin User (dijitalgru@gmail.com) ensured.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ ensure_admin_user note:", e)
+    finally:
+        conn.close()
 
 def run_migrations():
     conn = get_db()
@@ -90,6 +142,9 @@ def run_migrations():
         print("⚠️ Subscriptions migration note:", e)
         
     conn.close()
+
+    # Always ensure primary admin user is configured
+    ensure_admin_user()
 
 if __name__ == "__main__":
     run_migrations()
