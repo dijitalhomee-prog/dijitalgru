@@ -28,7 +28,7 @@ function initColorInputs() {
         if (input && circle) {
             input.addEventListener('input', (e) => {
                 let val = e.target.value;
-                if (!val.startswith('#')) val = '#' + val;
+                if (val && !val.startsWith('#')) val = '#' + val;
                 circle.style.backgroundColor = val;
                 updateLivePreview();
             });
@@ -142,11 +142,19 @@ function initTypeSelector() {
 // Live Preview Updater
 async function updateLivePreview() {
     const payload = getQRFormPayload();
+    let previewText = payload.target_url;
+    if (payload.type === "vcard") {
+        previewText = `BEGIN:VCARD\nVERSION:3.0\nN:${payload.vcard_payload?.full_name || 'Isim'}\nTEL:${payload.vcard_payload?.phone || ''}\nEND:VCARD`;
+    } else if (payload.type === "menu") {
+        previewText = payload.menu_payload?.pdf_url || "https://dijitalgru.com/menu";
+    }
+    if (!previewText) previewText = "https://dijitalgru.com";
+
     try {
         const res = await fetch("/api/qr/preview", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ text: previewText, settings: payload.settings })
         });
         const data = await res.json();
         if (data.qr_image) {
