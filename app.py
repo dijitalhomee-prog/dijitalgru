@@ -313,6 +313,11 @@ def serve_pdf(file_code):
     if file_code.endswith(".pdf"):
         file_code = file_code[:-4]
         
+    # 1. Check local disk static uploads first (Sub-10ms response!)
+    local_path = os.path.join(app.static_folder, "uploads", "pdfs", f"{file_code}.pdf")
+    if os.path.exists(local_path):
+        return send_file(local_path, mimetype="application/pdf")
+
     conn = get_db()
     cursor = conn.cursor()
     try:
@@ -329,11 +334,19 @@ def serve_pdf(file_code):
         return "PDF Dosyası Bulunamadı", 404
         
     pdf_data = dict(row)
-    pdf_bytes = base64.b64decode(pdf_data["data_b64"])
+    filename = pdf_data.get("filename", f"{file_code}.pdf")
+    content_type = pdf_data.get("content_type", "application/pdf")
     
-    response = Response(pdf_bytes, mimetype=pdf_data.get("content_type", "application/pdf"))
-    response.headers["Content-Disposition"] = f'inline; filename="{pdf_data["filename"]}"'
-    return response
+    try:
+        pdf_bytes = base64.b64decode(pdf_data["data_b64"])
+        # Save to local disk cache for instant future hits
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        with open(local_path, "wb") as f:
+            f.write(pdf_bytes)
+        return send_file(local_path, mimetype=content_type)
+    except Exception as ex:
+        print(f"PDF decode error for {file_code}:", ex)
+        return "PDF Dosyası Okunamadı", 500
 
 @app.route("/api/upload/pdf", methods=["POST"])
 def api_upload_pdf():
