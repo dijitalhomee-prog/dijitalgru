@@ -30,37 +30,54 @@ def decode_token(token):
         return None
 
 def register_user(name, email, password):
+    clean_email = (email or "").lower().strip()
+    clean_name = (name or "").strip()
+    
+    if not clean_name or len(clean_name) < 2:
+        return None, "Lütfen geçerli bir ad soyad girin."
+        
+    if not clean_email or "@" not in clean_email or "." not in clean_email:
+        return None, "Lütfen geçerli bir e-posta adresi girin."
+        
+    if not password or len(password) < 6:
+        return None, "Şifreniz en az 6 karakter olmalıdır."
+        
     conn = get_db()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT id FROM users WHERE email = ?", (email.lower().strip(),))
-    if cursor.fetchone():
-        conn.close()
-        return None, "Bu e-posta adresi ile zaten kayıtlı bir hesap var."
+    try:
+        cursor.execute("SELECT id FROM users WHERE LOWER(email) = LOWER(?)", (clean_email,))
+        if cursor.fetchone():
+            conn.close()
+            return None, "Bu e-posta adresi ile zaten kayıtlı bir hesap var. Lütfen giriş yapın."
+            
+        pwd_hash = hash_password(password)
+        now = int(time.time())
         
-    pwd_hash = hash_password(password)
-    now = int(time.time())
-    
-    cursor.execute("""
-    INSERT INTO users (name, email, password_hash, plan, subscription_end, dynamic_qr_limit, created_at)
-    VALUES (?, ?, ?, 'free', ?, 3, ?)
-    """, (name.strip(), email.lower().strip(), pwd_hash, now + (86400 * 7), now))
-    
-    user_id = cursor.lastrowid
-    conn.commit()
-    
-    cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit FROM users WHERE id = ?", (user_id,))
-    user = dict(cursor.fetchone())
-    conn.close()
-    
-    token = create_token(user)
-    return {"token": token, "user": user}, None
+        cursor.execute("""
+        INSERT INTO users (name, email, password_hash, plan, subscription_end, dynamic_qr_limit, created_at)
+        VALUES (?, ?, ?, 'free', ?, 3, ?)
+        """, (clean_name, clean_email, pwd_hash, now + (86400 * 7), now))
+        
+        user_id = cursor.lastrowid
+        conn.commit()
+        
+        cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit FROM users WHERE id = ?", (user_id,))
+        user = dict(cursor.fetchone())
+        conn.close()
+        
+        token = create_token(user)
+        return {"token": token, "user": user}, None
+    except Exception as e:
+        conn.close()
+        return None, "Bu e-posta adresi ile zaten kayıtlı bir hesap var. Lütfen giriş yapın."
 
 def login_user(email, password):
+    clean_email = (email or "").lower().strip()
     conn = get_db()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT * FROM users WHERE email = ?", (email.lower().strip(),))
+    cursor.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(?)", (clean_email,))
     row = cursor.fetchone()
     conn.close()
     

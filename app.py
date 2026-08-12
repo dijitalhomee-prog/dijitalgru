@@ -465,6 +465,16 @@ def api_purchase_plan():
         
     return jsonify(res)
 
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({"error": "Sunucu hatası oluştu. Lütfen tekrar deneyin."}), 500
+
+@app.errorhandler(404)
+def not_found_error(error):
+    if request.path.startswith("/api/"):
+        return jsonify({"error": "İstenen kaynak bulunamadı."}), 404
+    return render_template("index.html"), 404
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 3000))
     print(f"🚀 Dijitalgru QR SaaS Sunucusu Başlatılıyor: http://localhost:{port}")

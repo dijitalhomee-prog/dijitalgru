@@ -99,6 +99,10 @@ def init_db():
             created_at BIGINT NOT NULL
         );
         """)
+        try:
+            cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email));")
+        except Exception:
+            pass
     else:
         # SQLite Schemas
         cursor.execute("""
@@ -186,6 +190,7 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
         """)
+        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users (email);")
     
     conn.commit()
     conn.close()

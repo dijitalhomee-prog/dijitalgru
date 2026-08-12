@@ -95,5 +95,25 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertEqual(buy_data["status"], "success")
         self.assertIn("invoice_no", buy_data)
 
+    def test_06_prevent_duplicate_email_registration(self):
+        email = f"dup_check_{int(time.time())}@dijitalgru.com"
+        reg1 = self.client.post("/api/auth/register", json={
+            "name": "Original User",
+            "email": email,
+            "password": "Password123!"
+        })
+        self.assertEqual(reg1.status_code, 200)
+
+        # Attempt duplicate registration with different casing
+        reg2 = self.client.post("/api/auth/register", json={
+            "name": "Duplicate User",
+            "email": email.upper(),
+            "password": "Password123!"
+        })
+        self.assertEqual(reg2.status_code, 400)
+        data2 = reg2.get_json()
+        self.assertIn("error", data2)
+        self.assertIn("zaten kayıtlı", data2["error"].lower())
+
 if __name__ == "__main__":
     unittest.main()
