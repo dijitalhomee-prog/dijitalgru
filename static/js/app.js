@@ -165,14 +165,19 @@ async function updateLivePreview() {
     }
 }
 
+function getVal(id, defaultVal = "") {
+    const el = document.getElementById(id);
+    return el ? (el.value !== undefined ? el.value : defaultVal) : defaultVal;
+}
+
 function getQRFormPayload() {
-    const title = document.getElementById("qr-title").value;
+    const title = getVal("qr-title", "Dijitalgru Tanıtım QR");
     const settings = {
-        fill_color: document.getElementById("fill-color").value || "#4F46E5",
-        back_color: document.getElementById("back-color").value || "#FFFFFF",
-        frame_style: document.getElementById("frame-style").value,
-        frame_text: document.getElementById("frame-text").value,
-        frame_color: document.getElementById("frame-color").value || "#4F46E5"
+        fill_color: getVal("fill-color", "#4F46E5"),
+        back_color: getVal("back-color", "#FFFFFF"),
+        frame_style: getVal("frame-style", "card"),
+        frame_text: getVal("frame-text", "Beni Tara!"),
+        frame_color: getVal("frame-color", "#4F46E5")
     };
 
     let target_url = "";
@@ -180,22 +185,22 @@ function getQRFormPayload() {
     let menu_payload = null;
 
     if (currentQrType === "url") {
-        target_url = document.getElementById("target-url").value;
+        target_url = getVal("target-url", "https://dijitalgru.com");
     } else if (currentQrType === "vcard") {
         vcard_payload = {
-            full_name: document.getElementById("vcard-name").value,
-            title: document.getElementById("vcard-title").value,
-            company: document.getElementById("vcard-company").value,
-            phone: document.getElementById("vcard-phone").value,
-            email: document.getElementById("vcard-email").value,
-            website: document.getElementById("vcard-website").value,
-            address: document.getElementById("vcard-address").value,
-            bio: document.getElementById("vcard-bio").value
+            full_name: getVal("vcard-name", "Furkan Egemen Güneş"),
+            title: getVal("vcard-title", "Kurucu & Mimar"),
+            company: getVal("vcard-company", "Dijitalgru"),
+            phone: getVal("vcard-phone", "+90 530 000 00 00"),
+            email: getVal("vcard-email", "dijitalgru@gmail.com"),
+            website: getVal("vcard-website", "https://dijitalgru.com"),
+            address: getVal("vcard-address", "İstanbul, Türkiye"),
+            bio: getVal("vcard-bio", "Dijital dönüşüm ve yapay zeka otomasyon çözümleri.")
         };
     } else if (currentQrType === "menu") {
         menu_payload = {
-            title: document.getElementById("menu-title").value,
-            description: document.getElementById("menu-desc").value,
+            title: getVal("menu-title", "Güneş Cafe & Bistro"),
+            description: getVal("menu-desc", "Günlük taze tatlar ve özel kahvelerimiz."),
             pdf_url: uploadedPdfUrl,
             categories: [
                 {
@@ -208,12 +213,12 @@ function getQRFormPayload() {
             ]
         };
     } else if (currentQrType === "wifi") {
-        const ssid = document.getElementById("wifi-ssid").value;
-        const pass = document.getElementById("wifi-pass").value;
+        const ssid = getVal("wifi-ssid", "Dijitalgru_Guest");
+        const pass = getVal("wifi-pass", "12345678");
         target_url = `WIFI:S:${ssid};T:WPA;P:${pass};;`;
     } else if (currentQrType === "whatsapp") {
-        const phone = document.getElementById("wa-phone").value;
-        const msg = encodeURIComponent(document.getElementById("wa-msg").value);
+        const phone = getVal("wa-phone", "905300000000");
+        const msg = encodeURIComponent(getVal("wa-msg", "Merhaba, bilgi almak istiyorum."));
         target_url = `https://wa.me/${phone}?text=${msg}`;
     }
 
