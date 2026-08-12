@@ -76,7 +76,7 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertEqual(redir_res.status_code, 302)
         self.assertEqual(redir_res.location, "https://dijitalgru.com/yeni-kampanya")
 
-    def test_05_subscription_purchase_mock(self):
+    def test_05_subscription_purchase_checkout_form(self):
         email = f"buyer_{int(time.time())}@dijitalgru.com"
         reg_res = self.client.post("/api/auth/register", json={
             "name": "Paket Alıcısı",
@@ -86,14 +86,13 @@ class TestDijitalgruQRContract(unittest.TestCase):
         token = reg_res.get_json()["token"]
 
         buy_res = self.client.post("/api/subscriptions/purchase", json={
-            "plan_key": "advanced",
-            "card_holder": "Müşteri Adı"
+            "plan_key": "business",
+            "cycle": "monthly"
         }, headers={"Authorization": f"Bearer {token}"})
 
-        self.assertEqual(buy_res.status_code, 200)
-        buy_data = buy_res.get_json()
-        self.assertEqual(buy_data["status"], "success")
-        self.assertIn("invoice_no", buy_data)
+        # Calling purchase MUST NOT grant business plan directly
+        me_res = self.client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(me_res.get_json()["user"]["plan"], "free")
 
     def test_06_prevent_duplicate_email_registration(self):
         email = f"dup_check_{int(time.time())}@dijitalgru.com"
@@ -166,6 +165,34 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertLess(duration, 1.0, f"Redirection took too long: {duration:.3f}s")
         self.assertEqual(r_res.status_code, 302)
         self.assertEqual(r_res.location, "https://dijitalgru.com/hedef-sayfa")
+
+    def test_09_secure_payment_flow(self):
+        email = f"pay_tester_{int(time.time())}@dijitalgru.com"
+        reg_res = self.client.post("/api/auth/register", json={
+            "name": "Pay Tester",
+            "email": email,
+            "password": "Password123!"
+        })
+        token = reg_res.get_json()["token"]
+
+        # 1. Calling /api/subscriptions/purchase MUST NOT activate plan directly
+        p_res = self.client.post("/api/subscriptions/purchase", json={
+            "plan_key": "business",
+            "cycle": "monthly"
+        }, headers={"Authorization": f"Bearer {token}"})
+        
+        # User plan MUST still be 'free'
+        me_res = self.client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(me_res.get_json()["user"]["plan"], "free")
+
+        # 2. Fake/invalid iyzico callback token MUST fail and NOT activate plan
+        cb_res = self.client.post("/api/iyzico/callback", data={"token": "invalid_fake_token_123"})
+        self.assertEqual(cb_res.status_code, 400)
+        self.assertIn("Ödeme", cb_res.get_data(as_text=True))
+
+        # Re-verify plan is still 'free'
+        me_res2 = self.client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(me_res2.get_json()["user"]["plan"], "free")
 
 if __name__ == "__main__":
     unittest.main()

@@ -11,7 +11,7 @@ from PIL import Image
 from db import init_db, get_db, is_postgres
 from auth import register_user, login_user, decode_token, get_user_by_id
 from qr_engine import generate_qr_image
-from payments import process_subscription_purchase, PLANS
+from payments import create_checkout_form, verify_and_process_iyzico_callback, PLANS
 from cloud_storage import upload_file_to_cloud
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
@@ -848,7 +848,12 @@ def api_get_plans():
     return jsonify({"plans": PLANS})
 
 @app.route("/api/iyzico/checkout-form", methods=["POST"])
+@app.route("/api/subscriptions/purchase", methods=["POST"])
 def api_iyzico_checkout():
+    """
+    Initializes iyzico payment checkout form.
+    NEVER directly activates user plan without iyzico payment verification.
+    """
     user = get_current_user()
     if not user:
         return jsonify({"error": "Lütfen önce giriş yapın."}), 401
@@ -856,6 +861,8 @@ def api_iyzico_checkout():
     data = request.json or {}
     plan_key = data.get("plan_key", "starter")
     cycle = data.get("cycle", "monthly")
+    
+    # Secure callback URL pointing to /api/iyzico/callback
     callback_url = f"{request.host_url.rstrip('/')}/api/iyzico/callback"
     
     from payments import create_checkout_form
@@ -865,23 +872,59 @@ def api_iyzico_checkout():
         
     return jsonify(res_json)
 
-@app.route("/api/subscriptions/purchase", methods=["POST"])
-def api_purchase_plan():
-    user = get_current_user()
-    if not user:
-        return jsonify({"error": "Lütfen önce giriş yapın."}), 401
+@app.route("/api/iyzico/callback", methods=["POST", "GET"])
+def api_iyzico_callback():
+    """
+    Secure Webhook Callback from iyzico.
+    Retrieves token, verifies payment with iyzico server, and ONLY updates DB if paymentStatus == 'SUCCESS'.
+    """
+    token = request.form.get("token") or request.args.get("token")
+    if not token and request.json:
+        token = request.json.get("token")
         
-    data = request.json or {}
-    plan_key = data.get("plan_key")
-    cycle = data.get("cycle", "monthly")
-    card_holder = data.get("card_holder", "Dijitalgru Müşteri")
-    card_number = data.get("card_number", "4111111111111111")
+    from payments import verify_and_process_iyzico_callback
+    res, err = verify_and_process_iyzico_callback(token)
     
-    res, err = process_subscription_purchase(user["id"], plan_key, cycle, card_holder, card_number)
-    if err:
-        return jsonify({"error": err}), 400
+    if err or not res or res.get("status") != "success":
+        error_msg = err or (res.get("error") if res else "Ödeme doğrulanamadı.")
+        print(f"[/api/iyzico/callback] Payment verification failed:", error_msg)
+        return f"""
+        <html>
+            <head><title>Ödeme Başarısız</title></head>
+            <body style="font-family: sans-serif; text-align: center; padding: 40px; background: #0f172a; color: white;">
+                <div style="max-width: 500px; margin: 0 auto; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
+                    <h2 style="color: #ef4444;">⚠️ Ödeme Tamamlanamadı</h2>
+                    <p>{error_msg}</p>
+                    <a href="/panel" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #6366f1; color: white; border-radius: 8px; text-decoration: none;">Panele Dön</a>
+                </div>
+                <script>
+                    setTimeout(function() {{
+                        window.location.href = "/panel?payment=failed";
+                    }}, 4000);
+                </script>
+            </body>
+        </html>
+        """, 400
         
-    return jsonify(res)
+    plan = res.get("plan", "starter")
+    return f"""
+    <html>
+        <head><title>Ödeme Başarılı!</title></head>
+        <body style="font-family: sans-serif; text-align: center; padding: 40px; background: #0f172a; color: white;">
+            <div style="max-width: 500px; margin: 0 auto; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
+                <h2 style="color: #10b981;">🎉 Ödemeniz Başarıyla Alındı!</h2>
+                <p>Paketiniz <strong>{res.get('plan', '').upper()}</strong> başarıyla aktif edildi.</p>
+                <p style="font-size: 13px; color: #94a3b8;">Fatura No: {res.get('invoice_no')}</p>
+                <a href="/panel?payment=success" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #10b981; color: white; border-radius: 8px; text-decoration: none;">Panele Git</a>
+            </div>
+            <script>
+                setTimeout(function() {{
+                    window.location.href = "/panel?payment=success&plan={plan}";
+                }}, 2500);
+            </script>
+        </body>
+    </html>
+    """, 200
 
 @app.errorhandler(500)
 def internal_error(error):
