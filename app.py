@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, jsonify, redirect, send_file, make_response
+from flask import Flask, render_template, request, jsonify, redirect, send_file, make_response, Response
 import time
 import json
 import uuid
 import os
 import io
+import base64
 
 from db import init_db, get_db
 from auth import register_user, login_user, decode_token, get_user_by_id
@@ -191,6 +192,28 @@ def api_qr_preview():
     b64_img = generate_qr_image(text, settings, format="base64")
     return jsonify({"image": b64_img})
 
+@app.route("/p/pdf/<file_code>")
+@app.route("/p/pdf/<file_code>.pdf")
+def serve_pdf(file_code):
+    if file_code.endswith(".pdf"):
+        file_code = file_code[:-4]
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM pdf_files WHERE file_code = ?", (file_code,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        return "PDF Dosyası Bulunamadı", 404
+        
+    pdf_data = dict(row)
+    pdf_bytes = base64.b64decode(pdf_data["data_b64"])
+    
+    response = Response(pdf_bytes, mimetype=pdf_data.get("content_type", "application/pdf"))
+    response.headers["Content-Disposition"] = f'inline; filename="{pdf_data["filename"]}"'
+    return response
+
 @app.route("/api/upload/pdf", methods=["POST"])
 def api_upload_pdf():
     user = get_current_user()
@@ -207,14 +230,31 @@ def api_upload_pdf():
     if not file.filename.lower().endswith(".pdf"):
         return jsonify({"error": "Sadece PDF formatındaki dosyalar yüklenebilir."}), 400
         
-    upload_dir = os.path.join(app.static_folder, "uploads", "pdfs")
-    os.makedirs(upload_dir, exist_ok=True)
+    pdf_bytes = file.read()
+    b64_data = base64.b64encode(pdf_bytes).decode("utf-8")
+    file_code = uuid.uuid4().hex[:10]
+    now = int(time.time())
     
-    filename = f"menu_{uuid.uuid4().hex[:10]}.pdf"
-    filepath = os.path.join(upload_dir, filename)
-    file.save(filepath)
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+    INSERT INTO pdf_files (file_code, filename, content_type, data_b64, created_at)
+    VALUES (?, ?, 'application/pdf', ?, ?)
+    """, (file_code, file.filename, b64_data, now))
+    conn.commit()
+    conn.close()
     
-    pdf_url = f"/static/uploads/pdfs/{filename}"
+    # Save local disk copy as fallback
+    try:
+        upload_dir = os.path.join(app.static_folder, "uploads", "pdfs")
+        os.makedirs(upload_dir, exist_ok=True)
+        filepath = os.path.join(upload_dir, f"{file_code}.pdf")
+        with open(filepath, "wb") as f:
+            f.write(pdf_bytes)
+    except Exception:
+        pass
+    
+    pdf_url = f"/p/pdf/{file_code}.pdf"
     return jsonify({"status": "success", "pdf_url": pdf_url, "filename": file.filename})
 
 @app.route("/api/qr/create", methods=["POST"])

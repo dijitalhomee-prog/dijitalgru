@@ -257,6 +257,16 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
         """)
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS pdf_files (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_code TEXT UNIQUE NOT NULL,
+            filename TEXT NOT NULL,
+            content_type TEXT DEFAULT 'application/pdf',
+            data_b64 TEXT NOT NULL,
+            created_at INTEGER NOT NULL
+        )
+        """)
         cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users (email);")
     
     # Column migrations for existing tables
