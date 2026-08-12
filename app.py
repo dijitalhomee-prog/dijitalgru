@@ -559,6 +559,46 @@ def api_qr_list():
         item["settings"] = settings
         item["qr_image"] = generate_qr_image(item["short_url"], settings, format="base64")
         qr_codes.append(item)
+        
+    # Stats
+    try:
+        cursor.execute("SELECT COUNT(*) as total_qr, COALESCE(SUM(scans_count), 0) as total_scans FROM qr_codes WHERE user_id = ?", (user["id"],))
+        stats_row = cursor.fetchone()
+        total_qr = stats_row["total_qr"] if stats_row else 0
+        total_scans = stats_row["total_scans"] if stats_row else 0
+
+        cursor.execute("SELECT COUNT(DISTINCT ip_address) as unique_visitors FROM scan_logs WHERE qr_id IN (SELECT id FROM qr_codes WHERE user_id = ?)", (user["id"],))
+        uv_row = cursor.fetchone()
+        unique_visitors = uv_row["unique_visitors"] if uv_row else 0
+    except Exception as ex:
+        conn.rollback()
+        print("Error fetching stats:", ex)
+        total_qr = len(qr_codes)
+        total_scans = 0
+        unique_visitors = 0
+
+    avg_scans = round(total_scans / total_qr, 1) if total_qr > 0 else 0.0
+    dynamic_qr_count = len([q for q in qr_codes if q.get("is_dynamic")])
+
+    conn.close()
+
+    return jsonify({
+        "qr_codes": qr_codes,
+        "stats": {
+            "total_qr": total_qr,
+            "total_scans": total_scans,
+            "unique_visitors": unique_visitors,
+            "avg_scans_per_qr": avg_scans,
+            "dynamic_qr_count": dynamic_qr_count
+        },
+        "user": {
+            "id": user["id"],
+            "name": user["name"],
+            "email": user["email"],
+            "plan": user["plan"],
+            "dynamic_qr_limit": user["dynamic_qr_limit"]
+        }
+    })
 
 @app.route("/api/qr/export/<int:qr_id>", methods=["GET"])
 def api_export_qr(qr_id):

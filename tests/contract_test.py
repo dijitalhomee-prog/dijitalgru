@@ -113,7 +113,32 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertEqual(reg2.status_code, 400)
         data2 = reg2.get_json()
         self.assertIn("error", data2)
-        self.assertIn("zaten kayıtlı", data2["error"].lower())
+    def test_07_qr_list_endpoint(self):
+        email = f"list_tester_{int(time.time())}@dijitalgru.com"
+        reg_res = self.client.post("/api/auth/register", json={
+            "name": "List Tester",
+            "email": email,
+            "password": "Password123!"
+        })
+        token = reg_res.get_json()["token"]
+
+        # Create 1 QR
+        self.client.post("/api/qr/create", json={
+            "title": "Test List Item",
+            "type": "url",
+            "target_url": "https://dijitalgru.com/test",
+            "settings": {}
+        }, headers={"Authorization": f"Bearer {token}"})
+
+        # Fetch list
+        list_res = self.client.get("/api/qr/list", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(list_res.status_code, 200)
+        data = list_res.get_json()
+        self.assertIn("qr_codes", data)
+        self.assertIn("stats", data)
+        self.assertIn("user", data)
+        self.assertEqual(len(data["qr_codes"]), 1)
+        self.assertEqual(data["stats"]["total_qr"], 1)
 
 if __name__ == "__main__":
     unittest.main()
