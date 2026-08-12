@@ -6,6 +6,7 @@ import os
 import io
 import base64
 
+from PIL import Image
 from db import init_db, get_db, is_postgres
 from auth import register_user, login_user, decode_token, get_user_by_id
 from qr_engine import generate_qr_image
@@ -522,7 +523,7 @@ def api_qr_list():
     cursor = conn.cursor()
     
     cursor.execute("""
-    SELECT id, short_code, title, type, target_url, is_dynamic, custom_settings, status, scans_count, created_at, updated_at
+    SELECT id, short_code, title, type, target_url, is_dynamic, custom_settings, status, scans_count, COALESCE(folder_name, 'Genel') as folder_name, created_at, updated_at
     FROM qr_codes 
     WHERE user_id = ? 
     ORDER BY created_at DESC
@@ -536,6 +537,7 @@ def api_qr_list():
         short_code = item.get("short_code", "")
         item["short_url"] = f"{app_url}/r/{short_code}"
         item["scan_count"] = item.get("scans_count", 0)
+        item["folder_name"] = item.get("folder_name", "Genel")
         
         try:
             settings = json.loads(item["custom_settings"]) if item.get("custom_settings") else {}
@@ -545,6 +547,81 @@ def api_qr_list():
         item["settings"] = settings
         item["qr_image"] = generate_qr_image(item["short_url"], settings, format="base64")
         qr_codes.append(item)
+
+@app.route("/api/qr/export/<int:qr_id>", methods=["GET"])
+def api_export_qr(qr_id):
+    export_format = request.args.get("format", "png").lower()
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM qr_codes WHERE id = ?", (qr_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        return "QR Kodu Bulunamadı", 404
+        
+    qr = dict(row)
+    short_url = f"{request.host_url.rstrip('/')}/r/{qr['short_code']}"
+    settings = {}
+    if qr.get("custom_settings"):
+        try:
+            settings = json.loads(qr["custom_settings"])
+        except Exception:
+            pass
+            
+    title = qr.get("title", "qr_code").replace(" ", "_")
+    
+    if export_format == "svg":
+        svg_bytes = generate_qr_image(short_url, settings, format="svg")
+        response = Response(svg_bytes, mimetype="image/svg+xml")
+        response.headers["Content-Disposition"] = f'attachment; filename="{title}.svg"'
+        return response
+        
+    elif export_format == "pdf":
+        png_bytes = generate_qr_image(short_url, settings, format="png")
+        img = Image.open(io.BytesIO(png_bytes))
+        pdf_buffer = io.BytesIO()
+        img.save(pdf_buffer, format="PDF", resolution=300.0)
+        pdf_buffer.seek(0)
+        
+        response = Response(pdf_buffer.getvalue(), mimetype="application/pdf")
+        response.headers["Content-Disposition"] = f'attachment; filename="{title}.pdf"'
+        return response
+        
+    else: # PNG
+        png_bytes = generate_qr_image(short_url, settings, format="png")
+        response = Response(png_bytes, mimetype="image/png")
+        response.headers["Content-Disposition"] = f'attachment; filename="{title}.png"'
+        return response
+
+@app.route("/api/qr/<int:qr_id>/update_folder", methods=["POST"])
+def api_update_qr_folder(qr_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Yetkisiz erişim."}), 401
+    folder_name = (request.json or {}).get("folder_name", "Genel")
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE qr_codes SET folder_name = ? WHERE id = ? AND user_id = ?", (folder_name, qr_id, user["id"]))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success", "folder_name": folder_name})
+
+@app.route("/api/qr/<int:qr_id>/update_status", methods=["POST"])
+def api_update_qr_status(qr_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Yetkisiz erişim."}), 401
+    new_status = (request.json or {}).get("status", "active")
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE qr_codes SET status = ? WHERE id = ? AND user_id = ?", (new_status, qr_id, user["id"]))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success", "status": new_status})
         
     # Stats
     cursor.execute("SELECT COUNT(*) as total_qr, SUM(scans_count) as total_scans FROM qr_codes WHERE user_id = ?", (user["id"],))

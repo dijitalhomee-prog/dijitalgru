@@ -412,8 +412,30 @@
                 </div>
             </div>
 
-            <!-- QR Codes List -->
-            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">QR Kodlarım</h3>
+            <!-- QR Codes List Controls & Filters -->
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px;">
+                <h3 style="font-size: 20px; font-weight: 700; margin: 0;">QR Kodlarım</h3>
+
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <!-- Status Filter Tabs -->
+                    <div style="display: flex; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+                        <button class="filter-tab-btn active" data-status="all" onclick="filterQRList('status', 'all')">🌐 Tümü</button>
+                        <button class="filter-tab-btn" data-status="active" onclick="filterQRList('status', 'active')">🟢 Aktif</button>
+                        <button class="filter-tab-btn" data-status="passive" onclick="filterQRList('status', 'passive')">🟡 Pasif</button>
+                        <button class="filter-tab-btn" data-status="deleted" onclick="filterQRList('status', 'deleted')">🔴 Arşiv / Silinmiş</button>
+                    </div>
+
+                    <!-- Folder Filter Selector -->
+                    <select id="folder-filter-select" onchange="filterQRList('folder', this.value)" class="form-input" style="width: auto; padding: 8px 12px; font-size: 12px; border-radius: 10px;">
+                        <option value="all">📁 Tüm Klasörler</option>
+                        <option value="Genel">📂 Genel</option>
+                        <option value="Restoran Menüleri">🍕 Restoran Menüleri</option>
+                        <option value="Kartvizitler">📇 Kartvizitler</option>
+                        <option value="Etkinlikler">🎉 Etkinlikler</option>
+                    </select>
+                </div>
+            </div>
+
             <div id="qr-list-container">
                 <!-- Rendered dynamically -->
             </div>
@@ -633,6 +655,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=20260812_faz4"></script>
+    <script src="/static/js/app.js?v=20260812_faz5"></script>
 </body>
 </html>

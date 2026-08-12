@@ -197,6 +197,10 @@ def init_db():
             cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email));")
         except Exception:
             pass
+        try:
+            cursor.execute("ALTER TABLE qr_codes ADD COLUMN folder_name VARCHAR(100) DEFAULT 'Genel';")
+        except Exception:
+            pass
     else:
         # SQLite Schemas
         cursor.execute("""

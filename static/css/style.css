@@ -429,8 +429,24 @@ body {
   border-radius: 50%;
 }
 input:checked + .slider {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  background-color: var(--primary);
 }
 input:checked + .slider:before {
   transform: translateX(22px);
+}
+
+.filter-tab-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.filter-tab-btn:hover, .filter-tab-btn.active {
+    background: var(--primary);
+    color: #ffffff;
 }

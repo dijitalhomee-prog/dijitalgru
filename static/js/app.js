@@ -444,6 +444,56 @@ function setupForms() {
     });
 }
 
+let allQRCodes = [];
+let currentStatusFilter = "all";
+let currentFolderFilter = "all";
+
+function filterQRList(type, val) {
+    if (type === "status") {
+        currentStatusFilter = val;
+        document.querySelectorAll(".filter-tab-btn").forEach(btn => {
+            if (btn.getAttribute("data-status") === val) {
+                btn.classList.add("active");
+            } else {
+                btn.classList.remove("active");
+            }
+        });
+    } else if (type === "folder") {
+        currentFolderFilter = val;
+    }
+    renderQRList(allQRCodes);
+}
+
+async function updateQRFolder(qrId, folderName) {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+    try {
+        await fetch(`/api/qr/${qrId}/update_folder`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ folder_name: folderName })
+        });
+        loadDashboardData();
+    } catch (err) {
+        console.error("Folder update error:", err);
+    }
+}
+
+async function updateQRStatus(qrId, status) {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+    try {
+        await fetch(`/api/qr/${qrId}/update_status`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ status: status })
+        });
+        loadDashboardData();
+    } catch (err) {
+        console.error("Status update error:", err);
+    }
+}
+
 // Dashboard Data
 async function loadDashboardData() {
     const token = localStorage.getItem("jwt_token");
@@ -462,36 +512,58 @@ async function loadDashboardData() {
             if (document.getElementById("stat-limit")) document.getElementById("stat-limit").innerText = `${data.stats.dynamic_qr_count} / ${data.user.dynamic_qr_limit}`;
             if (document.getElementById("stat-plan")) document.getElementById("stat-plan").innerText = data.user.plan.toUpperCase();
 
-            renderQRList(data.qr_codes);
+            allQRCodes = data.qr_codes || [];
+            renderQRList(allQRCodes);
         }
     } catch (err) {
         console.error("Dashboard data load error:", err);
     }
 }
 
-// Render User QR Codes with Download Format Options (PNG, JPEG, SVG)
+// Render User QR Codes with Download Format Options (PNG, SVG, PDF) and Folder/Status Controls
 function renderQRList(codes) {
     const container = document.getElementById("qr-list-container");
-    if (!codes || codes.length === 0) {
+    if (!codes) codes = [];
+
+    // Filter by Status
+    let filtered = codes;
+    if (currentStatusFilter !== "all") {
+        filtered = filtered.filter(qr => (qr.status || "active") === currentStatusFilter);
+    }
+    // Filter by Folder
+    if (currentFolderFilter !== "all") {
+        filtered = filtered.filter(qr => (qr.folder_name || "Genel") === currentFolderFilter);
+    }
+
+    if (filtered.length === 0) {
         container.innerHTML = `
             <div class="glass-card" style="text-align: center; padding: 40px; color: var(--text-muted);">
-                Henüz oluşturulmuş bir QR kodunuz bulunmuyor. Stüdyodan hemen ilk QR kodunuzu oluşturun!
+                Seçili filtrelerde gösterilecek QR kod bulunamadı.
             </div>
         `;
         return;
     }
 
-    container.innerHTML = codes.map(qr => {
+    container.innerHTML = filtered.map(qr => {
         const shareUrl = qr.short_url || `${window.location.origin}/r/${qr.short_code}`;
+        const status = qr.status || "active";
+        const folder = qr.folder_name || "Genel";
+
         return `
-        <div class="glass-card" style="margin-bottom: 16px; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div class="glass-card" style="margin-bottom: 16px; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; ${status === 'deleted' ? 'opacity: 0.6;' : ''}">
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div style="background: #ffffff; padding: 6px; border-radius: 12px; display: flex;">
                     <img src="${qr.qr_image}" style="width: 70px; height: 70px;" />
                 </div>
                 <div>
-                    <h4 style="font-size: 16px; font-weight: 700; color: #ffffff;">${qr.title}</h4>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">🎯 Hedef: ${qr.target_url}</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h4 style="font-size: 16px; font-weight: 700; color: #ffffff; margin: 0;">${qr.title}</h4>
+                        <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; ${status === 'active' ? 'background: rgba(16,185,129,0.2); color: #10b981;' : (status === 'passive' ? 'background: rgba(245,158,11,0.2); color: #f59e0b;' : 'background: rgba(239,68,68,0.2); color: #ef4444;')}">
+                            ${status === 'active' ? '🟢 Aktif' : (status === 'passive' ? '🟡 Pasif' : '🔴 Arşiv')}
+                        </span>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">🎯 Hedef: ${qr.target_url}</div>
                     
                     <!-- Copyable Shareable Link Box -->
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
@@ -503,15 +575,32 @@ function renderQRList(codes) {
             </div>
 
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                <div class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success); font-size: 12px;">
-                    👁️ ${qr.scan_count || qr.scans_count || 0} Tarama
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- Folder selector dropdown -->
+                    <select onchange="updateQRFolder(${qr.id}, this.value)" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 4px 8px; font-size: 11px;">
+                        <option value="Genel" ${folder === 'Genel' ? 'selected' : ''}>📂 Genel</option>
+                        <option value="Restoran Menüleri" ${folder === 'Restoran Menüleri' ? 'selected' : ''}>🍕 Restoran Menüleri</option>
+                        <option value="Kartvizitler" ${folder === 'Kartvizitler' ? 'selected' : ''}>📇 Kartvizitler</option>
+                        <option value="Etkinlikler" ${folder === 'Etkinlikler' ? 'selected' : ''}>🎉 Etkinlikler</option>
+                    </select>
+
+                    <!-- Status toggle selector -->
+                    <select onchange="updateQRStatus(${qr.id}, this.value)" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 4px 8px; font-size: 11px;">
+                        <option value="active" ${status === 'active' ? 'selected' : ''}>🟢 Aktif Et</option>
+                        <option value="passive" ${status === 'passive' ? 'selected' : ''}>🟡 Pasife Al</option>
+                        <option value="deleted" ${status === 'deleted' ? 'selected' : ''}>🔴 Arşive Kaldır</option>
+                    </select>
+
+                    <div class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success); font-size: 11px;">
+                        👁️ ${qr.scan_count || qr.scans_count || 0} Tarama
+                    </div>
                 </div>
                 
-                <!-- Format Download Buttons -->
+                <!-- Format Download Export Buttons (PNG, SVG, PDF) -->
                 <div style="display: flex; gap: 6px; margin-top: 6px;">
-                    <a href="/api/qr/${qr.id}/download?format=png" class="btn-secondary" style="padding: 6px 10px; font-size: 11px;">📥 PNG</a>
-                    <a href="/api/qr/${qr.id}/download?format=jpeg" class="btn-secondary" style="padding: 6px 10px; font-size: 11px;">📥 JPEG</a>
-                    <a href="/api/qr/${qr.id}/download?format=svg" class="btn-primary" style="padding: 6px 10px; font-size: 11px;">📥 SVG (Baskı)</a>
+                    <a href="/api/qr/export/${qr.id}?format=png" class="btn-secondary" style="padding: 6px 10px; font-size: 11px;">📥 PNG İndir</a>
+                    <a href="/api/qr/export/${qr.id}?format=svg" class="btn-secondary" style="padding: 6px 10px; font-size: 11px;">🎨 SVG İndir</a>
+                    <a href="/api/qr/export/${qr.id}?format=pdf" class="btn-primary" style="padding: 6px 10px; font-size: 11px;">📄 PDF Baskı</a>
                 </div>
             </div>
         </div>
