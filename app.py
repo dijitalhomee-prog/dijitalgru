@@ -10,6 +10,7 @@ from db import init_db, get_db, is_postgres
 from auth import register_user, login_user, decode_token, get_user_by_id
 from qr_engine import generate_qr_image
 from payments import process_subscription_purchase, PLANS
+from cloud_storage import upload_file_to_cloud
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.config["SECRET_KEY"] = os.environ.get("JWT_SECRET", "dijitalgru_qr_secret_key_2026")
@@ -255,59 +256,8 @@ def api_upload_pdf():
         return jsonify({"error": "Sadece PDF formatındaki dosyalar yüklenebilir."}), 400
         
     pdf_bytes = file.read()
-    b64_data = base64.b64encode(pdf_bytes).decode("utf-8")
-    file_code = uuid.uuid4().hex[:10]
-    now = int(time.time())
+    pdf_url, file_code = upload_file_to_cloud(pdf_bytes, file.filename, content_type="application/pdf")
     
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    # Auto-heal: Ensure pdf_files table exists in DB
-    try:
-        if is_postgres():
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS pdf_files (
-                id SERIAL PRIMARY KEY,
-                file_code VARCHAR(100) UNIQUE NOT NULL,
-                filename TEXT NOT NULL,
-                content_type VARCHAR(100) DEFAULT 'application/pdf',
-                data_b64 TEXT NOT NULL,
-                created_at BIGINT NOT NULL
-            )
-            """)
-        else:
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS pdf_files (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                file_code TEXT UNIQUE NOT NULL,
-                filename TEXT NOT NULL,
-                content_type TEXT DEFAULT 'application/pdf',
-                data_b64 TEXT NOT NULL,
-                created_at INTEGER NOT NULL
-            )
-            """)
-        conn.commit()
-    except Exception:
-        pass
-
-    cursor.execute("""
-    INSERT INTO pdf_files (file_code, filename, content_type, data_b64, created_at)
-    VALUES (?, ?, 'application/pdf', ?, ?)
-    """, (file_code, file.filename, b64_data, now))
-    conn.commit()
-    conn.close()
-    
-    # Save local disk copy as fallback
-    try:
-        upload_dir = os.path.join(app.static_folder, "uploads", "pdfs")
-        os.makedirs(upload_dir, exist_ok=True)
-        filepath = os.path.join(upload_dir, f"{file_code}.pdf")
-        with open(filepath, "wb") as f:
-            f.write(pdf_bytes)
-    except Exception:
-        pass
-    
-    pdf_url = f"/p/pdf/{file_code}.pdf"
     return jsonify({"status": "success", "pdf_url": pdf_url, "filename": file.filename})
 
 @app.route("/api/qr/create", methods=["POST"])
