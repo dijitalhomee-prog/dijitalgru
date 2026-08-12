@@ -90,6 +90,8 @@ def redirect_qr(short_code):
         return redirect(f"/p/vcard/{qr['id']}")
     elif target.startswith("micropage://menu"):
         return redirect(f"/p/menu/{qr['id']}")
+    elif target.startswith("/"):
+        return redirect(target)
     elif not (target.startswith("http://") or target.startswith("https://")):
         target = "https://" + target
         
@@ -272,6 +274,10 @@ def api_qr_create():
         cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://vcard/{qr_id}", qr_id))
         
     elif qr_type == "menu" and menu_payload:
+        pdf_url = menu_payload.get("pdf_url")
+        if pdf_url in ["None", "null", "undefined", ""]:
+            pdf_url = None
+
         cursor.execute("""
         INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -280,10 +286,15 @@ def api_qr_create():
             menu_payload.get("title"),
             menu_payload.get("description"),
             menu_payload.get("cover_url"),
-            menu_payload.get("pdf_url"),
+            pdf_url,
             json.dumps(menu_payload.get("categories", []))
         ))
-        cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
+        
+        # If PDF is uploaded, redirect QR scans DIRECTLY to the PDF file!
+        if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")):
+            cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (pdf_url, qr_id))
+        else:
+            cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
         
     conn.commit()
     conn.close()
