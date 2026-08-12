@@ -356,10 +356,25 @@
 
                 <!-- Simulator Preview Right & Download Format Options -->
                 <div class="phone-simulator">
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-weight: 600;">📱 Canlı Mobil Önizleme</div>
-                    <div class="phone-screen">
+                    <div style="width: 50px; height: 6px; background: #374151; border-radius: 10px; margin: 0 auto 14px auto;"></div>
+
+                    <div style="display: flex; gap: 6px; margin-bottom: 14px; background: rgba(0,0,0,0.5); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <button id="tab-preview-qr" class="preview-mode-btn active" onclick="switchPreviewMode('qr')" style="flex:1; padding: 8px 4px; font-size: 11px; font-weight: 700; border-radius: 8px; border: none; background: var(--primary); color: #fff; cursor: pointer; transition: all 0.2s;">📱 QR Görünümü</button>
+                        <button id="tab-preview-landing" class="preview-mode-btn" onclick="switchPreviewMode('landing')" style="flex:1; padding: 8px 4px; font-size: 11px; font-weight: 700; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;">🌐 Mobil Sayfa</button>
+                    </div>
+
+                    <!-- Mode 1: QR Image Preview -->
+                    <div id="preview-mode-qr-box" class="phone-screen">
                         <img id="preview-qr-img" class="qr-preview-img" src="{{ initial_qr_image }}" alt="Dijitalgru QR Preview" />
-                        <div style="margin-top: 16px; font-size: 13px; font-weight: 600; color: #a5b4fc;">Dijitalgru Akıllı Yönlendirme</div>
+                        <div id="preview-frame-text-label" style="margin-top: 16px; font-size: 13px; font-weight: 700; color: #a5b4fc;">Beni Tara!</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Anlık Tasarım Önizlemesi</div>
+                    </div>
+
+                    <!-- Mode 2: Live Landing Page Card Mockup Preview -->
+                    <div id="preview-mode-landing-box" class="phone-screen" style="display: none; text-align: left; align-items: stretch; justify-content: flex-start; padding: 20px 14px; overflow-y: auto;">
+                        <div id="mockup-landing-content" style="width: 100%;">
+                            <!-- JS Dynamic Render -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -610,6 +625,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=20260812_v5"></script>
+    <script src="/static/js/app.js?v=20260812_faz3"></script>
 </body>
 </html>

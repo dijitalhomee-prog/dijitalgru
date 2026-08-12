@@ -139,6 +139,89 @@ function initTypeSelector() {
     });
 }
 
+let currentPreviewMode = 'qr';
+
+function switchPreviewMode(mode) {
+    currentPreviewMode = mode;
+    const qrTab = document.getElementById("tab-preview-qr");
+    const landingTab = document.getElementById("tab-preview-landing");
+    const qrBox = document.getElementById("preview-mode-qr-box");
+    const landingBox = document.getElementById("preview-mode-landing-box");
+
+    if (!qrTab || !landingTab) return;
+
+    if (mode === 'qr') {
+        qrTab.style.background = "var(--primary)";
+        qrTab.style.color = "#ffffff";
+        landingTab.style.background = "transparent";
+        landingTab.style.color = "var(--text-muted)";
+        qrBox.style.display = "flex";
+        landingBox.style.display = "none";
+    } else {
+        landingTab.style.background = "var(--primary)";
+        landingTab.style.color = "#ffffff";
+        qrTab.style.background = "transparent";
+        qrTab.style.color = "var(--text-muted)";
+        landingBox.style.display = "block";
+        qrBox.style.display = "none";
+        renderLandingPageMockup();
+    }
+}
+
+function renderLandingPageMockup() {
+    const payload = getQRFormPayload();
+    const container = document.getElementById("mockup-landing-content");
+    if (!container) return;
+
+    if (payload.type === "url") {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 20px 10px;">
+                <div style="font-size: 32px; margin-bottom: 8px;">🌐</div>
+                <div style="font-size: 14px; font-weight: 700; color: #ffffff; word-break: break-all;">${payload.target_url || 'https://siteniz.com'}</div>
+                <div style="font-size: 11px; color: #10b981; margin-top: 8px; font-weight: 600;">⚡ Doğrudan Web Sitesi Yönlendirmesi</div>
+                <a href="${payload.target_url || '#'}" target="_blank" style="display: inline-block; margin-top: 16px; background: #6366f1; color: #fff; padding: 10px 16px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 700;">Siteyi Aç ↗</a>
+            </div>
+        `;
+    } else if (payload.type === "vcard") {
+        const v = payload.vcard_payload || {};
+        container.innerHTML = `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
+                <div style="width: 54px; height: 54px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #fff; margin: 0 auto 10px auto;">
+                    ${(v.full_name || 'A')[0].toUpperCase()}
+                </div>
+                <div style="font-size: 15px; font-weight: 800; color: #ffffff;">${v.full_name || 'Ad Soyad'}</div>
+                <div style="font-size: 11px; color: #818cf8; margin-top: 2px;">${v.title || 'Unvan'}</div>
+                <div style="font-size: 11px; color: #94a3b8;">${v.company || 'Şirket Adı'}</div>
+
+                <div style="display: flex; gap: 6px; margin-top: 14px;">
+                    <button style="flex: 1; background: #10b981; color: #fff; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 700;">📞 ${v.phone || 'Ara'}</button>
+                    <button style="flex: 1; background: #6366f1; color: #fff; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 700;">✉️ E-posta</button>
+                </div>
+                ${v.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 10px; font-weight: 700;">⚡ Doğrudan .vcf İndirme Aktif</div>' : ''}
+            </div>
+        `;
+    } else if (payload.type === "menu") {
+        const m = payload.menu_payload || {};
+        container.innerHTML = `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
+                <div style="font-size: 28px; margin-bottom: 6px;">📄</div>
+                <div style="font-size: 14px; font-weight: 800; color: #ffffff;">${m.title || 'Restoran Adı'}</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">${m.description || 'Menümüz ve Lezzetlerimiz'}</div>
+                ${m.pdf_url ? '<div style="margin-top: 12px; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); padding: 8px; border-radius: 8px; font-size: 10px; color: #a5b4fc; font-weight: 700;">✅ PDF Menü Yüklendi</div>' : '<div style="margin-top: 12px; font-size: 10px; color: #ef4444;">PDF Henüz Yüklenmedi</div>'}
+                ${m.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 8px; font-weight: 700;">⚡ Doğrudan PDF Yönlendirmesi Aktif</div>' : ''}
+            </div>
+        `;
+    } else if (payload.type === "wifi") {
+        container.innerHTML = `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
+                <div style="font-size: 32px; margin-bottom: 6px;">📶</div>
+                <div style="font-size: 14px; font-weight: 800; color: #ffffff;">${getVal("wifi-ssid", "Wi-Fi Ağ Adı")}</div>
+                <div style="font-size: 11px; color: #10b981; margin-top: 4px; font-weight: 700;">⚡ Kamera ile Otomatik Bağlantı</div>
+            </div>
+        `;
+    }
+}
+
 // Live Preview Updater
 async function updateLivePreview() {
     const payload = getQRFormPayload();
@@ -149,6 +232,15 @@ async function updateLivePreview() {
         previewText = payload.menu_payload?.pdf_url || "https://dijitalgru.com/menu";
     }
     if (!previewText) previewText = "https://dijitalgru.com";
+
+    // Update frame label text
+    const frameLabel = document.getElementById("preview-frame-text-label");
+    if (frameLabel) {
+        frameLabel.innerText = payload.settings?.frame_text || "Beni Tara!";
+        frameLabel.style.color = payload.settings?.fill_color || "#a5b4fc";
+    }
+
+    renderLandingPageMockup();
 
     try {
         const res = await fetch("/api/qr/preview", {
