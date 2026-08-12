@@ -121,6 +121,11 @@ def public_menu(qr_id):
         return "Menü Bulunamadı", 404
         
     menu_data = dict(row)
+    pdf_url = menu_data.get("pdf_url")
+    if pdf_url in ["None", "null", "undefined", ""]:
+        pdf_url = None
+        menu_data["pdf_url"] = None
+        
     if menu_data.get("categories"):
         try:
             menu_data["categories"] = json.loads(menu_data["categories"])
@@ -128,6 +133,10 @@ def public_menu(qr_id):
             menu_data["categories"] = []
     else:
         menu_data["categories"] = []
+        
+    # If PDF exists and no categories, redirect directly to PDF file for instant viewing
+    if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")) and not menu_data["categories"]:
+        return redirect(pdf_url)
         
     return render_template("menu_template.html", menu=menu_data)
 

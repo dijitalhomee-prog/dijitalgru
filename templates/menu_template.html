@@ -65,12 +65,14 @@
             <p class="menu-desc">{{ menu.description }}</p>
         </div>
 
-        {% if menu.pdf_url %}
+        {% if menu.pdf_url and (menu.pdf_url.startswith('/') or menu.pdf_url.startswith('http')) %}
         <div class="pdf-viewer-box">
             <div style="font-size: 36px; margin-bottom: 8px;">📄</div>
             <h3 style="font-size: 18px; margin-bottom: 12px;">PDF Menü & Katalog</h3>
             <a href="{{ menu.pdf_url }}" target="_blank" class="btn-pdf">📥 PDF Menüyü Görüntüle / İndir</a>
+            {% if menu.pdf_url.endswith('.pdf') %}
             <iframe src="{{ menu.pdf_url }}" class="pdf-iframe"></iframe>
+            {% endif %}
         </div>
         {% endif %}
 
