@@ -327,5 +327,94 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertEqual(audit_res.status_code, 200)
         self.assertTrue(len(audit_res.get_json()["audit_logs"]) > 0)
 
+    def test_12_accounting_and_revenue_tracking(self):
+        # 1. Register admin user
+        admin_email = f"acc_admin_{int(time.time())}@dijitalgru.com"
+        reg_a = self.client.post("/api/auth/register", json={
+            "name": "Acc Admin",
+            "email": admin_email,
+            "password": "Password123!"
+        })
+        admin_id = reg_a.get_json()["user"]["id"]
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET is_admin = 1 WHERE id = ?", (admin_id,))
+        conn.commit()
+        conn.close()
+
+        login_a = self.client.post("/api/auth/login", json={
+            "email": admin_email,
+            "password": "Password123!"
+        })
+        admin_token = login_a.get_json()["token"]
+
+        # Fetch initial baseline revenue before inserting new subscription
+        init_sum = self.client.get("/api/admin/accounting/summary", headers={"Authorization": f"Bearer {admin_token}"}).get_json()
+        initial_revenue = init_sum["total_revenue"]
+
+        # 2. Register customer user and add a real iyzico subscription (149.00 TL)
+        cust_email = f"acc_cust_{int(time.time())}@dijitalgru.com"
+        reg_c = self.client.post("/api/auth/register", json={
+            "name": "Acc Customer",
+            "email": cust_email,
+            "password": "Password123!"
+        })
+        cust_id = reg_c.get_json()["user"]["id"]
+
+        now = int(time.time())
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO subscriptions (user_id, plan_name, amount, status, iyzico_sub_id, invoice_no, source, refund_status, refund_date, created_at)
+        VALUES (?, 'Starter - Monthly', 149.00, 'active', 'iyzi_12345', 'INV-12345', 'iyzico', 'none', 0, ?)
+        """, (cust_id, now))
+        conn.commit()
+        conn.close()
+
+        # 3. Admin manually updates plan of another user (source = 'manual_admin', amount = 0.00)
+        target_email = f"acc_target_{int(time.time())}@dijitalgru.com"
+        reg_t = self.client.post("/api/auth/register", json={
+            "name": "Acc Target",
+            "email": target_email,
+            "password": "Password123!"
+        })
+        target_id = reg_t.get_json()["user"]["id"]
+
+        self.client.post(f"/api/admin/users/{target_id}/update-plan", json={
+            "plan": "business",
+            "days": 30
+        }, headers={"Authorization": f"Bearer {admin_token}"})
+
+        # 4. GET /api/admin/accounting/summary
+        # Total revenue MUST be initial_revenue + 149.00 (manual admin assignment 0.00 does not artificially inflate revenue!)
+        sum_res = self.client.get("/api/admin/accounting/summary", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(sum_res.status_code, 200)
+        summary_data = sum_res.get_json()
+        self.assertEqual(summary_data["total_revenue"], initial_revenue + 149.00)
+
+        # 5. GET /api/admin/accounting/transactions
+        tx_res = self.client.get("/api/admin/accounting/transactions", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(tx_res.status_code, 200)
+        txs = tx_res.get_json()["transactions"]
+        self.assertTrue(len(txs) >= 2)
+
+        # Find iyzico transaction and refund it
+        iyzico_tx = next(t for t in txs if t["source"] == "iyzico" and t["user_id"] == cust_id)
+        ref_res = self.client.post(f"/api/admin/accounting/refund/{iyzico_tx['id']}", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(ref_res.status_code, 200)
+
+        # Re-fetch summary -> Total revenue MUST drop back to initial_revenue!
+        sum_res2 = self.client.get("/api/admin/accounting/summary", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(sum_res2.get_json()["total_revenue"], initial_revenue)
+
+        # 6. GET /api/admin/accounting/export (CSV output test)
+        csv_res = self.client.get("/api/admin/accounting/export", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(csv_res.status_code, 200)
+        csv_text = csv_res.get_data(as_text=True)
+        self.assertIn("İşlem ID", csv_text)
+        self.assertIn("İyzico (Gerçek Ödeme)", csv_text)
+        self.assertIn("Admin Manuel", csv_text)
+
 if __name__ == "__main__":
     unittest.main()

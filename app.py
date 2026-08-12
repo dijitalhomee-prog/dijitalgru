@@ -1082,6 +1082,13 @@ def api_admin_update_plan(user_id):
         
     old_plan = target_user["plan"]
     cursor.execute("UPDATE users SET plan = ?, subscription_end = ?, dynamic_qr_limit = ? WHERE id = ?", (new_plan, sub_end, qr_limit, user_id))
+    
+    # Record manual admin plan assignment in subscriptions table with source = 'manual_admin' and amount = 0.00
+    cursor.execute("""
+    INSERT INTO subscriptions (user_id, plan_name, amount, status, iyzico_sub_id, invoice_no, source, refund_status, refund_date, created_at)
+    VALUES (?, ?, 0.00, 'active', 'MANUAL-ADMIN', 'MANUAL-ADMIN', 'manual_admin', 'none', 0, ?)
+    """, (user_id, f"MANUAL {new_plan.upper()}", now))
+    
     conn.commit()
     conn.close()
     
@@ -1093,6 +1100,188 @@ def api_admin_update_plan(user_id):
     )
     
     return jsonify({"status": "success", "message": f"Kullanıcı planı {new_plan.upper()} olarak güncellendi."})
+
+# --- Admin Accounting & Revenue Endpoints ---
+
+@app.route("/api/admin/accounting/summary", methods=["GET"])
+def api_admin_accounting_summary():
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # 1. Total Revenue (ONLY source = 'iyzico' and refund_status != 'refunded')
+    cursor.execute("""
+    SELECT COALESCE(SUM(amount), 0.0) as total 
+    FROM subscriptions 
+    WHERE source = 'iyzico' AND (refund_status IS NULL OR refund_status != 'refunded')
+    """)
+    total_revenue = float(cursor.fetchone()["total"])
+    
+    # 2. Monthly Revenue
+    now = int(time.time())
+    month_start = now - (86400 * 30)
+    cursor.execute("""
+    SELECT COALESCE(SUM(amount), 0.0) as month_total 
+    FROM subscriptions 
+    WHERE source = 'iyzico' AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
+    """, (month_start,))
+    this_month_revenue = float(cursor.fetchone()["month_total"])
+    
+    # 3. Yearly Revenue
+    year_start = now - (86400 * 365)
+    cursor.execute("""
+    SELECT COALESCE(SUM(amount), 0.0) as year_total 
+    FROM subscriptions 
+    WHERE source = 'iyzico' AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
+    """, (year_start,))
+    this_year_revenue = float(cursor.fetchone()["year_total"])
+    
+    # 4. Active Paid Users Breakdown & MRR
+    cursor.execute("SELECT plan, COUNT(*) as cnt FROM users WHERE plan != 'free' AND (account_status IS NULL OR account_status = 'active') GROUP BY plan")
+    plan_rows = cursor.fetchall()
+    
+    breakdown = {"starter": 0, "advanced": 0, "business": 0}
+    mrr = 0.0
+    plan_monthly_prices = {"starter": 149.0, "advanced": 299.0, "business": 599.0}
+    
+    for r in plan_rows:
+        p = r["plan"]
+        cnt = r["cnt"]
+        if p in breakdown:
+            breakdown[p] = cnt
+            mrr += cnt * plan_monthly_prices.get(p, 0.0)
+            
+    conn.close()
+    
+    return jsonify({
+        "total_revenue": total_revenue,
+        "this_month_revenue": this_month_revenue,
+        "this_year_revenue": this_year_revenue,
+        "mrr": mrr,
+        "active_paid_subscriptions": breakdown
+    })
+
+@app.route("/api/admin/accounting/transactions", methods=["GET"])
+def api_admin_accounting_transactions():
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    plan_filter = (request.args.get("plan") or "").strip()
+    source_filter = (request.args.get("source") or "").strip()
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+    SELECT 
+        s.id, s.user_id, s.plan_name, s.amount, s.status, s.iyzico_sub_id, s.invoice_no,
+        COALESCE(s.source, 'iyzico') as source, COALESCE(s.refund_status, 'none') as refund_status, COALESCE(s.refund_date, 0) as refund_date, s.created_at,
+        u.name as user_name, u.email as user_email
+    FROM subscriptions s
+    LEFT JOIN users u ON s.user_id = u.id
+    ORDER BY s.created_at DESC
+    """)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    txs = []
+    for r in rows:
+        d = dict(r)
+        
+        if plan_filter and plan_filter not in d["plan_name"].lower():
+            continue
+        if source_filter and d["source"] != source_filter:
+            continue
+            
+        amount = float(d["amount"])
+        # KDV calculation: 20% VAT in Turkey (Gross amount = Matrah * 1.20)
+        matrah = round(amount / 1.20, 2)
+        kdv = round(amount - matrah, 2)
+        
+        d["matrah"] = matrah
+        d["kdv"] = kdv
+        txs.append(d)
+        
+    return jsonify({"transactions": txs})
+
+@app.route("/api/admin/accounting/export", methods=["GET"])
+def api_admin_accounting_export():
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT 
+        s.id, s.plan_name, s.amount, s.invoice_no, COALESCE(s.source, 'iyzico') as source, 
+        COALESCE(s.refund_status, 'none') as refund_status, s.created_at,
+        u.name as user_name, u.email as user_email
+    FROM subscriptions s
+    LEFT JOIN users u ON s.user_id = u.id
+    ORDER BY s.created_at DESC
+    """)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # UTF-8 BOM for Excel compatibility in Turkish
+    csv_content = "\ufeffİşlem ID,Tarih,Müşteri Adı,E-posta,Plan,Kaynak,Toplam Tutar (TL),Matrah (KDV Haric),KDV %20 (TL),Fatura No,Durum,İade Durumu\n"
+    
+    for r in rows:
+        d = dict(r)
+        amount = float(d["amount"])
+        matrah = round(amount / 1.20, 2)
+        kdv = round(amount - matrah, 2)
+        
+        dt_str = time.strftime('%d.%m.%Y %H:%M', time.localtime(d['created_at'])) if d['created_at'] else '-'
+        source_label = 'İyzico (Gerçek Ödeme)' if d['source'] == 'iyzico' else 'Admin Manuel'
+        refund_label = 'İADE EDİLDİ' if d['refund_status'] == 'refunded' else 'Normal'
+        
+        line = f'"{d["id"]}","{dt_str}","{d["user_name"] or "-"}","{d["user_email"] or "-"}","{d["plan_name"]}","{source_label}","{amount:.2f}","{matrah:.2f}","{kdv:.2f}","{d["invoice_no"] or "-"}","Aktif","{refund_label}"\n'
+        csv_content += line
+        
+    return Response(
+        csv_content,
+        mimetype="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="muhasebe_gelir_raporu.csv"'}
+    )
+
+@app.route("/api/admin/accounting/refund/<int:subscription_id>", methods=["POST"])
+def api_admin_accounting_refund(subscription_id):
+    """
+    Note: This endpoint updates internal subscription status to 'refunded' so it is automatically deducted from revenue summary.
+    Actual payment refund must be processed separately via the official iyzico merchant dashboard.
+    """
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    now = int(time.time())
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT user_id, amount, plan_name FROM subscriptions WHERE id = ?", (subscription_id,))
+    sub = cursor.fetchone()
+    if not sub:
+        conn.close()
+        return jsonify({"error": "Abonelik kaydı bulunamadı."}), 404
+        
+    cursor.execute("UPDATE subscriptions SET refund_status = 'refunded', refund_date = ? WHERE id = ?", (now, subscription_id))
+    conn.commit()
+    conn.close()
+    
+    log_admin_action(
+        admin_id=admin["id"],
+        target_user_id=sub["user_id"],
+        action_type="REFUND_RECORD",
+        details=f"Abonelik #{subscription_id} ({sub['plan_name']}, {sub['amount']} TL) sistemde iade edildi olarak işaretlendi."
+    )
+    
+    return jsonify({"status": "success", "message": "Abonelik iade edildi olarak işaretlendi ve muhasebe gelirinden düşüldü."})
 
 @app.route("/api/admin/users/<int:user_id>/suspend", methods=["POST"])
 def api_admin_suspend_user(user_id):

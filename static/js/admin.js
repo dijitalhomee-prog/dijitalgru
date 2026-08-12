@@ -1,4 +1,5 @@
 let allUsersCache = [];
+let allTransactionsCache = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     loadAdminData();
@@ -18,7 +19,7 @@ async function loadAdminData() {
     if (!headers) return;
 
     try {
-        // Load Stats
+        // Load System Stats
         const resStats = await fetch("/api/admin/stats", { headers });
         if (resStats.status === 403) {
             alert("⚠️ Erişim engellendi. Yönetici yetkiniz bulunmamaktadır.");
@@ -33,6 +34,9 @@ async function loadAdminData() {
             document.getElementById("stat-total-qrs").innerText = dataStats.total_qr_codes || 0;
             document.getElementById("stat-total-scans").innerText = dataStats.total_scans || 0;
         }
+
+        // Load Accounting Summary & Transactions
+        loadAccountingData();
 
         // Load Users
         const resUsers = await fetch("/api/admin/users", { headers });
@@ -53,8 +57,111 @@ async function loadAdminData() {
     }
 }
 
+async function loadAccountingData() {
+    const headers = getAuthHeader();
+    if (!headers) return;
+
+    try {
+        const resAcc = await fetch("/api/admin/accounting/summary", { headers });
+        if (resAcc.ok) {
+            const acc = await resAcc.json();
+            document.getElementById("acc-total-revenue").innerText = (acc.total_revenue || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 }) + " ₺";
+            document.getElementById("acc-month-revenue").innerText = (acc.this_month_revenue || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 }) + " ₺";
+            document.getElementById("acc-mrr").innerText = (acc.mrr || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 }) + " ₺";
+            
+            const b = acc.active_paid_subscriptions || {};
+            document.getElementById("acc-breakdown").innerText = `Starter: ${b.starter || 0} | Advanced: ${b.advanced || 0} | Business: ${b.business || 0}`;
+        }
+
+        const resTx = await fetch("/api/admin/accounting/transactions", { headers });
+        if (resTx.ok) {
+            const dataTx = await resTx.json();
+            allTransactionsCache = dataTx.transactions || [];
+            renderAccountingTransactionsTable(allTransactionsCache);
+        }
+    } catch (err) {
+        console.error("Accounting load error:", err);
+    }
+}
+
+function filterAccountingTransactions() {
+    const source = document.getElementById("acc-filter-source").value;
+    const filtered = allTransactionsCache.filter(tx => {
+        return !source || tx.source === source;
+    });
+    renderAccountingTransactionsTable(filtered);
+}
+
+function renderAccountingTransactionsTable(txs) {
+    const tbody = document.getElementById("acc-tx-tbody");
+    if (!txs || txs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; padding: 20px; color: #94a3b8;">Henüz ödeme veya fatura kaydı yok.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = txs.map(t => {
+        const sourceBadge = t.source === 'iyzico' 
+            ? `<span class="admin-badge badge-iyzico">İyzico Gerçek</span>`
+            : `<span class="admin-badge badge-manual">Admin Manuel (0₺)</span>`;
+            
+        const isRefunded = t.refund_status === 'refunded';
+        const refundBadge = isRefunded
+            ? `<span class="admin-badge badge-refunded">İADE EDİLDİ</span>`
+            : `<span class="admin-badge badge-active">Normal</span>`;
+
+        const refundBtn = isRefunded
+            ? `<span style="font-size: 11px; color: #94a3b8;">-</span>`
+            : `<button class="btn-action btn-delete" onclick="markRefundRecord(${t.id}, '${t.user_email}', ${t.amount})">İade Et</button>`;
+
+        return `
+            <tr>
+                <td>#${t.id}</td>
+                <td style="font-size: 12px;">${formatDate(t.created_at)}</td>
+                <td>
+                    <div style="font-weight: 700;">${t.user_name || 'Müşteri'}</div>
+                    <div style="font-size: 11px; color: #94a3b8;">${t.user_email || '-'}</div>
+                </td>
+                <td style="font-weight: 700;">${t.plan_name}</td>
+                <td>${sourceBadge}</td>
+                <td style="font-weight: 800; color: #34d399;">${t.amount.toFixed(2)} ₺</td>
+                <td style="font-size: 13px; color: #cbd5e1;">${t.matrah.toFixed(2)} ₺</td>
+                <td style="font-size: 13px; color: #60a5fa;">${t.kdv.toFixed(2)} ₺</td>
+                <td style="font-size: 11px; font-family: monospace;">${t.invoice_no || '-'}</td>
+                <td>${refundBadge}</td>
+                <td>${refundBtn}</td>
+            </tr>
+        `;
+    }).join("");
+}
+
+async function markRefundRecord(subscriptionId, email, amount) {
+    if (!confirm(`📌 DİKKAT:\n\nAbonelik #${subscriptionId} (${email}, ${amount} ₺) kaydını sistemde 'İADE EDİLDİ' olarak işaretlemek istediğinize emin misiniz?\n\n* Bu işlem toplam muhasebe cirosundan ${amount} ₺ düşecektir.\n* İyzico panelinden gerçek iade işlemini ayrıca yapmayı unutmayın.`)) return;
+
+    const headers = getAuthHeader();
+    if (!headers) return;
+
+    try {
+        const res = await fetch(`/api/admin/accounting/refund/${subscriptionId}`, { method: "POST", headers });
+        const data = await res.json();
+        if (res.ok) {
+            alert("✅ " + data.message);
+            loadAccountingData();
+        } else {
+            alert("⚠️ " + (data.error || "İade kaydı oluşturulamadı."));
+        }
+    } catch (err) {
+        alert("Hata oluştu.");
+    }
+}
+
+async function downloadAccountingCSV() {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+    window.location.href = `/api/admin/accounting/export?token=${encodeURIComponent(token)}`;
+}
+
 function filterAdminUsers() {
-    const q = (document.getElementById("admin-search-input").value || "").toLowerCase().strip?.() || document.getElementById("admin-search-input").value.toLowerCase().trim();
+    const q = (document.getElementById("admin-search-input").value || "").toLowerCase().trim();
     const plan = document.getElementById("admin-filter-plan").value;
     const status = document.getElementById("admin-filter-status").value;
 
@@ -179,8 +286,8 @@ async function openUserDetailModal(userId) {
             <div style="max-height: 200px; overflow-y: auto;">
                 ${subs.length === 0 ? '<div style="font-size: 13px; color: #94a3b8;">Henüz ödeme kaydı bulunmuyor.</div>' :
                 `<table style="width: 100%; font-size: 13px;">
-                    <tr style="text-align: left; color: #94a3b8;"><th>Paket</th><th>Tutar</th><th>Fatura No</th><th>Tarih</th></tr>
-                    ${subs.map(s => `<tr><td>${s.plan_name}</td><td>${s.amount} ₺</td><td>${s.invoice_no || '-'}</td><td>${formatDate(s.created_at)}</td></tr>`).join("")}
+                    <tr style="text-align: left; color: #94a3b8;"><th>Paket</th><th>Tutar</th><th>Kaynak</th><th>Fatura No</th><th>Tarih</th></tr>
+                    ${subs.map(s => `<tr><td>${s.plan_name}</td><td>${s.amount} ₺</td><td>${s.source || 'iyzico'}</td><td>${s.invoice_no || '-'}</td><td>${formatDate(s.created_at)}</td></tr>`).join("")}
                 </table>`}
             </div>
         `;

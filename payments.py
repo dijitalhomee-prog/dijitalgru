@@ -193,10 +193,10 @@ def verify_and_process_iyzico_callback(token):
         WHERE id = ?
         """, (plan_key, sub_end, plan_info["dynamic_limit"], user_id))
 
-        # 2. Log subscription payment to database
+        # 2. Log subscription payment to database with source = 'iyzico'
         cursor.execute("""
-        INSERT INTO subscriptions (user_id, plan_name, amount, status, iyzico_sub_id, invoice_no, created_at)
-        VALUES (?, ?, ?, 'active', ?, ?, ?)
+        INSERT INTO subscriptions (user_id, plan_name, amount, status, iyzico_sub_id, invoice_no, source, refund_status, refund_date, created_at)
+        VALUES (?, ?, ?, 'active', ?, ?, 'iyzico', 'none', 0, ?)
         """, (user_id, f"{plan_info['name']} - {cycle_info['label']}", paid_price, iyzico_payment_id, invoice_no, now))
 
         conn.commit()

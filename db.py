@@ -176,6 +176,9 @@ def init_db():
                 status VARCHAR(50) NOT NULL,
                 iyzico_sub_id VARCHAR(100),
                 invoice_no VARCHAR(100),
+                source VARCHAR(50) DEFAULT 'iyzico',
+                refund_status VARCHAR(50) DEFAULT 'none',
+                refund_date BIGINT DEFAULT 0,
                 created_at BIGINT NOT NULL
             )
             """,
@@ -303,6 +306,9 @@ def init_db():
                 status TEXT NOT NULL,
                 iyzico_sub_id TEXT,
                 invoice_no TEXT,
+                source TEXT DEFAULT 'iyzico',
+                refund_status TEXT DEFAULT 'none',
+                refund_date INTEGER DEFAULT 0,
                 created_at INTEGER NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )

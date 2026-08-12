@@ -63,6 +63,31 @@ def run_migrations():
     except Exception as e:
         conn.rollback()
         print("⚠️ Admin migration note:", e)
+
+    # 5. Ensure source, refund_status, refund_date columns on subscriptions
+    try:
+        if is_postgres():
+            cursor.execute("ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS source VARCHAR(50) DEFAULT 'iyzico';")
+            cursor.execute("ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS refund_status VARCHAR(50) DEFAULT 'none';")
+            cursor.execute("ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS refund_date BIGINT DEFAULT 0;")
+        else:
+            try:
+                cursor.execute("ALTER TABLE subscriptions ADD COLUMN source TEXT DEFAULT 'iyzico';")
+            except Exception:
+                pass
+            try:
+                cursor.execute("ALTER TABLE subscriptions ADD COLUMN refund_status TEXT DEFAULT 'none';")
+            except Exception:
+                pass
+            try:
+                cursor.execute("ALTER TABLE subscriptions ADD COLUMN refund_date INTEGER DEFAULT 0;")
+            except Exception:
+                pass
+        conn.commit()
+        print("✅ Subscriptions accounting columns ensured.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ Subscriptions migration note:", e)
         
     conn.close()
 
