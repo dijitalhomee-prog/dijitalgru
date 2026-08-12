@@ -27,6 +27,12 @@ def get_current_user():
         return None
     return get_user_by_id(payload["user_id"])
 
+# Initialize Database on Startup
+try:
+    init_db()
+except Exception as e:
+    print(f"⚠️ DB initialization note: {e}")
+
 # --- Public Routes ---
 
 @app.route("/")

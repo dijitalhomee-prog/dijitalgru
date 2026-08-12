@@ -6,22 +6,89 @@ import time
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 def is_postgres():
-    return DATABASE_URL.startswith("postgres://") or DATABASE_URL.startswith("postgresql://")
+    db_url = os.environ.get("DATABASE_URL", "")
+    return db_url.startswith("postgres://") or db_url.startswith("postgresql://")
+
+class SmartCursor:
+    def __init__(self, cursor, is_pg=False):
+        self.cursor = cursor
+        self.is_pg = is_pg
+        self.last_inserted_id = None
+
+    def execute(self, sql, params=()):
+        if self.is_pg:
+            sql_pg = sql.replace("?", "%s")
+            if "INSERT INTO" in sql_pg.upper() and "RETURNING" not in sql_pg.upper():
+                sql_pg += " RETURNING id"
+                self.cursor.execute(sql_pg, params)
+                try:
+                    res = self.cursor.fetchone()
+                    if res:
+                        self.last_inserted_id = res["id"] if (isinstance(res, dict) or hasattr(res, 'keys')) else res[0]
+                except Exception:
+                    pass
+                return self.cursor
+            return self.cursor.execute(sql_pg, params)
+        else:
+            res = self.cursor.execute(sql, params)
+            self.last_inserted_id = getattr(self.cursor, "lastrowid", None)
+            return res
+
+    @property
+    def lastrowid(self):
+        if self.is_pg:
+            return self.last_inserted_id
+        return getattr(self.cursor, "lastrowid", None)
+
+    def fetchone(self):
+        row = self.cursor.fetchone()
+        if row and not isinstance(row, dict) and hasattr(row, 'keys'):
+            return dict(row)
+        return row
+
+    def fetchall(self):
+        rows = self.cursor.fetchall()
+        if rows:
+            return [dict(r) if (hasattr(r, 'keys') and not isinstance(r, dict)) else r for r in rows]
+        return rows
+
+    def __getattr__(self, name):
+        return getattr(self.cursor, name)
+
+class SmartConn:
+    def __init__(self, conn, is_pg=False):
+        self.conn = conn
+        self.is_pg = is_pg
+
+    def cursor(self):
+        return SmartCursor(self.conn.cursor(), is_pg=self.is_pg)
+
+    def commit(self):
+        return self.conn.commit()
+
+    def rollback(self):
+        return self.conn.rollback()
+
+    def close(self):
+        return self.conn.close()
+
+    def __getattr__(self, name):
+        return getattr(self.conn, name)
 
 def get_db():
     if is_postgres():
         import psycopg2
         import psycopg2.extras
-        # Fix legacy postgres:// URL format for SQLAlchemy/Psycopg
-        url = DATABASE_URL.replace("postgres://", "postgresql://")
-        conn = psycopg2.connect(url, cursor_factory=psycopg2.extras.DictCursor)
-        return conn
+        db_url = os.environ.get("DATABASE_URL", "")
+        url = db_url.replace("postgres://", "postgresql://")
+        raw_conn = psycopg2.connect(url, cursor_factory=psycopg2.extras.DictCursor)
+        return SmartConn(raw_conn, is_pg=True)
     else:
         db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "dijitalgru_qr.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
+        raw_conn = sqlite3.connect(db_path)
+        raw_conn.row_factory = sqlite3.Row
+        return SmartConn(raw_conn, is_pg=False)
 
 def init_db():
     conn = get_db()
