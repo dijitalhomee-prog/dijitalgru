@@ -10,7 +10,7 @@ const CYCLE_PRICES = {
         starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span>',
         advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #ef4444; font-weight: 800;">₺199</span>',
         business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #ef4444; font-weight: 800;">₺449</span>',
-        text: "🔥 Açılışa Özel %50 İndirimli Aylık Düzenli Ödeme"
+        text: "🔥 İlk Aya Özel 1 Aylık Net %50 İndirimli Ödeme"
     },
     semi_annual: {
         starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span>',
