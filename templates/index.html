@@ -444,25 +444,26 @@
         <!-- 4. PRICING & SUBSCRIPTIONS TAB -->
         <section id="pricing-tab" class="page-section">
             <div style="text-align: center; margin-bottom: 30px;">
-                <div class="badge">💳 Şahıs Şirketi & Otomatik e-Arşiv Fatura Uyumlu</div>
-                <h2 style="font-size: 36px; font-weight: 800;">Abonelik Paketleri</h2>
+                <div class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800; font-size: 13px; padding: 8px 16px;">🔥 AÇILIŞA ÖZEL TÜM PAKETLERDE NET %50 İNDİRİM BAŞLADI!</div>
+                <h2 style="font-size: 36px; font-weight: 800; margin-top: 12px;">Abonelik Paketleri</h2>
                 <p style="color: var(--text-muted); margin-top: 8px;">İhtiyacınıza uygun paketi seçin, iyzico güvencesiyle 7/24 kesintisiz dinamik QR hizmeti alın.</p>
 
                 <!-- Billing Cycle Selector Toggle -->
                 <div style="display: flex; justify-content: center; gap: 8px; margin-top: 24px; background: rgba(21, 25, 34, 0.9); border: 1px solid var(--card-border); padding: 6px; border-radius: 16px; width: fit-content; margin-left: auto; margin-right: auto;">
                     <button class="cycle-btn active" data-cycle="monthly" onclick="setBillingCycle('monthly')">Aylık Ödeme</button>
-                    <button class="cycle-btn" data-cycle="semi_annual" onclick="setBillingCycle('semi_annual')">6 Aylık Peşin <span style="background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%15 İndirim</span></button>
-                    <button class="cycle-btn" data-cycle="annual" onclick="setBillingCycle('annual')">Yıllık Peşin <span style="background: rgba(99, 102, 241, 0.2); color: var(--primary); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%30 İndirim</span></button>
+                    <button class="cycle-btn" data-cycle="semi_annual" onclick="setBillingCycle('semi_annual')">6 Aylık Peşin <span style="background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%15 Ek İndirim</span></button>
+                    <button class="cycle-btn" data-cycle="annual" onclick="setBillingCycle('annual')">Yıllık Peşin <span style="background: rgba(99, 102, 241, 0.2); color: var(--primary); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%30 Ek İndirim</span></button>
                 </div>
             </div>
 
             <div class="pricing-grid">
                 <!-- Starter -->
                 <div class="pricing-card">
+                    <div style="position: absolute; top: -12px; left: 24px; background: #ef4444; color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800;">%50 İNDİRİM</div>
                     <h3 style="font-size: 20px; font-weight: 700;">Başlangıç (Starter)</h3>
                     <p style="font-size: 13px; color: var(--text-muted);">Küçük işletmeler & şahsi kullanım için</p>
-                    <div class="pricing-price" id="price-starter">₺199 <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
-                    <div id="subtext-starter" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">Aylık Düzenli Ödeme</div>
+                    <div class="pricing-price" id="price-starter"><s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span> <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
+                    <div id="subtext-starter" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">🔥 Açılışa Özel %50 İndirimli Aylık Ödeme</div>
                     <ul class="pricing-features">
                         <li>✅ 5 Adet Dinamik QR Kod</li>
                         <li>✅ 15.000 Tarama / ay</li>
@@ -476,10 +477,11 @@
                 <!-- Advanced -->
                 <div class="pricing-card popular">
                     <div style="position: absolute; top: -12px; right: 24px; background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;">EN ÇOK TERCİH EDİLEN</div>
+                    <div style="position: absolute; top: -12px; left: 24px; background: #ef4444; color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800;">%50 İNDİRİM</div>
                     <h3 style="font-size: 20px; font-weight: 700;">Profesyonel (Advanced)</h3>
                     <p style="font-size: 13px; color: var(--text-muted);">Büyüyen markalar ve ajanslar için</p>
-                    <div class="pricing-price" id="price-advanced">₺399 <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
-                    <div id="subtext-advanced" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">Aylık Düzenli Ödeme</div>
+                    <div class="pricing-price" id="price-advanced"><s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #ef4444; font-weight: 800;">₺199</span> <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
+                    <div id="subtext-advanced" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">🔥 Açılışa Özel %50 İndirimli Aylık Ödeme</div>
                     <ul class="pricing-features">
                         <li>✅ 25 Adet Dinamik QR Kod</li>
                         <li>✅ Limitsiz Tarama Sayısı</li>
@@ -493,10 +495,11 @@
 
                 <!-- Business -->
                 <div class="pricing-card">
+                    <div style="position: absolute; top: -12px; left: 24px; background: #ef4444; color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800;">%50 İNDİRİM</div>
                     <h3 style="font-size: 20px; font-weight: 700;">Kurumsal (Business)</h3>
                     <p style="font-size: 13px; color: var(--text-muted);">Zincir markalar ve büyük ölçek için</p>
-                    <div class="pricing-price" id="price-business">₺899 <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
-                    <div id="subtext-business" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">Aylık Düzenli Ödeme</div>
+                    <div class="pricing-price" id="price-business"><s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #ef4444; font-weight: 800;">₺449</span> <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
+                    <div id="subtext-business" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">🔥 Açılışa Özel %50 İndirimli Aylık Ödeme</div>
                     <ul class="pricing-features">
                         <li>✅ 100 Adet Dinamik QR Kod</li>
                         <li>✅ Limitsiz Tarama Sayısı</li>
