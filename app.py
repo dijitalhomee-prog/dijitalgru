@@ -192,6 +192,30 @@ def api_qr_preview():
     b64_img = generate_qr_image(text, settings, format="base64")
     return jsonify({"image": b64_img})
 
+@app.route("/static/uploads/pdfs/<filename>")
+def serve_legacy_static_pdf(filename):
+    # 1. Check local static folder
+    filepath = os.path.join(app.static_folder, "uploads", "pdfs", filename)
+    if os.path.exists(filepath):
+        return send_file(filepath, mimetype="application/pdf")
+        
+    # 2. Fallback to PostgreSQL database pdf_files
+    file_code = filename.replace("menu_", "").replace(".pdf", "")
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM pdf_files WHERE file_code = ? OR filename = ?", (file_code, filename))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if row:
+        pdf_data = dict(row)
+        pdf_bytes = base64.b64decode(pdf_data["data_b64"])
+        response = Response(pdf_bytes, mimetype=pdf_data.get("content_type", "application/pdf"))
+        response.headers["Content-Disposition"] = f'inline; filename="{pdf_data["filename"]}"'
+        return response
+        
+    return "PDF Dosyası Bulunamadı", 404
+
 @app.route("/p/pdf/<file_code>")
 @app.route("/p/pdf/<file_code>.pdf")
 def serve_pdf(file_code):
@@ -628,6 +652,8 @@ def internal_error(error):
 def not_found_error(error):
     if request.path.startswith("/api/"):
         return jsonify({"error": "İstenen kaynak bulunamadı."}), 404
+    elif request.path.startswith("/static/") or request.path.startswith("/p/pdf/"):
+        return "Dosya veya içerik bulunamadı.", 404
     return render_template("index.html"), 404
 
 if __name__ == "__main__":
