@@ -96,84 +96,103 @@ def init_db():
     
     if is_postgres():
         # PostgreSQL Production Cloud Schemas
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            password_hash VARCHAR(255) NOT NULL,
-            plan VARCHAR(50) DEFAULT 'free',
-            subscription_end BIGINT DEFAULT 0,
-            dynamic_qr_limit INT DEFAULT 3,
-            created_at BIGINT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS qr_codes (
-            id SERIAL PRIMARY KEY,
-            user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            short_code VARCHAR(50) UNIQUE NOT NULL,
-            title VARCHAR(255) NOT NULL,
-            type VARCHAR(50) NOT NULL,
-            target_url TEXT NOT NULL,
-            is_dynamic INT DEFAULT 1,
-            custom_settings TEXT NOT NULL,
-            status VARCHAR(50) DEFAULT 'active',
-            scans_count INT DEFAULT 0,
-            created_at BIGINT NOT NULL,
-            updated_at BIGINT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS scan_logs (
-            id SERIAL PRIMARY KEY,
-            qr_id INT NOT NULL REFERENCES qr_codes(id) ON DELETE CASCADE,
-            scanned_at BIGINT NOT NULL,
-            ip_address VARCHAR(100),
-            user_agent TEXT,
-            device_type VARCHAR(50),
-            browser VARCHAR(50),
-            country VARCHAR(100) DEFAULT 'Turkey',
-            city VARCHAR(100) DEFAULT 'İstanbul'
-        );
-        CREATE TABLE IF NOT EXISTS vcard_pages (
-            id SERIAL PRIMARY KEY,
-            qr_id INT UNIQUE NOT NULL REFERENCES qr_codes(id) ON DELETE CASCADE,
-            full_name VARCHAR(255),
-            title VARCHAR(255),
-            company VARCHAR(255),
-            phone VARCHAR(50),
-            email VARCHAR(255),
-            website TEXT,
-            address TEXT,
-            bio TEXT,
-            avatar_url TEXT,
-            social_links TEXT
-        );
-        CREATE TABLE IF NOT EXISTS menu_pages (
-            id SERIAL PRIMARY KEY,
-            qr_id INT UNIQUE NOT NULL REFERENCES qr_codes(id) ON DELETE CASCADE,
-            title VARCHAR(255),
-            description TEXT,
-            cover_url TEXT,
-            pdf_url TEXT,
-            categories TEXT
-        );
-        CREATE TABLE IF NOT EXISTS subscriptions (
-            id SERIAL PRIMARY KEY,
-            user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            plan_name VARCHAR(100) NOT NULL,
-            amount NUMERIC(10,2) NOT NULL,
-            status VARCHAR(50) NOT NULL,
-            iyzico_sub_id VARCHAR(100),
-            invoice_no VARCHAR(100),
-            created_at BIGINT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS pdf_files (
-            id SERIAL PRIMARY KEY,
-            file_code VARCHAR(100) UNIQUE NOT NULL,
-            filename TEXT NOT NULL,
-            content_type VARCHAR(100) DEFAULT 'application/pdf',
-            data_b64 TEXT NOT NULL,
-            created_at BIGINT NOT NULL
-        );
-        """)
+        tables = [
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                plan VARCHAR(50) DEFAULT 'free',
+                subscription_end BIGINT DEFAULT 0,
+                dynamic_qr_limit INT DEFAULT 3,
+                created_at BIGINT NOT NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS qr_codes (
+                id SERIAL PRIMARY KEY,
+                user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                short_code VARCHAR(50) UNIQUE NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                type VARCHAR(50) NOT NULL,
+                target_url TEXT NOT NULL,
+                is_dynamic INT DEFAULT 1,
+                custom_settings TEXT NOT NULL,
+                status VARCHAR(50) DEFAULT 'active',
+                scans_count INT DEFAULT 0,
+                created_at BIGINT NOT NULL,
+                updated_at BIGINT NOT NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS scan_logs (
+                id SERIAL PRIMARY KEY,
+                qr_id INT NOT NULL REFERENCES qr_codes(id) ON DELETE CASCADE,
+                scanned_at BIGINT NOT NULL,
+                ip_address VARCHAR(100),
+                user_agent TEXT,
+                device_type VARCHAR(50),
+                browser VARCHAR(50),
+                country VARCHAR(100) DEFAULT 'Turkey',
+                city VARCHAR(100) DEFAULT 'İstanbul'
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS vcard_pages (
+                id SERIAL PRIMARY KEY,
+                qr_id INT UNIQUE NOT NULL REFERENCES qr_codes(id) ON DELETE CASCADE,
+                full_name VARCHAR(255),
+                title VARCHAR(255),
+                company VARCHAR(255),
+                phone VARCHAR(50),
+                email VARCHAR(255),
+                website TEXT,
+                address TEXT,
+                bio TEXT,
+                avatar_url TEXT,
+                social_links TEXT
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS menu_pages (
+                id SERIAL PRIMARY KEY,
+                qr_id INT UNIQUE NOT NULL REFERENCES qr_codes(id) ON DELETE CASCADE,
+                title VARCHAR(255),
+                description TEXT,
+                cover_url TEXT,
+                pdf_url TEXT,
+                categories TEXT
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS subscriptions (
+                id SERIAL PRIMARY KEY,
+                user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                plan_name VARCHAR(100) NOT NULL,
+                amount NUMERIC(10,2) NOT NULL,
+                status VARCHAR(50) NOT NULL,
+                iyzico_sub_id VARCHAR(100),
+                invoice_no VARCHAR(100),
+                created_at BIGINT NOT NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS pdf_files (
+                id SERIAL PRIMARY KEY,
+                file_code VARCHAR(100) UNIQUE NOT NULL,
+                filename TEXT NOT NULL,
+                content_type VARCHAR(100) DEFAULT 'application/pdf',
+                data_b64 TEXT NOT NULL,
+                created_at BIGINT NOT NULL
+            )
+            """
+        ]
+        for tbl_sql in tables:
+            try:
+                cursor.execute(tbl_sql)
+            except Exception as ex:
+                pass
         try:
             cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email));")
         except Exception:

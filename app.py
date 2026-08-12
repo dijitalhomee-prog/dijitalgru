@@ -6,7 +6,7 @@ import os
 import io
 import base64
 
-from db import init_db, get_db
+from db import init_db, get_db, is_postgres
 from auth import register_user, login_user, decode_token, get_user_by_id
 from qr_engine import generate_qr_image
 from payments import process_subscription_purchase, PLANS
@@ -237,6 +237,35 @@ def api_upload_pdf():
     
     conn = get_db()
     cursor = conn.cursor()
+    
+    # Auto-heal: Ensure pdf_files table exists in DB
+    try:
+        if is_postgres():
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS pdf_files (
+                id SERIAL PRIMARY KEY,
+                file_code VARCHAR(100) UNIQUE NOT NULL,
+                filename TEXT NOT NULL,
+                content_type VARCHAR(100) DEFAULT 'application/pdf',
+                data_b64 TEXT NOT NULL,
+                created_at BIGINT NOT NULL
+            )
+            """)
+        else:
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS pdf_files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_code TEXT UNIQUE NOT NULL,
+                filename TEXT NOT NULL,
+                content_type TEXT DEFAULT 'application/pdf',
+                data_b64 TEXT NOT NULL,
+                created_at INTEGER NOT NULL
+            )
+            """)
+        conn.commit()
+    except Exception:
+        pass
+
     cursor.execute("""
     INSERT INTO pdf_files (file_code, filename, content_type, data_b64, created_at)
     VALUES (?, ?, 'application/pdf', ?, ?)
