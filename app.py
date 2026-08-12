@@ -113,6 +113,48 @@ def public_vcard(qr_id):
     vcard_data = dict(row)
     return render_template("vcard_template.html", vcard=vcard_data)
 
+@app.route("/p/vcard/<int:qr_id>.vcf")
+def download_vcard(qr_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        return "Kartvizit Bulunamadı", 404
+        
+    v = dict(row)
+    name = v.get("full_name", "Kişi Kartı")
+    title = v.get("title", "")
+    org = v.get("company", "")
+    phone = v.get("phone", "")
+    email = v.get("email", "")
+    website = v.get("website", "")
+    
+    vcard_lines = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        f"FN:{name}",
+        f"N:{name};;;;",
+    ]
+    if title:
+        vcard_lines.append(f"TITLE:{title}")
+    if org:
+        vcard_lines.append(f"ORG:{org}")
+    if phone:
+        vcard_lines.append(f"TEL;TYPE=CELL:{phone}")
+    if email:
+        vcard_lines.append(f"EMAIL:{email}")
+    if website:
+        vcard_lines.append(f"URL:{website}")
+    vcard_lines.append("END:VCARD")
+    
+    vcard_content = "\r\n".join(vcard_lines)
+    response = Response(vcard_content, mimetype="text/vcard; charset=utf-8")
+    response.headers["Content-Disposition"] = f'attachment; filename="{name}.vcf"'
+    return response
+
 @app.route("/p/menu/<int:qr_id>")
 def public_menu(qr_id):
     conn = get_db()
@@ -314,7 +356,11 @@ def api_qr_create():
             vcard_payload.get("avatar_url"),
             json.dumps(vcard_payload.get("social_links", {}))
         ))
-        cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://vcard/{qr_id}", qr_id))
+        direct_vcard = vcard_payload.get("direct_redirect", False)
+        if direct_vcard:
+            cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"/p/vcard/{qr_id}.vcf", qr_id))
+        else:
+            cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://vcard/{qr_id}", qr_id))
         
     elif qr_type == "menu" and menu_payload:
         pdf_url = menu_payload.get("pdf_url")

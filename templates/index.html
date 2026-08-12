@@ -174,7 +174,21 @@
 
                     <!-- Type 2: vCard -->
                     <div id="form-vcard" class="type-form" style="display: none;">
-                        <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">🎴 Dijital Kartvizit Bilgileri</h4>
+                        <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">📇 Dijital Kartvizit Bilgileri</h4>
+
+                        <!-- Direct vCard Redirect Switch -->
+                        <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 6px;">⚡ Doğrudan Rehbere Ekle (vCard İndirme)</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Aktifleştiğinde kullanıcılar açılış sayfası görmez, doğrudan kişiyi rehbere ekleme penceresi açılır.</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="direct-vcard-redirect" onchange="updateLivePreview()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div class="form-group">
                                 <label class="form-label">Ad Soyad</label>

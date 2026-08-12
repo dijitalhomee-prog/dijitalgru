@@ -187,6 +187,7 @@ function getQRFormPayload() {
     if (currentQrType === "url") {
         target_url = getVal("target-url", "https://qrdijitalgru.com");
     } else if (currentQrType === "vcard") {
+        const directVcardEl = document.getElementById("direct-vcard-redirect");
         vcard_payload = {
             full_name: getVal("vcard-name", "Ad Soyad"),
             title: getVal("vcard-title", "Unvan"),
@@ -195,7 +196,8 @@ function getQRFormPayload() {
             email: getVal("vcard-email", "eposta@sirketiniz.com"),
             website: getVal("vcard-website", "https://siteniz.com"),
             address: getVal("vcard-address", "İstanbul, Türkiye"),
-            bio: getVal("vcard-bio", "")
+            bio: getVal("vcard-bio", ""),
+            direct_redirect: directVcardEl ? directVcardEl.checked : false
         };
     } else if (currentQrType === "menu") {
         const directPdfEl = document.getElementById("direct-pdf-redirect");
