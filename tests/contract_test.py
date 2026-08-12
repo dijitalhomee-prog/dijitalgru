@@ -194,5 +194,55 @@ class TestDijitalgruQRContract(unittest.TestCase):
         me_res2 = self.client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
         self.assertEqual(me_res2.get_json()["user"]["plan"], "free")
 
+    def test_10_secure_password_hashing_and_migration(self):
+        # 1. New user registration uses Werkzeug unique salt hash
+        email = f"secure_pwd_{int(time.time())}@dijitalgru.com"
+        reg_res = self.client.post("/api/auth/register", json={
+            "name": "Secure Pwd User",
+            "email": email,
+            "password": "MySuperSecretPassword123!"
+        })
+        self.assertEqual(reg_res.status_code, 200)
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT password_hash FROM users WHERE email = ?", (email,))
+        pwd_hash = cursor.fetchone()["password_hash"]
+        conn.close()
+
+        self.assertTrue("scrypt:" in pwd_hash or "pbkdf2:" in pwd_hash or "$" in pwd_hash)
+        self.assertNotEqual(pwd_hash, "dijitalgru_salt_2026")
+
+        # 2. Simulate legacy user with fixed salt pbkdf2_hmac hash
+        legacy_email = f"legacy_pwd_{int(time.time())}@dijitalgru.com"
+        import hashlib
+        legacy_pwd = "OldPassword123!"
+        legacy_hash = hashlib.pbkdf2_hmac("sha256", legacy_pwd.encode("utf-8"), b"dijitalgru_salt_2026", 100000).hex()
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO users (name, email, password_hash, plan, subscription_end, dynamic_qr_limit, created_at)
+        VALUES ('Legacy User', ?, ?, 'free', 100000, 3, 100000)
+        """, (legacy_email, legacy_hash))
+        conn.commit()
+        conn.close()
+
+        # Login with legacy password -> login succeeds AND auto-migrates to Werkzeug format
+        log_res = self.client.post("/api/auth/login", json={
+            "email": legacy_email,
+            "password": legacy_pwd
+        })
+        self.assertEqual(log_res.status_code, 200)
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT password_hash FROM users WHERE email = ?", (legacy_email,))
+        migrated_hash = cursor.fetchone()["password_hash"]
+        conn.close()
+
+        self.assertNotEqual(migrated_hash, legacy_hash)
+        self.assertTrue("scrypt:" in migrated_hash or "pbkdf2:" in migrated_hash or "$" in migrated_hash)
+
 if __name__ == "__main__":
     unittest.main()

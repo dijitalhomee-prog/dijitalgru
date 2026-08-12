@@ -3,15 +3,54 @@ import time
 import jwt
 import os
 import json
+from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db
 
-SECRET_KEY = os.environ.get("JWT_SECRET", "dijitalgru_qr_secret_key_2026_super_secure")
+# Fail-fast check for JWT_SECRET in Production
+JWT_SECRET_ENV = os.environ.get("JWT_SECRET")
+IS_PROD = os.environ.get("FLASK_ENV") == "production" or os.environ.get("RAILWAY_ENVIRONMENT_NAME") is not None
+
+if not JWT_SECRET_ENV:
+    if IS_PROD:
+        raise RuntimeError("FATAL SECURITY ERROR: JWT_SECRET environment variable is missing in production!")
+    print("⚠️ WARNING: JWT_SECRET environment variable not set. Using local development secret.")
+    SECRET_KEY = "dijitalgru_qr_dev_secret_key_2026_local_only"
+else:
+    SECRET_KEY = JWT_SECRET_ENV.strip()
 
 def hash_password(password):
-    return hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), b"dijitalgru_salt_2026", 100000).hex()
+    """
+    Generates a secure, unique-salted password hash using Werkzeug (pbkdf2:sha256).
+    Each user receives an individual, randomly generated salt.
+    """
+    return generate_password_hash(password, method="pbkdf2:sha256")
+
+def verify_password_with_migration(password, hashed):
+    """
+    Verifies password.
+    Returns (is_valid, needs_migration).
+    Supports seamless legacy pbkdf2_hmac hash auto-migration.
+    """
+    if not hashed or not password:
+        return False, False
+        
+    # Werkzeug hash format check (scrypt:, pbkdf2:, bcrypt:, $)
+    if ":" in hashed or hashed.startswith("$"):
+        return check_password_hash(hashed, password), False
+        
+    # Legacy PBKDF2 HMAC fallback check
+    try:
+        legacy_hash = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), b"dijitalgru_salt_2026", 100000).hex()
+        if legacy_hash == hashed:
+            return True, True # Match found, needs migration
+    except Exception:
+        pass
+        
+    return False, False
 
 def verify_password(password, hashed):
-    return hash_password(password) == hashed
+    is_valid, _ = verify_password_with_migration(password, hashed)
+    return is_valid
 
 def create_token(user):
     payload = {
@@ -79,15 +118,30 @@ def login_user(email, password):
     
     cursor.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(?)", (clean_email,))
     row = cursor.fetchone()
-    conn.close()
     
     if not row:
+        conn.close()
         return None, "E-posta veya şifre hatalı."
         
     user = dict(row)
-    if not verify_password(password, user["password_hash"]):
+    is_valid, needs_migration = verify_password_with_migration(password, user["password_hash"])
+    
+    if not is_valid:
+        conn.close()
         return None, "E-posta veya şifre hatalı."
         
+    # Auto-migrate legacy hash to unique-salted Werkzeug hash
+    if needs_migration:
+        try:
+            new_hash = hash_password(password)
+            cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, user["id"]))
+            conn.commit()
+            print(f"🔒 Auto-migrated password hash to Werkzeug for user {user['id']}")
+        except Exception as ex:
+            print(f"Password hash migration failed for user {user['id']}:", ex)
+            
+    conn.close()
+    
     del user["password_hash"]
     token = create_token(user)
     return {"token": token, "user": user}, None
