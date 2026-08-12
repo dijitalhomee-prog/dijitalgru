@@ -198,9 +198,12 @@ def init_db():
         except Exception:
             pass
         try:
-            cursor.execute("ALTER TABLE qr_codes ADD COLUMN folder_name VARCHAR(100) DEFAULT 'Genel';")
+            cursor.execute("ALTER TABLE qr_codes ADD COLUMN IF NOT EXISTS folder_name VARCHAR(100) DEFAULT 'Genel';")
         except Exception:
-            pass
+            try:
+                cursor.execute("ALTER TABLE qr_codes ADD COLUMN folder_name VARCHAR(100) DEFAULT 'Genel';")
+            except Exception:
+                pass
     else:
         # SQLite Schemas
         cursor.execute("""

@@ -514,9 +514,32 @@ async function loadDashboardData() {
 
             allQRCodes = data.qr_codes || [];
             renderQRList(allQRCodes);
+        } else {
+            const container = document.getElementById("qr-list-container");
+            if (container) {
+                container.innerHTML = `
+                    <div class="glass-card" style="text-align: center; padding: 30px; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">
+                        <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
+                        <strong style="font-size: 15px;">Veriler yüklenemedi:</strong> ${data.error || 'Sunucu hatası oluştu. Lütfen tekrar deneyin.'}
+                        <br>
+                        <button onclick="loadDashboardData()" class="btn-primary" style="margin-top: 14px; padding: 8px 16px; font-size: 12px;">🔄 Tekrar Dene</button>
+                    </div>
+                `;
+            }
         }
     } catch (err) {
         console.error("Dashboard data load error:", err);
+        const container = document.getElementById("qr-list-container");
+        if (container) {
+            container.innerHTML = `
+                <div class="glass-card" style="text-align: center; padding: 30px; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">
+                    <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
+                    <strong style="font-size: 15px;">Bağlantı hatası:</strong> Veriler yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.
+                    <br>
+                    <button onclick="loadDashboardData()" class="btn-primary" style="margin-top: 14px; padding: 8px 16px; font-size: 12px;">🔄 Tekrar Dene</button>
+                </div>
+            `;
+        }
     }
 }
 
