@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijitalgru QR Studio — Dinamik QR Kod & SaaS Platformu</title>
+    <meta name="description" content="Basılı materyallerinizdeki QR kodları değiştirmeden hedef adresinizi anında güncelleyin. Dijital Kartvizit, Restoran Menüsü ve Gelişmiş Analizler.">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* Color Swatches & Preset Palette */
+        .color-palette {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .color-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .color-swatch:hover, .color-swatch.active {
+            transform: scale(1.15);
+            border-color: #ffffff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+        }
+        .hex-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 4px 12px;
+        }
+        .color-preview-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .hex-text-input {
+            border: none;
+            background: transparent;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            outline: none;
+            text-transform: uppercase;
+        }
+
+        /* Upload Area */
+        .pdf-upload-box {
+            border: 2px dashed rgba(99, 102, 241, 0.4);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            background: rgba(99, 102, 241, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .pdf-upload-box:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <a href="/" class="brand">
+            <div class="brand-icon">G</div>
+            <span>Dijitalgru <span style="color: var(--primary);">QR Studio</span></span>
+        </a>
+
+        <nav class="nav-links">
+            <a class="nav-link active" data-target="home-tab">Ana Sayfa</a>
+            <a class="nav-link" data-target="studio-tab">QR Stüdyosu</a>
+            <a class="nav-link" id="nav-dash-link" data-target="dashboard-tab" style="display: none;">Panelim</a>
+            <a class="nav-link" data-target="pricing-tab">Paketler & Fiyatlar</a>
+            <button class="btn-primary" id="nav-auth-btn">Giriş Yap / Kaydol</button>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- 1. HERO & HOME TAB -->
+        <section id="home-tab" class="page-section active">
+            <div class="hero">
+                <div class="badge">🚀 Türkiye'nin En Gelişmiş QR Kod Stüdyosu</div>
+                <h1 class="hero-title">Akıllı, Dinamik & Değiştirilebilir<br>QR Kodlar Oluşturun</h1>
+                <p class="hero-subtitle">
+                    Basılan broşür, kartvizit ve menülerinizdeki QR kodu <strong>tekrar bastırmanıza gerek kalmadan</strong> hedef linkini istediğiniz an değiştirin. Taranma istatistiklerini anlık takip edin.
+                </p>
+                <div style="display: flex; justify-content: center; gap: 16px;">
+                    <button class="btn-primary" style="padding: 14px 28px; font-size: 16px;" data-target="studio-tab">🚀 Ücretsiz QR Oluştur</button>
+                    <button class="btn-secondary" style="padding: 14px 28px; font-size: 16px;" data-target="pricing-tab">💎 Paketleri İncele</button>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 40px;">
+                <div class="glass-card">
+                    <div style="font-size: 32px; margin-bottom: 12px;">🔗</div>
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Dinamik Yönlendirme</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">QR kodunuz basıldıktan sonra bile panelinizden hedef adresi tek tıkla değiştirebilirsiniz.</p>
+                </div>
+                <div class="glass-card">
+                    <div style="font-size: 32px; margin-bottom: 12px;">🎴</div>
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">vCard Plus & Menü</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">Web siteniz olmasa bile dijital kartvizit ve PDF restoran menü mikro-sayfaları oluşturun.</p>
+                </div>
+                <div class="glass-card">
+                    <div style="font-size: 32px; margin-bottom: 12px;">📊</div>
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Gelişmiş Analitik</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">Kaç kişi taradı, hangi cihaz kullanıldı, saatlik yoğunluk gibi kritik verileri izleyin.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. QR STUDIO TAB -->
+        <section id="studio-tab" class="page-section">
+            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">🎨 QR Kod Stüdyosu</h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">QR kodunuzun tipini seçin, renklerini özelleştirin ve canlı simülatörde anında önizleyin.</p>
+
+            <!-- QR Type Selector -->
+            <div class="type-selector">
+                <div class="type-btn active" data-type="url">
+                    <div class="icon">🌐</div>
+                    <div class="title">Web Linki</div>
+                </div>
+                <div class="type-btn" data-type="vcard">
+                    <div class="icon">🎴</div>
+                    <div class="title">vCard Plus</div>
+                </div>
+                <div class="type-btn" data-type="menu">
+                    <div class="icon">🍽️</div>
+                    <div class="title">Menü / Katalog</div>
+                </div>
+                <div class="type-btn" data-type="wifi">
+                    <div class="icon">📶</div>
+                    <div class="title">Wi-Fi Bağlantı</div>
+                </div>
+                <div class="type-btn" data-type="whatsapp">
+                    <div class="icon">💬</div>
+                    <div class="title">WhatsApp</div>
+                </div>
+            </div>
+
+            <div class="studio-grid">
+                <!-- Generator Controls Left -->
+                <div class="glass-card">
+                    <!-- General Settings -->
+                    <div class="form-group">
+                        <label class="form-label">QR Kod Başlığı (Referansınız İçin)</label>
+                        <input type="text" id="qr-title" class="form-input" value="Dijitalgru Tanıtım QR" placeholder="Örn: Restoran Masa 1 Menü">
+                    </div>
+
+                    <!-- Type 1: URL -->
+                    <div id="form-url" class="type-form">
+                        <div class="form-group">
+                            <label class="form-label">Hedef Web Adresi (URL)</label>
+                            <input type="url" id="target-url" class="form-input" value="https://dijitalgru.com" placeholder="https://siteniz.com">
+                        </div>
+                    </div>
+
+                    <!-- Type 2: vCard -->
+                    <div id="form-vcard" class="type-form" style="display: none;">
+                        <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">🎴 Dijital Kartvizit Bilgileri</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label class="form-label">Ad Soyad</label>
+                                <input type="text" id="vcard-name" class="form-input" value="Furkan Egemen Güneş">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Unvan</label>
+                                <input type="text" id="vcard-title" class="form-input" value="Kurucu & Mimar">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label class="form-label">Şirket / Marka</label>
+                                <input type="text" id="vcard-company" class="form-input" value="Dijitalgru">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Telefon</label>
+                                <input type="text" id="vcard-phone" class="form-input" value="+90 530 000 00 00">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label class="form-label">E-posta</label>
+                                <input type="email" id="vcard-email" class="form-input" value="dijitalgru@gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Web Sitesi</label>
+                                <input type="url" id="vcard-website" class="form-input" value="https://dijitalgru.com">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Adres / Şehir</label>
+                            <input type="text" id="vcard-address" class="form-input" value="İstanbul, Türkiye">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Biyografi / Hakkında</label>
+                            <textarea id="vcard-bio" class="form-textarea" rows="2">Dijital dönüşüm ve yapay zeka otomasyon çözümleri.</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Type 3: Menu -->
+                    <div id="form-menu" class="type-form" style="display: none;">
+                        <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">🍽️ Dijital Menü & PDF Katalog Ayarları</h4>
+                        <div class="form-group">
+                            <label class="form-label">Mekan / İşletme Adı</label>
+                            <input type="text" id="menu-title" class="form-input" value="Güneş Cafe & Bistro">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Açıklama</label>
+                            <input type="text" id="menu-desc" class="form-input" value="Günlük taze tatlar ve özel kahvelerimiz.">
+                        </div>
+
+                        <!-- PDF Upload Option -->
+                        <div class="form-group">
+                            <label class="form-label">📄 PDF Menü / Katalog Dosyası Yükleyin (İsteğe Bağlı)</label>
+                            <div class="pdf-upload-box" onclick="document.getElementById('pdf-file-input').click()">
+                                <div style="font-size: 28px; margin-bottom: 6px;">📂</div>
+                                <div id="pdf-status-text" style="font-size: 13px; font-weight: 600; color: #ffffff;">Tıklayın ve PDF Menünüzü Seçin (.pdf)</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Müşterileriniz QR tarattığında hazırladığınız PDF menüyü hemen görüntüler</div>
+                            </div>
+                            <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePDFUpload(this)">
+                        </div>
+                    </div>
+
+                    <!-- Type 4: Wi-Fi -->
+                    <div id="form-wifi" class="type-form" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Wi-Fi Ağ Adı (SSID)</label>
+                            <input type="text" id="wifi-ssid" class="form-input" value="Dijitalgru_Guest">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Wi-Fi Şifresi</label>
+                            <input type="password" id="wifi-pass" class="form-input" value="12345678">
+                        </div>
+                    </div>
+
+                    <!-- Type 5: WhatsApp -->
+                    <div id="form-whatsapp" class="type-form" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">WhatsApp Telefon Numarası (Ülke kodu ile)</label>
+                            <input type="text" id="wa-phone" class="form-input" value="905300000000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hazır Mesaj Taslağı</label>
+                            <input type="text" id="wa-msg" class="form-input" value="Merhaba, bilgi almak istiyorum.">
+                        </div>
+                    </div>
+
+                    <!-- Styling Customization with Premium Palettes & Hex Inputs -->
+                    <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 24px 0;">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px;">🎨 Görsel Tasarım & Renk Paleti</h4>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <!-- QR Code Fill Color -->
+                        <div class="form-group">
+                            <label class="form-label">QR Kod Rengi</label>
+                            <div class="hex-input-group">
+                                <div class="color-preview-circle" id="fill-preview-circle" style="background-color: #4F46E5;"></div>
+                                <input type="text" id="fill-color" class="hex-text-input" value="#4F46E5" maxlength="7">
+                            </div>
+                            <div class="color-palette">
+                                <div class="color-swatch active" style="background: #4F46E5;" onclick="selectPresetColor('fill', '#4F46E5')"></div>
+                                <div class="color-swatch" style="background: #06B6D4;" onclick="selectPresetColor('fill', '#06B6D4')"></div>
+                                <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('fill', '#10B981')"></div>
+                                <div class="color-swatch" style="background: #F43F5E;" onclick="selectPresetColor('fill', '#F43F5E')"></div>
+                                <div class="color-swatch" style="background: #F59E0B;" onclick="selectPresetColor('fill', '#F59E0B')"></div>
+                                <div class="color-swatch" style="background: #0F172A;" onclick="selectPresetColor('fill', '#0F172A')"></div>
+                            </div>
+                        </div>
+
+                        <!-- QR Code Background Color -->
+                        <div class="form-group">
+                            <label class="form-label">Arka Plan Rengi</label>
+                            <div class="hex-input-group">
+                                <div class="color-preview-circle" id="back-preview-circle" style="background-color: #FFFFFF;"></div>
+                                <input type="text" id="back-color" class="hex-text-input" value="#FFFFFF" maxlength="7">
+                            </div>
+                            <div class="color-palette">
+                                <div class="color-swatch active" style="background: #FFFFFF;" onclick="selectPresetColor('back', '#FFFFFF')"></div>
+                                <div class="color-swatch" style="background: #F8FAFC;" onclick="selectPresetColor('back', '#F8FAFC')"></div>
+                                <div class="color-swatch" style="background: #FEF3C7;" onclick="selectPresetColor('back', '#FEF3C7')"></div>
+                                <div class="color-swatch" style="background: #E0E7FF;" onclick="selectPresetColor('back', '#E0E7FF')"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Çerçeve Stili</label>
+                            <select id="frame-style" class="form-select">
+                                <option value="card" selected>Kart Çerçeve</option>
+                                <option value="none">Çerçevesiz</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Çerçeve Yazısı</label>
+                            <input type="text" id="frame-text" class="form-input" value="Beni Tara!">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Çerçeve Rengi</label>
+                            <div class="hex-input-group">
+                                <div class="color-preview-circle" id="frame-preview-circle" style="background-color: #4F46E5;"></div>
+                                <input type="text" id="frame-color" class="hex-text-input" value="#4F46E5" maxlength="7">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" id="save-qr-btn" style="width: 100%; margin-top: 16px; padding: 14px; justify-content: center;">💾 QR Kodu Hesabıma Kaydet</button>
+                </div>
+
+                <!-- Simulator Preview Right & Download Format Options -->
+                <div class="phone-simulator">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-weight: 600;">📱 Canlı Mobil Önizleme</div>
+                    <div class="phone-screen">
+                        <img id="preview-qr-img" class="qr-preview-img" src="" alt="QR Preview" />
+                        <div style="margin-top: 16px; font-size: 13px; font-weight: 600; color: #a5b4fc;">Dijitalgru Akıllı Yönlendirme</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. DASHBOARD TAB -->
+        <section id="dashboard-tab" class="page-section">
+            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px;">📊 Yönetim Paneli</h2>
+
+            <!-- Analytics Stats Overview -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px;">
+                <div class="glass-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--text-muted);">Toplam QR Kod</div>
+                    <div id="stat-total-qr" style="font-size: 28px; font-weight: 800; color: #ffffff; margin-top: 6px;">0</div>
+                </div>
+                <div class="glass-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--text-muted);">Toplam Tarama</div>
+                    <div id="stat-total-scans" style="font-size: 28px; font-weight: 800; color: var(--success); margin-top: 6px;">0</div>
+                </div>
+                <div class="glass-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--text-muted);">Kullanılan Dinamik Limit</div>
+                    <div id="stat-limit" style="font-size: 28px; font-weight: 800; color: var(--accent); margin-top: 6px;">0 / 3</div>
+                </div>
+                <div class="glass-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--text-muted);">Aktif Paket</div>
+                    <div id="stat-plan" style="font-size: 28px; font-weight: 800; color: var(--primary); margin-top: 6px;">FREE</div>
+                </div>
+            </div>
+
+            <!-- QR Codes List -->
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">QR Kodlarım</h3>
+            <div id="qr-list-container">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- 4. PRICING & SUBSCRIPTIONS TAB -->
+        <section id="pricing-tab" class="page-section">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div class="badge">💳 Şahıs Şirketi & Otomatik e-Arşiv Fatura Uyumlu</div>
+                <h2 style="font-size: 36px; font-weight: 800;">Abonelik Paketleri</h2>
+                <p style="color: var(--text-muted); margin-top: 8px;">İhtiyacınıza uygun paketi seçin, iyzico güvencesiyle 7/24 kesintisiz dinamik QR hizmeti alın.</p>
+
+                <!-- Billing Cycle Selector Toggle -->
+                <div style="display: flex; justify-content: center; gap: 8px; margin-top: 24px; background: rgba(21, 25, 34, 0.9); border: 1px solid var(--card-border); padding: 6px; border-radius: 16px; width: fit-content; margin-left: auto; margin-right: auto;">
+                    <button class="cycle-btn active" data-cycle="monthly" onclick="setBillingCycle('monthly')">Aylık Ödeme</button>
+                    <button class="cycle-btn" data-cycle="semi_annual" onclick="setBillingCycle('semi_annual')">6 Aylık Peşin <span style="background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%15 İndirim</span></button>
+                    <button class="cycle-btn" data-cycle="annual" onclick="setBillingCycle('annual')">Yıllık Peşin <span style="background: rgba(99, 102, 241, 0.2); color: var(--primary); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%30 İndirim</span></button>
+                </div>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Starter -->
+                <div class="pricing-card">
+                    <h3 style="font-size: 20px; font-weight: 700;">Başlangıç (Starter)</h3>
+                    <p style="font-size: 13px; color: var(--text-muted);">Küçük işletmeler & şahsi kullanım için</p>
+                    <div class="pricing-price" id="price-starter">₺199 <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
+                    <div id="subtext-starter" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">Aylık Düzenli Ödeme</div>
+                    <ul class="pricing-features">
+                        <li>✅ 5 Adet Dinamik QR Kod</li>
+                        <li>✅ 15.000 Tarama / ay</li>
+                        <li>✅ Özel Renk & Kart Çerçevesi</li>
+                        <li>✅ vCard Dijital Kartvizit</li>
+                        <li>✅ Otomatik e-Arşiv Fatura</li>
+                    </ul>
+                    <button class="btn-secondary" onclick="buyPlan('starter')">Başlangıç Paketini Seç</button>
+                </div>
+
+                <!-- Advanced -->
+                <div class="pricing-card popular">
+                    <div style="position: absolute; top: -12px; right: 24px; background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;">EN ÇOK TERCİH EDİLEN</div>
+                    <h3 style="font-size: 20px; font-weight: 700;">Profesyonel (Advanced)</h3>
+                    <p style="font-size: 13px; color: var(--text-muted);">Büyüyen markalar ve ajanslar için</p>
+                    <div class="pricing-price" id="price-advanced">₺399 <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
+                    <div id="subtext-advanced" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">Aylık Düzenli Ödeme</div>
+                    <ul class="pricing-features">
+                        <li>✅ 25 Adet Dinamik QR Kod</li>
+                        <li>✅ Limitsiz Tarama Sayısı</li>
+                        <li>✅ Restoran Dijital Menü & PDF Katalog</li>
+                        <li>✅ Gelişmiş Cihaz & Konum Analitiği</li>
+                        <li>✅ Logo Ekleme Özelliği</li>
+                        <li>✅ Otomatik e-Arşiv Fatura</li>
+                    </ul>
+                    <button class="btn-primary" onclick="buyPlan('advanced')">Profesyonel Paketini Seç</button>
+                </div>
+
+                <!-- Business -->
+                <div class="pricing-card">
+                    <h3 style="font-size: 20px; font-weight: 700;">Kurumsal (Business)</h3>
+                    <p style="font-size: 13px; color: var(--text-muted);">Zincir markalar ve büyük ölçek için</p>
+                    <div class="pricing-price" id="price-business">₺899 <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
+                    <div id="subtext-business" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">Aylık Düzenli Ödeme</div>
+                    <ul class="pricing-features">
+                        <li>✅ 100 Adet Dinamik QR Kod</li>
+                        <li>✅ Limitsiz Tarama Sayısı</li>
+                        <li>✅ Özel Subdomain / Domain Yönlendirme</li>
+                        <li>✅ VIP 7/24 Destek</li>
+                        <li>✅ Otomatik e-Arşiv Fatura</li>
+                    </ul>
+                    <button class="btn-secondary" onclick="buyPlan('business')">Kurumsal Paketini Seç</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER WITH LEGAL LINKS & PAYMENT LOGOS -->
+    <footer style="background: rgba(15, 23, 42, 0.95); border-top: 1px solid var(--card-border); margin-top: 60px; padding: 40px 20px; text-align: center;">
+        <div style="max-width: 1100px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 24px;">
+                <div style="text-align: left;">
+                    <div style="font-size: 18px; font-weight: 800; color: #fff;">Dijitalgru QR Studio</div>
+                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Furkan Egemen Güneş | dijitalgru@gmail.com</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">İstanbul, Türkiye</div>
+                </div>
+
+                <!-- Legal Page Links -->
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px;">
+                    <a href="javascript:void(0)" onclick="openModal('modal-about')" style="color: var(--text-muted); text-decoration: none;">Hakkımızda</a>
+                    <a href="javascript:void(0)" onclick="openModal('modal-privacy')" style="color: var(--text-muted); text-decoration: none;">Gizlilik Sözleşmesi</a>
+                    <a href="javascript:void(0)" onclick="openModal('modal-sales')" style="color: var(--text-muted); text-decoration: none;">Mesafeli Satış Sözleşmesi</a>
+                    <a href="javascript:void(0)" onclick="openModal('modal-delivery')" style="color: var(--text-muted); text-decoration: none;">Teslimat ve İade Şartları</a>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin-bottom: 24px;">
+
+            <!-- Payment Provider Badges (Official iyzico Logo Pack) -->
+            <div style="display: flex; justify-content: center; align-items: center; gap: 24px; flex-wrap: wrap; margin-top: 10px;">
+                <img src="/static/images/logos/visa.webp" alt="Visa" style="height: 30px; width: auto; object-fit: contain;" />
+                <img src="/static/images/logos/mastercard.webp" alt="Mastercard" style="height: 34px; width: auto; object-fit: contain;" />
+                <img src="/static/images/logos/iyzico_tr_checkout.svg" alt="iyzico ile Öde" style="height: 42px; width: auto; object-fit: contain;" />
+            </div>
+
+            <!-- Official iyzico Compliant Multi-Card Footer Band -->
+            <div style="margin-top: 20px; display: flex; justify-content: center;">
+                <img src="/static/images/logos/iyzico_footer_band.svg" alt="iyzico Ödeme Yöntemleri Bandı" style="max-width: 100%; height: 36px; object-fit: contain; background: rgba(255,255,255,0.95); padding: 6px 16px; border-radius: 10px;" />
+            </div>
+
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 20px;">
+                © 2026 Dijitalgru QR Studio. Tüm Hakları Saklıdır. 256-Bit SSL Güvenlik Sertifikası ile Korunmaktadır.
+            </div>
+        </div>
+    </footer>
+
+    <!-- LEGAL MODALS -->
+    <!-- 1. About Us -->
+    <div class="modal-overlay" id="modal-about">
+        <div class="modal-content" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 18px; font-weight: 700;">Hakkımızda</h3>
+                <button onclick="closeModal('modal-about')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <div style="font-size: 14px; color: var(--text-muted); line-height: 1.7;">
+                <p>Dijitalgru QR Studio (Furkan Egemen Güneş), bireysel ve kurumsal kullanıcıların fiziksel basılı materyallerini dijital dünyaya entegre eden akıllı ve dinamik QR kod çözümleri sunmaktadır.</p>
+                <br>
+                <p>Platformumuz üzerinden oluşturulan dinamik QR kodlar, vCard Plus dijital kartvizit sayfaları ve dijital restoran menüleri 7/24 kesintisiz bulut altyapısı üzerinde güvenle barındırılmaktadır.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Privacy Policy -->
+    <div class="modal-overlay" id="modal-privacy">
+        <div class="modal-content" style="max-width: 650px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 18px; font-weight: 700;">Gizlilik Sözleşmesi ve KVKK</h3>
+                <button onclick="closeModal('modal-privacy')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; max-height: 400px; overflow-y: auto;">
+                <p><strong>1. Veri Sorumlusu:</strong> Dijitalgru QR Studio olarak kişisel verilerinizin güvenliğine önem veriyoruz. 6698 sayılı KVKK kapsamında kişisel verileriniz işlenmektedir.</p>
+                <br>
+                <p><strong>2. İşlenen Veriler:</strong> Üyelik ve ödeme işlemlerinde ad, soyad, e-posta adresi ve ödeme bilgileri 256-bit SSL şifreleme ile iyzico ödeme altyapısına iletilir. Kredi kartı bilgileriniz sistemimizde ASLA saklanmaz.</p>
+                <br>
+                <p><strong>3. Veri Güvenliği:</strong> Verileriniz uluslararası güvenlik standartlarına sahip sunucularda korunmaktadır.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Distance Sales Agreement -->
+    <div class="modal-overlay" id="modal-sales">
+        <div class="modal-content" style="max-width: 650px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 18px; font-weight: 700;">Mesafeli Satış Sözleşmesi</h3>
+                <button onclick="closeModal('modal-sales')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; max-height: 400px; overflow-y: auto;">
+                <p><strong>SATICI:</strong> Furkan Egemen Güneş (Dijitalgru QR Studio)</p>
+                <p><strong>ALICI:</strong> Platforma üye olup hizmet satın alan kullanıcı.</p>
+                <br>
+                <p><strong>KONU:</strong> İşbu sözleşme, Alıcı'nın Satıcı'ya ait platform üzerinden elektronik ortamda siparişini yaptığı dijital QR kod ve abonelik hizmetinin satışı ile ilgili hak ve yükümlülükleri düzenler.</p>
+                <br>
+                <p><strong>HİZMET TESLİMATI:</strong> Satın alınan paket anında kullanıcı hesabına tanımlanır ve erişime açılır.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Delivery & Return Policy -->
+    <div class="modal-overlay" id="modal-delivery">
+        <div class="modal-content" style="max-width: 650px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 18px; font-weight: 700;">Teslimat ve İade Şartları</h3>
+                <button onclick="closeModal('modal-delivery')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                <p><strong>TESLİMAT:</strong> Dijitalgru QR Studio üzerinde sunulan tüm hizmetler ve abonelik paketleri dijital niteliktedir. Ödemeniz iyzico tarafından onaylandığı anda hizmet hesabınıza anında teslim edilir ve kullanıma açılır.</p>
+                <br>
+                <p><strong>İADE VE İPTAL:</strong> 6502 sayılı Tüketicinin Korunması Hakkında Kanun uyarınca, anında ifa edilen dijital hizmetlerde cayma hakkı bulunmamaktadır. Ancak teknik sorunlardan kaynaklı iade talepleriniz 7 gün içinde dijitalgru@gmail.com adresinden değerlendirilmektedir.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="font-size: 20px; font-weight: 700;">Hesap Girişi / Kayıt</h3>
+                <button onclick="closeModal('auth-modal')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form">
+                <h4 style="font-size: 14px; color: var(--accent); margin-bottom: 12px;">Mevcut Hesaba Giriş Yap</h4>
+                <div class="form-group">
+                    <input type="email" id="login-email" class="form-input" placeholder="E-posta Adresiniz" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" class="form-input" placeholder="Şifreniz" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">Giriş Yap</button>
+            </form>
+
+            <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 24px 0;">
+
+            <!-- Register Form -->
+            <form id="register-form">
+                <h4 style="font-size: 14px; color: var(--success); margin-bottom: 12px;">Yeni Ücretsiz Hesap Aç</h4>
+                <div class="form-group">
+                    <input type="text" id="reg-name" class="form-input" placeholder="Adınız Soyadınız" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="reg-email" class="form-input" placeholder="E-posta Adresiniz" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reg-password" class="form-input" placeholder="Şifre Oluşturun" required>
+                </div>
+                <button type="submit" class="btn-secondary" style="width: 100%; justify-content: center; padding: 12px;">Ücretsiz Üye Ol</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

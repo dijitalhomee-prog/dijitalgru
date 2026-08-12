@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ menu.title }} — Dijital Menü</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #0b0e14; color: #ffffff; min-height: 100vh; padding: 20px 15px; display: flex; justify-content: center; }
+        .menu-container { width: 100%; max-width: 500px; }
+        .cover { width: 100%; height: 180px; border-radius: 20px; object-fit: cover; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .menu-header { text-align: center; margin-bottom: 24px; }
+        .menu-title { font-size: 24px; font-weight: 700; color: #ffffff; }
+        .menu-desc { font-size: 14px; color: #94a3b8; margin-top: 6px; }
+        .category-title { font-size: 18px; font-weight: 700; color: #818cf8; margin: 24px 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid rgba(129, 140, 248, 0.2); }
+        .item-card { background: rgba(21, 25, 34, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .item-info { flex: 1; padding-right: 12px; }
+        .item-name { font-size: 15px; font-weight: 600; color: #f8fafc; }
+        .item-desc { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+        .item-price { font-size: 16px; font-weight: 700; color: #34d399; background: rgba(52, 211, 153, 0.1); padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(52, 211, 153, 0.2); }
+        
+        .pdf-viewer-box {
+            background: rgba(21, 25, 34, 0.85);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .btn-pdf {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #ffffff;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            margin-bottom: 16px;
+        }
+        .pdf-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 14px;
+            margin-top: 16px;
+        }
+        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #64748b; }
+        .footer a { color: #818cf8; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        {% if menu.cover_url %}
+        <img src="{{ menu.cover_url }}" alt="Menu Cover" class="cover">
+        {% endif %}
+        <div class="menu-header">
+            <h1 class="menu-title">{{ menu.title }}</h1>
+            <p class="menu-desc">{{ menu.description }}</p>
+        </div>
+
+        {% if menu.pdf_url %}
+        <div class="pdf-viewer-box">
+            <div style="font-size: 36px; margin-bottom: 8px;">📄</div>
+            <h3 style="font-size: 18px; margin-bottom: 12px;">PDF Menü & Katalog</h3>
+            <a href="{{ menu.pdf_url }}" target="_blank" class="btn-pdf">📥 PDF Menüyü Görüntüle / İndir</a>
+            <iframe src="{{ menu.pdf_url }}" class="pdf-iframe"></iframe>
+        </div>
+        {% endif %}
+
+        {% for cat in menu.categories %}
+        <div class="category-title">🍽️ {{ cat.name }}</div>
+        {% for item in cat.items %}
+        <div class="item-card">
+            <div class="item-info">
+                <div class="item-name">{{ item.name }}</div>
+                <div class="item-desc">{{ item.desc }}</div>
+            </div>
+            <div class="item-price">₺{{ item.price }}</div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+
+        <div class="footer">
+            Powered by <a href="/" target="_blank">Dijitalgru QR Studio</a>
+        </div>
+    </div>
+</body>
+</html>
