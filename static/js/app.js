@@ -171,7 +171,7 @@ function getVal(id, defaultVal = "") {
 }
 
 function getQRFormPayload() {
-    const title = getVal("qr-title", "Dijitalgru Tanıtım QR");
+    const title = getVal("qr-title", "Benim QR Kodum");
     const settings = {
         fill_color: getVal("fill-color", "#4F46E5"),
         back_color: getVal("back-color", "#FFFFFF"),
@@ -185,39 +185,38 @@ function getQRFormPayload() {
     let menu_payload = null;
 
     if (currentQrType === "url") {
-        target_url = getVal("target-url", "https://dijitalgru.com");
+        target_url = getVal("target-url", "https://qrdijitalgru.com");
     } else if (currentQrType === "vcard") {
         vcard_payload = {
-            full_name: getVal("vcard-name", "Furkan Egemen Güneş"),
-            title: getVal("vcard-title", "Kurucu & Mimar"),
-            company: getVal("vcard-company", "Dijitalgru"),
-            phone: getVal("vcard-phone", "+90 530 000 00 00"),
-            email: getVal("vcard-email", "dijitalgru@gmail.com"),
-            website: getVal("vcard-website", "https://dijitalgru.com"),
+            full_name: getVal("vcard-name", "Ad Soyad"),
+            title: getVal("vcard-title", "Unvan"),
+            company: getVal("vcard-company", "Şirket Adı"),
+            phone: getVal("vcard-phone", "+90 5XX XXX XX XX"),
+            email: getVal("vcard-email", "eposta@sirketiniz.com"),
+            website: getVal("vcard-website", "https://siteniz.com"),
             address: getVal("vcard-address", "İstanbul, Türkiye"),
-            bio: getVal("vcard-bio", "Dijital dönüşüm ve yapay zeka otomasyon çözümleri.")
+            bio: getVal("vcard-bio", "")
         };
     } else if (currentQrType === "menu") {
         menu_payload = {
-            title: getVal("menu-title", "Güneş Cafe & Bistro"),
-            description: getVal("menu-desc", "Günlük taze tatlar ve özel kahvelerimiz."),
+            title: getVal("menu-title", "Restoran / İşletme Adı"),
+            description: getVal("menu-desc", "Menümüz ve Lezzetlerimiz"),
             pdf_url: uploadedPdfUrl,
             categories: [
                 {
-                    name: "Özel İçecekler",
+                    name: "Menü Kategori 1",
                     items: [
-                        { name: "Flat White", desc: "Özel harman espresso & kadifemsi süt", price: "85" },
-                        { name: "Iced Caramel Macchiato", desc: "Karamel soslu soğuk kahve", price: "95" }
+                        { name: "Ürün 1", desc: "Ürün açıklaması", price: "100" }
                     ]
                 }
             ]
         };
     } else if (currentQrType === "wifi") {
-        const ssid = getVal("wifi-ssid", "Dijitalgru_Guest");
+        const ssid = getVal("wifi-ssid", "Misafir_Wifi");
         const pass = getVal("wifi-pass", "12345678");
         target_url = `WIFI:S:${ssid};T:WPA;P:${pass};;`;
     } else if (currentQrType === "whatsapp") {
-        const phone = getVal("wa-phone", "905300000000");
+        const phone = getVal("wa-phone", "905000000000");
         const msg = encodeURIComponent(getVal("wa-msg", "Merhaba, bilgi almak istiyorum."));
         target_url = `https://wa.me/${phone}?text=${msg}`;
     }

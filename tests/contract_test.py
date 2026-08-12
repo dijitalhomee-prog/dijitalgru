@@ -87,7 +87,7 @@ class TestDijitalgruQRContract(unittest.TestCase):
 
         buy_res = self.client.post("/api/subscriptions/purchase", json={
             "plan_key": "advanced",
-            "card_holder": "Furkan Egemen Güneş"
+            "card_holder": "Müşteri Adı"
         }, headers={"Authorization": f"Bearer {token}"})
 
         self.assertEqual(buy_res.status_code, 200)

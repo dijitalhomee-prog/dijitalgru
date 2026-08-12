@@ -31,7 +31,14 @@ def get_current_user():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    initial_qr = generate_qr_image("https://qrdijitalgru.com", {
+        "fill_color": "#4F46E5",
+        "back_color": "#FFFFFF",
+        "frame_style": "card",
+        "frame_text": "Beni Tara!",
+        "frame_color": "#4F46E5"
+    }, format="base64")
+    return render_template("index.html", initial_qr_image=initial_qr)
 
 @app.route("/r/<short_code>")
 def redirect_qr(short_code):

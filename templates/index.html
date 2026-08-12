@@ -6,7 +6,7 @@
     <title>Dijitalgru QR Studio — Dinamik QR Kod & SaaS Platformu</title>
     <meta name="description" content="Basılı materyallerinizdeki QR kodları değiştirmeden hedef adresinizi anında güncelleyin. Dijital Kartvizit, Restoran Menüsü ve Gelişmiş Analizler.">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css?v=20260812_v3">
+    <link rel="stylesheet" href="/static/css/style.css?v=20260812_v4">
     <style>
         /* Color Swatches & Preset Palette */
         .color-palette {
@@ -161,14 +161,14 @@
                     <!-- General Settings -->
                     <div class="form-group">
                         <label class="form-label">QR Kod Başlığı (Referansınız İçin)</label>
-                        <input type="text" id="qr-title" class="form-input" value="Dijitalgru Tanıtım QR" placeholder="Örn: Restoran Masa 1 Menü">
+                        <input type="text" id="qr-title" class="form-input" placeholder="Örn: Benim QR Kodum">
                     </div>
 
                     <!-- Type 1: URL -->
                     <div id="form-url" class="type-form">
                         <div class="form-group">
                             <label class="form-label">Hedef Web Adresi (URL)</label>
-                            <input type="url" id="target-url" class="form-input" value="https://dijitalgru.com" placeholder="https://siteniz.com">
+                            <input type="url" id="target-url" class="form-input" placeholder="https://siteniz.com">
                         </div>
                     </div>
 
@@ -178,40 +178,40 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div class="form-group">
                                 <label class="form-label">Ad Soyad</label>
-                                <input type="text" id="vcard-name" class="form-input" value="Furkan Egemen Güneş">
+                                <input type="text" id="vcard-name" class="form-input" placeholder="Ad Soyad (Örn: Ahmet Yılmaz)">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Unvan</label>
-                                <input type="text" id="vcard-title" class="form-input" value="Kurucu & Mimar">
+                                <input type="text" id="vcard-title" class="form-input" placeholder="Unvan (Örn: Pazarlama Yöneticisi)">
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div class="form-group">
                                 <label class="form-label">Şirket / Marka</label>
-                                <input type="text" id="vcard-company" class="form-input" value="Dijitalgru">
+                                <input type="text" id="vcard-company" class="form-input" placeholder="Şirket / Kurum Adı">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Telefon</label>
-                                <input type="text" id="vcard-phone" class="form-input" value="+90 530 000 00 00">
+                                <input type="text" id="vcard-phone" class="form-input" placeholder="+90 5XX XXX XX XX">
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div class="form-group">
                                 <label class="form-label">E-posta</label>
-                                <input type="email" id="vcard-email" class="form-input" value="dijitalgru@gmail.com">
+                                <input type="email" id="vcard-email" class="form-input" placeholder="eposta@sirketiniz.com">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Web Sitesi</label>
-                                <input type="url" id="vcard-website" class="form-input" value="https://dijitalgru.com">
+                                <input type="url" id="vcard-website" class="form-input" placeholder="https://siteniz.com">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Adres / Şehir</label>
-                            <input type="text" id="vcard-address" class="form-input" value="İstanbul, Türkiye">
+                            <input type="text" id="vcard-address" class="form-input" placeholder="İstanbul, Türkiye">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Biyografi / Hakkında</label>
-                            <textarea id="vcard-bio" class="form-textarea" rows="2">Dijital dönüşüm ve yapay zeka otomasyon çözümleri.</textarea>
+                            <textarea id="vcard-bio" class="form-textarea" rows="2" placeholder="Kısa özgeçmiş veya firma tanımı..."></textarea>
                         </div>
                     </div>
 
@@ -220,11 +220,11 @@
                         <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">🍽️ Dijital Menü & PDF Katalog Ayarları</h4>
                         <div class="form-group">
                             <label class="form-label">Mekan / İşletme Adı</label>
-                            <input type="text" id="menu-title" class="form-input" value="Güneş Cafe & Bistro">
+                            <input type="text" id="menu-title" class="form-input" placeholder="İşletme / Restoran Adı (Örn: Lezzet Cafe)">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Açıklama</label>
-                            <input type="text" id="menu-desc" class="form-input" value="Günlük taze tatlar ve özel kahvelerimiz.">
+                            <input type="text" id="menu-desc" class="form-input" placeholder="Kısa slogan veya bilgilendirme metni">
                         </div>
 
                         <!-- PDF Upload Option -->
@@ -243,11 +243,11 @@
                     <div id="form-wifi" class="type-form" style="display: none;">
                         <div class="form-group">
                             <label class="form-label">Wi-Fi Ağ Adı (SSID)</label>
-                            <input type="text" id="wifi-ssid" class="form-input" value="Dijitalgru_Guest">
+                            <input type="text" id="wifi-ssid" class="form-input" placeholder="Wi-Fi Ağ Adınız">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Wi-Fi Şifresi</label>
-                            <input type="password" id="wifi-pass" class="form-input" value="12345678">
+                            <input type="password" id="wifi-pass" class="form-input" placeholder="Wi-Fi Şifreniz">
                         </div>
                     </div>
 
@@ -255,11 +255,11 @@
                     <div id="form-whatsapp" class="type-form" style="display: none;">
                         <div class="form-group">
                             <label class="form-label">WhatsApp Telefon Numarası (Ülke kodu ile)</label>
-                            <input type="text" id="wa-phone" class="form-input" value="905300000000">
+                            <input type="text" id="wa-phone" class="form-input" placeholder="905XXXXXXXXX">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Hazır Mesaj Taslağı</label>
-                            <input type="text" id="wa-msg" class="form-input" value="Merhaba, bilgi almak istiyorum.">
+                            <input type="text" id="wa-msg" class="form-input" placeholder="Merhaba, bilgi almak istiyorum.">
                         </div>
                     </div>
 
@@ -329,7 +329,7 @@
                 <div class="phone-simulator">
                     <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-weight: 600;">📱 Canlı Mobil Önizleme</div>
                     <div class="phone-screen">
-                        <img id="preview-qr-img" class="qr-preview-img" src="" alt="QR Preview" />
+                        <img id="preview-qr-img" class="qr-preview-img" src="{{ initial_qr_image }}" alt="Dijitalgru QR Preview" />
                         <div style="margin-top: 16px; font-size: 13px; font-weight: 600; color: #a5b4fc;">Dijitalgru Akıllı Yönlendirme</div>
                     </div>
                 </div>
@@ -581,6 +581,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=20260812_v3"></script>
+    <script src="/static/js/app.js?v=20260812_v4"></script>
 </body>
 </html>
