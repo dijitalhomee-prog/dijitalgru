@@ -259,6 +259,18 @@ def init_db():
         """)
         cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users (email);")
     
+    # Column migrations for existing tables
+    for alter_cmd in [
+        "ALTER TABLE menu_pages ADD COLUMN pdf_url TEXT",
+        "ALTER TABLE menu_pages ADD COLUMN cover_url TEXT",
+        "ALTER TABLE vcard_pages ADD COLUMN avatar_url TEXT",
+        "ALTER TABLE vcard_pages ADD COLUMN social_links TEXT"
+    ]:
+        try:
+            cursor.execute(alter_cmd)
+        except Exception:
+            pass
+
     conn.commit()
     conn.close()
 

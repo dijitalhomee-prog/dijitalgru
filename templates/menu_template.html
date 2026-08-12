@@ -76,7 +76,7 @@
 
         {% for cat in menu.categories %}
         <div class="category-title">🍽️ {{ cat.name }}</div>
-        {% for item in cat.items %}
+        {% for item in cat['items'] %}
         <div class="item-card">
             <div class="item-info">
                 <div class="item-name">{{ item.name }}</div>
