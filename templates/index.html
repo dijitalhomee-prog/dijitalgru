@@ -105,7 +105,7 @@
                 <p class="hero-subtitle">
                     Basılan broşür, kartvizit ve menülerinizdeki QR kodu <strong>tekrar bastırmanıza gerek kalmadan</strong> hedef linkini istediğiniz an değiştirin. Taranma istatistiklerini anlık takip edin.
                 </p>
-                <div style="display: flex; justify-content: center; gap: 16px;">
+                <div class="hero-btn-group">
                     <button class="btn-primary" style="padding: 14px 28px; font-size: 16px;" data-target="studio-tab">🚀 Ücretsiz QR Oluştur</button>
                     <button class="btn-secondary" style="padding: 14px 28px; font-size: 16px;" data-target="pricing-tab">💎 Paketleri İncele</button>
                 </div>
@@ -301,7 +301,7 @@
                     <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 24px 0;">
                     <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px;">🎨 Görsel Tasarım & Renk Paleti</h4>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="responsive-grid-2">
                         <!-- QR Code Fill Color -->
                         <div class="form-group">
                             <label class="form-label">QR Kod Rengi</label>
@@ -335,7 +335,7 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div class="responsive-grid-3">
                         <div class="form-group">
                             <label class="form-label">Çerçeve Stili</label>
                             <select id="frame-style" class="form-select">
@@ -461,7 +461,7 @@
                 <p style="color: var(--text-muted); margin-top: 8px;">İhtiyacınıza uygun paketi seçin, iyzico güvencesiyle 7/24 kesintisiz dinamik QR hizmeti alın.</p>
 
                 <!-- Billing Cycle Selector Toggle -->
-                <div style="display: flex; justify-content: center; gap: 8px; margin-top: 24px; background: rgba(21, 25, 34, 0.9); border: 1px solid var(--card-border); padding: 6px; border-radius: 16px; width: fit-content; margin-left: auto; margin-right: auto;">
+                <div class="cycle-selector-container" style="display: flex; justify-content: center; gap: 8px; margin-top: 24px; background: rgba(21, 25, 34, 0.9); border: 1px solid var(--card-border); padding: 6px; border-radius: 16px; width: fit-content; margin-left: auto; margin-right: auto;">
                     <button class="cycle-btn active" data-cycle="monthly" onclick="setBillingCycle('monthly')">Aylık Ödeme</button>
                     <button class="cycle-btn" data-cycle="semi_annual" onclick="setBillingCycle('semi_annual')">6 Aylık Peşin <span style="background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%20 İndirim</span></button>
                     <button class="cycle-btn" data-cycle="annual" onclick="setBillingCycle('annual')">Yıllık Peşin <span style="background: rgba(99, 102, 241, 0.2); color: var(--primary); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%10 İndirim (1 Yıl)</span></button>
@@ -529,7 +529,7 @@
     <!-- FOOTER WITH LEGAL LINKS & PAYMENT LOGOS -->
     <footer style="background: rgba(15, 23, 42, 0.95); border-top: 1px solid var(--card-border); margin-top: 60px; padding: 40px 20px; text-align: center;">
         <div style="max-width: 1100px; margin: 0 auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 24px;">
+            <div class="footer-top-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 24px;">
                 <div style="text-align: left;">
                     <div style="font-size: 18px; font-weight: 800; color: #fff;">Dijitalgru QR Studio</div>
                     <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Furkan Egemen Güneş | dijitalgru@gmail.com</div>
@@ -537,7 +537,7 @@
                 </div>
 
                 <!-- Legal Page Links -->
-                <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px;">
+                <div class="footer-legal-links" style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px;">
                     <a href="javascript:void(0)" onclick="openModal('modal-about')" style="color: var(--text-muted); text-decoration: none;">Hakkımızda</a>
                     <a href="javascript:void(0)" onclick="openModal('modal-privacy')" style="color: var(--text-muted); text-decoration: none;">Gizlilik Politikası</a>
                     <a href="javascript:void(0)" onclick="openModal('modal-sales')" style="color: var(--text-muted); text-decoration: none;">Mesafeli Satış Sözleşmesi</a>
