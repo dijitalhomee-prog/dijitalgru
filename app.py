@@ -7,6 +7,7 @@ import io
 import base64
 import threading
 
+from werkzeug.middleware.proxy_fix import ProxyFix
 from PIL import Image
 from db import init_db, get_db, is_postgres
 from auth import register_user, login_user, decode_token, get_user_by_id
@@ -16,6 +17,7 @@ from cloud_storage import upload_file_to_cloud
 from migrate_db import run_migrations
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 app.config["SECRET_KEY"] = os.environ.get("JWT_SECRET", "dijitalgru_qr_secret_key_2026")
 
 # Initialize Database and Migrations on Startup
@@ -829,8 +831,11 @@ def api_iyzico_checkout():
     plan_key = data.get("plan_key") or data.get("plan") or "starter"
     cycle = data.get("cycle") or "monthly"
     
-    # Secure callback URL pointing to /api/iyzico/callback
-    callback_url = f"{request.host_url.rstrip('/')}/api/iyzico/callback"
+    # Force strict HTTPS callback URL to eliminate Chrome's unencrypted form warning
+    host_url = request.host_url.rstrip('/')
+    if host_url.startswith("http://"):
+        host_url = "https://" + host_url[7:]
+    callback_url = f"{host_url}/api/iyzico/callback"
     
     from payments import create_checkout_form
     res_json, err = create_checkout_form(user, plan_key, cycle, callback_url)
