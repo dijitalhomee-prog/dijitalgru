@@ -416,5 +416,14 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertIn("İyzico (Gerçek Ödeme)", csv_text)
         self.assertIn("Admin Manuel", csv_text)
 
+    def test_13_pricing_consistency(self):
+        from payments import PLANS
+        self.assertEqual(PLANS["starter"]["pricing"]["monthly"]["total_price"], 99.00)
+        self.assertEqual(PLANS["advanced"]["pricing"]["monthly"]["total_price"], 199.00)
+        self.assertEqual(PLANS["business"]["pricing"]["monthly"]["total_price"], 449.00)
+        self.assertEqual(PLANS["starter"]["pricing"]["semi_annual"]["total_price"], 954.00)
+        self.assertEqual(PLANS["advanced"]["pricing"]["semi_annual"]["total_price"], 1914.00)
+        self.assertEqual(PLANS["business"]["pricing"]["annual"]["total_price"], 9708.00)
+
 if __name__ == "__main__":
     unittest.main()
