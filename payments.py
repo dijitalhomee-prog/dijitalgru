@@ -78,7 +78,7 @@ def create_checkout_form(user_info, plan_key, cycle="monthly", callback_url=""):
         'paidPrice': str(cycle_info['total_price']),
         'currency': 'TRY',
         'basketId': basket_id,
-        'paymentGroup': 'SUBSCRIPTION',
+        'paymentGroup': 'PRODUCT',
         'callbackUrl': callback_url,
         'registerCard': '1',
         'enabledInstallments': ['1', '3', '6', '12'],
@@ -155,6 +155,7 @@ def verify_and_process_iyzico_callback(token):
 
     if status != "success" or payment_status != "SUCCESS":
         error_msg = res_json.get("errorMessage") or res_json.get("message") or "Ödeme tamamlanamadı."
+        print("[iyzico Callback Fail Raw Response]:", res_json)
         return {
             "status": "failure",
             "error": error_msg,
