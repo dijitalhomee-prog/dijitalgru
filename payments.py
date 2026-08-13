@@ -37,6 +37,13 @@ PLANS = {
             "semi_annual": {"price_per_month": 719.00, "total_price": 4314.00, "months": 6, "label": "6 Aylık Peşin (%20 İndirimli)"},
             "annual": {"price_per_month": 809.00, "total_price": 9708.00, "months": 12, "label": "Yıllık Peşin (%10 İndirimli)"}
         }
+    },
+    "test": {
+        "name": "iyzico Onay Testi",
+        "dynamic_limit": 1,
+        "pricing": {
+            "monthly": {"price_per_month": 1.00, "total_price": 1.00, "months": 1, "label": "iyzico Canlılık Testi (1 ₺)"}
+        }
     }
 }
 
