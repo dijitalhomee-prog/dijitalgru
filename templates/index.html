@@ -755,15 +755,51 @@
 
     <!-- 4. Delivery & Return Policy -->
     <div class="modal-overlay" id="modal-delivery">
-        <div class="modal-content" style="max-width: 650px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="modal-content" style="max-width: 750px; max-height: 85vh;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
                 <h3 style="font-size: 18px; font-weight: 700;">Teslimat ve İade Şartları</h3>
                 <button onclick="closeModal('modal-delivery')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
             </div>
-            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-                <p><strong>TESLİMAT:</strong> Dijitalgru QR Studio üzerinde sunulan tüm hizmetler ve abonelik paketleri dijital niteliktedir. Ödemeniz iyzico tarafından onaylandığı anda hizmet hesabınıza anında teslim edilir ve kullanıma açılır.</p>
-                <br>
-                <p><strong>İADE VE İPTAL:</strong> 6502 sayılı Tüketicinin Korunması Hakkında Kanun uyarınca, anında ifa edilen dijital hizmetlerde cayma hakkı bulunmamaktadır. Ancak teknik sorunlardan kaynaklı iade talepleriniz 7 gün içinde dijitalgru@gmail.com adresinden değerlendirilmektedir.</p>
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.7; max-height: 550px; overflow-y: auto; padding-right: 8px;">
+                <p style="text-align: center; font-weight: 700; color: #fff; margin-bottom: 16px;">TESLİMAT VE İADE ŞARTLARI</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">1. TESLİMAT ŞARTLARI</h4>
+                <p><strong>1.1. Hizmetin Niteliği:</strong> Dijitalgru QR Studio üzerinden sunulan hizmet dijital bir SaaS (Hizmet Olarak Yazılım) aboneliğidir. Fiziksel bir ürün satışı söz konusu değildir; bu nedenle kargo, kurye veya posta yoluyla herhangi bir teslimat yapılmaz.</p>
+                <p><strong>1.2. Teslimat Süresi ve Şekli:</strong> Ödemenin iyzico ödeme altyapısı tarafından onaylanmasının ardından, seçilen paket (Başlangıç / Profesyonel / Kurumsal) anında ve otomatik olarak ALICI'nın hesabına tanımlanır. ALICI, ödeme onayından hemen sonra yönetim panelinden paketine ait tüm özelliklere (dinamik QR limiti, analitik, vb.) erişebilir.</p>
+                <p>Herhangi bir teknik aksaklık nedeniyle paketin hesaba yansıması gecikirse, ALICI dijitalgru@gmail.com adresinden bize ulaşabilir; durum en geç 24 saat içinde incelenip çözülür.</p>
+                <p><strong>1.3. Fatura Teslimi:</strong> Fatura, elektronik ortamda düzenlenir ve ALICI'nın kayıtlı e-posta adresine, ödeme onayını takip eden makul süre içinde iletilir. Ayrıca hesap panelinden geçmiş faturalara erişilebilir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">2. İADE ŞARTLARI</h4>
+                <p><strong>2.1. Cayma Hakkı Kapsamındaki İadeler:</strong> Mesafeli Satış Sözleşmesi'nde belirtildiği üzere, ALICI satın alma tarihinden itibaren 14 gün içinde, hizmetin fiilen kullanılmaya başlanmadığı hallerde cayma hakkını kullanabilir. Ancak ALICI, satın alma sırasında hizmetin anında başlatılmasını açıkça onaylamışsa (bkz. Mesafeli Satış Sözleşmesi Madde 9), hizmet başladığı andan itibaren cayma hakkı kullanılamaz ve iade talep edilemez.</p>
+                
+                <p><strong>2.2. Cayma Hakkı Dışındaki İade Talepleri (Firma Politikası):</strong> Yasal cayma hakkı süresi dışında kalan iade talepleri, aşağıdaki firma politikamıza tabidir:</p>
+                <ul style="padding-left: 18px; margin-top: 4px; margin-bottom: 8px;">
+                    <li>Aylık paketlerde, satın alma tarihinden itibaren <strong>7 gün</strong> içinde hizmet hiç kullanılmamışsa (hiç dinamik QR oluşturulmamışsa) talep üzerine iade değerlendirilebilir.</li>
+                    <li>6 aylık veya yıllık paketlerde, kullanılmayan döneme ait tutar gün bazında orantılı (pro-rata) olarak değerlendirilip iade edilebilir.</li>
+                    <li>İade talepleri dijitalgru@gmail.com adresine yazılı olarak iletilmeli, talep en geç 14 iş günü içinde değerlendirilip sonuçlandırılmalıdır.</li>
+                </ul>
+
+                <p><strong>2.3. İade Yöntemi:</strong> Onaylanan iadeler, ödemenin yapıldığı kredi/banka kartına, iyzico altyapısı üzerinden gerçekleştirilir. İade süresi, bankanızın işlem sürelerine bağlı olarak değişebilir (genellikle 2-10 iş günü).</p>
+                
+                <p><strong>2.4. İade Edilemeyecek Durumlar:</strong></p>
+                <ul style="padding-left: 18px; margin-top: 4px; margin-bottom: 8px;">
+                    <li>ALICI'nın hizmeti fiilen kullanmaya başlamış olması (dinamik QR oluşturulmuş, panel aktif şekilde kullanılmış olması) ve hizmetin anında başlatılmasına onay vermiş olması.</li>
+                    <li>Kötüye kullanım, sözleşme ihlali veya hizmet şartlarına aykırılık nedeniyle hesabın askıya alınmış/sonlandırılmış olması.</li>
+                </ul>
+
+                <p><strong>2.5. Abonelik İptali (İade ile Karıştırılmamalıdır):</strong> ALICI, aboneliğini istediği zaman hesap panelinden iptal edebilir. İptal, cari fatura döneminin sonunda geçerli olur; iptal talebine kadar geçen süre için hizmet kullanıma açık kalır. İptal tek başına bir iade talebi doğurmaz; iade için Madde 2.1 ve 2.2 şartları geçerlidir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">3. İLETİŞİM</h4>
+                <p>Teslimat veya iade taleplerinizle ilgili bize aşağıdaki kanallardan ulaşabilirsiniz:</p>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-top: 8px;">
+                    <p><strong>Firma Ünvanı:</strong> Furkan Egemen Güneş (Dijitalgru QR Studio)</p>
+                    <p><strong>Adres:</strong> Gülbahar mah no 34 kat 3 daire 11 Şişli İstanbul, Türkiye</p>
+                    <p><strong>E-posta:</strong> dijitalgru@gmail.com</p>
+                    <p><strong>Telefon:</strong> +90 537 627 44 15</p>
+                    <p><strong>Vergi Dairesi / No:</strong> Zincirlikuyu Vergi Dairesi / 4330665400</p>
+                </div>
+
+                <p style="margin-top: 16px; font-weight: 700;">Son Güncelleme Tarihi: 13 Ağustos 2026</p>
             </div>
         </div>
     </div>
