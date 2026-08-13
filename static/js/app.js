@@ -505,9 +505,9 @@ function setupForms() {
         const data = await res.json();
         if (res.ok) {
             localStorage.setItem("jwt_token", data.token);
+            const savedPending = await processPendingQRPurchaseOrSave(data.token);
             closeModal("auth-modal");
             checkAuthStatus();
-            const savedPending = await processPendingQRPurchaseOrSave(data.token);
             if (!savedPending) {
                 alert("Giriş başarılı!");
             }
@@ -530,9 +530,9 @@ function setupForms() {
         const data = await res.json();
         if (res.ok) {
             localStorage.setItem("jwt_token", data.token);
+            const savedPending = await processPendingQRPurchaseOrSave(data.token);
             closeModal("auth-modal");
             checkAuthStatus();
-            const savedPending = await processPendingQRPurchaseOrSave(data.token);
             if (!savedPending) {
                 alert("Kayıt başarılı! Hesabınız oluşturuldu.");
             }
