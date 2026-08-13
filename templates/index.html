@@ -588,18 +588,81 @@
 
     <!-- 3. Distance Sales Agreement -->
     <div class="modal-overlay" id="modal-sales">
-        <div class="modal-content" style="max-width: 650px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="modal-content" style="max-width: 750px; max-height: 85vh;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
                 <h3 style="font-size: 18px; font-weight: 700;">Mesafeli Satış Sözleşmesi</h3>
                 <button onclick="closeModal('modal-sales')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
             </div>
-            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; max-height: 400px; overflow-y: auto;">
-                <p><strong>SATICI:</strong> Furkan Egemen Güneş (Dijitalgru QR Studio)</p>
-                <p><strong>ALICI:</strong> Platforma üye olup hizmet satın alan kullanıcı.</p>
-                <br>
-                <p><strong>KONU:</strong> İşbu sözleşme, Alıcı'nın Satıcı'ya ait platform üzerinden elektronik ortamda siparişini yaptığı dijital QR kod ve abonelik hizmetinin satışı ile ilgili hak ve yükümlülükleri düzenler.</p>
-                <br>
-                <p><strong>HİZMET TESLİMATI:</strong> Satın alınan paket anında kullanıcı hesabına tanımlanır ve erişime açılır.</p>
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.7; max-height: 550px; overflow-y: auto; padding-right: 8px;">
+                <p style="text-align: center; font-weight: 700; color: #fff; margin-bottom: 16px;">MESAFELİ SATIŞ SÖZLEŞMESİ</p>
+                
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">1. TARAFLAR</h4>
+                <p>İşbu Sözleşme, aşağıdaki taraflar arasında belirtilen hüküm ve şartlar çerçevesinde kurulmuştur.</p>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                    <p><strong>ALICI:</strong></p>
+                    <p><strong>AD-SOYAD / UNVAN:</strong> [Ödeme Anında Beyan Edilen Ad-Soyad / Unvan]</p>
+                    <p><strong>ADRES:</strong> [Ödeme Anında Beyan Edilen Fatura Adresi]</p>
+                    <p><strong>E-POSTA:</strong> [Kullanıcının Kayıtlı E-posta Adresi]</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                    <p><strong>SATICI:</strong></p>
+                    <p><strong>AD-SOYAD / UNVAN:</strong> Furkan Egemen Güneş (Dijitalgru QR Studio)</p>
+                    <p><strong>ADRES:</strong> İstanbul, Türkiye</p>
+                    <p><strong>E-POSTA:</strong> dijitalgru@gmail.com</p>
+                    <p><strong>TELEFON:</strong> +90 537 627 44 15</p>
+                    <p><strong>VERGİ DAİRESİ / NO:</strong> Vergi No: 4330665400</p>
+                    <p><strong>MERSİS NO:</strong> - (Şahıs Şirketi)</p>
+                </div>
+                <p>İşbu sözleşmeyi kabul etmekle ALICI, seçtiği abonelik paketini onayladığı takdirde paket bedelini ve varsa uygulanan vergileri ödeme yükümlülüğü altına gireceğini ve bu konuda bilgilendirildiğini peşinen kabul eder.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">2. TANIMLAR</h4>
+                <p><strong>BAKAN:</strong> Ticaret Bakanı'nı,<br>
+                <strong>BAKANLIK:</strong> Ticaret Bakanlığı'nı,<br>
+                <strong>KANUN:</strong> 6502 sayılı Tüketicinin Korunması Hakkında Kanun'u,<br>
+                <strong>YÖNETMELİK:</strong> Mesafeli Sözleşmeler Yönetmeliği'ni,<br>
+                <strong>HİZMET:</strong> SATICI tarafından ALICI'ya elektronik ortamda sunulan dinamik QR kod oluşturma, barındırma, düzenleme ve analitik takip hizmetlerini kapsayan abonelik tabanlı SaaS (Hizmet Olarak Yazılım) hizmetini,<br>
+                <strong>SATICI:</strong> Dijitalgru QR Studio hizmetini sunan gerçek/tüzel kişiyi,<br>
+                <strong>ALICI:</strong> Hizmeti ticari veya mesleki olmayan ya da mesleki amaçlarla edinen, kullanan gerçek ya da tüzel kişiyi,<br>
+                <strong>SİTE:</strong> qrdijitalgru.com alan adlı internet sitesini,<br>
+                <strong>TARAFLAR:</strong> SATICI ve ALICI'yı,<br>
+                <strong>SÖZLEŞME:</strong> SATICI ve ALICI arasında kurulan işbu sözleşmeyi ifade eder.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">3. KONU</h4>
+                <p>İşbu Sözleşme, ALICI'nın SİTE üzerinden elektronik ortamda satın aldığı, niteliği ve satış fiyatı belirtilen dijital abonelik hizmetinin sunumu ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince tarafların hak ve yükümlülüklerini düzenler. Listelenen ve SİTE'de ilan edilen fiyatlar satış fiyatıdır. İlan edilen fiyatlar ve vaatler güncellenene veya değiştirilene kadar geçerlidir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">4. HİZMET BİLGİLERİ</h4>
+                <p><strong>4.1. Temel Özellikler:</strong> Hizmetin temel özellikleri SİTE üzerinde ilgili paket sayfasında (Paketler & Fiyatlar) yayımlanır.<br>
+                <strong>4.2. Paketler ve Fiyatlar:</strong> Güncel fiyatlar için SİTE'nin "Paketler & Fiyatlar" sayfası esas alınır.<br>
+                <strong>4.3. Ödeme:</strong> Ödemeler, iyzico ödeme altyapısı üzerinden kredi kartı/banka kartı ile Türk Lirası (TRY) cinsinden tahsil edilir. Ödeme bilgileri SATICI tarafından saklanmaz; işlem doğrudan iyzico'nun güvenli altyapısı üzerinden gerçekleştirilir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">5. FATURA BİLGİLERİ</h4>
+                <p>Fatura, ALICI tarafından üyelik/ödeme sırasında beyan edilen bilgilere göre elektronik ortamda düzenlenir ve ALICI'nın kayıtlı e-posta adresine iletilir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">6. HİZMETİN İFASI VE TESLİMİ</h4>
+                <p>Hizmet fiziksel bir ürün olmayıp, ödemenin onaylanmasının ardından elektronik ortamda ALICI'nın hesabı üzerinden anında aktif edilir. Kargo veya fiziksel teslimat söz konusu değildir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">7. GENEL HÜKÜMLER</h4>
+                <p><strong>7.1. Bilgilendirme ve Kabul:</strong> ALICI, SİTE üzerinde hizmetin temel niteliklerini, satış fiyatını ve ödeme şeklini okuyup bilgi sahibi olduğunu ve elektronik ortamda gerekli teyidi verdiğini kabul eder.<br>
+                <strong>7.2. Hesap Güvenliği:</strong> ALICI, hesabına ait giriş bilgilerinin gizliliğinden sorumludur.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">8. CAYMA HAKKI</h4>
+                <p>Mesafeli Sözleşmeler Yönetmeliği uyarınca, ALICI sözleşmenin kurulduğu tarihten itibaren 14 (on dört) gün içinde cayma hakkını kullanabilir. Bildirim dijitalgru@gmail.com adresine yazılı yapılmalıdır.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">9. CAYMA HAKKININ KULLANILAMAYACAĞI DURUM</h4>
+                <p>Elektronik ortamda anında ifa edilen hizmetlerde ALICI'nın onayı ile hizmet başladığı takdirde cayma hakkı kullanılamaz.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">10. TEMERRÜT HÂLİ VE HUKUKÎ SONUÇLARI</h4>
+                <p>ALICI, ödeme işlemlerinde temerrüde düştüğü takdirde kredi kartı sözleşmesi çerçevesinde bankaya karşı sorumlu olacağını kabul eder.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">11. ABONELİK İPTALİ VE YENİLENME</h4>
+                <p>Abonelikler hesap panelinden istenildiği zaman iptal edilebilir. İptal, cari fatura döneminin sonunda geçerli olur.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">12. YETKİLİ MERCİLER</h4>
+                <p>Uyuşmazlıklarda yetkili Tüketici Hakem Heyetleri veya Tüketici Mahkemelerine başvurulabilir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">13. YÜRÜRLÜK</h4>
+                <p>ALICI satın alma işlemini tamamladığında sözleşmeyi kabul etmiş sayılır.</p>
+                <p style="margin-top: 16px; font-weight: 700;">Son Güncelleme Tarihi: 13 Ağustos 2026</p>
             </div>
         </div>
     </div>
