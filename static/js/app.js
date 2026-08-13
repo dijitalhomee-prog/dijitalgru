@@ -466,8 +466,19 @@ async function processPendingQRPurchaseOrSave(token) {
         if (res.ok) {
             alert("🎉 Hesabınız oluşturuldu ve hazırladığınız QR kod başarıyla hesabınıza kaydedildi!");
             loadDashboardData();
+            
+            // Switch active view to Dashboard Tab
+            document.querySelectorAll(".page-section").forEach(sec => sec.classList.remove("active"));
+            document.querySelectorAll(".nav-link").forEach(nl => nl.classList.remove("active"));
+            
+            const dashSec = document.getElementById("dashboard-tab");
+            if (dashSec) dashSec.classList.add("active");
+            
             const dashLink = document.getElementById("nav-dash-link");
-            if (dashLink) dashLink.click();
+            if (dashLink) {
+                dashLink.style.display = "inline-block";
+                dashLink.classList.add("active");
+            }
             return true;
         } else {
             alert("QR Kod kaydedilirken hata oluştu: " + (data.error || "Bilinmeyen hata"));
