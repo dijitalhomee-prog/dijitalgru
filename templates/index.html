@@ -22,12 +22,17 @@
             border-radius: 50%;
             cursor: pointer;
             border: 2px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .color-swatch:hover, .color-swatch.active {
+        .color-swatch:hover {
             transform: scale(1.15);
             border-color: #ffffff;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+        }
+        .color-swatch.active {
+            transform: scale(1.2);
+            border: 3px solid #ffffff !important;
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.95), 0 0 0 3px #6366f1 !important;
         }
         .hex-input-group {
             display: flex;
@@ -305,12 +310,12 @@
                                 <input type="text" id="fill-color" class="hex-text-input" value="#4F46E5" maxlength="7">
                             </div>
                             <div class="color-palette">
-                                <div class="color-swatch active" style="background: #4F46E5;" onclick="selectPresetColor('fill', '#4F46E5')"></div>
-                                <div class="color-swatch" style="background: #06B6D4;" onclick="selectPresetColor('fill', '#06B6D4')"></div>
-                                <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('fill', '#10B981')"></div>
-                                <div class="color-swatch" style="background: #F43F5E;" onclick="selectPresetColor('fill', '#F43F5E')"></div>
-                                <div class="color-swatch" style="background: #F59E0B;" onclick="selectPresetColor('fill', '#F59E0B')"></div>
-                                <div class="color-swatch" style="background: #0F172A;" onclick="selectPresetColor('fill', '#0F172A')"></div>
+                                <div class="color-swatch active" style="background: #4F46E5;" onclick="selectPresetColor('fill', '#4F46E5', this)"></div>
+                                <div class="color-swatch" style="background: #06B6D4;" onclick="selectPresetColor('fill', '#06B6D4', this)"></div>
+                                <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('fill', '#10B981', this)"></div>
+                                <div class="color-swatch" style="background: #F43F5E;" onclick="selectPresetColor('fill', '#F43F5E', this)"></div>
+                                <div class="color-swatch" style="background: #F59E0B;" onclick="selectPresetColor('fill', '#F59E0B', this)"></div>
+                                <div class="color-swatch" style="background: #0F172A;" onclick="selectPresetColor('fill', '#0F172A', this)"></div>
                             </div>
                         </div>
 
@@ -322,10 +327,10 @@
                                 <input type="text" id="back-color" class="hex-text-input" value="#FFFFFF" maxlength="7">
                             </div>
                             <div class="color-palette">
-                                <div class="color-swatch active" style="background: #FFFFFF;" onclick="selectPresetColor('back', '#FFFFFF')"></div>
-                                <div class="color-swatch" style="background: #F8FAFC;" onclick="selectPresetColor('back', '#F8FAFC')"></div>
-                                <div class="color-swatch" style="background: #FEF3C7;" onclick="selectPresetColor('back', '#FEF3C7')"></div>
-                                <div class="color-swatch" style="background: #E0E7FF;" onclick="selectPresetColor('back', '#E0E7FF')"></div>
+                                <div class="color-swatch active" style="background: #FFFFFF;" onclick="selectPresetColor('back', '#FFFFFF', this)"></div>
+                                <div class="color-swatch" style="background: #F8FAFC;" onclick="selectPresetColor('back', '#F8FAFC', this)"></div>
+                                <div class="color-swatch" style="background: #FEF3C7;" onclick="selectPresetColor('back', '#FEF3C7', this)"></div>
+                                <div class="color-swatch" style="background: #E0E7FF;" onclick="selectPresetColor('back', '#E0E7FF', this)"></div>
                             </div>
                         </div>
                     </div>
@@ -347,6 +352,13 @@
                             <div class="hex-input-group">
                                 <div class="color-preview-circle" id="frame-preview-circle" style="background-color: #4F46E5;"></div>
                                 <input type="text" id="frame-color" class="hex-text-input" value="#4F46E5" maxlength="7">
+                            </div>
+                            <div class="color-palette" style="margin-top: 6px;">
+                                <div class="color-swatch active" style="background: #4F46E5;" onclick="selectPresetColor('frame', '#4F46E5', this)"></div>
+                                <div class="color-swatch" style="background: #06B6D4;" onclick="selectPresetColor('frame', '#06B6D4', this)"></div>
+                                <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('frame', '#10B981', this)"></div>
+                                <div class="color-swatch" style="background: #F43F5E;" onclick="selectPresetColor('frame', '#F43F5E', this)"></div>
+                                <div class="color-swatch" style="background: #F59E0B;" onclick="selectPresetColor('frame', '#F59E0B', this)"></div>
                             </div>
                         </div>
                     </div>

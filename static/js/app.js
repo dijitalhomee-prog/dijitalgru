@@ -41,6 +41,23 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Color swatch & Hex selector logic
+function isColorMatch(c1, c2) {
+    if (!c1 || !c2) return false;
+    if (c1.trim().toUpperCase() === c2.trim().toUpperCase()) return true;
+    try {
+        const div = document.createElement('div');
+        div.style.color = c1;
+        document.body.appendChild(div);
+        const rgb1 = getComputedStyle(div).color;
+        div.style.color = c2;
+        const rgb2 = getComputedStyle(div).color;
+        document.body.removeChild(div);
+        return rgb1 === rgb2;
+    } catch (e) {
+        return false;
+    }
+}
+
 function initColorInputs() {
     const colorFields = ['fill', 'back', 'frame'];
     colorFields.forEach(field => {
@@ -51,20 +68,56 @@ function initColorInputs() {
                 let val = e.target.value;
                 if (val && !val.startsWith('#')) val = '#' + val;
                 circle.style.backgroundColor = val;
+
+                // Sync swatches active state
+                const group = input.closest('.form-group');
+                if (group) {
+                    const swatches = group.querySelectorAll('.color-swatch');
+                    swatches.forEach(swatch => {
+                        const bg = swatch.style.backgroundColor;
+                        if (isColorMatch(bg, val)) {
+                            swatch.classList.add('active');
+                        } else {
+                            swatch.classList.remove('active');
+                        }
+                    });
+                }
                 updateLivePreview();
             });
         }
     });
 }
 
-function selectPresetColor(field, hexColor) {
+function selectPresetColor(field, hexColor, element) {
     const input = document.getElementById(`${field}-color`);
     const circle = document.getElementById(`${field}-preview-circle`);
     if (input && circle) {
         input.value = hexColor;
         circle.style.backgroundColor = hexColor;
-        updateLivePreview();
     }
+
+    // Update active glowing ring on swatches
+    if (element) {
+        const parent = element.parentElement;
+        if (parent) {
+            parent.querySelectorAll('.color-swatch').forEach(swatch => swatch.classList.remove('active'));
+            element.classList.add('active');
+        }
+    } else {
+        const group = input ? input.closest('.form-group') : null;
+        if (group) {
+            const swatches = group.querySelectorAll('.color-swatch');
+            swatches.forEach(swatch => {
+                const bg = swatch.style.backgroundColor;
+                if (isColorMatch(bg, hexColor)) {
+                    swatch.classList.add('active');
+                } else {
+                    swatch.classList.remove('active');
+                }
+            });
+        }
+    }
+    updateLivePreview();
 }
 
 // PDF Upload Handler
@@ -258,7 +311,7 @@ async function updateLivePreview() {
     const frameLabel = document.getElementById("preview-frame-text-label");
     if (frameLabel) {
         frameLabel.innerText = payload.settings?.frame_text || "Beni Tara!";
-        frameLabel.style.color = payload.settings?.fill_color || "#a5b4fc";
+        frameLabel.style.color = payload.settings?.frame_color || payload.settings?.fill_color || "#a5b4fc";
     }
 
     renderLandingPageMockup();
