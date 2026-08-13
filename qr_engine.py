@@ -4,6 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 import base64
 import json
+import os
 
 def hex_to_rgb(hex_str, default=(0, 0, 0)):
     if not hex_str or not hex_str.startswith("#"):
@@ -85,15 +86,38 @@ def generate_qr_image(data, settings=None, format="png"):
         # Bottom banner with text
         draw.rectangle([15, new_h - bottom_banner_h, new_w - 15, new_h - 15], fill=frame_rgb)
         
-        try:
-            font = ImageFont.load_default()
-        except Exception:
-            font = None
+        # Robust TrueType Font loading with full Turkish character support (ç, ğ, ı, ö, ş, ü, İ, Ğ, Ü, Ş, Ö, Ç)
+        font = None
+        font_size = max(16, int(bottom_banner_h * 0.35))
+        
+        font_candidates = [
+            os.path.join(os.path.dirname(__file__), "static", "fonts", "CustomFont.ttf"),
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+            "/System/Library/Fonts/Supplemental/Arial.ttf",
+            "/System/Library/Fonts/Helvetica.ttc",
+            "/Library/Fonts/Arial.ttf"
+        ]
+        
+        for fpath in font_candidates:
+            if os.path.exists(fpath):
+                try:
+                    font = ImageFont.truetype(fpath, size=font_size)
+                    break
+                except Exception:
+                    pass
+                    
+        if font is None:
+            try:
+                font = ImageFont.load_default()
+            except Exception:
+                font = None
 
         text_bbox = draw.textbbox((0, 0), frame_text, font=font)
         text_w = text_bbox[2] - text_bbox[0]
+        text_h = text_bbox[3] - text_bbox[1]
         text_x = (new_w - text_w) // 2
-        text_y = new_h - bottom_banner_h + (bottom_banner_h - 30) // 2
+        text_y = (new_h - bottom_banner_h) + (bottom_banner_h - 15 - text_h) // 2
         draw.text((text_x, text_y), frame_text, fill=(255, 255, 255), font=font)
 
         img = framed_img
