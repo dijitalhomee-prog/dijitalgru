@@ -571,17 +571,72 @@
 
     <!-- 2. Privacy Policy -->
     <div class="modal-overlay" id="modal-privacy">
-        <div class="modal-content" style="max-width: 650px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 style="font-size: 18px; font-weight: 700;">Gizlilik Sözleşmesi ve KVKK</h3>
+        <div class="modal-content" style="max-width: 750px; max-height: 85vh;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                <h3 style="font-size: 18px; font-weight: 700;">Gizlilik ve Güvenlik Politikası</h3>
                 <button onclick="closeModal('modal-privacy')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
             </div>
-            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; max-height: 400px; overflow-y: auto;">
-                <p><strong>1. Veri Sorumlusu:</strong> Dijitalgru QR Studio olarak kişisel verilerinizin güvenliğine önem veriyoruz. 6698 sayılı KVKK kapsamında kişisel verileriniz işlenmektedir.</p>
-                <br>
-                <p><strong>2. İşlenen Veriler:</strong> Üyelik ve ödeme işlemlerinde ad, soyad, e-posta adresi ve ödeme bilgileri 256-bit SSL şifreleme ile iyzico ödeme altyapısına iletilir. Kredi kartı bilgileriniz sistemimizde ASLA saklanmaz.</p>
-                <br>
-                <p><strong>3. Veri Güvenliği:</strong> Verileriniz uluslararası güvenlik standartlarına sahip sunucularda korunmaktadır.</p>
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.7; max-height: 550px; overflow-y: auto; padding-right: 8px;">
+                <p style="text-align: center; font-weight: 700; color: #fff; margin-bottom: 16px;">GİZLİLİK VE GÜVENLİK POLİTİKASI</p>
+
+                <p>Dijitalgru QR Studio ("Hizmet", "SİTE") üzerinden sunulan tüm servisler, İstanbul, Türkiye'de kayıtlı Furkan Egemen Güneş'e (Dijitalgru) aittir ve tarafımızca işletilir.</p>
+                <p>Firmamız çeşitli amaçlarla kişisel veriler toplayabilir. Aşağıda, toplanan kişisel verilerin nasıl ve ne şekilde toplandığı, bu verilerin nasıl korunduğu belirtilmiştir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">Kişisel Verilerin Toplanması</h4>
+                <p>Üyelik veya SİTE üzerindeki form ve anketlerin doldurulması suretiyle üyelerin kendileriyle ilgili bir takım kişisel bilgileri (ad soyad, firma bilgileri, telefon, e-posta adresi gibi) işin doğası gereği tarafımızca toplanmaktadır.</p>
+                <p>Ayrıca, ALICI'nın oluşturduğu QR kodlara ait içerikler (örneğin dijital menü PDF'leri, vCard bilgileri, hedef bağlantılar) hizmetin sunulabilmesi amacıyla sistemimizde saklanır.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">QR Kod Tarama Verileri (Son Kullanıcı Verileri)</h4>
+                <p>Oluşturduğunuz QR kodları üçüncü kişiler taradığında, hizmetin analitik özelliklerini sağlayabilmek amacıyla şu veriler kaydedilir: tarama tarihi/saati, IP adresi, cihaz/tarayıcı bilgisi ve yaklaşık konum (şehir düzeyinde). Bu veriler, QR kodu tarayan kişiler hakkında kimliklendirici ölçüde detaylı bilgi içermez ve yalnızca size (hesap sahibine) istatistiksel analiz sunmak amacıyla işlenir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">Kampanya ve Bilgilendirme</h4>
+                <p>Firmamız bazı dönemlerde üyelerine kampanya bilgileri, yeni özellikler hakkında bilgiler ve promosyon teklifleri gönderebilir. Üyelerimiz bu bilgileri alıp almama konusundaki tercihlerini üye olurken belirleyebilir, sonrasında hesap ayarları bölümünden değiştirebilir ya da kendisine gelen bilgilendirme iletisindeki bağlantı üzerinden bildirim yapabilir.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">Kişisel Bilgilerin Güvenliği</h4>
+                <p>SİTE üzerinden veya e-posta ile gerçekleştirilen onay sürecinde, üyelerimiz tarafından elektronik ortamdan iletilen kişisel bilgiler, üyelerimizle yaptığımız kullanıcı sözleşmesi ile belirlenen amaç ve kapsam dışında üçüncü kişilere açıklanmayacaktır.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">IP Adreslerinin Kullanımı</h4>
+                <p>Sistemle ilgili sorunların tanımlanması, hizmetle ilgili çıkabilecek sorunların çözülmesi ve QR kod tarama analitiğinin sağlanması amacıyla firmamız üyelerinin ve QR kodlarını tarayan ziyaretçilerin IP adresini kaydetmekte ve kullanmaktadır.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">Ödeme Güvenliği</h4>
+                <p>Ödemeleriniz, tarafımızca değil, iyzico ödeme altyapısı üzerinden gerçekleştirilir. Kredi/banka kartı bilgileriniz hiçbir şekilde bizim sistemimizde saklanmaz — kart bilgileri doğrudan iyzico'nun güvenli, PCI-DSS uyumlu altyapısına iletilir. Bize yalnızca ödemenin sonucu (başarılı/başarısız) ve işlem kimliği bilgisi ulaşır.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">SSL Güvenliği</h4>
+                <p>SİTE üzerindeki tüm veri iletişimi SSL (Secure Sockets Layer) protokolü ile şifrelenir. Ödeme sırasında kullanılan kart bilgileri, SİTE'mizden bağımsız olarak şifrelenip doğrudan iyzico altyapısına ulaştırılır.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">Veri Barındırma</h4>
+                <p>Kişisel verileriniz ve QR kod içerikleriniz, bulut tabanlı sunucu (Railway) ve veritabanı altyapısında saklanır. Bu altyapı sağlayıcılarıyla verilerin gizliliğini koruyacak sözleşmesel yükümlülükler altındayız.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">Üçüncü Taraf Web Siteleri ve Uygulamalar</h4>
+                <p>SİTE, dâhilinde başka sitelere bağlantı verebilir (örneğin oluşturduğunuz QR kodların yönlendirdiği hedef adresler). Firmamız, bu bağlantılar aracılığıyla erişilen sitelerin gizlilik uygulamaları ve içeriklerine yönelik herhangi bir sorumluluk taşımamaktadır.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">İstisnai Haller</h4>
+                <p>Aşağıda belirtilen sınırlı hallerde firmamız, işbu Gizlilik Politikası hükümleri dışında kullanıcılara ait bilgileri üçüncü kişilere açıklayabilir:</p>
+                <ul style="padding-left: 18px; margin-top: 6px;">
+                    <li>Kanun, Kanun Hükmünde Kararname, Yönetmelik gibi yetkili hukuki otoriteler tarafından çıkarılan hukuk kurallarının getirdiği zorunluluklara uymak.</li>
+                    <li>SİTE'nin kullanıcılarla akdettiği kullanıcı sözleşmesinin gereklerini yerine getirmek.</li>
+                    <li>Yetkili idari ve adli otorite tarafından usulüne göre yürütülen bir araştırma veya soruşturmaya yanıt vermek.</li>
+                    <li>Kullanıcıların haklarını veya güvenliklerini korumak amacıyla bilgi vermenin gerekli olduğu haller.</li>
+                </ul>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">E-Posta Güvenliği</h4>
+                <p>Bize gönderdiğiniz e-postalarda asla kredi kartı bilgilerinizi paylaşmayınız. E-postalarda yer alan bilgiler üçüncü şahıslar tarafından görülebilir ve firmamız bu bilgilerin güvenliğini garanti edemez.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">Oturum Bilgileri ve Çerezler</h4>
+                <p>SİTE, oturumunuzu açık tutabilmek için tarayıcınızda bir kimlik doğrulama bilgisi (token) saklar. Ayrıca, SİTE'yi ziyaret eden kullanıcılar hakkında bilgi toplamak amacıyla çerez (cookie) kullanılabilir. Bunlar, sitede gezinmenizi kolaylaştırmak ve tercihlerinizi saklamak amacıyla kullanılır.</p>
+                <p>Firmamız işbu Gizlilik Politikası hükümlerini dilediği zaman değiştirebilir. Politikadaki değişiklikler, sitede yayınlandığı anda yürürlüğe girer.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">İletişim Bilgileri</h4>
+                <p>Gizlilik politikamız ile ilgili her türlü soru ve öneriniz için aşağıdaki bilgilerden bize ulaşabilirsiniz:</p>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-top: 8px;">
+                    <p><strong>Firma Ünvanı:</strong> Furkan Egemen Güneş (Dijitalgru QR Studio)</p>
+                    <p><strong>Adres:</strong> Gülbahar mah no 34 kat 3 daire 11 Şişli İstanbul, Türkiye</p>
+                    <p><strong>E-posta:</strong> dijitalgru@gmail.com</p>
+                    <p><strong>Telefon:</strong> +90 537 627 44 15</p>
+                    <p><strong>Vergi Dairesi / No:</strong> Zincirlikuyu Vergi Dairesi / 4330665400</p>
+                </div>
+
+                <p style="margin-top: 16px; font-weight: 700;">Son Güncelleme Tarihi: 13 Ağustos 2026</p>
             </div>
         </div>
     </div>
