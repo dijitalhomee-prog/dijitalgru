@@ -82,15 +82,20 @@
     <header class="navbar">
         <a href="/" class="brand">
             <div class="brand-icon">G</div>
-            <span>Dijitalgru <span style="color: var(--primary);">QR Studio</span></span>
+            <span style="white-space: nowrap;">Dijitalgru <span style="color: var(--primary);">QR Studio</span></span>
         </a>
 
-        <nav class="nav-links">
+        <!-- Mobile Hamburger Trigger Button -->
+        <button class="hamburger-btn" id="mobile-menu-btn" aria-label="Mobil Menü" onclick="toggleMobileMenu()">
+            <span class="hamburger-icon">☰</span>
+        </button>
+
+        <nav class="nav-links" id="nav-menu-links">
             <a class="nav-link active" data-target="home-tab">Ana Sayfa</a>
             <a class="nav-link" data-target="studio-tab">QR Stüdyosu</a>
             <a class="nav-link" id="nav-dash-link" data-target="dashboard-tab" style="display: none;">Panelim</a>
             <a class="nav-link" data-target="pricing-tab">Paketler & Fiyatlar</a>
-            <button class="btn-primary" id="nav-auth-btn">Giriş Yap / Kaydol</button>
+            <button class="btn-primary" id="nav-auth-btn" style="white-space: nowrap;">Giriş Yap / Kaydol</button>
         </nav>
     </header>
 

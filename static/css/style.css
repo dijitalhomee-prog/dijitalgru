@@ -56,6 +56,11 @@ body {
     font-weight: 700;
     color: #ffffff;
     text-decoration: none;
+    white-space: nowrap;
+}
+
+.hamburger-btn {
+    display: none;
 }
 
 .brand-icon {
@@ -494,24 +499,84 @@ html, body {
 @media (max-width: 768px) {
     .navbar {
         padding: 12px 16px;
-        flex-direction: column;
-        gap: 12px;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        position: relative;
     }
     
     .brand {
-        font-size: 18px;
+        font-size: 17px;
+        white-space: nowrap;
+    }
+
+    .hamburger-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--card-border);
+        color: #ffffff;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .hamburger-btn:hover {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: var(--primary);
     }
 
     .nav-links {
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: center;
-        width: 100%;
+        display: none !important;
     }
 
-    .nav-link {
-        font-size: 12px;
-        padding: 4px 8px;
+    .nav-links.open {
+        display: flex !important;
+        flex-direction: column !important;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #0f172a;
+        border-bottom: 1px solid var(--card-border);
+        padding: 18px 16px;
+        gap: 10px;
+        align-items: stretch;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.95);
+        z-index: 999;
+        animation: mobileNavSlideDown 0.2s ease-out forwards;
+    }
+
+    .nav-links.open .nav-link {
+        font-size: 14px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: left;
+        white-space: nowrap;
+        width: 100%;
+        color: var(--text-muted);
+    }
+
+    .nav-links.open .nav-link:hover, .nav-links.open .nav-link.active {
+        background: rgba(99, 102, 241, 0.15);
+        border-color: rgba(99, 102, 241, 0.4);
+        color: #ffffff;
+    }
+
+    .nav-links.open .btn-primary {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        padding: 12px;
+        font-size: 14px;
+        white-space: nowrap;
+        margin-top: 4px;
     }
 
     .main-container {

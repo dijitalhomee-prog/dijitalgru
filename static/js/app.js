@@ -866,3 +866,31 @@ async function buyPlan(planName) {
         }
     }
 }
+
+// Mobile Navigation Hamburger Toggle
+function toggleMobileMenu() {
+    const nav = document.getElementById("nav-menu-links");
+    const btn = document.getElementById("mobile-menu-btn");
+    if (nav) {
+        nav.classList.toggle("open");
+        const isOpen = nav.classList.contains("open");
+        if (btn) {
+            btn.querySelector(".hamburger-icon").innerText = isOpen ? "✕" : "☰";
+        }
+    }
+}
+
+// Auto close mobile drawer on tab navigation
+document.addEventListener("DOMContentLoaded", () => {
+    const navLinks = document.querySelectorAll(".nav-link, #nav-auth-btn");
+    navLinks.forEach(link => {
+        link.addEventListener("click", () => {
+            const nav = document.getElementById("nav-menu-links");
+            const btn = document.getElementById("mobile-menu-btn");
+            if (nav && nav.classList.contains("open")) {
+                nav.classList.remove("open");
+                if (btn) btn.querySelector(".hamburger-icon").innerText = "☰";
+            }
+        });
+    });
+});
