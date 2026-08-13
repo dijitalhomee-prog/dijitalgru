@@ -800,9 +800,16 @@ function setBillingCycle(cycle) {
 async function buyPlan(planName) {
     const token = localStorage.getItem("jwt_token");
     if (!token) {
-        alert("Satın alma yapmak için lütfen giriş yapın.");
+        alert("Satın alma işlemi yapmak için lütfen giriş yapın veya ücretsiz hesap oluşturun.");
         openModal("auth-modal");
         return;
+    }
+
+    const clickedBtn = (typeof event !== "undefined" && event && event.target) ? event.target : null;
+    const origText = clickedBtn ? clickedBtn.innerHTML : "";
+    if (clickedBtn) {
+        clickedBtn.disabled = true;
+        clickedBtn.innerHTML = "Ödeme Başlatılıyor... ⏳";
     }
 
     try {
@@ -812,15 +819,50 @@ async function buyPlan(planName) {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify({ plan: planName, cycle: currentCycle })
+            body: JSON.stringify({ plan_key: planName, plan: planName, cycle: currentCycle })
         });
+
+        if (res.status === 401) {
+            alert("Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.");
+            localStorage.removeItem("jwt_token");
+            openModal("auth-modal");
+            return;
+        }
+
         const data = await res.json();
         if (res.ok && data.status === "success") {
-            window.location.href = data.checkout_url;
+            if (data.checkout_form_content) {
+                const container = document.getElementById("iyzico-checkout-container");
+                if (container) {
+                    container.innerHTML = data.checkout_form_content;
+                    // Execute dynamic script tags returned inside iyzico checkoutFormContent
+                    const scripts = container.getElementsByTagName("script");
+                    for (let i = 0; i < scripts.length; i++) {
+                        const newScript = document.createElement("script");
+                        newScript.type = "text/javascript";
+                        if (scripts[i].src) {
+                            newScript.src = scripts[i].src;
+                        } else {
+                            newScript.text = scripts[i].text;
+                        }
+                        document.head.appendChild(newScript);
+                    }
+                }
+                openModal("modal-iyzico-checkout");
+            } else if (data.payment_page_url) {
+                window.location.href = data.payment_page_url;
+            } else {
+                alert("Ödeme formu yüklenemedi. Lütfen tekrar deneyin.");
+            }
         } else {
             alert(data.error || "Ödeme başlatılamadı.");
         }
     } catch (err) {
-        alert("Sunucu hatası oluştu.");
+        alert("Sunucu bağlantı hatası oluştu. Lütfen tekrar deneyin.");
+    } finally {
+        if (clickedBtn) {
+            clickedBtn.disabled = false;
+            clickedBtn.innerHTML = origText;
+        }
     }
 }

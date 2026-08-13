@@ -809,6 +809,22 @@
         </div>
     </div>
 
+    <!-- IYZICO CHECKOUT MODAL -->
+    <div class="modal-overlay" id="modal-iyzico-checkout">
+        <div class="modal-content" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">💳</span>
+                    <h3 style="font-size: 18px; font-weight: 700; color: #fff;">Güvenli iyzico Ödeme Sayfası</h3>
+                </div>
+                <button onclick="closeModal('modal-iyzico-checkout')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <div id="iyzico-checkout-container" style="min-height: 420px; width: 100%; background: #ffffff; border-radius: 12px; padding: 12px;">
+                <!-- iyzico Checkout Form Scripts will load dynamically here -->
+            </div>
+        </div>
+    </div>
+
     <!-- AUTH MODAL -->
     <div class="modal-overlay" id="auth-modal">
         <div class="modal-content">

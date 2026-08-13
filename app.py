@@ -813,20 +813,21 @@ def api_analytics_dashboard():
 def api_get_plans():
     return jsonify({"plans": PLANS})
 
+@app.route("/api/payment/checkout", methods=["POST"])
 @app.route("/api/iyzico/checkout-form", methods=["POST"])
 @app.route("/api/subscriptions/purchase", methods=["POST"])
 def api_iyzico_checkout():
     """
-    Initializes iyzico payment checkout form.
+    Initializes official iyzico payment checkout form.
     NEVER directly activates user plan without iyzico payment verification.
     """
     user = get_current_user()
     if not user:
-        return jsonify({"error": "Lütfen önce giriş yapın."}), 401
+        return jsonify({"error": "Lütfen satın alma işlemi yapmadan önce giriş yapın."}), 401
         
     data = request.json or {}
-    plan_key = data.get("plan_key", "starter")
-    cycle = data.get("cycle", "monthly")
+    plan_key = data.get("plan_key") or data.get("plan") or "starter"
+    cycle = data.get("cycle") or "monthly"
     
     # Secure callback URL pointing to /api/iyzico/callback
     callback_url = f"{request.host_url.rstrip('/')}/api/iyzico/callback"
@@ -834,9 +835,18 @@ def api_iyzico_checkout():
     from payments import create_checkout_form
     res_json, err = create_checkout_form(user, plan_key, cycle, callback_url)
     if err:
-        return jsonify({"error": err}), 400
+        return jsonify({"error": err, "status": "failure"}), 400
         
-    return jsonify(res_json)
+    if not res_json or res_json.get("status") != "success":
+        error_msg = res_json.get("errorMessage") if res_json else "iyzico ödeme formu oluşturulamadı."
+        return jsonify({"error": error_msg, "status": "failure"}), 400
+        
+    return jsonify({
+        "status": "success",
+        "checkout_form_content": res_json.get("checkoutFormContent"),
+        "payment_page_url": res_json.get("paymentPageUrl"),
+        "token": res_json.get("token")
+    })
 
 @app.route("/api/iyzico/callback", methods=["POST", "GET"])
 def api_iyzico_callback():
