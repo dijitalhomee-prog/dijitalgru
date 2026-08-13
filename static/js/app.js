@@ -9,25 +9,25 @@ const CYCLE_PRICES = {
         starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span>',
         advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #ef4444; font-weight: 800;">₺199</span>',
         business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #ef4444; font-weight: 800;">₺449</span>',
-        subtextStarter: '🔥 İlk Aya Özel 1 Aylık Net %50 İndirimli Ödeme',
-        subtextAdvanced: '🔥 İlk Aya Özel 1 Aylık Net %50 İndirimli Ödeme',
-        subtextBusiness: '🔥 İlk Aya Özel 1 Aylık Net %50 İndirimli Ödeme'
+        subtextStarter: 'İlk Aya Özel Net %50 İndirimli Ödeme',
+        subtextAdvanced: 'İlk Aya Özel Net %50 İndirimli Ödeme',
+        subtextBusiness: 'İlk Aya Özel Net %50 İndirimli Ödeme'
     },
     semi_annual: {
         starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #10b981; font-weight: 800;">₺159</span>',
         advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #10b981; font-weight: 800;">₺319</span>',
         business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #10b981; font-weight: 800;">₺719</span>',
-        subtextStarter: '🔥 Tek Çekim 6 Aylık Toplam: 954 ₺ (Aylık 159 ₺)',
-        subtextAdvanced: '🔥 Tek Çekim 6 Aylık Toplam: 1.914 ₺ (Aylık 319 ₺)',
-        subtextBusiness: '🔥 Tek Çekim 6 Aylık Toplam: 4.314 ₺ (Aylık 719 ₺)'
+        subtextStarter: 'Tek Çekim 6 Aylık Toplam: 954 ₺ (Aylık 159 ₺)',
+        subtextAdvanced: 'Tek Çekim 6 Aylık Toplam: 1.914 ₺ (Aylık 319 ₺)',
+        subtextBusiness: 'Tek Çekim 6 Aylık Toplam: 4.314 ₺ (Aylık 719 ₺)'
     },
     annual: {
         starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #6366f1; font-weight: 800;">₺179</span>',
         advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #6366f1; font-weight: 800;">₺359</span>',
         business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #6366f1; font-weight: 800;">₺809</span>',
-        subtextStarter: '🔥 Tek Çekim Yıllık Toplam: 2.148 ₺ (Aylık 179 ₺ - 1 Yıl)',
-        subtextAdvanced: '🔥 Tek Çekim Yıllık Toplam: 4.308 ₺ (Aylık 359 ₺ - 1 Yıl)',
-        subtextBusiness: '🔥 Tek Çekim Yıllık Toplam: 9.708 ₺ (Aylık 809 ₺ - 1 Yıl)'
+        subtextStarter: 'Tek Çekim Yıllık Toplam: 2.148 ₺ (Aylık 179 ₺ - 1 Yıl)',
+        subtextAdvanced: 'Tek Çekim Yıllık Toplam: 4.308 ₺ (Aylık 359 ₺ - 1 Yıl)',
+        subtextBusiness: 'Tek Çekim Yıllık Toplam: 9.708 ₺ (Aylık 809 ₺ - 1 Yıl)'
     }
 };
 
@@ -134,7 +134,7 @@ async function handlePDFUpload(input) {
     formData.append('pdf_file', file);
 
     const statusText = document.getElementById('pdf-status-text');
-    statusText.innerText = 'Yükleniyor... ⏳';
+    statusText.innerText = 'Yükleniyor... ';
 
     try {
         const token = localStorage.getItem('jwt_token');
@@ -150,7 +150,7 @@ async function handlePDFUpload(input) {
         const data = await res.json();
         if (data.status === 'success') {
             uploadedPdfUrl = data.pdf_url;
-            statusText.innerText = `✅ PDF Yüklendi: ${file.name}`;
+            statusText.innerText = `PDF Yüklendi: ${file.name}`;
             statusText.style.color = '#34d399';
             alert('PDF Menünüz başarıyla yüklendi!');
             updateLivePreview();
@@ -250,9 +250,9 @@ function renderLandingPageMockup() {
     if (payload.type === "url") {
         container.innerHTML = `
             <div style="text-align: center; padding: 20px 10px;">
-                <div style="font-size: 32px; margin-bottom: 8px;">🌐</div>
+                <div style="font-size: 32px; margin-bottom: 8px;"></div>
                 <div style="font-size: 14px; font-weight: 700; color: #ffffff; word-break: break-all;">${payload.target_url || 'https://siteniz.com'}</div>
-                <div style="font-size: 11px; color: #10b981; margin-top: 8px; font-weight: 600;">⚡ Doğrudan Web Sitesi Yönlendirmesi</div>
+                <div style="font-size: 11px; color: #10b981; margin-top: 8px; font-weight: 600;"> Doğrudan Web Sitesi Yönlendirmesi</div>
                 <a href="${payload.target_url || '#'}" target="_blank" style="display: inline-block; margin-top: 16px; background: #6366f1; color: #fff; padding: 10px 16px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 700;">Siteyi Aç ↗</a>
             </div>
         `;
@@ -268,29 +268,29 @@ function renderLandingPageMockup() {
                 <div style="font-size: 11px; color: #94a3b8;">${v.company || 'Şirket Adı'}</div>
 
                 <div style="display: flex; gap: 6px; margin-top: 14px;">
-                    <button style="flex: 1; background: #10b981; color: #fff; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 700;">📞 ${v.phone || 'Ara'}</button>
-                    <button style="flex: 1; background: #6366f1; color: #fff; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 700;">✉️ E-posta</button>
+                    <button style="flex: 1; background: #10b981; color: #fff; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 700;"> ${v.phone || 'Ara'}</button>
+                    <button style="flex: 1; background: #6366f1; color: #fff; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 700;"> E-posta</button>
                 </div>
-                ${v.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 10px; font-weight: 700;">⚡ Doğrudan .vcf İndirme Aktif</div>' : ''}
+                ${v.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 10px; font-weight: 700;"> Doğrudan .vcf İndirme Aktif</div>' : ''}
             </div>
         `;
     } else if (payload.type === "menu") {
         const m = payload.menu_payload || {};
         container.innerHTML = `
             <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
-                <div style="font-size: 28px; margin-bottom: 6px;">📄</div>
+                <div style="font-size: 28px; margin-bottom: 6px;"></div>
                 <div style="font-size: 14px; font-weight: 800; color: #ffffff;">${m.title || 'Restoran Adı'}</div>
                 <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">${m.description || 'Menümüz ve Lezzetlerimiz'}</div>
-                ${m.pdf_url ? '<div style="margin-top: 12px; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); padding: 8px; border-radius: 8px; font-size: 10px; color: #a5b4fc; font-weight: 700;">✅ PDF Menü Yüklendi</div>' : '<div style="margin-top: 12px; font-size: 10px; color: #ef4444;">PDF Henüz Yüklenmedi</div>'}
-                ${m.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 8px; font-weight: 700;">⚡ Doğrudan PDF Yönlendirmesi Aktif</div>' : ''}
+                ${m.pdf_url ? '<div style="margin-top: 12px; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); padding: 8px; border-radius: 8px; font-size: 10px; color: #a5b4fc; font-weight: 700;">PDF Menü Yüklendi</div>' : '<div style="margin-top: 12px; font-size: 10px; color: #ef4444;">PDF Henüz Yüklenmedi</div>'}
+                ${m.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 8px; font-weight: 700;">Doğrudan PDF Yönlendirmesi Aktif</div>' : ''}
             </div>
         `;
     } else if (payload.type === "wifi") {
         container.innerHTML = `
             <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
-                <div style="font-size: 32px; margin-bottom: 6px;">📶</div>
+                <div style="font-size: 32px; margin-bottom: 6px;"></div>
                 <div style="font-size: 14px; font-weight: 800; color: #ffffff;">${getVal("wifi-ssid", "Wi-Fi Ağ Adı")}</div>
-                <div style="font-size: 11px; color: #10b981; margin-top: 4px; font-weight: 700;">⚡ Kamera ile Otomatik Bağlantı</div>
+                <div style="font-size: 11px; color: #10b981; margin-top: 4px; font-weight: 700;"> Kamera ile Otomatik Bağlantı</div>
             </div>
         `;
     }
@@ -464,7 +464,7 @@ async function processPendingQRPurchaseOrSave(token) {
 
         const data = await res.json();
         if (res.ok) {
-            alert("🎉 Hesabınız oluşturuldu ve hazırladığınız QR kod başarıyla hesabınıza kaydedildi!");
+            alert(" Hesabınız oluşturuldu ve hazırladığınız QR kod başarıyla hesabınıza kaydedildi!");
             loadDashboardData();
             
             // Switch active view to Dashboard Tab
@@ -563,7 +563,7 @@ function setupForms() {
 
         const data = await res.json();
         if (res.ok) {
-            alert("🎉 QR Kodunuz başarıyla hesabınıza kaydedildi!");
+            alert(" QR Kodunuz başarıyla hesabınıza kaydedildi!");
             loadDashboardData();
             document.getElementById("nav-dash-link").click();
         } else {
@@ -647,10 +647,10 @@ async function loadDashboardData() {
             if (container) {
                 container.innerHTML = `
                     <div class="glass-card" style="text-align: center; padding: 30px; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">
-                        <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
+                        <div style="font-size: 24px; margin-bottom: 8px;"></div>
                         <strong style="font-size: 15px;">Veriler yüklenemedi:</strong> ${data.error || 'Sunucu hatası oluştu. Lütfen tekrar deneyin.'}
                         <br>
-                        <button onclick="loadDashboardData()" class="btn-primary" style="margin-top: 14px; padding: 8px 16px; font-size: 12px;">🔄 Tekrar Dene</button>
+                        <button onclick="loadDashboardData()" class="btn-primary" style="margin-top: 14px; padding: 8px 16px; font-size: 12px;"> Tekrar Dene</button>
                     </div>
                 `;
             }
@@ -661,10 +661,10 @@ async function loadDashboardData() {
         if (container) {
             container.innerHTML = `
                 <div class="glass-card" style="text-align: center; padding: 30px; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">
-                    <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
+                    <div style="font-size: 24px; margin-bottom: 8px;"></div>
                     <strong style="font-size: 15px;">Bağlantı hatası:</strong> Veriler yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.
                     <br>
-                    <button onclick="loadDashboardData()" class="btn-primary" style="margin-top: 14px; padding: 8px 16px; font-size: 12px;">🔄 Tekrar Dene</button>
+                    <button onclick="loadDashboardData()" class="btn-primary" style="margin-top: 14px; padding: 8px 16px; font-size: 12px;"> Tekrar Dene</button>
                 </div>
             `;
         }
@@ -692,7 +692,7 @@ async function deleteQRCode(qrId) {
 }
 
 function openQRAnalytics(qrId, title) {
-    alert(`📊 "${title}" Analitik Bilgileri:\nEşsiz Ziyaretçiler ve Tüm Cihaz Taramaları başarıyla kaydedilmiştir.`);
+    alert(` "${title}" Analitik Bilgileri:\nEşsiz Ziyaretçiler ve Tüm Cihaz Taramaları başarıyla kaydedilmiştir.`);
 }
 
 // Render User QR Codes matching exact specification
@@ -724,8 +724,8 @@ function renderQRList(codes) {
         const status = qr.status || "active";
         const isChecked = status === "active" ? "checked" : "";
         const createdDate = new Date((qr.created_at || Date.now() / 1000) * 1000).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        const qrTypeLabel = (qr.type === "url") ? "🌐 Website" : ((qr.type === "vcard") ? "📇 vCard" : ((qr.type === "menu") ? "📄 PDF" : ((qr.type === "wifi") ? "📶 Wi-Fi" : "📝 Metin")));
-        const isDynamicLabel = qr.is_dynamic ? "⚡ Dinamik" : "📌 Statik";
+        const qrTypeLabel = (qr.type === "url") ? " Website" : ((qr.type === "vcard") ? " vCard" : ((qr.type === "menu") ? " PDF" : ((qr.type === "wifi") ? " Wi-Fi" : " Metin")));
+        const isDynamicLabel = qr.is_dynamic ? " Dinamik" : " Statik";
 
         return `
         <div class="glass-card" style="margin-bottom: 16px; padding: 18px 24px; border-radius: 20px; ${status === 'deleted' ? 'opacity: 0.55;' : ''}">
@@ -747,9 +747,9 @@ function renderQRList(codes) {
                             <span style="font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.06); color: #e2e8f0; padding: 2px 8px; border-radius: 6px;">${qrTypeLabel}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--text-muted); margin-top: 2px; flex-wrap: wrap;">
-                            <span>🔗 <strong style="color:#ffffff; font-family:monospace;">${shareUrl}</strong></span>
-                            <button onclick="copyShareLink('${shareUrl}', this)" style="background: transparent; border: none; color: #818cf8; cursor: pointer; padding: 0; font-size: 11px; font-weight: 700;">📋 Kopyala</button>
-                            <span>📅 ${createdDate}</span>
+                            <span> <strong style="color:#ffffff; font-family:monospace;">${shareUrl}</strong></span>
+                            <button onclick="copyShareLink('${shareUrl}', this)" style="background: transparent; border: none; color: #818cf8; cursor: pointer; padding: 0; font-size: 11px; font-weight: 700;"> Kopyala</button>
+                            <span> ${createdDate}</span>
                         </div>
                     </div>
                 </div>
@@ -769,12 +769,12 @@ function renderQRList(codes) {
 
                     <!-- Analytics Icon Button -->
                     <button onclick="openQRAnalytics(${qr.id}, '${qr.title}')" title="Analizler" style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); color: #06b6d4; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
-                        📊 Analitik
+                         Analitik
                     </button>
 
                     <!-- Delete Icon Button -->
                     <button onclick="deleteQRCode(${qr.id})" title="Sil" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700;">
-                        🗑️ Sil
+                         Sil
                     </button>
                 </div>
 
@@ -786,18 +786,18 @@ function renderQRList(codes) {
                 <!-- Left: Eşsiz Tarama ve Toplam Tarama Numbers -->
                 <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
                     <div style="font-size: 12px; font-weight: 700; color: #06b6d4; background: rgba(6, 182, 212, 0.1); padding: 4px 10px; border-radius: 8px;">
-                        👤 Eşsiz Tarama: <strong>${qr.unique_scans || 0}</strong> <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(Farklı kişi/cihaz)</span>
+                         Eşsiz Tarama: <strong>${qr.unique_scans || 0}</strong> <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(Farklı kişi/cihaz)</span>
                     </div>
                     <div style="font-size: 12px; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 8px;">
-                        📱 Toplam Tarama: <strong>${qr.scan_count || qr.scans_count || 0}</strong> <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(Tüm okutmalar)</span>
+                        Toplam Tarama: <strong>${qr.scan_count || qr.scans_count || 0}</strong> <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(Tüm okutmalar)</span>
                     </div>
                 </div>
 
                 <!-- Right: Export Buttons (PNG, SVG, EPS) -->
                 <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <a href="/api/qr/export/${qr.id}?format=png" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;">📥 PNG İndir</a>
-                    <a href="/api/qr/export/${qr.id}?format=svg" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;">🎨 SVG (Vektörel)</a>
-                    <a href="/api/qr/export/${qr.id}?format=eps" class="btn-primary" style="padding: 5px 10px; font-size: 11px;">📐 EPS (Vektörel Baskı)</a>
+                    <a href="/api/qr/export/${qr.id}?format=png" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;"> PNG İndir</a>
+                    <a href="/api/qr/export/${qr.id}?format=svg" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;"> SVG (Vektörel)</a>
+                    <a href="/api/qr/export/${qr.id}?format=eps" class="btn-primary" style="padding: 5px 10px; font-size: 11px;"> EPS (Vektörel Baskı)</a>
                 </div>
 
             </div>
@@ -810,7 +810,7 @@ function copyShareLink(url, btn) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(() => {
             const orig = btn.innerText;
-            btn.innerText = "✅ Kopyalandı!";
+            btn.innerText = "Kopyalandı!";
             btn.style.background = "#10b981";
             btn.style.color = "#ffffff";
             setTimeout(() => {
@@ -866,7 +866,7 @@ async function buyPlan(planName) {
     const origText = clickedBtn ? clickedBtn.innerHTML : "";
     if (clickedBtn) {
         clickedBtn.disabled = true;
-        clickedBtn.innerHTML = "Ödeme Başlatılıyor... ⏳";
+        clickedBtn.innerHTML = "Ödeme Başlatılıyor... ";
     }
 
     try {
