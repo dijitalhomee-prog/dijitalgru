@@ -80,6 +80,7 @@ def create_checkout_form(user_info, plan_key, cycle="monthly", callback_url=""):
         'basketId': basket_id,
         'paymentGroup': 'SUBSCRIPTION',
         'callbackUrl': callback_url,
+        'registerCard': '1',
         'enabledInstallments': ['1', '3', '6', '12'],
         'buyer': {
             'id': str(user_info['id']),
