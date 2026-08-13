@@ -815,6 +815,44 @@ def api_analytics_dashboard():
 def api_get_plans():
     return jsonify({"plans": PLANS})
 
+@app.route("/api/user/update-billing", methods=["POST"])
+def api_update_billing():
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Lütfen önce giriş yapın."}), 401
+        
+    data = request.json or {}
+    name = (data.get("name") or "").strip()
+    identity_number = (data.get("identity_number") or "").strip()
+    gsm_number = (data.get("gsm_number") or "").strip()
+    address = (data.get("address") or "").strip()
+    city = (data.get("city") or "").strip()
+    
+    if not identity_number or len(identity_number) not in [10, 11] or not identity_number.isdigit():
+        return jsonify({"error": "Lütfen 10 veya 11 haneli T.C. Kimlik / Vergi numaranızı girin."}), 400
+        
+    if not gsm_number or len(gsm_number) < 10:
+        return jsonify({"error": "Lütfen 3D Secure doğrulaması için geçerli bir cep telefonu girin."}), 400
+        
+    if not address or len(address) < 5:
+        return jsonify({"error": "Lütfen açık fatura adresinizi girin."}), 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+        UPDATE users 
+        SET name = ?, identity_number = ?, gsm_number = ?, address = ?, city = ?
+        WHERE id = ?
+        """, (name if name else user["name"], identity_number, gsm_number, address, city if city else "Istanbul", user["id"]))
+        conn.commit()
+        return jsonify({"status": "success", "message": "Fatura ve güvenlik bilgileriniz kaydedildi."})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": f"Güncelleme başarısız: {e}"}), 500
+    finally:
+        conn.close()
+
 @app.route("/api/payment/checkout", methods=["POST"])
 @app.route("/api/iyzico/checkout-form", methods=["POST"])
 @app.route("/api/subscriptions/purchase", methods=["POST"])
@@ -837,8 +875,18 @@ def api_iyzico_checkout():
         host_url = "https://" + host_url[7:]
     callback_url = f"{host_url}/api/iyzico/callback"
     
+    client_ip = request.headers.get("X-Forwarded-For", request.remote_addr).split(',')[0].strip()
     from payments import create_checkout_form
-    res_json, err = create_checkout_form(user, plan_key, cycle, callback_url)
+    res_json, err = create_checkout_form(user, plan_key, cycle, callback_url, client_ip)
+    
+    if isinstance(res_json, dict) and res_json.get("status") == "requires_billing_info":
+        return jsonify({
+            "status": "requires_billing_info",
+            "error": err,
+            "missing_field": res_json.get("missing_field"),
+            "user": user
+        }), 400
+
     if err:
         return jsonify({"error": err, "status": "failure"}), 400
         

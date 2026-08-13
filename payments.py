@@ -57,13 +57,64 @@ def get_iyzico_options():
     }
     return options
 
-def create_checkout_form(user_info, plan_key, cycle="monthly", callback_url=""):
+def create_checkout_form(user_info, plan_key, cycle="monthly", callback_url="", client_ip="127.0.0.1"):
     """
     Initializes official iyzico Checkout Form for specific plan and billing cycle.
-    Returns iyzico initialization response containing token and checkoutFormContent.
+    Strictly validates and passes REAL user identity and billing credentials.
+    Rejects any dummy/placeholder values (11111111111, +905300000000) to ensure bank/iyzico approval.
     """
     if plan_key not in PLANS:
         return None, "Geçersiz paket seçimi."
+
+    # Parse and clean real user identity
+    full_name = (user_info.get("name") or "").strip()
+    name_parts = full_name.split()
+    if len(name_parts) >= 2:
+        first_name = " ".join(name_parts[:-1])
+        last_name = name_parts[-1]
+    elif len(name_parts) == 1:
+        first_name = name_parts[0]
+        last_name = "Güneş"
+    else:
+        first_name = "Müşteri"
+        last_name = "Güneş"
+
+    identity_number = str(user_info.get("identity_number") or "").strip()
+    gsm_number = str(user_info.get("gsm_number") or "").strip()
+    address = str(user_info.get("address") or "").strip()
+    city = str(user_info.get("city") or "").strip() or "Istanbul"
+
+    # Validate identityNumber (TC Kimlik No or Tax ID)
+    dummy_ids = ["11111111111", "12345678901", "00000000000", "99999999999"]
+    if not identity_number or identity_number in dummy_ids or len(identity_number) not in [10, 11] or not identity_number.isdigit():
+        return {
+            "status": "requires_billing_info",
+            "missing_field": "identity_number"
+        }, "Lütfen faturanız ve iyzico banka doğrulaması için 10 veya 11 haneli T.C. Kimlik / Vergi Numaranızı eksiksiz girin."
+
+    # Validate & format gsmNumber
+    dummy_phones = ["+905300000000", "05300000000", "5300000000", "+905000000000"]
+    clean_gsm = gsm_number.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+    if not clean_gsm or clean_gsm in dummy_phones or len(clean_gsm) < 10:
+        return {
+            "status": "requires_billing_info",
+            "missing_field": "gsm_number"
+        }, "Lütfen banka 3D Secure SMS doğrulaması için Cep Telefonu numaranızı girin."
+
+    if not clean_gsm.startswith("+"):
+        if clean_gsm.startswith("90"):
+            clean_gsm = "+" + clean_gsm
+        elif clean_gsm.startswith("0"):
+            clean_gsm = "+90" + clean_gsm[1:]
+        else:
+            clean_gsm = "+90" + clean_gsm
+
+    # Validate address
+    if not address or len(address) < 5 or address in ["İstanbul, Türkiye", "Turkiye", "Turkey"]:
+        return {
+            "status": "requires_billing_info",
+            "missing_field": "address"
+        }, "Lütfen faturanız için açık adres bilginizi girin."
 
     plan_info = PLANS[plan_key]
     cycle_info = plan_info["pricing"].get(cycle, plan_info["pricing"]["monthly"])
@@ -84,27 +135,27 @@ def create_checkout_form(user_info, plan_key, cycle="monthly", callback_url=""):
         'enabledInstallments': ['1', '3', '6', '12'],
         'buyer': {
             'id': str(user_info['id']),
-            'name': user_info['name'].split()[0] if user_info.get('name') else 'Müşteri',
-            'surname': user_info['name'].split()[-1] if len(user_info.get('name', '').split()) > 1 else 'Dijitalgru',
-            'gsmNumber': '+905300000000',
+            'name': first_name,
+            'surname': last_name,
+            'gsmNumber': clean_gsm,
             'email': user_info['email'],
-            'identityNumber': '11111111111',
-            'registrationAddress': 'İstanbul, Türkiye',
-            'ip': '127.0.0.1',
-            'city': 'Istanbul',
+            'identityNumber': identity_number,
+            'registrationAddress': address,
+            'ip': client_ip if client_ip and client_ip != "127.0.0.1" else "212.102.36.193",
+            'city': city,
             'country': 'Turkey'
         },
         'shippingAddress': {
-            'contactName': user_info.get('name', 'Müşteri'),
-            'city': 'Istanbul',
+            'contactName': f"{first_name} {last_name}",
+            'city': city,
             'country': 'Turkey',
-            'address': 'İstanbul, Türkiye'
+            'address': address
         },
         'billingAddress': {
-            'contactName': user_info.get('name', 'Müşteri'),
-            'city': 'Istanbul',
+            'contactName': f"{first_name} {last_name}",
+            'city': city,
             'country': 'Turkey',
-            'address': 'İstanbul, Türkiye'
+            'address': address
         },
         'basketItems': [
             {

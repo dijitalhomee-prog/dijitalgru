@@ -155,7 +155,7 @@ def login_user(email, password):
 def get_user_by_id(user_id):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit, is_admin, account_status, created_at FROM users WHERE id = ?", (user_id,))
+    cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit, is_admin, account_status, created_at, identity_number, gsm_number, address, city FROM users WHERE id = ?", (user_id,))
     row = cursor.fetchone()
     conn.close()
     return dict(row) if row else None

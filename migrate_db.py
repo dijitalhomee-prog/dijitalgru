@@ -180,6 +180,25 @@ def run_migrations():
     except Exception as e:
         conn.rollback()
         print("⚠️ Subscriptions migration note:", e)
+
+    # 6. Ensure user identity & billing columns
+    try:
+        if is_postgres():
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS identity_number VARCHAR(20) DEFAULT '';")
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS gsm_number VARCHAR(30) DEFAULT '';")
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS address TEXT DEFAULT '';")
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS city VARCHAR(100) DEFAULT '';")
+        else:
+            for col, col_type in [("identity_number", "TEXT DEFAULT ''"), ("gsm_number", "TEXT DEFAULT ''"), ("address", "TEXT DEFAULT ''"), ("city", "TEXT DEFAULT ''")]:
+                try:
+                    cursor.execute(f"ALTER TABLE users ADD COLUMN {col} {col_type};")
+                except Exception:
+                    pass
+        conn.commit()
+        print("✅ Identity & billing columns ensured.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ Identity migration note:", e)
         
     conn.close()
 

@@ -854,6 +854,8 @@ function setBillingCycle(cycle) {
 }
 
 // Buy Plan with iyzico Checkout
+let pendingCheckoutPlan = null;
+
 async function buyPlan(planName) {
     const token = localStorage.getItem("jwt_token");
     if (!token) {
@@ -866,7 +868,7 @@ async function buyPlan(planName) {
     const origText = clickedBtn ? clickedBtn.innerHTML : "";
     if (clickedBtn) {
         clickedBtn.disabled = true;
-        clickedBtn.innerHTML = "Ödeme Başlatılıyor... ";
+        clickedBtn.innerHTML = "Ödeme Başlatılıyor...";
     }
 
     try {
@@ -887,6 +889,20 @@ async function buyPlan(planName) {
         }
 
         const data = await res.json();
+        if (data.status === "requires_billing_info") {
+            pendingCheckoutPlan = planName;
+            if (data.user) {
+                if (document.getElementById("billing-name")) document.getElementById("billing-name").value = data.user.name || "";
+                if (document.getElementById("billing-identity")) document.getElementById("billing-identity").value = data.user.identity_number || "";
+                if (document.getElementById("billing-gsm")) document.getElementById("billing-gsm").value = data.user.gsm_number || "";
+                if (document.getElementById("billing-city")) document.getElementById("billing-city").value = data.user.city || "";
+                if (document.getElementById("billing-address")) document.getElementById("billing-address").value = data.user.address || "";
+            }
+            alert(data.error || "Lütfen faturanız ve iyzico kart doğrulaması için bilgilerinizi tamamlayın.");
+            openModal("billing-modal");
+            return;
+        }
+
         if (res.ok && data.status === "success") {
             if (data.checkout_form_content) {
                 const container = document.getElementById("iyzico-checkout-container");
@@ -922,6 +938,49 @@ async function buyPlan(planName) {
             clickedBtn.innerHTML = origText;
         }
     }
+}
+
+// Billing Form Submission Listener
+const billingForm = document.getElementById("billing-form");
+if (billingForm) {
+    billingForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const token = localStorage.getItem("jwt_token");
+        if (!token) return;
+
+        const payload = {
+            name: document.getElementById("billing-name").value.trim(),
+            identity_number: document.getElementById("billing-identity").value.trim(),
+            gsm_number: document.getElementById("billing-gsm").value.trim(),
+            city: document.getElementById("billing-city").value.trim(),
+            address: document.getElementById("billing-address").value.trim()
+        };
+
+        try {
+            const res = await fetch("/api/user/update-billing", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (res.ok && data.status === "success") {
+                closeModal("billing-modal");
+                if (pendingCheckoutPlan) {
+                    const planToBuy = pendingCheckoutPlan;
+                    pendingCheckoutPlan = null;
+                    buyPlan(planToBuy);
+                }
+            } else {
+                alert(data.error || "Bilgiler kaydedilemedi.");
+            }
+        } catch (err) {
+            alert("Sunucu bağlantı hatası oluştu.");
+        }
+    });
 }
 
 // Mobile Navigation Hamburger Toggle
