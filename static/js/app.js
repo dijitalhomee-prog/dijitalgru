@@ -444,6 +444,41 @@ function logout() {
     window.location.reload();
 }
 
+let pendingQRPayload = null;
+
+async function processPendingQRPurchaseOrSave(token) {
+    if (!pendingQRPayload) return false;
+
+    const payload = pendingQRPayload;
+    pendingQRPayload = null; // Clear immediately to prevent duplicate submissions
+
+    try {
+        const res = await fetch("/api/qr/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert("🎉 Hesabınız oluşturuldu ve hazırladığınız QR kod başarıyla hesabınıza kaydedildi!");
+            loadDashboardData();
+            const dashLink = document.getElementById("nav-dash-link");
+            if (dashLink) dashLink.click();
+            return true;
+        } else {
+            alert("QR Kod kaydedilirken hata oluştu: " + (data.error || "Bilinmeyen hata"));
+            return false;
+        }
+    } catch (err) {
+        console.error("Pending QR save error:", err);
+        return false;
+    }
+}
+
 // Forms Submission
 function setupForms() {
     document.getElementById("login-form").addEventListener("submit", async (e) => {
@@ -461,7 +496,10 @@ function setupForms() {
             localStorage.setItem("jwt_token", data.token);
             closeModal("auth-modal");
             checkAuthStatus();
-            alert("Giriş başarılı!");
+            const savedPending = await processPendingQRPurchaseOrSave(data.token);
+            if (!savedPending) {
+                alert("Giriş başarılı!");
+            }
         } else {
             alert(data.error || "Giriş hatası");
         }
@@ -483,7 +521,10 @@ function setupForms() {
             localStorage.setItem("jwt_token", data.token);
             closeModal("auth-modal");
             checkAuthStatus();
-            alert("Kayıt başarılı! Hesabınız oluşturuldu.");
+            const savedPending = await processPendingQRPurchaseOrSave(data.token);
+            if (!savedPending) {
+                alert("Kayıt başarılı! Hesabınız oluşturuldu.");
+            }
         } else {
             alert(data.error || "Kayıt hatası");
         }
@@ -491,13 +532,15 @@ function setupForms() {
 
     document.getElementById("save-qr-btn").addEventListener("click", async () => {
         const token = localStorage.getItem("jwt_token");
+        const payload = getQRFormPayload();
+
         if (!token) {
-            alert("QR Kod kaydetmek için lütfen giriş yapın.");
+            pendingQRPayload = payload; // Temporarily store draft in memory
+            alert("QR Kodunuzu hesabınıza kaydetmek için lütfen ücretsiz üye olun veya giriş yapın.");
             openModal("auth-modal");
             return;
         }
 
-        const payload = getQRFormPayload();
         const res = await fetch("/api/qr/create", {
             method: "POST",
             headers: {
@@ -778,6 +821,9 @@ function openModal(id) {
 }
 function closeModal(id) {
     document.getElementById(id).classList.remove("active");
+    if (id === "auth-modal") {
+        pendingQRPayload = null; // Clear pending draft if user closes auth modal
+    }
 }
 
 // Cycle Selector
