@@ -258,20 +258,31 @@ function renderLandingPageMockup() {
         `;
     } else if (payload.type === "vcard") {
         const v = payload.vcard_payload || {};
-        container.innerHTML = `
-            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
-                <div style="width: 54px; height: 54px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #fff; margin: 0 auto 10px auto;">
-                    ${(v.full_name || 'A')[0].toUpperCase()}
-                </div>
-                <div style="font-size: 15px; font-weight: 800; color: #ffffff;">${v.full_name || 'Ad Soyad'}</div>
-                <div style="font-size: 11px; color: #818cf8; margin-top: 2px;">${v.title || 'Unvan'}</div>
-                <div style="font-size: 11px; color: #94a3b8;">${v.company || 'Şirket Adı'}</div>
+        const fullName = v.full_name || 'Ad Soyad';
+        const avatarSrc = v.avatar_url;
+        const initial = (fullName.trim()[0] || 'A').toUpperCase();
 
-                <div style="display: flex; gap: 6px; margin-top: 14px;">
-                    <button style="flex: 1; background: #10b981; color: #fff; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 700;"> ${v.phone || 'Ara'}</button>
-                    <button style="flex: 1; background: #6366f1; color: #fff; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 700;"> E-posta</button>
+        let avatarHTML = `<div style="width: 64px; height: 64px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: #fff; margin: 0 auto 12px auto; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); border: 2px solid rgba(255,255,255,0.2);">${initial}</div>`;
+        if (avatarSrc) {
+            avatarHTML = `<img src="${avatarSrc}" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin: 0 auto 12px auto; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); border: 2px solid #6366f1; display: block;" />`;
+        }
+
+        container.innerHTML = `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px 16px; text-align: center; backdrop-filter: blur(10px);">
+                ${avatarHTML}
+                <div style="font-size: 16px; font-weight: 800; color: #ffffff;">${fullName}</div>
+                <div style="font-size: 12px; color: #818cf8; margin-top: 2px; font-weight: 600;">${v.title || 'Unvan'}</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">${v.company || 'Şirket Adı'}</div>
+                ${v.bio ? `<div style="font-size: 11px; color: #cbd5e1; margin-top: 8px; line-height: 1.4; padding: 0 4px;">${v.bio}</div>` : ''}
+
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
+                    <a href="tel:${v.phone || ''}" onclick="event.preventDefault()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">📞 Cep Ara (${v.phone || 'Telefon'})</a>
+                    ${v.phone2 ? `<a href="tel:${v.phone2}" onclick="event.preventDefault()" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">📞 İş Ara (${v.phone2})</a>` : ''}
+                    <a href="mailto:${v.email || ''}" onclick="event.preventDefault()" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">✉️ E-posta (${v.email || 'E-posta'})</a>
+                    ${v.website ? `<a href="${v.website}" target="_blank" onclick="event.preventDefault()" style="background: rgba(255,255,255,0.08); color: #818cf8; border: 1px solid rgba(129,140,248,0.3); text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">🌐 Web Sitesi</a>` : ''}
+                    <a href="#" onclick="event.preventDefault()" style="background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.4); text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">👤 Rehbere Kaydet (.vcf)</a>
                 </div>
-                ${v.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 10px; font-weight: 700;"> Doğrudan .vcf İndirme Aktif</div>' : ''}
+                ${v.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 12px; font-weight: 700; background: rgba(245,158,11,0.1); padding: 4px; border-radius: 6px;">⚡ Doğrudan .vcf İndirme Aktif</div>' : ''}
             </div>
         `;
     } else if (payload.type === "menu") {
@@ -347,6 +358,20 @@ function getQRFormPayload() {
         frame_text_color: getVal("frame-text-color", "#FFFFFF")
     };
 
+function handleVcardAvatarUpload(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const avatarInput = document.getElementById("vcard-avatar-url");
+            if (avatarInput) {
+                avatarInput.value = e.target.result;
+                updateLivePreview();
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
     let target_url = "";
     let vcard_payload = null;
     let menu_payload = null;
@@ -360,10 +385,12 @@ function getQRFormPayload() {
             title: getVal("vcard-title", "Unvan"),
             company: getVal("vcard-company", "Şirket Adı"),
             phone: getVal("vcard-phone", "+90 5XX XXX XX XX"),
+            phone2: getVal("vcard-phone2", ""),
             email: getVal("vcard-email", "eposta@sirketiniz.com"),
             website: getVal("vcard-website", "https://siteniz.com"),
             address: getVal("vcard-address", "İstanbul, Türkiye"),
             bio: getVal("vcard-bio", ""),
+            avatar_url: getVal("vcard-avatar-url", ""),
             direct_redirect: directVcardEl ? directVcardEl.checked : false
         };
     } else if (currentQrType === "menu") {

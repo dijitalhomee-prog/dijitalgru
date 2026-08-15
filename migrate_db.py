@@ -199,6 +199,19 @@ def run_migrations():
     except Exception as e:
         conn.rollback()
         print("⚠️ Identity migration note:", e)
+
+    # 7. Ensure vcard_pages phone2 column
+    try:
+        if is_postgres():
+            cursor.execute("ALTER TABLE vcard_pages ADD COLUMN IF NOT EXISTS phone2 VARCHAR(50) DEFAULT '';")
+        else:
+            try:
+                cursor.execute("ALTER TABLE vcard_pages ADD COLUMN phone2 TEXT DEFAULT '';")
+            except Exception:
+                pass
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
         
     conn.close()
 

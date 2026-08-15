@@ -276,6 +276,7 @@ def init_db():
                 title TEXT,
                 company TEXT,
                 phone TEXT,
+                phone2 TEXT,
                 email TEXT,
                 website TEXT,
                 address TEXT,

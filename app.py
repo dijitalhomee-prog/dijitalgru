@@ -174,8 +174,11 @@ def download_vcard(qr_id):
     title = v.get("title", "")
     org = v.get("company", "")
     phone = v.get("phone", "")
+    phone2 = v.get("phone2", "")
     email = v.get("email", "")
     website = v.get("website", "")
+    address = v.get("address", "")
+    bio = v.get("bio", "")
     
     vcard_lines = [
         "BEGIN:VCARD",
@@ -189,10 +192,16 @@ def download_vcard(qr_id):
         vcard_lines.append(f"ORG:{org}")
     if phone:
         vcard_lines.append(f"TEL;TYPE=CELL:{phone}")
+    if phone2:
+        vcard_lines.append(f"TEL;TYPE=WORK:{phone2}")
     if email:
         vcard_lines.append(f"EMAIL:{email}")
     if website:
         vcard_lines.append(f"URL:{website}")
+    if address:
+        vcard_lines.append(f"ADR:;;{address};;;;")
+    if bio:
+        vcard_lines.append(f"NOTE:{bio}")
     vcard_lines.append("END:VCARD")
     
     vcard_content = "\r\n".join(vcard_lines)
@@ -412,14 +421,15 @@ def api_qr_create():
     # Handle micropage payloads
     if qr_type == "vcard" and vcard_payload:
         cursor.execute("""
-        INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, email, website, address, bio, avatar_url, social_links)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, phone2, email, website, address, bio, avatar_url, social_links)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             qr_id,
             vcard_payload.get("full_name"),
             vcard_payload.get("title"),
             vcard_payload.get("company"),
             vcard_payload.get("phone"),
+            vcard_payload.get("phone2"),
             vcard_payload.get("email"),
             vcard_payload.get("website"),
             vcard_payload.get("address"),

@@ -32,14 +32,18 @@
         <p class="bio">{{ vcard.bio }}</p>
 
         <div class="actions">
+            <a href="/p/vcard/{{ vcard.qr_id }}.vcf" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981, #059669); margin-bottom: 6px;">👤 Rehbere Kaydet (.vcf)</a>
             {% if vcard.phone %}
-            <a href="tel:{{ vcard.phone }}" class="btn btn-primary">📞 Hemen Ara ({{ vcard.phone }})</a>
+            <a href="tel:{{ vcard.phone }}" class="btn btn-primary">📞 Cep Ara ({{ vcard.phone }})</a>
+            {% endif %}
+            {% if vcard.phone2 %}
+            <a href="tel:{{ vcard.phone2 }}" class="btn btn-primary" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">📞 İş Ara ({{ vcard.phone2 }})</a>
             {% endif %}
             {% if vcard.email %}
-            <a href="mailto:{{ vcard.email }}" class="btn btn-secondary">✉️ E-posta Gönder</a>
+            <a href="mailto:{{ vcard.email }}" class="btn btn-secondary">✉️ E-posta Gönder ({{ vcard.email }})</a>
             {% endif %}
             {% if vcard.website %}
-            <a href="{{ vcard.website }}" target="_blank" class="btn btn-secondary">🌐 Web Sitesini Ziyaret Et</a>
+            <a href="{{ vcard.website }}" target="_blank" class="btn btn-secondary">🌐 Web Sitesi</a>
             {% endif %}
             {% if vcard.address %}
             <a href="https://maps.google.com/?q={{ vcard.address }}" target="_blank" class="btn btn-secondary">📍 Yol Tarifi Al</a>

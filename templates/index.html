@@ -204,43 +204,63 @@
                                 </label>
                             </div>
                         </div>
+
+                        <!-- Profil Fotoğrafı Yükleme -->
+                        <div class="form-group">
+                            <label class="form-label">Profil Fotoğrafı (Seçiniz veya URL Giriniz)</label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="text" id="vcard-avatar-url" class="form-input" placeholder="https://ornek.com/profil.jpg veya fotoğraf yükleyin" oninput="updateLivePreview()">
+                                <label for="vcard-avatar-file" class="btn-secondary" style="padding: 10px 14px; font-size: 11px; cursor: pointer; white-space: nowrap; margin: 0; border-radius: 10px;">📷 Fotoğraf Yükle</label>
+                                <input type="file" id="vcard-avatar-file" accept="image/*" style="display: none;" onchange="handleVcardAvatarUpload(this)">
+                            </div>
+                        </div>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div class="form-group">
                                 <label class="form-label">Ad Soyad</label>
-                                <input type="text" id="vcard-name" class="form-input" placeholder="Ad Soyad (Örn: Ahmet Yılmaz)">
+                                <input type="text" id="vcard-name" class="form-input" placeholder="Ad Soyad (Örn: Ahmet Yılmaz)" oninput="updateLivePreview()">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Unvan</label>
-                                <input type="text" id="vcard-title" class="form-input" placeholder="Unvan (Örn: Pazarlama Yöneticisi)">
+                                <input type="text" id="vcard-title" class="form-input" placeholder="Unvan (Örn: Pazarlama Yöneticisi)" oninput="updateLivePreview()">
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Şirket / Marka</label>
+                            <input type="text" id="vcard-company" class="form-input" placeholder="Şirket / Kurum Adı" oninput="updateLivePreview()">
+                        </div>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div class="form-group">
-                                <label class="form-label">Şirket / Marka</label>
-                                <input type="text" id="vcard-company" class="form-input" placeholder="Şirket / Kurum Adı">
+                                <label class="form-label">Cep Telefonu</label>
+                                <input type="text" id="vcard-phone" class="form-input" placeholder="+90 5XX XXX XX XX" oninput="updateLivePreview()">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Telefon</label>
-                                <input type="text" id="vcard-phone" class="form-input" placeholder="+90 5XX XXX XX XX">
+                                <label class="form-label">İş Telefonu (Opsiyonel)</label>
+                                <input type="text" id="vcard-phone2" class="form-input" placeholder="+90 212 XXX XX XX" oninput="updateLivePreview()">
                             </div>
                         </div>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div class="form-group">
                                 <label class="form-label">E-posta</label>
-                                <input type="email" id="vcard-email" class="form-input" placeholder="eposta@sirketiniz.com">
+                                <input type="email" id="vcard-email" class="form-input" placeholder="eposta@sirketiniz.com" oninput="updateLivePreview()">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Web Sitesi</label>
-                                <input type="url" id="vcard-website" class="form-input" placeholder="https://siteniz.com">
+                                <input type="url" id="vcard-website" class="form-input" placeholder="https://siteniz.com" oninput="updateLivePreview()">
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label class="form-label">Adres / Şehir</label>
-                            <input type="text" id="vcard-address" class="form-input" placeholder="İstanbul, Türkiye">
+                            <input type="text" id="vcard-address" class="form-input" placeholder="İstanbul, Türkiye" oninput="updateLivePreview()">
                         </div>
+
                         <div class="form-group">
                             <label class="form-label">Biyografi / Hakkında</label>
-                            <textarea id="vcard-bio" class="form-textarea" rows="2" placeholder="Kısa özgeçmiş veya firma tanımı..."></textarea>
+                            <textarea id="vcard-bio" class="form-textarea" rows="2" placeholder="Kısa özgeçmiş veya firma tanımı..." oninput="updateLivePreview()"></textarea>
                         </div>
                     </div>
 
