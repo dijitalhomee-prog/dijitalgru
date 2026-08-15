@@ -380,6 +380,28 @@ def api_upload_pdf():
     
     return jsonify({"status": "success", "pdf_url": pdf_url, "filename": file.filename})
 
+@app.route("/api/upload/avatar", methods=["POST"])
+@app.route("/api/upload/image", methods=["POST"])
+def api_upload_image():
+    file = request.files.get("avatar_file") or request.files.get("image_file") or request.files.get("file")
+    if not file or file.filename == "":
+        return jsonify({"error": "Lütfen bir görsel dosyası seçin."}), 400
+        
+    ext = file.filename.split(".")[-1].lower() if "." in file.filename else ""
+    if ext not in ["jpg", "jpeg", "png", "webp", "gif", "svg"]:
+        return jsonify({"error": "Sadece JPG, PNG, WEBP veya GIF görselleri yüklenebilir."}), 400
+        
+    img_bytes = file.read()
+    content_type = f"image/{'jpeg' if ext in ['jpg', 'jpeg'] else ext}"
+    image_url, file_code = upload_file_to_cloud(img_bytes, file.filename, content_type=content_type)
+    
+    return jsonify({
+        "status": "success", 
+        "avatar_url": image_url, 
+        "image_url": image_url, 
+        "filename": file.filename
+    })
+
 @app.route("/api/qr/create", methods=["POST"])
 def api_qr_create():
     user = get_current_user()

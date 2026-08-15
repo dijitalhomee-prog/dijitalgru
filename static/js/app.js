@@ -450,6 +450,84 @@ function getVal(id, defaultVal = "") {
     return el ? (el.value !== undefined ? el.value : defaultVal) : defaultVal;
 }
 
+let uploadedVcardAvatarUrl = "";
+
+async function handleVcardAvatarUpload(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const statusText = document.getElementById("vcard-avatar-status");
+    const btnText = document.getElementById("vcard-avatar-btn-text");
+    const removeBtn = document.getElementById("vcard-avatar-remove-btn");
+    const hiddenInput = document.getElementById("vcard-avatar-url");
+
+    if (statusText) {
+        statusText.innerText = "⏳ Fotoğraf yükleniyor...";
+        statusText.style.color = "#f59e0b";
+    }
+
+    // 1. Immediate Base64 local preview so user sees instant live update
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        uploadedVcardAvatarUrl = e.target.result;
+        if (hiddenInput) hiddenInput.value = uploadedVcardAvatarUrl;
+        if (removeBtn) removeBtn.style.display = "inline-block";
+        if (btnText) btnText.innerText = `✓ ${file.name.substring(0, 16)}`;
+        updateLivePreview();
+    };
+    reader.readAsDataURL(file);
+
+    // 2. Upload to Cloud API Endpoint (/api/upload/avatar)
+    try {
+        const formData = new FormData();
+        formData.append("avatar_file", file);
+
+        const token = localStorage.getItem("jwt_token");
+        const headers = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        const res = await fetch("/api/upload/avatar", {
+            method: "POST",
+            headers: headers,
+            body: formData
+        });
+
+        const data = await res.json();
+        if (data.status === "success" && data.avatar_url) {
+            uploadedVcardAvatarUrl = data.avatar_url;
+            if (hiddenInput) hiddenInput.value = uploadedVcardAvatarUrl;
+            if (statusText) {
+                statusText.innerText = "✅ Fotoğraf başarıyla sisteme yüklendi.";
+                statusText.style.color = "#34d399";
+            }
+            updateLivePreview();
+        } else {
+            console.error("Avatar upload API error:", data.error);
+        }
+    } catch (err) {
+        console.error("Avatar upload network error:", err);
+    }
+}
+
+function removeVcardAvatar() {
+    uploadedVcardAvatarUrl = "";
+    const hiddenInput = document.getElementById("vcard-avatar-url");
+    const fileInput = document.getElementById("vcard-avatar-file");
+    const btnText = document.getElementById("vcard-avatar-btn-text");
+    const removeBtn = document.getElementById("vcard-avatar-remove-btn");
+    const statusText = document.getElementById("vcard-avatar-status");
+
+    if (hiddenInput) hiddenInput.value = "";
+    if (fileInput) fileInput.value = "";
+    if (btnText) btnText.innerText = "Profil Fotoğrafı Seç / Yükle";
+    if (removeBtn) removeBtn.style.display = "none";
+    if (statusText) {
+        statusText.innerText = "Fotoğraf kaldırıldı. Baş harf ikonu varsayılan olarak gösterilecek.";
+        statusText.style.color = "var(--text-muted)";
+    }
+    updateLivePreview();
+}
+
 function getQRFormPayload() {
     const title = getVal("qr-title", "Benim QR Kodum");
     const settings = {
@@ -460,20 +538,6 @@ function getQRFormPayload() {
         frame_color: getVal("frame-color", "#4F46E5"),
         frame_text_color: getVal("frame-text-color", "#FFFFFF")
     };
-
-function handleVcardAvatarUpload(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const avatarInput = document.getElementById("vcard-avatar-url");
-            if (avatarInput) {
-                avatarInput.value = e.target.result;
-                updateLivePreview();
-            }
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
 
     let target_url = "";
     let vcard_payload = null;

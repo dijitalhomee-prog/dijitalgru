@@ -207,12 +207,19 @@
 
                         <!-- Profil Fotoğrafı Yükleme -->
                         <div class="form-group">
-                            <label class="form-label">Profil Fotoğrafı (Seçiniz veya URL Giriniz)</label>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <input type="text" id="vcard-avatar-url" class="form-input" placeholder="https://ornek.com/profil.jpg veya fotoğraf yükleyin" oninput="updateLivePreview()">
-                                <label for="vcard-avatar-file" class="btn-secondary" style="padding: 10px 14px; font-size: 11px; cursor: pointer; white-space: nowrap; margin: 0; border-radius: 10px;">📷 Fotoğraf Yükle</label>
+                            <label class="form-label">Profil Fotoğrafı</label>
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <label for="vcard-avatar-file" class="btn-secondary" style="padding: 12px 18px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; margin: 0; border-radius: 12px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; display: inline-flex; align-items: center; gap: 8px;">
+                                    <span id="vcard-avatar-btn-icon">📷</span>
+                                    <span id="vcard-avatar-btn-text">Profil Fotoğrafı Seç / Yükle</span>
+                                </label>
                                 <input type="file" id="vcard-avatar-file" accept="image/*" style="display: none;" onchange="handleVcardAvatarUpload(this)">
+                                <button type="button" id="vcard-avatar-remove-btn" onclick="removeVcardAvatar()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; font-weight: 700;">
+                                    🗑️ Görseli Kaldır
+                                </button>
                             </div>
+                            <input type="hidden" id="vcard-avatar-url" value="">
+                            <div id="vcard-avatar-status" style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">İsteğe bağlı. Fotoğraf seçilmezse ad-soyad baş harfleri varsayılan olarak gösterilir.</div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
