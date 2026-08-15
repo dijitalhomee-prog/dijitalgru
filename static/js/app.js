@@ -203,6 +203,13 @@ function initTypeSelector() {
             const targetForm = document.getElementById(`form-${currentQrType}`);
             if (targetForm) targetForm.style.display = "block";
 
+            // Automatically switch phone simulator to landing page mode for rich types
+            if (currentQrType === "vcard" || currentQrType === "menu") {
+                switchPreviewMode("landing");
+            } else {
+                switchPreviewMode("qr");
+            }
+
             updateLivePreview();
         });
     });
@@ -250,9 +257,9 @@ function renderLandingPageMockup() {
     if (payload.type === "url") {
         container.innerHTML = `
             <div style="text-align: center; padding: 20px 10px;">
-                <div style="font-size: 32px; margin-bottom: 8px;"></div>
+                <div style="font-size: 32px; margin-bottom: 8px;">🌐</div>
                 <div style="font-size: 14px; font-weight: 700; color: #ffffff; word-break: break-all;">${payload.target_url || 'https://siteniz.com'}</div>
-                <div style="font-size: 11px; color: #10b981; margin-top: 8px; font-weight: 600;"> Doğrudan Web Sitesi Yönlendirmesi</div>
+                <div style="font-size: 11px; color: #10b981; margin-top: 8px; font-weight: 600;">⚡ Doğrudan Web Sitesi Yönlendirmesi</div>
                 <a href="${payload.target_url || '#'}" target="_blank" style="display: inline-block; margin-top: 16px; background: #6366f1; color: #fff; padding: 10px 16px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 700;">Siteyi Aç ↗</a>
             </div>
         `;
@@ -262,27 +269,118 @@ function renderLandingPageMockup() {
         const avatarSrc = v.avatar_url;
         const initial = (fullName.trim()[0] || 'A').toUpperCase();
 
-        let avatarHTML = `<div style="width: 64px; height: 64px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: #fff; margin: 0 auto 12px auto; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); border: 2px solid rgba(255,255,255,0.2);">${initial}</div>`;
+        let avatarHTML = `<div style="width: 72px; height: 72px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; margin: 0 auto 12px auto; box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); border: 2px solid rgba(255,255,255,0.2);">${initial}</div>`;
         if (avatarSrc) {
-            avatarHTML = `<img src="${avatarSrc}" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin: 0 auto 12px auto; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); border: 2px solid #6366f1; display: block;" />`;
+            avatarHTML = `<img src="${avatarSrc}" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover; margin: 0 auto 12px auto; box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); border: 2px solid #6366f1; display: block;" />`;
         }
 
-        container.innerHTML = `
-            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px 16px; text-align: center; backdrop-filter: blur(10px);">
-                ${avatarHTML}
-                <div style="font-size: 16px; font-weight: 800; color: #ffffff;">${fullName}</div>
-                <div style="font-size: 12px; color: #818cf8; margin-top: 2px; font-weight: 600;">${v.title || 'Unvan'}</div>
-                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">${v.company || 'Şirket Adı'}</div>
-                ${v.bio ? `<div style="font-size: 11px; color: #cbd5e1; margin-top: 8px; line-height: 1.4; padding: 0 4px;">${v.bio}</div>` : ''}
+        // Quick action buttons bar HTML
+        let quickActionsHTML = '<div style="display: flex; gap: 6px; justify-content: center; margin-bottom: 16px;">';
+        if (v.phone) {
+            quickActionsHTML += `
+                <a href="#" onclick="event.preventDefault()" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #ffffff; text-decoration: none; font-size: 10px; font-weight: 700;">
+                    <span style="font-size: 16px;">📞</span>
+                    <span>Arama</span>
+                </a>
+                <a href="#" onclick="event.preventDefault()" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; color: #34d399; text-decoration: none; font-size: 10px; font-weight: 700;">
+                    <span style="font-size: 16px;">💬</span>
+                    <span>WhatsApp</span>
+                </a>
+            `;
+        }
+        if (v.email) {
+            quickActionsHTML += `
+                <a href="#" onclick="event.preventDefault()" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; color: #a5b4fc; text-decoration: none; font-size: 10px; font-weight: 700;">
+                    <span style="font-size: 16px;">✉️</span>
+                    <span>E-posta</span>
+                </a>
+            `;
+        }
+        if (v.website) {
+            quickActionsHTML += `
+                <a href="#" onclick="event.preventDefault()" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px; background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3); border-radius: 12px; color: #06b6d4; text-decoration: none; font-size: 10px; font-weight: 700;">
+                    <span style="font-size: 16px;">🌐</span>
+                    <span>Web Site</span>
+                </a>
+            `;
+        }
+        quickActionsHTML += '</div>';
 
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
-                    <a href="tel:${v.phone || ''}" onclick="event.preventDefault()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">📞 Cep Ara (${v.phone || 'Telefon'})</a>
-                    ${v.phone2 ? `<a href="tel:${v.phone2}" onclick="event.preventDefault()" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">📞 İş Ara (${v.phone2})</a>` : ''}
-                    <a href="mailto:${v.email || ''}" onclick="event.preventDefault()" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">✉️ E-posta (${v.email || 'E-posta'})</a>
-                    ${v.website ? `<a href="${v.website}" target="_blank" onclick="event.preventDefault()" style="background: rgba(255,255,255,0.08); color: #818cf8; border: 1px solid rgba(129,140,248,0.3); text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">🌐 Web Sitesi</a>` : ''}
-                    <a href="#" onclick="event.preventDefault()" style="background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.4); text-decoration: none; padding: 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: block;">👤 Rehbere Kaydet (.vcf)</a>
+        // Detailed info items list HTML
+        let detailsListHTML = '<div style="display: flex; flex-direction: column; gap: 8px; text-align: left;">';
+        if (v.phone) {
+            detailsListHTML += `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+                    <div style="font-size: 14px; width: 28px; height: 28px; background: rgba(99,102,241,0.15); color: #818cf8; border-radius: 8px; display: flex; align-items: center; justify-content: center; shrink: 0;">📱</div>
+                    <div style="flex: 1; overflow: hidden;">
+                        <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">Cep Telefonu</div>
+                        <div style="font-size: 12px; font-weight: 600; color: #f1f5f9; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${v.phone}</div>
+                    </div>
                 </div>
-                ${v.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 12px; font-weight: 700; background: rgba(245,158,11,0.1); padding: 4px; border-radius: 6px;">⚡ Doğrudan .vcf İndirme Aktif</div>' : ''}
+            `;
+        }
+        if (v.phone2) {
+            detailsListHTML += `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+                    <div style="font-size: 14px; width: 28px; height: 28px; background: rgba(59,130,246,0.15); color: #60a5fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; shrink: 0;">🏢</div>
+                    <div style="flex: 1; overflow: hidden;">
+                        <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">İş Telefonu</div>
+                        <div style="font-size: 12px; font-weight: 600; color: #f1f5f9; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${v.phone2}</div>
+                    </div>
+                </div>
+            `;
+        }
+        if (v.email) {
+            detailsListHTML += `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+                    <div style="font-size: 14px; width: 28px; height: 28px; background: rgba(236,72,153,0.15); color: #f472b6; border-radius: 8px; display: flex; align-items: center; justify-content: center; shrink: 0;">✉️</div>
+                    <div style="flex: 1; overflow: hidden;">
+                        <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">E-posta Adresi</div>
+                        <div style="font-size: 12px; font-weight: 600; color: #f1f5f9; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${v.email}</div>
+                    </div>
+                </div>
+            `;
+        }
+        if (v.website) {
+            detailsListHTML += `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+                    <div style="font-size: 14px; width: 28px; height: 28px; background: rgba(6,182,212,0.15); color: #22d3ee; border-radius: 8px; display: flex; align-items: center; justify-content: center; shrink: 0;">🌐</div>
+                    <div style="flex: 1; overflow: hidden;">
+                        <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">Web Sitesi</div>
+                        <div style="font-size: 12px; font-weight: 600; color: #f1f5f9; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${v.website}</div>
+                    </div>
+                </div>
+            `;
+        }
+        if (v.address) {
+            detailsListHTML += `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+                    <div style="font-size: 14px; width: 28px; height: 28px; background: rgba(245,158,11,0.15); color: #fbbf24; border-radius: 8px; display: flex; align-items: center; justify-content: center; shrink: 0;">📍</div>
+                    <div style="flex: 1; overflow: hidden;">
+                        <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">Adres / Şehir</div>
+                        <div style="font-size: 12px; font-weight: 600; color: #f1f5f9; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${v.address}</div>
+                    </div>
+                </div>
+            `;
+        }
+        detailsListHTML += '</div>';
+
+        container.innerHTML = `
+            <div style="background: rgba(21, 25, 34, 0.95); border: 1px solid rgba(255,255,255,0.12); border-radius: 24px; padding: 24px 16px; text-align: center; backdrop-filter: blur(16px); box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
+                ${avatarHTML}
+                <div style="font-size: 18px; font-weight: 800; color: #ffffff;">${fullName}</div>
+                <div style="font-size: 12px; color: #818cf8; margin-top: 2px; font-weight: 600;">${v.title || 'Unvan'}</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px; font-weight: 500;">${v.company || 'Şirket Adı'}</div>
+                ${v.bio ? `<div style="font-size: 11px; color: #cbd5e1; margin-top: 10px; line-height: 1.4; padding: 8px 10px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); text-align: left;">📝 ${v.bio}</div>` : ''}
+
+                <a href="#" onclick="event.preventDefault()" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; border-radius: 14px; font-size: 13px; font-weight: 800; color: #ffffff; text-decoration: none; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); margin: 16px 0; transition: all 0.2s ease;">
+                    👤 Rehbere Kaydet (.vcf)
+                </a>
+
+                ${quickActionsHTML}
+                ${detailsListHTML}
+
+                ${v.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 12px; font-weight: 700; background: rgba(245,158,11,0.1); padding: 6px; border-radius: 8px;">⚡ Doğrudan .vcf İndirme Aktif</div>' : ''}
             </div>
         `;
     } else if (payload.type === "menu") {

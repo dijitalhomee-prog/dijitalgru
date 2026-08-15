@@ -3,50 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ vcard.full_name }} — Dijital Kartvizit</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>{{ vcard.full_name or 'Dijital Kartvizit' }} — Dijitalgru QR Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: #0b0e14; color: #ffffff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .card-container { width: 100%; max-width: 420px; background: rgba(21, 25, 34, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; backdrop-filter: blur(20px); padding: 32px 24px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); }
-        .avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #6366f1; object-fit: cover; margin: 0 auto 16px auto; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
-        .name { font-size: 22px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
-        .title { font-size: 14px; font-weight: 500; color: #a5b4fc; margin-bottom: 12px; }
-        .company { font-size: 13px; color: #94a3b8; margin-bottom: 20px; }
-        .bio { font-size: 14px; color: #cbd5e1; line-height: 1.5; margin-bottom: 24px; padding: 0 10px; }
-        .actions { display: flex; flex-direction: column; gap: 12px; }
-        .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; }
-        .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
-        .btn-secondary { background: rgba(255, 255, 255, 0.05); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        body { background: #0b0e14; color: #ffffff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px 14px; }
+        .card-container { width: 100%; max-width: 420px; background: rgba(21, 25, 34, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 28px; backdrop-filter: blur(24px); padding: 32px 24px; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6); }
+        .avatar-img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #6366f1; object-fit: cover; margin: 0 auto 16px auto; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); display: block; }
+        .initials-avatar { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #4f46e5); border: 3px solid rgba(255,255,255,0.2); margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; color: #ffffff; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); }
+        .name { font-size: 22px; font-weight: 800; color: #ffffff; margin-bottom: 4px; }
+        .title { font-size: 14px; font-weight: 600; color: #818cf8; margin-bottom: 4px; }
+        .company { font-size: 13px; color: #94a3b8; margin-bottom: 16px; font-weight: 500; }
+        .bio { font-size: 13px; color: #cbd5e1; line-height: 1.5; margin-bottom: 24px; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 14px; border: 1px solid rgba(255,255,255,0.06); text-align: left; }
+        
+        /* Quick Action Bar */
+        .quick-actions { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px; }
+        .qa-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 700; transition: all 0.2s ease; }
+        .qa-btn:hover { background: rgba(99, 102, 241, 0.2); border-color: #6366f1; transform: translateY(-2px); }
+        .qa-icon { font-size: 18px; }
+
+        /* Save Contact Button */
+        .btn-save-vcf { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; border-radius: 16px; font-size: 15px; font-weight: 800; color: #ffffff; text-decoration: none; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); margin-bottom: 24px; transition: all 0.3s ease; }
+        .btn-save-vcf:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        /* Detail Cards List */
+        .details-list { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+        .detail-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; text-decoration: none; color: #ffffff; transition: all 0.2s ease; }
+        .detail-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+        .detail-icon { font-size: 18px; width: 32px; height: 32px; background: rgba(99, 102, 241, 0.15); color: #818cf8; border-radius: 10px; display: flex; align-items: center; justify-content: center; shrink: 0; }
+        .detail-content { flex: 1; overflow: hidden; }
+        .detail-label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .detail-val { font-size: 13px; font-weight: 600; color: #f1f5f9; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+
         .footer { margin-top: 28px; font-size: 11px; color: #64748b; }
-        .footer a { color: #818cf8; text-decoration: none; }
+        .footer a { color: #818cf8; text-decoration: none; font-weight: 700; }
     </style>
 </head>
 <body>
     <div class="card-container">
-        <img src="{{ vcard.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80' }}" alt="Avatar" class="avatar">
-        <h1 class="name">{{ vcard.full_name }}</h1>
-        <div class="title">{{ vcard.title }}</div>
-        <div class="company">{{ vcard.company }}</div>
-        <p class="bio">{{ vcard.bio }}</p>
+        <!-- Avatar -->
+        {% if vcard.avatar_url %}
+        <img src="{{ vcard.avatar_url }}" alt="{{ vcard.full_name }}" class="avatar-img">
+        {% else %}
+        <div class="initials-avatar">
+            {{ (vcard.full_name.strip()[0] if vcard.full_name else 'A') | upper }}
+        </div>
+        {% endif %}
 
-        <div class="actions">
-            <a href="/p/vcard/{{ vcard.qr_id }}.vcf" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981, #059669); margin-bottom: 6px;">👤 Rehbere Kaydet (.vcf)</a>
+        <!-- Header Info -->
+        <h1 class="name">{{ vcard.full_name or 'Ad Soyad' }}</h1>
+        <div class="title">{{ vcard.title or 'Unvan' }}</div>
+        <div class="company">{{ vcard.company or 'Şirket Adı' }}</div>
+
+        {% if vcard.bio %}
+        <p class="bio">📝 {{ vcard.bio }}</p>
+        {% endif %}
+
+        <!-- Primary Action Button: Save to Contacts -->
+        <a href="/p/vcard/{{ vcard.qr_id }}.vcf" class="btn-save-vcf">
+            👤 Rehbere Kaydet (.vcf)
+        </a>
+
+        <!-- Quick Action Buttons Bar -->
+        <div class="quick-actions">
             {% if vcard.phone %}
-            <a href="tel:{{ vcard.phone }}" class="btn btn-primary">📞 Cep Ara ({{ vcard.phone }})</a>
-            {% endif %}
-            {% if vcard.phone2 %}
-            <a href="tel:{{ vcard.phone2 }}" class="btn btn-primary" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">📞 İş Ara ({{ vcard.phone2 }})</a>
+            <a href="tel:{{ vcard.phone }}" class="qa-btn">
+                <span class="qa-icon">📞</span>
+                <span>Arama</span>
+            </a>
+            <a href="https://wa.me/{{ vcard.phone|replace(' ', '')|replace('+', '')|replace('-', '') }}" target="_blank" class="qa-btn">
+                <span class="qa-icon">💬</span>
+                <span>WhatsApp</span>
+            </a>
             {% endif %}
             {% if vcard.email %}
-            <a href="mailto:{{ vcard.email }}" class="btn btn-secondary">✉️ E-posta Gönder ({{ vcard.email }})</a>
+            <a href="mailto:{{ vcard.email }}" class="qa-btn">
+                <span class="qa-icon">✉️</span>
+                <span>E-posta</span>
+            </a>
             {% endif %}
             {% if vcard.website %}
-            <a href="{{ vcard.website }}" target="_blank" class="btn btn-secondary">🌐 Web Sitesi</a>
+            <a href="{{ vcard.website }}" target="_blank" class="qa-btn">
+                <span class="qa-icon">🌐</span>
+                <span>Web Site</span>
+            </a>
             {% endif %}
+        </div>
+
+        <!-- Detailed Information List Cards -->
+        <div class="details-list">
+            {% if vcard.phone %}
+            <a href="tel:{{ vcard.phone }}" class="detail-item">
+                <div class="detail-icon">📱</div>
+                <div class="detail-content">
+                    <div class="detail-label">Cep Telefonu</div>
+                    <div class="detail-val">{{ vcard.phone }}</div>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if vcard.phone2 %}
+            <a href="tel:{{ vcard.phone2 }}" class="detail-item">
+                <div class="detail-icon">🏢</div>
+                <div class="detail-content">
+                    <div class="detail-label">İş Telefonu</div>
+                    <div class="detail-val">{{ vcard.phone2 }}</div>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if vcard.email %}
+            <a href="mailto:{{ vcard.email }}" class="detail-item">
+                <div class="detail-icon">✉️</div>
+                <div class="detail-content">
+                    <div class="detail-label">E-posta Adresi</div>
+                    <div class="detail-val">{{ vcard.email }}</div>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if vcard.website %}
+            <a href="{{ vcard.website }}" target="_blank" class="detail-item">
+                <div class="detail-icon">🌐</div>
+                <div class="detail-content">
+                    <div class="detail-label">Web Sitesi</div>
+                    <div class="detail-val">{{ vcard.website }}</div>
+                </div>
+            </a>
+            {% endif %}
+
             {% if vcard.address %}
-            <a href="https://maps.google.com/?q={{ vcard.address }}" target="_blank" class="btn btn-secondary">📍 Yol Tarifi Al</a>
+            <a href="https://maps.google.com/?q={{ vcard.address }}" target="_blank" class="detail-item">
+                <div class="detail-icon">📍</div>
+                <div class="detail-content">
+                    <div class="detail-label">Adres / Şehir</div>
+                    <div class="detail-val">{{ vcard.address }}</div>
+                </div>
+            </a>
             {% endif %}
         </div>
 
