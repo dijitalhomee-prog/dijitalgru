@@ -469,6 +469,188 @@ function getVal(id, defaultVal = "") {
 }
 
 let uploadedVcardAvatarUrl = "";
+let cropRawImage = null;
+let cropCanvas = null;
+let cropCtx = null;
+let cropScale = 1.0;
+let cropOffsetX = 0;
+let cropOffsetY = 0;
+let isDraggingCrop = false;
+let startDragX = 0;
+let startDragY = 0;
+
+function openAvatarCropModal(fileOrSrc) {
+    cropCanvas = document.getElementById("avatar-crop-canvas");
+    if (!cropCanvas) return;
+    cropCtx = cropCanvas.getContext("2d");
+
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = function() {
+        cropRawImage = img;
+        cropScale = 1.0;
+        cropOffsetX = 0;
+        cropOffsetY = 0;
+        
+        const slider = document.getElementById("crop-zoom-slider");
+        if (slider) slider.value = 1.0;
+        const label = document.getElementById("crop-zoom-label");
+        if (label) label.innerText = "1.0x";
+
+        drawCropCanvas();
+        openModal("avatar-crop-modal");
+    };
+
+    let targetSrc = fileOrSrc;
+    if (!targetSrc || typeof targetSrc !== "string") {
+        targetSrc = uploadedVcardAvatarUrl || getVal("vcard-avatar-url", "");
+    }
+    if (targetSrc) img.src = targetSrc;
+}
+
+function drawCropCanvas() {
+    if (!cropRawImage || !cropCtx) return;
+
+    const cw = cropCanvas.width; // 260
+    const ch = cropCanvas.height; // 260
+    cropCtx.clearRect(0, 0, cw, ch);
+
+    // Calculate aspect fill dimensions
+    const imgAspect = cropRawImage.width / cropRawImage.height;
+    let baseW = cw;
+    let baseH = ch;
+
+    if (imgAspect > 1) {
+        baseH = cw / imgAspect;
+    } else {
+        baseW = ch * imgAspect;
+    }
+
+    const renderW = baseW * cropScale;
+    const renderH = baseH * cropScale;
+
+    const centerX = (cw - renderW) / 2 + cropOffsetX;
+    const centerY = (ch - renderH) / 2 + cropOffsetY;
+
+    cropCtx.drawImage(cropRawImage, centerX, centerY, renderW, renderH);
+}
+
+function updateCropCanvasZoom(val) {
+    cropScale = parseFloat(val);
+    const label = document.getElementById("crop-zoom-label");
+    if (label) label.innerText = `${cropScale.toFixed(1)}x`;
+    drawCropCanvas();
+}
+
+function initCropCanvasEvents() {
+    const wrapper = document.getElementById("crop-canvas-wrapper");
+    if (!wrapper) return;
+
+    const startDrag = (e) => {
+        isDraggingCrop = true;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        startDragX = clientX - cropOffsetX;
+        startDragY = clientY - cropOffsetY;
+    };
+
+    const doDrag = (e) => {
+        if (!isDraggingCrop) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        cropOffsetX = clientX - startDragX;
+        cropOffsetY = clientY - startDragY;
+        drawCropCanvas();
+    };
+
+    const stopDrag = () => {
+        isDraggingCrop = false;
+    };
+
+    wrapper.addEventListener("mousedown", startDrag);
+    window.addEventListener("mousemove", doDrag);
+    window.addEventListener("mouseup", stopDrag);
+
+    wrapper.addEventListener("touchstart", startDrag, { passive: true });
+    window.addEventListener("touchmove", doDrag, { passive: true });
+    window.addEventListener("touchend", stopDrag);
+}
+
+async function applyAvatarCrop() {
+    if (!cropCanvas || !cropRawImage) return;
+    
+    // Render high-res 300x300 cropped PNG
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = 300;
+    exportCanvas.height = 300;
+    const expCtx = exportCanvas.getContext("2d");
+
+    // Clip to circle
+    expCtx.beginPath();
+    expCtx.arc(150, 150, 150, 0, Math.PI * 2);
+    expCtx.clip();
+
+    // Draw scaled/offset image
+    const cw = 300;
+    const ch = 300;
+    const imgAspect = cropRawImage.width / cropRawImage.height;
+    let baseW = cw;
+    let baseH = ch;
+
+    if (imgAspect > 1) {
+        baseH = cw / imgAspect;
+    } else {
+        baseW = ch * imgAspect;
+    }
+
+    const scaleFactor = 300 / 260;
+    const renderW = baseW * cropScale;
+    const renderH = baseH * cropScale;
+    const centerX = (cw - renderW) / 2 + (cropOffsetX * scaleFactor);
+    const centerY = (ch - renderH) / 2 + (cropOffsetY * scaleFactor);
+
+    expCtx.drawImage(cropRawImage, centerX, centerY, renderW, renderH);
+
+    const croppedDataUrl = exportCanvas.toDataURL("image/png");
+    uploadedVcardAvatarUrl = croppedDataUrl;
+
+    const hiddenInput = document.getElementById("vcard-avatar-url");
+    if (hiddenInput) hiddenInput.value = croppedDataUrl;
+
+    const cropBtn = document.getElementById("vcard-avatar-crop-btn");
+    const removeBtn = document.getElementById("vcard-avatar-remove-btn");
+    if (cropBtn) cropBtn.style.display = "inline-block";
+    if (removeBtn) removeBtn.style.display = "inline-block";
+
+    updateLivePreview();
+    closeModal("avatar-crop-modal");
+
+    // Upload cropped blob to cloud API backend
+    try {
+        exportCanvas.toBlob(async (blob) => {
+            if (!blob) return;
+            const formData = new FormData();
+            formData.append("avatar_file", blob, "cropped_avatar.png");
+            const token = localStorage.getItem("jwt_token");
+            const headers = {};
+            if (token) headers["Authorization"] = `Bearer ${token}`;
+
+            const res = await fetch("/api/upload/avatar", {
+                method: "POST",
+                headers: headers,
+                body: formData
+            });
+            const data = await res.json();
+            if (data.status === "success" && data.avatar_url) {
+                uploadedVcardAvatarUrl = data.avatar_url;
+                if (hiddenInput) hiddenInput.value = data.avatar_url;
+                updateLivePreview();
+            }
+        }, "image/png");
+    } catch (err) {
+        console.error("Cloud crop upload error:", err);
+    }
+}
 
 async function handleVcardAvatarUpload(input) {
     if (!input.files || !input.files[0]) return;
@@ -476,21 +658,26 @@ async function handleVcardAvatarUpload(input) {
     const file = input.files[0];
     const statusText = document.getElementById("vcard-avatar-status");
     const btnText = document.getElementById("vcard-avatar-btn-text");
+    const cropBtn = document.getElementById("vcard-avatar-crop-btn");
     const removeBtn = document.getElementById("vcard-avatar-remove-btn");
     const hiddenInput = document.getElementById("vcard-avatar-url");
 
     if (statusText) {
-        statusText.innerText = "⏳ Fotoğraf yükleniyor...";
+        statusText.innerText = "⏳ Fotoğraf işleniyor...";
         statusText.style.color = "#f59e0b";
     }
 
-    // 1. Immediate Base64 local preview so user sees instant live update
+    // 1. Immediate Base64 local preview
     const reader = new FileReader();
     reader.onload = function(e) {
         uploadedVcardAvatarUrl = e.target.result;
         if (hiddenInput) hiddenInput.value = uploadedVcardAvatarUrl;
+        if (btnText) btnText.innerText = `✓ ${file.name.substring(0, 14)}`;
+        if (cropBtn) cropBtn.style.display = "inline-block";
         if (removeBtn) removeBtn.style.display = "inline-block";
-        if (btnText) btnText.innerText = `✓ ${file.name.substring(0, 16)}`;
+        
+        // Auto open crop modal for positioning & zoom adjustment
+        openAvatarCropModal(e.target.result);
         updateLivePreview();
     };
     reader.readAsDataURL(file);
@@ -512,10 +699,12 @@ async function handleVcardAvatarUpload(input) {
 
         const data = await res.json();
         if (data.status === "success" && data.avatar_url) {
-            uploadedVcardAvatarUrl = data.avatar_url;
-            if (hiddenInput) hiddenInput.value = uploadedVcardAvatarUrl;
+            if (!hiddenInput.value.startsWith("data:image")) {
+                uploadedVcardAvatarUrl = data.avatar_url;
+                if (hiddenInput) hiddenInput.value = uploadedVcardAvatarUrl;
+            }
             if (statusText) {
-                statusText.innerText = "✅ Fotoğraf başarıyla sisteme yüklendi.";
+                statusText.innerText = "✅ Fotoğraf hazır. (Dilerseniz 'Konumlandır & Kırp' butonu ile sürükleyip zoom yapabilirsiniz)";
                 statusText.style.color = "#34d399";
             }
             updateLivePreview();
@@ -532,12 +721,14 @@ function removeVcardAvatar() {
     const hiddenInput = document.getElementById("vcard-avatar-url");
     const fileInput = document.getElementById("vcard-avatar-file");
     const btnText = document.getElementById("vcard-avatar-btn-text");
+    const cropBtn = document.getElementById("vcard-avatar-crop-btn");
     const removeBtn = document.getElementById("vcard-avatar-remove-btn");
     const statusText = document.getElementById("vcard-avatar-status");
 
     if (hiddenInput) hiddenInput.value = "";
     if (fileInput) fileInput.value = "";
     if (btnText) btnText.innerText = "Profil Fotoğrafı Seç / Yükle";
+    if (cropBtn) cropBtn.style.display = "none";
     if (removeBtn) removeBtn.style.display = "none";
     if (statusText) {
         statusText.innerText = "Fotoğraf kaldırıldı. Baş harf ikonu varsayılan olarak gösterilecek.";
@@ -1287,8 +1478,9 @@ function toggleMobileMenu() {
     }
 }
 
-// Auto close mobile drawer on tab navigation
+// Auto close mobile drawer on tab navigation & init crop events
 document.addEventListener("DOMContentLoaded", () => {
+    initCropCanvasEvents();
     const navLinks = document.querySelectorAll(".nav-link, #nav-auth-btn");
     navLinks.forEach(link => {
         link.addEventListener("click", () => {

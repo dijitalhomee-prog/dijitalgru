@@ -214,6 +214,9 @@
                                     <span id="vcard-avatar-btn-text">Profil Fotoğrafı Seç / Yükle</span>
                                 </label>
                                 <input type="file" id="vcard-avatar-file" accept="image/*" style="display: none;" onchange="handleVcardAvatarUpload(this)">
+                                <button type="button" id="vcard-avatar-crop-btn" onclick="openAvatarCropModal()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; font-weight: 700;">
+                                    ⚙️ Konumlandır & Kırp
+                                </button>
                                 <button type="button" id="vcard-avatar-remove-btn" onclick="removeVcardAvatar()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; font-weight: 700;">
                                     🗑️ Görseli Kaldır
                                 </button>
@@ -1052,6 +1055,38 @@
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">Bilgileri Kaydet ve Ödemeye Geç</button>
             </form>
+        </div>
+    </div>
+
+    <!-- AVATAR CROP MODAL -->
+    <div class="modal-overlay" id="avatar-crop-modal" style="display: none;">
+        <div class="modal-content" style="max-width: 380px; text-align: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 16px; font-weight: 700; color: #ffffff;">📷 Profil Fotoğrafını Konumlandır & Kırp</h3>
+                <button onclick="closeModal('avatar-crop-modal')" style="background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Görseli dairesel çerçeve içinde sürükleyerek kaydırın, zoom barı ile yakınlaştırın.</p>
+
+            <!-- Crop Canvas Container -->
+            <div style="position: relative; width: 260px; height: 260px; margin: 0 auto 16px auto; border-radius: 50%; overflow: hidden; border: 3px solid #6366f1; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); cursor: move; touch-action: none; background: #0f172a;" id="crop-canvas-wrapper">
+                <canvas id="avatar-crop-canvas" width="260" height="260" style="width: 100%; height: 100%; display: block;"></canvas>
+            </div>
+
+            <!-- Zoom Slider Control -->
+            <div style="margin-bottom: 20px; background: rgba(255,255,255,0.04); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; font-weight: 600;">
+                    <span>🔍 Yakınlaştırma (Zoom)</span>
+                    <span id="crop-zoom-label">1.0x</span>
+                </div>
+                <input type="range" id="crop-zoom-slider" min="1" max="3" step="0.05" value="1" style="width: 100%; cursor: pointer;" oninput="updateCropCanvasZoom(this.value)">
+            </div>
+
+            <!-- Modal Actions -->
+            <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn-secondary" style="flex: 1; justify-content: center; padding: 12px; font-size: 13px;" onclick="closeModal('avatar-crop-modal')">İptal</button>
+                <button type="button" class="btn-primary" style="flex: 2; justify-content: center; padding: 12px; font-size: 13px; background: linear-gradient(135deg, #10b981, #059669);" onclick="applyAvatarCrop()">✓ Konumlandırmayı Uygula</button>
+            </div>
         </div>
     </div>
 
