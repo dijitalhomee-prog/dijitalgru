@@ -161,9 +161,22 @@
                 <!-- Generator Controls Left -->
                 <div class="glass-card">
                     <!-- General Settings -->
-                    <div class="form-group">
-                        <label class="form-label">QR Kod Başlığı (Referansınız İçin)</label>
-                        <input type="text" id="qr-title" class="form-input" placeholder="Örn: Benim QR Kodum">
+                    <div class="responsive-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">QR Kod Başlığı (Referansınız İçin)</label>
+                            <input type="text" id="qr-title" class="form-input" placeholder="Örn: Benim QR Kodum">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Klasör Seçin</label>
+                            <select id="qr-folder" class="form-select" onchange="toggleCustomFolderInput(this.value)">
+                                <option value="Genel" selected>📁 Genel</option>
+                                <option value="Restoran Menüleri">📁 Restoran Menüleri</option>
+                                <option value="Kartvizitler">📁 Kartvizitler</option>
+                                <option value="Etkinlikler">📁 Etkinlikler</option>
+                                <option value="__new__">➕ Yeni Klasör Oluştur...</option>
+                            </select>
+                            <input type="text" id="custom-folder-input" class="form-input" placeholder="Yeni klasör adını yazın..." style="display: none; margin-top: 8px;">
+                        </div>
                     </div>
 
                     <!-- Type 1: URL -->

@@ -400,10 +400,12 @@ def api_qr_create():
         conn.close()
         return jsonify({"error": f"Paketinizin dinamik QR oluşturma limitine ({user['dynamic_qr_limit']}) ulaştınız. Lütfen paketinizi yükseltin!"}), 403
         
+    folder_name = (data.get("folder_name") or "Genel").strip() or "Genel"
+
     cursor.execute("""
-    INSERT INTO qr_codes (user_id, short_code, title, type, target_url, is_dynamic, custom_settings, status, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, 1, ?, 'active', ?, ?)
-    """, (user["id"], short_code, title, qr_type, target_url, json.dumps(settings), now, now))
+    INSERT INTO qr_codes (user_id, short_code, title, type, target_url, is_dynamic, custom_settings, status, folder_name, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, 1, ?, 'active', ?, ?, ?)
+    """, (user["id"], short_code, title, qr_type, target_url, json.dumps(settings), folder_name, now, now))
     
     qr_id = cursor.lastrowid
     

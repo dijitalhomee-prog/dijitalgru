@@ -577,6 +577,61 @@ let allQRCodes = [];
 let currentStatusFilter = "all";
 let currentFolderFilter = "all";
 
+function toggleCustomFolderInput(val) {
+    const input = document.getElementById("custom-folder-input");
+    if (input) {
+        input.style.display = val === "__new__" ? "block" : "none";
+        if (val === "__new__") input.focus();
+    }
+}
+
+function getSelectedFolderName() {
+    const selectEl = document.getElementById("qr-folder");
+    if (!selectEl) return "Genel";
+    if (selectEl.value === "__new__") {
+        const customInput = document.getElementById("custom-folder-input");
+        return (customInput && customInput.value.trim()) ? customInput.value.trim() : "Genel";
+    }
+    return selectEl.value || "Genel";
+}
+
+function getCardFolderSelectOptionsHTML(currentFolder, codes) {
+    const defaultFolders = ["Genel", "Restoran Menüleri", "Kartvizitler", "Etkinlikler"];
+    const existingFolders = new Set(defaultFolders);
+    if (currentFolder) existingFolders.add(currentFolder);
+    (codes || []).forEach(qr => {
+        if (qr.folder_name) existingFolders.add(qr.folder_name);
+    });
+
+    let html = "";
+    Array.from(existingFolders).forEach(f => {
+        html += `<option value="${f}" ${f === currentFolder ? 'selected' : ''}>📁 ${f}</option>`;
+    });
+    html += `<option value="__new__">➕ Yeni Klasör...</option>`;
+    return html;
+}
+
+function populateFolderFilterSelect(codes) {
+    const selectEl = document.getElementById("folder-filter-select");
+    if (!selectEl) return;
+
+    const defaultFolders = ["Genel", "Restoran Menüleri", "Kartvizitler", "Etkinlikler"];
+    const existingFolders = new Set(defaultFolders);
+    (codes || []).forEach(qr => {
+        if (qr.folder_name) existingFolders.add(qr.folder_name);
+    });
+
+    const allFoldersList = Array.from(existingFolders);
+
+    let optionsHTML = `<option value="all" ${currentFolderFilter === 'all' ? 'selected' : ''}>Tüm Klasörler (${(codes || []).length})</option>`;
+    allFoldersList.forEach(folder => {
+        const folderCount = (codes || []).filter(qr => (qr.folder_name || "Genel") === folder).length;
+        optionsHTML += `<option value="${folder}" ${currentFolderFilter === folder ? 'selected' : ''}>📁 ${folder} (${folderCount})</option>`;
+    });
+
+    selectEl.innerHTML = optionsHTML;
+}
+
 function filterQRList(type, val) {
     if (type === "status") {
         currentStatusFilter = val;
@@ -596,11 +651,23 @@ function filterQRList(type, val) {
 async function updateQRFolder(qrId, folderName) {
     const token = localStorage.getItem("jwt_token");
     if (!token) return;
+
+    let targetFolder = folderName;
+    if (folderName === "__new__") {
+        const customName = prompt("Lütfen yeni klasör adını girin:");
+        if (!customName || !customName.trim()) {
+            loadDashboardData();
+            return;
+        }
+        targetFolder = customName.trim();
+        currentFolderFilter = targetFolder;
+    }
+
     try {
         await fetch(`/api/qr/${qrId}/update_folder`, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-            body: JSON.stringify({ folder_name: folderName })
+            body: JSON.stringify({ folder_name: targetFolder })
         });
         loadDashboardData();
     } catch (err) {
@@ -701,6 +768,9 @@ function renderQRList(codes) {
     const container = document.getElementById("qr-list-container");
     if (!codes) codes = [];
 
+    // Dynamically update folder filter dropdown options and counts
+    populateFolderFilterSelect(codes);
+
     // Filter by Status
     let filtered = codes;
     if (currentStatusFilter !== "all") {
@@ -755,8 +825,16 @@ function renderQRList(codes) {
                     </div>
                 </div>
 
-                <!-- Right Side Controls: Status Switch Toggle, Analytics Icon, Delete Icon -->
-                <div style="display: flex; align-items: center; gap: 12px; shrink: 0;">
+                <!-- Right Side Controls: Folder Select, Status Switch Toggle, Analytics Icon, Delete Icon -->
+                <div style="display: flex; align-items: center; gap: 12px; shrink: 0; flex-wrap: wrap;">
+                    <!-- Folder Selection Dropdown -->
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Klasör:</span>
+                        <select onchange="updateQRFolder(${qr.id}, this.value)" style="background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: #ffffff; border-radius: 8px; padding: 4px 8px; font-size: 11px; cursor: pointer; outline: none;">
+                            ${getCardFolderSelectOptionsHTML(qr.folder_name || "Genel", allQRCodes)}
+                        </select>
+                    </div>
+
                     <!-- Status Switch Toggle (Aktif / Pasif) -->
                     <div style="display: flex; align-items: center; gap: 6px;">
                         <span style="font-size: 11px; font-weight: 700; color: ${status === 'active' ? '#10b981' : '#f59e0b'};">
