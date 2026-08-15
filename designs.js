@@ -414,6 +414,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- 7. Initial Execution ---
         renderAllDesigns();
+
+        // --- 8. QR Studio Promo Pop-up Modal Handler ---
+        const qrPromoModal = document.getElementById('qr-promo-modal');
+        const qrPromoOverlay = document.getElementById('qr-promo-overlay');
+        const qrPromoCloseBtn = document.getElementById('qr-promo-close-btn');
+        const qrPromoSkipBtn = document.getElementById('qr-promo-skip-btn');
+        const qrPromoCtaBtn = document.getElementById('qr-promo-cta-btn');
+
+        if (qrPromoModal) {
+            function openQrPromo() {
+                qrPromoModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeQrPromo() {
+                qrPromoModal.classList.remove('active');
+                document.body.style.overflow = '';
+                try {
+                    sessionStorage.setItem('qrdijitalgru_popup_closed', 'true');
+                } catch (e) {
+                    console.warn("Storage not available:", e);
+                }
+            }
+
+            let isClosedInSession = false;
+            try {
+                isClosedInSession = sessionStorage.getItem('qrdijitalgru_popup_closed') === 'true';
+            } catch (e) {}
+
+            if (!isClosedInSession) {
+                setTimeout(() => {
+                    openQrPromo();
+                }, 900);
+            }
+
+            if (qrPromoCloseBtn) qrPromoCloseBtn.addEventListener('click', closeQrPromo);
+            if (qrPromoSkipBtn) qrPromoSkipBtn.addEventListener('click', closeQrPromo);
+            if (qrPromoOverlay) qrPromoOverlay.addEventListener('click', closeQrPromo);
+
+            if (qrPromoCtaBtn) {
+                qrPromoCtaBtn.addEventListener('click', () => {
+                    closeQrPromo();
+                });
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && qrPromoModal.classList.contains('active')) {
+                    closeQrPromo();
+                }
+            });
+        }
     }).catch(err => {
         console.error("Failed to load portfolio data:", err);
         // Fallback: reveal scroll elements so the page content is visible even if fetch fails (e.g. on local file:// protocol)
@@ -422,4 +473,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
 

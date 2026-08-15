@@ -196,10 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // - tech: ID 1, 2, 34
                 // - social: ID 8 (Sinopia Mantı), 12 (Pozitif Başarı)
                 // - branding: ID 25 (Pizza Dino), 26 (Letafia)
-                // - print: ID 31 (Vela Ship), 33 (Galleria), 46 (Limoni Hotel Menü)
+                // - print: ID 31 (Vela Ship), 33 (Galleria), 46 (Limoni Hotel Menü), 47 (Bi Nefes Cafe), 48 (Sinopia Mantı Menü)
                 // - social: ID 44 (Nuba İstanbul), 45 (Dolce Far Niente)
                 // - poster: ID 40 (Cahide Palazzo)
-                const curatedIds = [1, 2, 34, 8, 12, 25, 26, 31, 33, 37, 38, 40, 43, 44, 45, 46];
+                const curatedIds = [1, 2, 34, 8, 12, 25, 26, 31, 33, 37, 38, 40, 43, 44, 45, 46, 47, 48];
                 filtered = portfolioData.filter(item => curatedIds.includes(item.id));
             } else {
                 // Show all items of this category
@@ -433,6 +433,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalNextBtn.click();
             }
         });
+
+        // Expose modal opener globally for software showcase badges
+        window.openPortfolioModal = openCaseStudyModal;
+
+        // --- 6.5. About Us Accordion Toggle Engine ---
+        const aboutHeader = document.getElementById('about-accordion-header');
+        const aboutCard = document.getElementById('about-accordion-card');
+        const aboutContent = document.getElementById('about-accordion-content');
+        const aboutToggleLabel = document.querySelector('.about-toggle-label');
+
+        if (aboutHeader && aboutCard && aboutContent) {
+            function toggleAboutAccordion(expand) {
+                const isExpanded = aboutCard.classList.contains('is-open');
+                const shouldExpand = expand !== undefined ? expand : !isExpanded;
+                
+                if (shouldExpand) {
+                    aboutCard.classList.add('is-open');
+                    aboutHeader.setAttribute('aria-expanded', 'true');
+                    if (aboutToggleLabel) aboutToggleLabel.textContent = 'Kapat';
+                    aboutContent.style.maxHeight = aboutContent.scrollHeight + 100 + 'px';
+                } else {
+                    aboutCard.classList.remove('is-open');
+                    aboutHeader.setAttribute('aria-expanded', 'false');
+                    if (aboutToggleLabel) aboutToggleLabel.textContent = 'Detaylı İncele & Ekibimiz';
+                    aboutContent.style.maxHeight = '0px';
+                }
+            }
+
+            aboutHeader.addEventListener('click', () => toggleAboutAccordion());
+            aboutHeader.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleAboutAccordion();
+                }
+            });
+
+            // Auto-open accordion when user clicks navbar links to #about
+            document.querySelectorAll('a[href="#about"]').forEach(link => {
+                link.addEventListener('click', () => {
+                    toggleAboutAccordion(true);
+                });
+            });
+        }
 
         // Initial startup bindings and dynamic portfolio render
         renderHomePortfolio();
@@ -742,6 +785,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+        // --- 14. QR Studio Promo Pop-up Modal Handler ---
+        const qrPromoModal = document.getElementById('qr-promo-modal');
+        const qrPromoOverlay = document.getElementById('qr-promo-overlay');
+        const qrPromoCloseBtn = document.getElementById('qr-promo-close-btn');
+        const qrPromoSkipBtn = document.getElementById('qr-promo-skip-btn');
+        const qrPromoCtaBtn = document.getElementById('qr-promo-cta-btn');
+
+        if (qrPromoModal) {
+            function openQrPromo() {
+                qrPromoModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeQrPromo() {
+                qrPromoModal.classList.remove('active');
+                document.body.style.overflow = '';
+                try {
+                    sessionStorage.setItem('qrdijitalgru_popup_closed', 'true');
+                } catch (e) {
+                    console.warn("Storage not available:", e);
+                }
+            }
+
+            // Show popup smoothly after 900ms if not closed in current session
+            let isClosedInSession = false;
+            try {
+                isClosedInSession = sessionStorage.getItem('qrdijitalgru_popup_closed') === 'true';
+            } catch (e) {}
+
+            if (!isClosedInSession) {
+                setTimeout(() => {
+                    openQrPromo();
+                }, 900);
+            }
+
+            if (qrPromoCloseBtn) qrPromoCloseBtn.addEventListener('click', closeQrPromo);
+            if (qrPromoSkipBtn) qrPromoSkipBtn.addEventListener('click', closeQrPromo);
+            if (qrPromoOverlay) qrPromoOverlay.addEventListener('click', closeQrPromo);
+
+            if (qrPromoCtaBtn) {
+                qrPromoCtaBtn.addEventListener('click', () => {
+                    closeQrPromo();
+                });
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && qrPromoModal.classList.contains('active')) {
+                    closeQrPromo();
+                }
+            });
+        }
     }).catch(err => {
         console.error("Failed to load portfolio or blog data:", err);
         // Fallback: reveal scroll elements so the page content is visible even if fetch fails (e.g. on local file:// protocol)
@@ -750,4 +844,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
 
