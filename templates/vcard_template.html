@@ -61,9 +61,13 @@
         {% endif %}
 
         <!-- Primary Action Button: Save to Contacts -->
-        <a href="/p/vcard/{{ vcard.qr_id }}.vcf" class="btn-save-vcf">
+        <a href="/p/vcard/{{ vcard.qr_id }}.vcf" download="{{ vcard.full_name or 'kisi' }}.vcf" id="vcard-download-btn" class="btn-save-vcf" onclick="handleVcfDownload(event, '/p/vcard/{{ vcard.qr_id }}.vcf')" style="position: relative; z-index: 100; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
             👤 Rehbere Kaydet (.vcf)
         </a>
+        <div id="vcf-toast" style="display: none; margin: 10px 0; padding: 10px 14px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; color: #34d399; font-size: 11px; text-align: center; line-height: 1.4;">
+            ✅ <strong>.vcf Kişi Kartı İndiriliyor...</strong><br>
+            <span style="font-size: 10px; color: #cbd5e1;">Cihazınızın üst bildirim alanından veya İndirilenler klasöründen dokunarak telefon rehberinize ekleyebilirsiniz.</span>
+        </div>
 
         <!-- Quick Action Buttons Bar -->
         <div class="quick-actions">
@@ -148,5 +152,14 @@
             Powered by <a href="/" target="_blank">Dijitalgru QR Studio</a>
         </div>
     </div>
+    <script>
+    function handleVcfDownload(e, url) {
+        const toast = document.getElementById('vcf-toast');
+        if (toast) {
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 7000);
+        }
+    }
+    </script>
 </body>
 </html>

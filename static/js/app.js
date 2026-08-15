@@ -247,6 +247,35 @@ function switchPreviewMode(mode) {
         qrBox.style.display = "none";
         renderLandingPageMockup();
     }
+function downloadSimulatorVcard() {
+    const payload = getQRFormPayload();
+    const v = payload.vcard_payload || {};
+    const name = v.full_name || 'Kişi Kartı';
+    const lines = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        `FN;CHARSET=UTF-8:${name}`,
+        `N;CHARSET=UTF-8:${name};;;;`,
+    ];
+    if (v.title) lines.push(`TITLE;CHARSET=UTF-8:${v.title}`);
+    if (v.company) lines.push(`ORG;CHARSET=UTF-8:${v.company}`);
+    if (v.phone) lines.push(`TEL;TYPE=CELL:${v.phone}`);
+    if (v.phone2) lines.push(`TEL;TYPE=WORK:${v.phone2}`);
+    if (v.email) lines.push(`EMAIL;TYPE=INTERNET:${v.email}`);
+    if (v.website) lines.push(`URL:${v.website}`);
+    if (v.address) lines.push(`ADR;CHARSET=UTF-8:;;${v.address};;;;`);
+    if (v.bio) lines.push(`NOTE;CHARSET=UTF-8:${v.bio}`);
+    lines.push("END:VCARD");
+
+    const vcfText = lines.join("\r\n");
+    const blob = new Blob([vcfText], { type: "text/vcard;charset=utf-8" });
+    const link = document.createElement("a");
+    const safeName = name.replace(/\s+/g, '_');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${safeName}.vcf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function renderLandingPageMockup() {
@@ -378,9 +407,9 @@ function renderLandingPageMockup() {
                 <div style="font-size: 11px; color: #94a3b8; margin-top: 2px; font-weight: 500;">${v.company || 'Şirket Adı'}</div>
                 ${v.bio ? `<div style="font-size: 11px; color: #cbd5e1; margin-top: 10px; line-height: 1.4; padding: 8px 10px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); text-align: left;">📝 ${v.bio}</div>` : ''}
 
-                <a href="#" onclick="event.preventDefault()" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; border-radius: 14px; font-size: 13px; font-weight: 800; color: #ffffff; text-decoration: none; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); margin: 16px 0; transition: all 0.2s ease;">
+                <button type="button" onclick="downloadSimulatorVcard()" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; border-radius: 14px; font-size: 13px; font-weight: 800; color: #ffffff; border: none; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); margin: 16px 0; cursor: pointer; transition: all 0.2s ease;">
                     👤 Rehbere Kaydet (.vcf)
-                </a>
+                </button>
 
                 ${quickActionsHTML}
                 ${detailsListHTML}

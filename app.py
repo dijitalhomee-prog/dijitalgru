@@ -183,30 +183,32 @@ def download_vcard(qr_id):
     vcard_lines = [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        f"FN:{name}",
-        f"N:{name};;;;",
+        f"FN;CHARSET=UTF-8:{name}",
+        f"N;CHARSET=UTF-8:{name};;;;",
     ]
     if title:
-        vcard_lines.append(f"TITLE:{title}")
+        vcard_lines.append(f"TITLE;CHARSET=UTF-8:{title}")
     if org:
-        vcard_lines.append(f"ORG:{org}")
+        vcard_lines.append(f"ORG;CHARSET=UTF-8:{org}")
     if phone:
         vcard_lines.append(f"TEL;TYPE=CELL:{phone}")
     if phone2:
         vcard_lines.append(f"TEL;TYPE=WORK:{phone2}")
     if email:
-        vcard_lines.append(f"EMAIL:{email}")
+        vcard_lines.append(f"EMAIL;TYPE=INTERNET:{email}")
     if website:
         vcard_lines.append(f"URL:{website}")
     if address:
-        vcard_lines.append(f"ADR:;;{address};;;;")
+        vcard_lines.append(f"ADR;CHARSET=UTF-8:;;{address};;;;")
     if bio:
-        vcard_lines.append(f"NOTE:{bio}")
+        vcard_lines.append(f"NOTE;CHARSET=UTF-8:{bio}")
     vcard_lines.append("END:VCARD")
     
     vcard_content = "\r\n".join(vcard_lines)
     response = Response(vcard_content, mimetype="text/vcard; charset=utf-8")
-    response.headers["Content-Disposition"] = f'attachment; filename="{name}.vcf"'
+    safe_filename = "".join(c for c in name if c.isalnum() or c in (" ", "_", "-")).strip() or "kisi"
+    response.headers["Content-Disposition"] = f'attachment; filename="{safe_filename}.vcf"'
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
 @app.route("/p/menu/<int:qr_id>")
