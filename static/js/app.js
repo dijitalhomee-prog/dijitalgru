@@ -413,13 +413,29 @@ function renderLandingPageMockup() {
 // Live Preview Updater
 async function updateLivePreview() {
     const payload = getQRFormPayload();
-    let previewText = payload.target_url;
-    if (payload.type === "vcard") {
-        previewText = `BEGIN:VCARD\nVERSION:3.0\nN:${payload.vcard_payload?.full_name || 'Isim'}\nTEL:${payload.vcard_payload?.phone || ''}\nEND:VCARD`;
+    let previewText = "";
+
+    if (payload.type === "url") {
+        previewText = getVal("target-url", "");
+    } else if (payload.type === "vcard") {
+        const v = payload.vcard_payload || {};
+        previewText = `BEGIN:VCARD\nVERSION:3.0\nN:${v.full_name || 'Isim'}\nTEL:${v.phone || ''}\nEMAIL:${v.email || ''}\nEND:VCARD`;
     } else if (payload.type === "menu") {
-        previewText = payload.menu_payload?.pdf_url || "https://dijitalgru.com/menu";
+        previewText = payload.menu_payload?.pdf_url || "https://qrdijitalgru.com/menu";
+    } else if (payload.type === "wifi") {
+        const ssid = getVal("wifi-ssid", "Dijitalgru_Wifi");
+        const pass = getVal("wifi-pass", "12345678");
+        previewText = `WIFI:S:${ssid};T:WPA;P:${pass};;`;
+    } else if (payload.type === "whatsapp") {
+        const phone = getVal("wa-phone", "905300000000");
+        const msg = encodeURIComponent(getVal("wa-msg", "Merhaba, bilgi almak istiyorum."));
+        previewText = `https://wa.me/${phone}?text=${msg}`;
     }
-    if (!previewText) previewText = "https://dijitalgru.com";
+
+    // Representative sample QR fallback when input is empty
+    if (!previewText || previewText.trim() === "") {
+        previewText = "https://qrdijitalgru.com";
+    }
 
     // Update frame label text
     const frameLabel = document.getElementById("preview-frame-text-label");
@@ -437,8 +453,10 @@ async function updateLivePreview() {
             body: JSON.stringify({ text: previewText, settings: payload.settings })
         });
         const data = await res.json();
-        if (data.qr_image) {
-            document.getElementById("preview-qr-img").src = data.qr_image;
+        const imgUrl = data.qr_image || data.image;
+        if (imgUrl) {
+            const previewImgEl = document.getElementById("preview-qr-img");
+            if (previewImgEl) previewImgEl.src = imgUrl;
         }
     } catch (err) {
         console.error("Preview error:", err);

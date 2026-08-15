@@ -283,11 +283,13 @@ def api_me():
 @app.route("/api/qr/preview", methods=["POST"])
 def api_qr_preview():
     data = request.json or {}
-    text = data.get("text", "https://dijitalgru.com")
+    text = data.get("text", "https://qrdijitalgru.com")
+    if not text or not str(text).strip():
+        text = "https://qrdijitalgru.com"
     settings = data.get("settings", {})
     
     b64_img = generate_qr_image(text, settings, format="base64")
-    return jsonify({"image": b64_img})
+    return jsonify({"status": "success", "image": b64_img, "qr_image": b64_img})
 
 @app.route("/static/uploads/pdfs/<filename>")
 def serve_legacy_static_pdf(filename):
