@@ -271,7 +271,12 @@ function renderLandingPageMockup() {
 
         let avatarHTML = `<div style="width: 72px; height: 72px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; margin: 0 auto 12px auto; box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); border: 2px solid rgba(255,255,255,0.2);">${initial}</div>`;
         if (avatarSrc) {
-            avatarHTML = `<img src="${avatarSrc}" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover; margin: 0 auto 12px auto; box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); border: 2px solid #6366f1; display: block;" />`;
+            avatarHTML = `
+                <div style="position: relative; width: 72px; height: 72px; margin: 0 auto 12px auto;">
+                    <img src="${avatarSrc}" onerror="this.style.display='none'; document.getElementById('avatar-fallback-sim').style.display='flex';" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); border: 2px solid #6366f1; display: block;" />
+                    <div id="avatar-fallback-sim" style="display: none; position: absolute; top:0; left:0; width: 72px; height: 72px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); border: 2px solid rgba(255,255,255,0.2);">${initial}</div>
+                </div>
+            `;
         }
 
         // Quick action buttons bar HTML

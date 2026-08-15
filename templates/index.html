@@ -427,7 +427,11 @@
 
                     <!-- Mode 1: QR Image Preview -->
                     <div id="preview-mode-qr-box" class="phone-screen">
-                        <img id="preview-qr-img" class="qr-preview-img" src="{{ initial_qr_image }}" alt="Dijitalgru QR Preview" />
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 12px; opacity: 0.95;">
+                            <div style="width: 24px; height: 24px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #ffffff; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);">G</div>
+                            <span style="font-size: 12px; font-weight: 700; color: #a5b4fc; letter-spacing: 0.5px;">Dijitalgru QR Studio</span>
+                        </div>
+                        <img id="preview-qr-img" class="qr-preview-img" src="{{ initial_qr_image }}" alt="Dijitalgru QR Preview" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%234F46E5%22/></svg>';" />
                         <div id="preview-frame-text-label" style="margin-top: 16px; font-size: 13px; font-weight: 700; color: #a5b4fc;">Beni Tara!</div>
                         <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Anlık Tasarım Önizlemesi</div>
                     </div>

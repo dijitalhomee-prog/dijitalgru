@@ -42,13 +42,14 @@
 <body>
     <div class="card-container">
         <!-- Avatar -->
-        {% if vcard.avatar_url %}
-        <img src="{{ vcard.avatar_url }}" alt="{{ vcard.full_name }}" class="avatar-img">
-        {% else %}
-        <div class="initials-avatar">
-            {{ (vcard.full_name.strip()[0] if vcard.full_name else 'A') | upper }}
+        <div style="position: relative; width: 90px; height: 90px; margin: 0 auto 16px auto;">
+            {% if vcard.avatar_url %}
+            <img src="{{ vcard.avatar_url }}" alt="{{ vcard.full_name }}" class="avatar-img" style="margin:0;" onerror="this.style.display='none'; document.getElementById('vcard-fallback-avatar').style.display='flex';">
+            {% endif %}
+            <div id="vcard-fallback-avatar" class="initials-avatar" style="display: {% if vcard.avatar_url %}none{% else %}flex{% endif %}; position: absolute; top: 0; left: 0; margin: 0;">
+                {{ (vcard.full_name.strip()[0] if vcard.full_name else 'A') | upper }}
+            </div>
         </div>
-        {% endif %}
 
         <!-- Header Info -->
         <h1 class="name">{{ vcard.full_name or 'Ad Soyad' }}</h1>
