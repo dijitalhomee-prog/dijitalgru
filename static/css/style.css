@@ -206,10 +206,12 @@ body {
     grid-template-columns: 1fr 420px;
     gap: 32px;
     margin-top: 30px;
+    align-items: start;
 }
 
 @media (max-width: 960px) {
     .studio-grid { grid-template-columns: 1fr; }
+    .phone-simulator { position: relative !important; top: 0 !important; }
 }
 
 .glass-card {
@@ -291,7 +293,10 @@ body {
     text-align: center;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
     position: sticky;
-    top: 100px;
+    top: 90px;
+    align-self: start;
+    z-index: 10;
+    will-change: transform;
 }
 
 .phone-screen {
