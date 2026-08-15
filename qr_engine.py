@@ -31,10 +31,12 @@ def generate_qr_image(data, settings=None, format="png"):
     frame_style = settings.get("frame_style", "none")
     frame_text = settings.get("frame_text", "Beni Tara!")
     frame_color_hex = settings.get("frame_color", "#4F46E5")
+    frame_text_color_hex = settings.get("frame_text_color", "#FFFFFF")
 
     fill_rgb = hex_to_rgb(fill_hex, (79, 70, 229))
     back_rgb = hex_to_rgb(back_hex, (255, 255, 255))
     frame_rgb = hex_to_rgb(frame_color_hex, (79, 70, 229))
+    frame_text_rgb = hex_to_rgb(frame_text_color_hex, (255, 255, 255))
 
     # SVG Export
     if format.lower() == "svg":
@@ -118,7 +120,7 @@ def generate_qr_image(data, settings=None, format="png"):
         text_h = text_bbox[3] - text_bbox[1]
         text_x = (new_w - text_w) // 2
         text_y = (new_h - bottom_banner_h) + (bottom_banner_h - 15 - text_h) // 2
-        draw.text((text_x, text_y), frame_text, fill=(255, 255, 255), font=font)
+        draw.text((text_x, text_y), frame_text, fill=frame_text_rgb, font=font)
 
         img = framed_img
 

@@ -47,7 +47,8 @@ def index():
         "back_color": "#FFFFFF",
         "frame_style": "card",
         "frame_text": "Beni Tara!",
-        "frame_color": "#4F46E5"
+        "frame_color": "#4F46E5",
+        "frame_text_color": "#FFFFFF"
     }, format="base64")
     return render_template("index.html", initial_qr_image=initial_qr)
 

@@ -59,7 +59,7 @@ function isColorMatch(c1, c2) {
 }
 
 function initColorInputs() {
-    const colorFields = ['fill', 'back', 'frame'];
+    const colorFields = ['fill', 'back', 'frame', 'frame-text'];
     colorFields.forEach(field => {
         const input = document.getElementById(`${field}-color`);
         const circle = document.getElementById(`${field}-preview-circle`);
@@ -311,7 +311,7 @@ async function updateLivePreview() {
     const frameLabel = document.getElementById("preview-frame-text-label");
     if (frameLabel) {
         frameLabel.innerText = payload.settings?.frame_text || "Beni Tara!";
-        frameLabel.style.color = payload.settings?.frame_color || payload.settings?.fill_color || "#a5b4fc";
+        frameLabel.style.color = payload.settings?.frame_text_color || "#a5b4fc";
     }
 
     renderLandingPageMockup();
@@ -343,7 +343,8 @@ function getQRFormPayload() {
         back_color: getVal("back-color", "#FFFFFF"),
         frame_style: getVal("frame-style", "card"),
         frame_text: getVal("frame-text", "Beni Tara!"),
-        frame_color: getVal("frame-color", "#4F46E5")
+        frame_color: getVal("frame-color", "#4F46E5"),
+        frame_text_color: getVal("frame-text-color", "#FFFFFF")
     };
 
     let target_url = "";

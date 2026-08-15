@@ -332,7 +332,7 @@
                         </div>
                     </div>
 
-                    <div class="responsive-grid-3">
+                    <div class="responsive-grid-2" style="margin-top: 12px;">
                         <div class="form-group">
                             <label class="form-label">Çerçeve Stili</label>
                             <select id="frame-style" class="form-select">
@@ -344,6 +344,10 @@
                             <label class="form-label">Çerçeve Yazısı</label>
                             <input type="text" id="frame-text" class="form-input" value="Beni Tara!">
                         </div>
+                    </div>
+
+                    <div class="responsive-grid-2" style="margin-top: 12px;">
+                        <!-- Frame Box/Border Color -->
                         <div class="form-group">
                             <label class="form-label">Çerçeve Rengi</label>
                             <div class="hex-input-group">
@@ -356,6 +360,22 @@
                                 <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('frame', '#10B981', this)"></div>
                                 <div class="color-swatch" style="background: #F43F5E;" onclick="selectPresetColor('frame', '#F43F5E', this)"></div>
                                 <div class="color-swatch" style="background: #F59E0B;" onclick="selectPresetColor('frame', '#F59E0B', this)"></div>
+                            </div>
+                        </div>
+
+                        <!-- Frame Text Color -->
+                        <div class="form-group">
+                            <label class="form-label">Yazı Rengi</label>
+                            <div class="hex-input-group">
+                                <div class="color-preview-circle" id="frame-text-preview-circle" style="background-color: #FFFFFF;"></div>
+                                <input type="text" id="frame-text-color" class="hex-text-input" value="#FFFFFF" maxlength="7">
+                            </div>
+                            <div class="color-palette" style="margin-top: 6px;">
+                                <div class="color-swatch active" style="background: #FFFFFF;" onclick="selectPresetColor('frame-text', '#FFFFFF', this)"></div>
+                                <div class="color-swatch" style="background: #FEF08A;" onclick="selectPresetColor('frame-text', '#FEF08A', this)"></div>
+                                <div class="color-swatch" style="background: #4F46E5;" onclick="selectPresetColor('frame-text', '#4F46E5', this)"></div>
+                                <div class="color-swatch" style="background: #0F172A;" onclick="selectPresetColor('frame-text', '#0F172A', this)"></div>
+                                <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('frame-text', '#10B981', this)"></div>
                             </div>
                         </div>
                     </div>
