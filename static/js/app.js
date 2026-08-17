@@ -177,18 +177,23 @@ function initNavigation() {
             const targetSec = document.getElementById(targetId);
             if (targetSec) targetSec.classList.add("active");
 
-            if (link.classList.contains("nav-link")) link.classList.add("active");
+            const matchingNav = document.querySelector(`.nav-link[data-target="${targetId}"]`);
+            if (matchingNav) matchingNav.classList.add("active");
+
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
     });
 
-    document.getElementById("nav-auth-btn").addEventListener("click", () => {
-        if (currentUser) {
-            logout();
-        } else {
-            openModal("auth-modal");
-        }
-    });
+    const authBtn = document.getElementById("nav-auth-btn");
+    if (authBtn) {
+        authBtn.addEventListener("click", () => {
+            if (currentUser) {
+                logout();
+            } else {
+                openModal("auth-modal");
+            }
+        });
+    }
 }
 
 // Type Selector
@@ -247,6 +252,8 @@ function switchPreviewMode(mode) {
         qrBox.style.display = "none";
         renderLandingPageMockup();
     }
+}
+
 function downloadSimulatorVcard() {
     const payload = getQRFormPayload();
     const v = payload.vcard_payload || {};
