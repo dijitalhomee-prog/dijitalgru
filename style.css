@@ -3930,6 +3930,230 @@ img {
     }
 }
 
+/* ==========================================================================
+   YAZILIM PROJELERİMİZ (SOFTWARE PROJECTS SHOWCASE) STYLES
+   ========================================================================== */
+.software-projects-section {
+    position: relative;
+    z-index: 2;
+}
+
+.software-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.software-project-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 32px;
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(22, 34, 82, 0.6) 0%, rgba(12, 19, 48, 0.8) 100%);
+    border: 1px solid rgba(251, 248, 243, 0.1);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+}
+
+.software-project-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4), 0 0 30px rgba(220, 169, 99, 0.15);
+    border-color: rgba(220, 169, 99, 0.35);
+}
+
+.software-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.software-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.presskit-icon-bg {
+    background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+}
+
+.sinopia-icon-bg {
+    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+}
+
+.qrstudio-icon-bg {
+    background: linear-gradient(135deg, #dca963 0%, #25D366 100%);
+    color: #0c1330;
+}
+
+.whatsapp-icon-bg {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+}
+
+.software-card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.live-badge {
+    background: rgba(37, 211, 102, 0.14);
+    border: 1px solid rgba(37, 211, 102, 0.35);
+    color: #38ef7d;
+}
+
+.enterprise-badge {
+    background: rgba(220, 169, 99, 0.14);
+    border: 1px solid rgba(220, 169, 99, 0.35);
+    color: var(--accent-gold);
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #38ef7d;
+    box-shadow: 0 0 10px #38ef7d;
+    animation: pulseDot 1.8s infinite;
+}
+
+.pulse-dot.green {
+    background: #25D366;
+    box-shadow: 0 0 10px #25D366;
+}
+
+.software-card-cat {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.software-card-title {
+    font-family: var(--font-headings);
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: var(--text-light);
+    margin-bottom: 12px;
+}
+
+.software-card-desc {
+    font-size: 0.93rem;
+    color: var(--text-light-muted);
+    line-height: 1.55;
+    margin-bottom: 20px;
+}
+
+.software-feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.software-feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.86rem;
+    color: var(--text-light);
+}
+
+.software-feature-list li i {
+    color: var(--accent-gold);
+    font-size: 0.8rem;
+}
+
+.software-card-footer {
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.software-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 12px;
+    font-family: var(--font-headings);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: var(--transition-quick);
+}
+
+.presskit-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.25);
+}
+
+.presskit-btn:hover {
+    box-shadow: 0 12px 28px rgba(236, 72, 153, 0.4);
+    transform: translateY(-2px);
+}
+
+.sinopia-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+}
+
+.sinopia-btn:hover {
+    box-shadow: 0 12px 28px rgba(239, 68, 68, 0.4);
+    transform: translateY(-2px);
+}
+
+.qrstudio-btn {
+    background: linear-gradient(135deg, #dca963 0%, #c89550 100%);
+    color: #0c1330;
+    box-shadow: 0 8px 20px rgba(220, 169, 99, 0.3);
+}
+
+.qrstudio-btn:hover {
+    box-shadow: 0 12px 28px rgba(220, 169, 99, 0.5);
+    transform: translateY(-2px);
+}
+
+.whatsapp-btn {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-btn:hover {
+    box-shadow: 0 12px 28px rgba(37, 211, 102, 0.45);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 992px) {
+    .software-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
 
 
 
