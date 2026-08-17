@@ -3642,6 +3642,295 @@ img {
     }
 }
 
+/* ==========================================================================
+   PRESSKIT LIVE PROMO POPUP MODAL STYLES (https://www.presskitlive.com)
+   ========================================================================== */
+.presskit-promo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.presskit-promo-modal.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.presskit-promo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(6, 10, 25, 0.82);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transition: opacity 0.4s ease;
+}
+
+.presskit-promo-card {
+    position: relative;
+    width: 100%;
+    max-width: 530px;
+    background: linear-gradient(145deg, rgba(20, 25, 60, 0.98) 0%, rgba(10, 14, 38, 0.99) 100%);
+    border: 1px solid rgba(236, 72, 153, 0.35);
+    border-radius: 24px;
+    padding: 36px 30px 30px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 50px rgba(236, 72, 153, 0.2);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    z-index: 2;
+}
+
+.presskit-promo-modal.active .presskit-promo-card {
+    transform: scale(1) translateY(0);
+}
+
+.presskit-promo-glow {
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.35) 0%, rgba(99, 102, 241, 0.25) 50%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(35px);
+    pointer-events: none;
+}
+
+.presskit-promo-close-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: var(--text-light-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition-quick);
+    z-index: 10;
+}
+
+.presskit-promo-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-light);
+    transform: rotate(90deg);
+}
+
+.presskit-promo-header {
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+.presskit-promo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 30px;
+    background: rgba(99, 102, 241, 0.18);
+    border: 1px solid rgba(236, 72, 153, 0.4);
+    color: #ec4899;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.presskit-promo-icon-wrapper {
+    position: relative;
+    width: 74px;
+    height: 74px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.presskit-icon-circle {
+    width: 66px;
+    height: 66px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.1rem;
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);
+    z-index: 2;
+}
+
+.presskit-pulse-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    border: 2px solid #ec4899;
+    animation: presskitPulse 2s ease-out infinite;
+}
+
+@keyframes presskitPulse {
+    0% { transform: scale(0.95); opacity: 0.85; }
+    100% { transform: scale(1.35); opacity: 0; }
+}
+
+.presskit-promo-title {
+    font-family: var(--font-headings);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-light);
+    line-height: 1.25;
+    margin-bottom: 10px;
+}
+
+.presskit-promo-title .gradient-text {
+    background: linear-gradient(135deg, #818cf8 0%, #f472b6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.presskit-promo-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-light-muted);
+    line-height: 1.5;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.presskit-features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(10, 14, 38, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 22px;
+}
+
+.presskit-feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.presskit-feature-item i {
+    color: #f472b6;
+    font-size: 1.1rem;
+    margin-top: 2px;
+    background: rgba(236, 72, 153, 0.15);
+    padding: 8px;
+    border-radius: 10px;
+}
+
+.presskit-feature-item strong {
+    display: block;
+    color: var(--text-light);
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.presskit-feature-item span {
+    color: var(--text-light-muted);
+    font-size: 0.82rem;
+}
+
+.presskit-promo-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.presskit-promo-cta-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 15px 24px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+    color: #ffffff;
+    font-family: var(--font-headings);
+    font-weight: 800;
+    font-size: 1.05rem;
+    text-decoration: none;
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);
+    transition: var(--transition-quick);
+}
+
+.presskit-promo-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(236, 72, 153, 0.6);
+    background: linear-gradient(135deg, #4f46e5 0%, #db2777 100%);
+}
+
+.presskit-promo-cta-btn i {
+    transition: transform 0.25s ease;
+}
+
+.presskit-promo-cta-btn:hover i {
+    transform: translateX(4px);
+}
+
+.presskit-promo-skip-btn {
+    background: none;
+    border: none;
+    color: var(--text-light-muted);
+    font-size: 0.85rem;
+    padding: 6px;
+    cursor: pointer;
+    transition: var(--transition-quick);
+}
+
+.presskit-promo-skip-btn:hover {
+    color: var(--text-light);
+    text-decoration: underline;
+}
+
+@media (max-width: 576px) {
+    .presskit-promo-card {
+        padding: 28px 20px 20px;
+        border-radius: 20px;
+    }
+    .presskit-promo-title {
+        font-size: 1.48rem;
+    }
+    .presskit-promo-subtitle {
+        font-size: 0.88rem;
+    }
+    .presskit-promo-cta-btn {
+        font-size: 0.95rem;
+        padding: 13px 18px;
+    }
+}
+
+
 
 
 

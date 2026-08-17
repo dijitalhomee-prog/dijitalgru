@@ -836,6 +836,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+
+        // --- 15. Presskit Live Promo Pop-up Modal Handler (https://www.presskitlive.com) ---
+        const presskitPromoModal = document.getElementById('presskit-promo-modal');
+        const presskitPromoOverlay = document.getElementById('presskit-promo-overlay');
+        const presskitPromoCloseBtn = document.getElementById('presskit-promo-close-btn');
+        const presskitPromoSkipBtn = document.getElementById('presskit-promo-skip-btn');
+        const presskitPromoCtaBtn = document.getElementById('presskit-promo-cta-btn');
+
+        if (presskitPromoModal) {
+            function openPresskitPromo() {
+                presskitPromoModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closePresskitPromo() {
+                presskitPromoModal.classList.remove('active');
+                document.body.style.overflow = '';
+                try {
+                    sessionStorage.setItem('presskitlive_popup_closed', 'true');
+                } catch (e) {
+                    console.warn("Storage not available:", e);
+                }
+            }
+
+            let isClosedInSession = false;
+            try {
+                isClosedInSession = sessionStorage.getItem('presskitlive_popup_closed') === 'true';
+            } catch (e) {}
+
+            if (!isClosedInSession) {
+                setTimeout(() => {
+                    openPresskitPromo();
+                }, 900);
+            }
+
+            if (presskitPromoCloseBtn) presskitPromoCloseBtn.addEventListener('click', closePresskitPromo);
+            if (presskitPromoSkipBtn) presskitPromoSkipBtn.addEventListener('click', closePresskitPromo);
+            if (presskitPromoOverlay) presskitPromoOverlay.addEventListener('click', closePresskitPromo);
+
+            if (presskitPromoCtaBtn) {
+                presskitPromoCtaBtn.addEventListener('click', () => {
+                    closePresskitPromo();
+                });
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && presskitPromoModal.classList.contains('active')) {
+                    closePresskitPromo();
+                }
+            });
+        }
     }).catch(err => {
         console.error("Failed to load portfolio or blog data:", err);
         // Fallback: reveal scroll elements so the page content is visible even if fetch fails (e.g. on local file:// protocol)
@@ -844,5 +895,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
 
 
