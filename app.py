@@ -589,6 +589,20 @@ def api_qr_delete(qr_id):
         
     conn = get_db()
     cursor = conn.cursor()
+    cursor.execute("UPDATE qr_codes SET status = 'deleted' WHERE id = ? AND user_id = ?", (qr_id, user["id"]))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"status": "success", "message": "QR kod arşive kaldırıldı."})
+
+@app.route("/api/qr/<int:qr_id>/permanent_delete", methods=["DELETE", "POST"])
+def api_qr_permanent_delete(qr_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Yetkisiz erişim"}), 401
+        
+    conn = get_db()
+    cursor = conn.cursor()
     cursor.execute("DELETE FROM qr_codes WHERE id = ? AND user_id = ?", (qr_id, user["id"]))
     cursor.execute("DELETE FROM scan_logs WHERE qr_id = ?", (qr_id,))
     cursor.execute("DELETE FROM vcard_pages WHERE qr_id = ?", (qr_id,))
@@ -596,7 +610,21 @@ def api_qr_delete(qr_id):
     conn.commit()
     conn.close()
     
-    return jsonify({"status": "success", "message": "QR kod başarıyla silindi."})
+    return jsonify({"status": "success", "message": "QR kod kalıcı olarak silindi."})
+
+@app.route("/api/qr/<int:qr_id>/restore", methods=["POST"])
+def api_qr_restore(qr_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Yetkisiz erişim"}), 401
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE qr_codes SET status = 'active' WHERE id = ? AND user_id = ?", (qr_id, user["id"]))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"status": "success", "message": "QR kod tekrar aktif edildi."})
     
 @app.route("/api/qr/list", methods=["GET"])
 def api_qr_list():

@@ -837,7 +837,8 @@ function getQRFormPayload() {
         target_url,
         settings,
         vcard_payload,
-        menu_payload
+        menu_payload,
+        folder_name: getSelectedFolderName()
     };
 }
 
@@ -1054,21 +1055,41 @@ function populateFolderFilterSelect(codes) {
     const selectEl = document.getElementById("folder-filter-select");
     if (!selectEl) return;
 
-    const defaultFolders = ["Genel", "Restoran Menüleri", "Kartvizitler", "Etkinlikler"];
-    const existingFolders = new Set(defaultFolders);
+    const folderSet = new Set(["Genel"]);
     (codes || []).forEach(qr => {
-        if (qr.folder_name) existingFolders.add(qr.folder_name);
+        if (qr.folder_name && qr.status !== 'deleted') {
+            folderSet.add(qr.folder_name);
+        }
     });
 
-    const allFoldersList = Array.from(existingFolders);
+    const activeFolderList = Array.from(folderSet);
+    const nonDeletedCount = (codes || []).filter(q => (q.status || 'active') !== 'deleted').length;
 
-    let optionsHTML = `<option value="all" ${currentFolderFilter === 'all' ? 'selected' : ''}>Tüm Klasörler (${(codes || []).length})</option>`;
-    allFoldersList.forEach(folder => {
-        const folderCount = (codes || []).filter(qr => (qr.folder_name || "Genel") === folder).length;
-        optionsHTML += `<option value="${folder}" ${currentFolderFilter === folder ? 'selected' : ''}>📁 ${folder} (${folderCount})</option>`;
+    let optionsHTML = `<option value="all" ${currentFolderFilter === 'all' ? 'selected' : ''}>Tüm Klasörler (${nonDeletedCount})</option>`;
+    activeFolderList.forEach(folder => {
+        const count = (codes || []).filter(qr => (qr.folder_name || "Genel") === folder && (qr.status || 'active') !== 'deleted').length;
+        optionsHTML += `<option value="${folder}" ${currentFolderFilter === folder ? 'selected' : ''}>📁 ${folder} (${count})</option>`;
     });
 
     selectEl.innerHTML = optionsHTML;
+}
+
+function updateFilterCountsAndTabLabels(codes) {
+    if (!codes) codes = [];
+    const countAll = codes.filter(q => (q.status || 'active') !== 'deleted').length;
+    const countActive = codes.filter(q => (q.status || 'active') === 'active').length;
+    const countPassive = codes.filter(q => q.status === 'passive').length;
+    const countDeleted = codes.filter(q => q.status === 'deleted').length;
+
+    const btnAll = document.querySelector('.filter-tab-btn[data-status="all"]');
+    const btnActive = document.querySelector('.filter-tab-btn[data-status="active"]');
+    const btnPassive = document.querySelector('.filter-tab-btn[data-status="passive"]');
+    const btnDeleted = document.querySelector('.filter-tab-btn[data-status="deleted"]');
+
+    if (btnAll) btnAll.innerText = `Tümü (${countAll})`;
+    if (btnActive) btnActive.innerText = `Aktif (${countActive})`;
+    if (btnPassive) btnPassive.innerText = `Pasif (${countPassive})`;
+    if (btnDeleted) btnDeleted.innerText = `Arşiv / Silinmiş (${countDeleted})`;
 }
 
 function filterQRList(type, val) {
@@ -1184,7 +1205,7 @@ async function toggleQRStatus(qrId, isChecked) {
 }
 
 async function deleteQRCode(qrId) {
-    if (!confirm("Bu QR kodu silmek/arşive kaldırmak istediğinize emin misiniz?")) return;
+    if (!confirm("Bu QR kodu arşive kaldırmak istediğinize emin misiniz?")) return;
     const token = localStorage.getItem("jwt_token");
     if (!token) return;
     try {
@@ -1198,6 +1219,35 @@ async function deleteQRCode(qrId) {
     }
 }
 
+async function restoreQRCode(qrId) {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+    try {
+        await fetch(`/api/qr/${qrId}/restore`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        loadDashboardData();
+    } catch (err) {
+        console.error("Restore error:", err);
+    }
+}
+
+async function permanentDeleteQRCode(qrId) {
+    if (!confirm("Bu QR kodu kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz!")) return;
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+    try {
+        await fetch(`/api/qr/${qrId}/permanent_delete`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        loadDashboardData();
+    } catch (err) {
+        console.error("Permanent delete error:", err);
+    }
+}
+
 function openQRAnalytics(qrId, title) {
     alert(` "${title}" Analitik Bilgileri:\nEşsiz Ziyaretçiler ve Tüm Cihaz Taramaları başarıyla kaydedilmiştir.`);
 }
@@ -1207,14 +1257,18 @@ function renderQRList(codes) {
     const container = document.getElementById("qr-list-container");
     if (!codes) codes = [];
 
-    // Dynamically update folder filter dropdown options and counts
+    // Dynamically update tab labels & counts
+    updateFilterCountsAndTabLabels(codes);
     populateFolderFilterSelect(codes);
 
     // Filter by Status
     let filtered = codes;
-    if (currentStatusFilter !== "all") {
+    if (currentStatusFilter === "all") {
+        filtered = filtered.filter(qr => (qr.status || "active") !== "deleted");
+    } else {
         filtered = filtered.filter(qr => (qr.status || "active") === currentStatusFilter);
     }
+
     // Filter by Folder
     if (currentFolderFilter !== "all") {
         filtered = filtered.filter(qr => (qr.folder_name || "Genel") === currentFolderFilter);
@@ -1237,8 +1291,51 @@ function renderQRList(codes) {
         const qrTypeLabel = (qr.type === "url") ? " Website" : ((qr.type === "vcard") ? " vCard" : ((qr.type === "menu") ? " PDF" : ((qr.type === "wifi") ? " Wi-Fi" : " Metin")));
         const isDynamicLabel = qr.is_dynamic ? " Dinamik" : " Statik";
 
+        let controlsHTML = "";
+        if (status === "deleted") {
+            controlsHTML = `
+                <button onclick="restoreQRCode(${qr.id})" title="Geri Yükle" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700;">
+                     Geri Yükle
+                </button>
+                <button onclick="permanentDeleteQRCode(${qr.id})" title="Kalıcı Sil" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700;">
+                     Kalıcı Sil
+                </button>
+            `;
+        } else {
+            controlsHTML = `
+                <!-- Folder Selection Dropdown -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Klasör:</span>
+                    <select onchange="updateQRFolder(${qr.id}, this.value)" style="background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: #ffffff; border-radius: 8px; padding: 4px 8px; font-size: 11px; cursor: pointer; outline: none;">
+                        ${getCardFolderSelectOptionsHTML(qr.folder_name || "Genel", allQRCodes)}
+                    </select>
+                </div>
+
+                <!-- Status Switch Toggle (Aktif / Pasif) -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 11px; font-weight: 700; color: ${status === 'active' ? '#10b981' : '#f59e0b'};">
+                        ${status === 'active' ? 'Aktif' : 'Pasif'}
+                    </span>
+                    <label class="switch" style="width: 40px; height: 22px;">
+                        <input type="checkbox" ${isChecked} onchange="toggleQRStatus(${qr.id}, this.checked)">
+                        <span class="slider" style="border-radius: 20px;"></span>
+                    </label>
+                </div>
+
+                <!-- Analytics Icon Button -->
+                <button onclick="openQRAnalytics(${qr.id}, '${qr.title}')" title="Analizler" style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); color: #06b6d4; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                     Analitik
+                </button>
+
+                <!-- Archive/Delete Icon Button -->
+                <button onclick="deleteQRCode(${qr.id})" title="Arşive Kaldır" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700;">
+                     Arşive Kaldır
+                </button>
+            `;
+        }
+
         return `
-        <div class="glass-card" style="margin-bottom: 16px; padding: 18px 24px; border-radius: 20px; ${status === 'deleted' ? 'opacity: 0.55;' : ''}">
+        <div class="glass-card" style="margin-bottom: 16px; padding: 18px 24px; border-radius: 20px; ${status === 'deleted' ? 'opacity: 0.65; border: 1px dashed rgba(239, 68, 68, 0.4);' : ''}">
             <!-- SINGLE LINE HEADER ROW -->
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
                 
@@ -1255,6 +1352,7 @@ function renderQRList(codes) {
                             <h4 style="font-size: 15px; font-weight: 800; color: #ffffff; margin: 0;">${qr.title}</h4>
                             <span style="font-size: 10px; font-weight: 700; background: rgba(99,102,241,0.15); color: #a5b4fc; padding: 2px 8px; border-radius: 6px;">${isDynamicLabel}</span>
                             <span style="font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.06); color: #e2e8f0; padding: 2px 8px; border-radius: 6px;">${qrTypeLabel}</span>
+                            ${status === 'deleted' ? '<span style="font-size: 10px; font-weight: 700; background: rgba(239,68,68,0.2); color: #ef4444; padding: 2px 8px; border-radius: 6px;">Arşivlenmiş</span>' : ''}
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--text-muted); margin-top: 2px; flex-wrap: wrap;">
                             <span> <strong style="color:#ffffff; font-family:monospace;">${shareUrl}</strong></span>
@@ -1264,36 +1362,9 @@ function renderQRList(codes) {
                     </div>
                 </div>
 
-                <!-- Right Side Controls: Folder Select, Status Switch Toggle, Analytics Icon, Delete Icon -->
+                <!-- Right Side Controls -->
                 <div style="display: flex; align-items: center; gap: 12px; shrink: 0; flex-wrap: wrap;">
-                    <!-- Folder Selection Dropdown -->
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Klasör:</span>
-                        <select onchange="updateQRFolder(${qr.id}, this.value)" style="background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: #ffffff; border-radius: 8px; padding: 4px 8px; font-size: 11px; cursor: pointer; outline: none;">
-                            ${getCardFolderSelectOptionsHTML(qr.folder_name || "Genel", allQRCodes)}
-                        </select>
-                    </div>
-
-                    <!-- Status Switch Toggle (Aktif / Pasif) -->
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 11px; font-weight: 700; color: ${status === 'active' ? '#10b981' : '#f59e0b'};">
-                            ${status === 'active' ? 'Aktif' : 'Pasif'}
-                        </span>
-                        <label class="switch" style="width: 40px; height: 22px;">
-                            <input type="checkbox" ${isChecked} onchange="toggleQRStatus(${qr.id}, this.checked)">
-                            <span class="slider" style="border-radius: 20px;"></span>
-                        </label>
-                    </div>
-
-                    <!-- Analytics Icon Button -->
-                    <button onclick="openQRAnalytics(${qr.id}, '${qr.title}')" title="Analizler" style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); color: #06b6d4; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
-                         Analitik
-                    </button>
-
-                    <!-- Delete Icon Button -->
-                    <button onclick="deleteQRCode(${qr.id})" title="Sil" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700;">
-                         Sil
-                    </button>
+                    ${controlsHTML}
                 </div>
 
             </div>
