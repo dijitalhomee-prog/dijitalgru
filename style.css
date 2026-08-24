@@ -318,28 +318,28 @@ img {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    gap: 20px;
+    gap: 16px;
 }
 
 .logo-link {
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    margin-right: 12px;
+    margin-right: 28px;
 }
 
 /* Custom Vector Recreated Logo Styles */
 .dijitalgru-logo {
     display: block;
-    height: 48px;
+    height: 38px;
     width: auto;
-    max-width: 170px;
+    max-width: 145px;
     object-fit: contain;
     flex-shrink: 0;
 }
 
 .dijitalgru-logo.horizontal {
-    height: 44px;
+    height: 36px;
 }
 
 .logo-text {
@@ -387,14 +387,6 @@ img {
 
 .light-theme .logo-bar {
     fill: var(--bg-cream);
-}
-
-/* Custom Vector Recreated Logo Styles */
-.dijitalgru-logo {
-    display: block;
-    height: 52px;
-    width: auto;
-    flex-shrink: 0;
 }
 
 .desktop-nav {
@@ -2104,23 +2096,26 @@ img {
     }
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1480px) {
     .desktop-nav ul {
         gap: 10px;
     }
     .nav-link {
         font-size: 12.5px;
     }
+    .logo-link {
+        margin-right: 16px;
+    }
     .header-cta {
         gap: 8px;
     }
     .header-cta .btn {
-        padding: 8px 14px;
+        padding: 8px 12px;
         font-size: 12.5px;
     }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1360px) {
     .desktop-nav, .header-cta .btn-call-header {
         display: none;
     }
