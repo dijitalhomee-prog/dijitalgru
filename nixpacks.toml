@@ -1,5 +1,5 @@
-[providers]
-providers = ["node"]
+[phases.setup]
+nixPkgs = ["nodejs"]
 
 [start]
 cmd = "node server.js"
