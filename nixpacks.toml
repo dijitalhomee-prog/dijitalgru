@@ -1,2 +1,5 @@
 [providers]
 providers = ["staticfile"]
+
+[start]
+cmd = "caddy file-server --listen :$PORT"
