@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-W2PQLZM9');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X Markası — Meta Onaylı WhatsApp Gönderim Yazılımı & Sistem Kurulumu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #090c15;
+            --bg-card: rgba(21, 26, 43, 0.7);
+            --bg-card-hover: rgba(30, 38, 61, 0.85);
+            --wa-green: #25D366;
+            --wa-dark-green: #128C7E;
+            --wa-bubble-user: #005c4b;
+            --wa-bubble-bot: #202c33;
+            --accent-gold: #f59e0b;
+            --accent-cyan: #00f2fe;
+            --accent-purple: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --border-wa: rgba(37, 211, 102, 0.3);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --font-head: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            user-select: none;
+        }
+
+        /* Ambient Glow Background */
+        .ambient-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .glow-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.25;
+            animation: pulseGlow 10s ease-in-out infinite alternate;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--wa-green);
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--accent-purple);
+            bottom: -150px;
+            right: -100px;
+        }
+
+        .blob-3 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-cyan);
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.2; }
+            100% { transform: scale(1.1) translate(20px, 30px); opacity: 0.35; }
+        }
+
+        /* Top Header Navigation */
+        .presentation-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 100;
+            background: rgba(9, 12, 21, 0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-logo i {
+            color: var(--wa-green);
+            font-size: 1.6rem;
+        }
+
+        .brand-tag {
+            font-size: 0.75rem;
+            background: rgba(37, 211, 102, 0.15);
+            color: var(--wa-green);
+            border: 1px solid var(--border-wa);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .slide-counter {
+            font-family: var(--font-head);
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .slide-counter span {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-header {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-header:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Slides Container */
+        .slides-wrapper {
+            position: relative;
+            width: 100vw;
+            height: calc(100vh - 140px);
+            margin-top: 70px;
+            z-index: 10;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(30px) scale(0.98);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 40px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Slide Typography & Layouts */
+        .slide-header {
+            margin-bottom: 24px;
+        }
+
+        .slide-subtitle {
+            font-family: var(--font-head);
+            color: var(--wa-green);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slide-title {
+            font-family: var(--font-head);
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-desc {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-top: 8px;
+            max-width: 850px;
+            line-height: 1.55;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 26px;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: rgba(37, 211, 102, 0.1);
+            color: var(--wa-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-wa);
+        }
+
+        .card-title {
+            font-family: var(--font-head);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .card-text {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        /* Hero Slide Specifics */
+        .hero-slide {
+            text-align: center;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 30px;
+            background: rgba(37, 211, 102, 0.12);
+            border: 1px solid var(--border-wa);
+            color: var(--wa-green);
+            font-family: var(--font-head);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-family: var(--font-head);
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.15;
+            max-width: 1000px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #a78bfa 50%, #38ef7d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            line-height: 1.6;
+            margin-bottom: 34px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-val {
+            font-family: var(--font-head);
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--wa-green);
+        }
+
+        .stat-lbl {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Comparison Table Specifics */
+        .compare-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 10px;
+        }
+
+        .bad-card {
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .good-card {
+            border: 1px solid var(--border-wa);
+            background: rgba(37, 211, 102, 0.06);
+        }
+
+        .price-list {
+            list-style: none;
+            margin-top: 14px;
+        }
+
+        .price-list li {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-glass);
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .price-list li strong {
+            color: #ef4444;
+        }
+
+        .good-card .price-list li strong {
+            color: var(--wa-green);
+        }
+
+        /* WhatsApp Template Phone Mockup */
+        .chat-simulator-container {
+            width: 100%;
+            max-width: 400px;
+            height: 500px;
+            background: #0b141a;
+            border-radius: 24px;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .chat-sim-header {
+            background: #202c33;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .avatar-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #128C7E, #25D366);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .chat-sim-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #e9edef;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-verified {
+            color: #38ef7d;
+            font-size: 0.8rem;
+        }
+
+        .chat-sim-info p {
+            font-size: 0.72rem;
+            color: #8696a0;
+        }
+
+        .chat-sim-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+            background-size: 16px 16px;
+        }
+
+        .template-card {
+            background: var(--wa-bubble-bot);
+            border-radius: 12px;
+            padding: 12px;
+            color: #e9edef;
+            font-size: 0.86rem;
+            line-height: 1.45;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .template-header-img {
+            width: 100%;
+            height: 130px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--wa-green);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .template-btn {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            background: rgba(37, 211, 102, 0.12);
+            color: var(--wa-green);
+            border: 1px solid var(--border-wa);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* Bottom Controls Bar */
+        .presentation-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 100;
+            background: rgba(9, 12, 21, 0.8);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .nav-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--wa-green);
+            width: 28px;
+            border-radius: 10px;
+        }
+
+        .ctrl-btns {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-nav {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+
+        .btn-nav:hover {
+            background: var(--wa-green);
+            color: #090c15;
+            border-color: var(--wa-green);
+            transform: scale(1.05);
+        }
+
+        /* PDF Print Styling */
+        @media print {
+            body { overflow: visible !important; height: auto !important; }
+            .presentation-header, .presentation-footer, .ambient-bg { display: none !important; }
+            .slides-wrapper { height: auto !important; margin-top: 0 !important; }
+    <!-- Google Ads Conversion Tracking Base Tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18158374918"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-18158374918');
+    </script>
+    <script>
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      if (typeof gtag === 'function') {
+        gtag('event', 'conversion', {
+            'send_to': 'AW-18158374918/rDk8CI3d3LMcEIagy9JD',
+            'event_callback': callback
+        });
+      }
+      return false;
+    }
+    </script>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W2PQLZM9"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="glow-blob blob-1"></div>
+        <div class="glow-blob blob-2"></div>
+        <div class="glow-blob blob-3"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="presentation-header">
+        <div class="brand-logo">
+            <i class="fa-brands fa-whatsapp"></i>
+            X Markası
+            <span class="brand-tag">Meta Onaylı WhatsApp Gönderim Yazılımı</span>
+        </div>
+        <div class="slide-counter">
+            Slayt <span id="currentSlideNum">1</span> / <span id="totalSlidesNum">10</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn-header" onclick="toggleFullscreen()"><i class="fa-solid fa-expand"></i> Tam Ekran</button>
+            <button class="btn-header" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i> PDF İndir</button>
+        </div>
+    </header>
+
+    <!-- Slides Container -->
+    <main class="slides-wrapper">
+
+        <!-- SLIDE 1: Cover -->
+        <section class="slide active hero-slide">
+            <div class="hero-badge">
+                <i class="fa-solid fa-laptop-code"></i> Anahtar Teslim WhatsApp Gönderim Yazılımı
+            </div>
+            <h1 class="hero-title">Markanıza Özel Meta Onaylı WhatsApp Gönderim Yazılımı & Kurulumu</h1>
+            <p class="hero-desc">Aylık aracı paket ve komisyon ödemelerine son! Markanıza doğrudan Meta onaylı WhatsApp mesaj gönderim sistemini kuruyoruz. Yazılım doğrudan sizin mülkiyetinizde çalışır.</p>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-val">Tek Sefer</div>
+                    <div class="stat-lbl">Yazılım & Kurulum Bedeli</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val">0 TL</div>
+                    <div class="stat-lbl">Aracı Paket / Kredi Komisyonu</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val">$17</div>
+                    <div class="stat-lbl">1.800 Mesaj Meta Net Maliyeti</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val">%100</div>
+                    <div class="stat-lbl">Markaya Özel Mülkiyet</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: Market Reality & Problem -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="slide-subtitle"><i class="fa-solid fa-triangle-exclamation"></i> Piyasa Gerçeği & Problem</div>
+                <h2 class="slide-title">İşletmeler Neden Aracı Paket Sistemlerinde Kaybediyor?</h2>
+                <p class="slide-desc">SMS ve e-postanın etkisini yitirdiği günümüzde markalar WhatsApp'a bağımlı hale geldi. Ancak aracı paket kiralama sistemleri ciddi bütçe kaybı yaratıyor.</p>
+            </div>
+            <div class="grid-3">
+                <div class="glass-card" style="border-left: 4px solid #ef4444;">
+                    <div class="card-icon" style="background: rgba(239,68,68,0.1); color: #ef4444; border-color: rgba(239,68,68,0.3);"><i class="fa-solid fa-coins"></i></div>
+                    <h3 class="card-title">Sürekli Ödenen Paket Kredileri</h3>
+                    <p class="card-text">Aracı firmalardan paket kiraladığınızda 1.000 kişi için 479 TL, 10.000 kişi için 4.789 TL gibi sürekli tekrar eden fahiş kredi maliyetleri ödersiniz.</p>
+                </div>
+                <div class="glass-card" style="border-left: 4px solid #f59e0b;">
+                    <div class="card-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b; border-color: rgba(245,158,11,0.3);"><i class="fa-solid fa-shield-virus"></i></div>
+                    <h3 class="card-title">Ban & Engellenme Riski</h3>
+                    <p class="card-text">Meta dışı kaçak bot yazılımları kullanıldığında kurumsal WhatsApp numaranız anında spama düşüp kapatılır.</p>
+                </div>
+                <div class="glass-card" style="border-left: 4px solid #8b5cf6;">
+                    <div class="card-icon" style="background: rgba(139,92,246,0.1); color: #8b5cf6; border-color: rgba(139,92,246,0.3);"><i class="fa-solid fa-network-wired"></i></div>
+                    <h3 class="card-title">Sistem Bağımlılığı</h3>
+                    <p class="card-text">Kendi yazılım altyapınız olmadığında müşteri listenizi ve gönderim süreçlerinizi üçüncü taraf platformlara bağımlı yönetirsiniz.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: Business Model Comparison -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="slide-subtitle"><i class="fa-solid fa-scale-unbalanced-flip"></i> İş Modeli Karşılaştırması</div>
+                <h2 class="slide-title">Aracı Paket Kiralama vs. X Markası Yazılım Satışı</h2>
+                <p class="slide-desc">Yazılımı doğrudan markanıza kuruyoruz. Sistem sizin oluyor, aracılara her ay paket ücreti ödemek yerine yalnızca Meta'nın net maliyetini ödersiniz.</p>
+            </div>
+            
+            <div class="compare-box">
+                <!-- Bad: Standard WP Credit Packages -->
+                <div class="glass-card bad-card">
+                    <h3 class="card-title" style="color: #ef4444;"><i class="fa-solid fa-box-open"></i> Aracı Paket Kiralama Modeli</h3>
+                    <p class="card-text">Sürekli tekrar eden yüksek komisyonlu kredi tarifeleri:</p>
+                    <ul class="price-list">
+                        <li><span>1.000 Mesaj Kredisi</span> <strong>479 TL / Her İletimde</strong></li>
+                        <li><span>2.000 Mesaj Kredisi</span> <strong>959 TL / Her İletimde</strong></li>
+                        <li><span>5.000 Mesaj Kredisi</span> <strong>2.399 TL / Her İletimde</strong></li>
+                        <li><span>10.000 Mesaj Kredisi</span> <strong>4.789 TL / Her İletimde</strong></li>
+                    </ul>
+                </div>
+
+                <!-- Good: X Markasi Direct Software Sale -->
+                <div class="glass-card good-card">
+                    <h3 class="card-title" style="color: var(--wa-green);"><i class="fa-solid fa-laptop-code"></i> X Markası Yazılım Kurulum Modeli</h3>
+                    <p class="card-text">Tek seferlik sistem kurulumu + Doğrudan Meta maliyeti:</p>
+                    <ul class="price-list">
+                        <li><span>Yazılım & Kurulum Ücreti</span> <strong>Tek Seferlik Ödeme</strong></li>
+                        <li><span>1.800 Mesaj Meta Maliyeti</span> <strong>Sadece ~$17 USD (Aracısız)</strong></li>
+                        <li><span>Hesap Güvenliği</span> <strong>%100 Meta Onaylı Sıfır Ban</strong></li>
+                        <li><span>Yazılım Mülkiyeti</span> <strong>Tamamen Markanıza Ait</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: Core Software Features -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="slide-subtitle"><i class="fa-solid fa-gears"></i> Yazılım Yetenekleri</div>
+                <h2 class="slide-title">Markanıza Kurulan Gönderim Yazılımının Özellikleri</h2>
+            </div>
+            <div class="grid-4">
+                <div class="glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-database"></i></div>
+                    <h3 class="card-title">Müşteri Veri Paneli</h3>
+                    <p class="card-text">Excel/CSV ile sınırsız müşteri listesi içe aktarma, etiketleme ve kitle segmentasyonu.</p>
+                </div>
+                <div class="glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-stamp"></i></div>
+                    <h3 class="card-title">Meta Şablon Paneli</h3>
+                    <p class="card-text">Kampanya, duyuru, menü ve özel gün mesajlarını Meta onaylı olarak panel üzerinden kolayca oluşturma.</p>
+                </div>
+                <div class="glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-photo-film"></i></div>
+                    <h3 class="card-title">Zengin Medya & Buton</h3>
+                    <p class="card-text">Şablonlarda ürün görseli, PDF menü/katalog ve tıklanabilir hızlı aksiyon butonları tanımlama.</p>
+                </div>
+                <div class="glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-paper-plane"></i></div>
+                    <h3 class="card-title">Zamanlanmış İletim</h3>
+                    <p class="card-text">Tek tıkla binlerce kişiye mesaj gönderimi veya ileri tarihli otomatik zamanlama.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: WhatsApp Template Preview -->
+        <section class="slide">
+            <div class="grid-2">
+                <div>
+                    <div class="slide-subtitle"><i class="fa-solid fa-mobile-screen"></i> Gönderim Arayüzü</div>
+                    <h2 class="slide-title">Müşterilerinizin Telefonunda Nasıl Görünür?</h2>
+                    <p class="slide-desc" style="margin-bottom: 20px;">Yazılımınız üzerinden gönderilen şablonlar, müşterilerinizin WhatsApp kutusuna onaylı yeşil rozet, görsel banner, zengin metin ve yönlendirme butonlarıyla iletilir.</p>
+                    
+                    <div class="glass-card" style="margin-top: 10px;">
+                        <h4 style="color: var(--wa-green); margin-bottom: 8px;"><i class="fa-solid fa-circle-check"></i> Yazılımımızın 3 Büyük Ticari Avantajı:</h4>
+                        <ul style="color: var(--text-muted); font-size: 0.9rem; padding-left: 20px; line-height: 1.8;">
+                            <li>Sizden başka hiçbir aracı firma mesaj içeriklerinizi veya verilerinizi göremez.</li>
+                            <li>Gönderim maliyetiniz doğrudan Meta kartınızdan harcandığı için en düşük fiyattır.</li>
+                            <li>Yazılım 2-3 gönderimde aracı paket maliyetini sıfırlayarak kendini amorti eder.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Template Preview Phone Mockup -->
+                <div class="chat-simulator-container">
+                    <div class="chat-sim-header">
+                        <div class="avatar-box">X</div>
+                        <div class="chat-sim-info">
+                            <h4>[Marka Adınız] <i class="fa-solid fa-circle-check badge-verified"></i></h4>
+                            <p>Resmi Meta İşletme Hesabı</p>
+                        </div>
+                    </div>
+                    <div class="chat-sim-body">
+                        <div class="template-card">
+                            <div class="template-header-img">
+                                <i class="fa-solid fa-store"></i>
+                            </div>
+                            <strong>🌿 Yeni Sezon & Özel Fırsatlar!</strong><br><br>
+                            Sayın Müşterimiz, işletmemizin bu haftaya özel hazırladığı seçkin katalog ve ayrıcalıklı fırsatları hemen inceleyebilirsiniz.<br><br>
+                            📄 Güncel PDF kataloğumuz ekte yer almaktadır.
+                            
+                            <a href="#" class="template-btn" onclick="alert('Demo: Tıklanabilir Buton'); return false;"><i class="fa-solid fa-file-pdf"></i> Kataloğu İncele</a>
+                            <a href="#" class="template-btn" onclick="alert('Demo: Tıklanabilir Buton'); return false;"><i class="fa-solid fa-phone"></i> Hemen Bilgi Al</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: Sectoral Solutions -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="slide-subtitle"><i class="fa-solid fa-building-user"></i> Sektörel Kullanım</div>
+                <h2 class="slide-title">Yazılımımız Nerelerde Kullanılır?</h2>
+            </div>
+            <div class="grid-4">
+                <div class="glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-utensils"></i></div>
+                    <h3 class="card-title">Restoran & Cafe</h3>
+                    <p class="card-text">Haftalık menü duyuruları, özel etkinlik davetleri ve şef tadım günleri mesajları.</p>
+                </div>
+                <div class="glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-hotel"></i></div>
+                    <h3 class="card-title">Otel & Konaklama</h3>
+                    <p class="card-text">Erken rezervasyon fırsatları, bayram/tatil paketleri ve misafir sadakat duyuruları.</p>
+                </div>
+                <div class="glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                    <h3 class="card-title">E-Ticaret & Retail</h3>
+                    <p class="card-text">Yeni sezon lansmanları, flaş indirim kodları ve toplu ürün bildirimleri.</p>
+                </div>
+                <div class="glass-card">
+                    <div class="card-icon"><i class="fa-solid fa-spa"></i></div>
+                    <h3 class="card-title">Klinik & Güzellik</h3>
+                    <p class="card-text">Aylık bakım paketleri, kampanya bildirimleri ve randevu hatırlatmaları.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: Cost Calculator -->
+        <section class="slide">
+            <div class="grid-2">
+                <div>
+                    <div class="slide-subtitle"><i class="fa-solid fa-calculator"></i> Tasarruf Analizi</div>
+                    <h2 class="slide-title">Yazılım Kendi Ücretini Nasıl Amorti Eder?</h2>
+                    <p class="slide-desc">Aşağıdaki slider ile yıllık toplam gönderim sayınızı seçin, aracı paket kiralama yerine yazılımımızı satın aldığınızda ne kadar tasarruf ettiğinizi görün.</p>
+                </div>
+                <div class="glass-card" style="padding: 30px;">
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 10px;">
+                            <span>Tek Gönderimdeki Müşteri Sayısı:</span>
+                            <span id="calcCountVal" style="color: var(--wa-green); font-weight: 700;">1.800 Kişi</span>
+                        </div>
+                        <input type="range" id="calcSlider" class="range-slider" min="500" max="10000" step="500" value="1800" oninput="updateCostCalc()" style="width: 100%; accent-color: var(--wa-green);">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px;">
+                        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 0.75rem; color: #ef4444; text-transform: uppercase;">Aracı Paket Maliyeti</div>
+                            <div id="classicCostVal" style="font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; color: #ef4444; margin-top: 6px;">862 TL</div>
+                        </div>
+                        <div style="background: rgba(37, 211, 102, 0.1); border: 1px solid var(--border-wa); padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 0.75rem; color: var(--wa-green); text-transform: uppercase;">Yazılımla Net Meta Maliyeti</div>
+                            <div id="metaCostVal" style="font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; color: var(--wa-green); margin-top: 6px;">~$17 USD</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: Installation & Turnkey Process -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="slide-subtitle"><i class="fa-solid fa-rocket"></i> Kurulum Süreci</div>
+                <h2 class="slide-title">4 Adımda Anahtar Teslim Yazılım Kurulumu</h2>
+            </div>
+            <div class="grid-4">
+                <div class="glass-card">
+                    <div style="font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--wa-green); margin-bottom: 10px;">01</div>
+                    <h3 class="card-title">Meta Business Doğrulama</h3>
+                    <p class="card-text">Markanızın Meta Business Manager hesabı kurulur ve resmi WhatsApp numarası doğrulanır.</p>
+                </div>
+                <div class="glass-card">
+                    <div style="font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--accent-cyan); margin-bottom: 10px;">02</div>
+                    <h3 class="card-title">Yazılım Dağıtımı & Paneller</h3>
+                    <p class="card-text">X Markası WhatsApp gönderim yazılımı altyapısı markanıza özel kurulur ve aktif edilir.</p>
+                </div>
+                <div class="glass-card">
+                    <div style="font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--accent-purple); margin-bottom: 10px;">03</div>
+                    <h3 class="card-title">Şablon & Liste Şablonları</h3>
+                    <p class="card-text">İlk Meta şablonlarınız yazılır, onaylatılır ve müşteri listeleriniz sisteme aktarılır.</p>
+                </div>
+                <div class="glass-card">
+                    <div style="font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 10px;">04</div>
+                    <h3 class="card-title">Eğitim & Teslimat</h3>
+                    <p class="card-text">Ekibinize paneli kullanma eğitimi verilir ve sistem anahtar teslim olarak markanıza teslim edilir.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 9: Software & System Models -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="slide-subtitle"><i class="fa-solid fa-boxes-packing"></i> Yazılım & Kurulum Seçenekleri</div>
+                <h2 class="slide-title">Anahtar Teslim Yazılım Modellerimiz</h2>
+            </div>
+            <table style="width: 100%; border-collapse: collapse;" class="glass-card">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-glass);">
+                        <th style="padding: 16px; text-align: left; color: var(--text-muted);">Hizmet / Kapsam</th>
+                        <th style="padding: 16px; text-align: left;">STANDART YAZILIM SATIŞI</th>
+                        <th style="padding: 16px; text-align: left; color: var(--wa-green);">KURUMSAL ENTEGRASYONLU ★</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid var(--border-glass);">
+                        <td style="padding: 14px 16px;"><strong>Yazılım Mülkiyeti</strong></td>
+                        <td style="padding: 14px 16px;">%100 Markanıza Ait Lisans</td>
+                        <td style="padding: 14px 16px;">%100 Markanıza Ait Lisans</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border-glass);">
+                        <td style="padding: 14px 16px;"><strong>Ödeme Yapısı</strong></td>
+                        <td style="padding: 14px 16px;">Tek Seferlik Kurulum Ücreti</td>
+                        <td style="padding: 14px 16px;">Tek Seferlik Kurulum Ücreti</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border-glass);">
+                        <td style="padding: 14px 16px;"><strong>Özel Entegrasyon (POS / CRM / Otel)</strong></td>
+                        <td style="padding: 14px 16px;">Excel / CSV İçe Aktarma</td>
+                        <td style="padding: 14px 16px;"><i class="fa-solid fa-check" style="color: var(--wa-green);"></i> Tam Otomatik API Entegrasyonu</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 14px 16px;"><strong>Mesaj Gönderim Ücreti</strong></td>
+                        <td style="padding: 14px 16px;">Doğrudan Meta Kartınızdan (Sıfır Komisyon)</td>
+                        <td style="padding: 14px 16px;">Doğrudan Meta Kartınızdan (Sıfır Komisyon)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SLIDE 10: Call to Action -->
+        <section class="slide hero-slide">
+            <div class="hero-badge"><i class="fa-solid fa-handshake"></i> İletişime Geçin</div>
+            <h1 class="hero-title">Kendi WhatsApp Gönderim Yazılımınıza Sahip Olun</h1>
+            <p class="hero-desc">Markanıza özel Meta onaylı WhatsApp toplu mesaj yazılımı ve anahtar teslim sistem kurulumu için hemen iletişime geçin.</p>
+
+            <div style="display: flex; gap: 20px; margin-top: 20px;">
+                <div class="glass-card" style="padding: 20px 40px; text-align: center;">
+                    <i class="fa-brands fa-whatsapp" style="font-size: 2rem; color: var(--wa-green); margin-bottom: 8px;"></i>
+                    <div style="font-weight: 700; font-size: 1.1rem;">WhatsApp İletişim</div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">+90 (5XX) XXX XX XX</div>
+                </div>
+                <div class="glass-card" style="padding: 20px 40px; text-align: center;">
+                    <i class="fa-solid fa-globe" style="font-size: 2rem; color: var(--accent-cyan); margin-bottom: 8px;"></i>
+                    <div style="font-weight: 700; font-size: 1.1rem;">Dijital Gru Web</div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">dijitalgru.com</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Controls -->
+    <footer class="presentation-footer">
+        <div class="ctrl-btns">
+            <button class="btn-nav" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="btn-nav" onclick="nextSlide()"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="nav-dots" id="navDots"></div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+            Klavye: <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">←</kbd> <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">→</kbd> veya <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">Space</kbd>
+        </div>
+    </footer>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const currentSlideNumEl = document.getElementById('currentSlideNum');
+        const totalSlidesNumEl = document.getElementById('totalSlidesNum');
+        const navDotsEl = document.getElementById('navDots');
+
+        totalSlidesNumEl.textContent = totalSlides;
+
+        // Create navigation dots
+        slides.forEach((_, idx) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (idx === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(idx));
+            navDotsEl.appendChild(dot);
+        });
+
+        const dots = document.querySelectorAll('.dot');
+
+        function updateSlideUI() {
+            slides.forEach((slide, idx) => {
+                slide.classList.toggle('active', idx === currentSlide);
+                dots[idx].classList.toggle('active', idx === currentSlide);
+            });
+            currentSlideNumEl.textContent = currentSlide + 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlideUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlideUI();
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Fullscreen Toggle
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Cost Calculator Logic
+        function updateCostCalc() {
+            const count = parseInt(document.getElementById('calcSlider').value);
+            document.getElementById('calcCountVal').textContent = `${count.toLocaleString('tr-TR')} Kişi`;
+
+            // Standard WP Credit package tier approximation
+            let classicTl = Math.round(count * 0.479);
+            if (count >= 10000) classicTl = 4789;
+            else if (count >= 5000) classicTl = 2399;
+            else if (count >= 2000) classicTl = 959;
+            else if (count >= 1000) classicTl = 479;
+
+            document.getElementById('classicCostVal').textContent = `${classicTl.toLocaleString('tr-TR')} TL`;
+
+            // Meta API cost approximation ($17 for 1800 msgs = ~$0.0094 per msg)
+            const metaUsd = (count * 0.00944).toFixed(1);
+            document.getElementById('metaCostVal').textContent = `~$${metaUsd} USD`;
+        }
+    </script>
+</body>
+</html>
