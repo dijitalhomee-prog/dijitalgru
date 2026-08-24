@@ -318,17 +318,28 @@ img {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    gap: 20px;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-right: 12px;
 }
 
 /* Custom Vector Recreated Logo Styles */
 .dijitalgru-logo {
     display: block;
-    height: 52px;
+    height: 48px;
     width: auto;
+    max-width: 170px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 .dijitalgru-logo.horizontal {
-    height: 48px;
+    height: 44px;
 }
 
 .logo-text {
@@ -386,14 +397,14 @@ img {
     flex-shrink: 0;
 }
 
-/* Desktop Menu */
 .desktop-nav {
     flex-shrink: 1;
+    min-width: 0;
 }
 
 .desktop-nav ul {
     display: flex;
-    gap: 20px;
+    gap: 14px;
     align-items: center;
 }
 
@@ -404,8 +415,8 @@ img {
 .nav-link {
     font-family: var(--font-headings);
     font-weight: 600;
-    font-size: 14px;
-    letter-spacing: 0.3px;
+    font-size: 13.5px;
+    letter-spacing: 0.2px;
     position: relative;
     padding: 6px 0;
     color: var(--theme-text-muted);
@@ -2093,16 +2104,23 @@ img {
     }
 }
 
-@media (max-width: 1320px) {
+@media (max-width: 1400px) {
     .desktop-nav ul {
-        gap: 14px;
+        gap: 10px;
     }
     .nav-link {
-        font-size: 13px;
+        font-size: 12.5px;
+    }
+    .header-cta {
+        gap: 8px;
+    }
+    .header-cta .btn {
+        padding: 8px 14px;
+        font-size: 12.5px;
     }
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1200px) {
     .desktop-nav, .header-cta .btn-call-header {
         display: none;
     }
