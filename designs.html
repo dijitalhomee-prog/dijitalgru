@@ -361,6 +361,31 @@
                 gap: 20px;
             }
 
+            .portfolio-tabs {
+                display: flex !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: auto !important;
+                flex-wrap: nowrap !important;
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+                border-radius: 16px !important;
+                padding: 8px 12px !important;
+                gap: 8px !important;
+                box-sizing: border-box !important;
+            }
+            
+            .portfolio-tabs::-webkit-scrollbar {
+                display: none !important;
+            }
+
+            .tab-btn {
+                flex-shrink: 0 !important;
+                white-space: nowrap !important;
+                font-size: 13px !important;
+                padding: 8px 16px !important;
+            }
+
             .no-results {
                 grid-column: 1;
             }

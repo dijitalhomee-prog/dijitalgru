@@ -481,51 +481,81 @@ img {
 .mobile-nav-drawer {
     position: fixed;
     top: 0;
-    right: -100%;
+    left: 0;
     width: 100%;
     height: 100vh;
-    background-color: var(--navy-primary);
+    height: 100dvh;
+    background: linear-gradient(180deg, #0c1330 0%, #060a1a 100%);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    z-index: 95;
-    transition: var(--transition-smooth);
+    justify-content: flex-start;
+    z-index: 99999;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(-100%);
     opacity: 0;
+    pointer-events: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 100px 24px 60px 24px;
+    box-sizing: border-box;
 }
 
 .light-theme .mobile-nav-drawer {
-    background-color: var(--bg-cream);
+    background: linear-gradient(180deg, #fbf8f3 0%, #f1eae0 100%);
 }
 
 .mobile-nav-drawer.active {
-    right: 0;
+    transform: translateY(0);
     opacity: 1;
+    pointer-events: all;
 }
 
 .mobile-nav-links {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 28px;
+    gap: 12px;
     width: 100%;
-    padding: 0 40px;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 0;
 }
 
 .mobile-nav-link {
     font-family: var(--font-headings);
-    font-size: 24px;
+    font-size: 19px;
     font-weight: 700;
-    color: var(--theme-text-muted);
+    color: rgba(255, 255, 255, 0.75);
+    padding: 8px 16px;
+    text-align: center;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    width: 100%;
+}
+
+.light-theme .mobile-nav-link {
+    color: rgba(12, 19, 48, 0.75);
 }
 
 .mobile-nav-link:hover, .mobile-nav-link.active {
-    color: var(--theme-text);
+    color: var(--accent-gold);
+    transform: scale(1.04);
+}
+
+.light-theme .mobile-nav-link:hover, .light-theme .mobile-nav-link.active {
+    color: var(--accent-blue);
 }
 
 .btn-mobile-cta {
-    width: 100%;
-    max-width: 280px;
-    margin-top: 16px;
+    width: 100% !important;
+    max-width: 320px !important;
+    justify-content: center !important;
+    padding: 14px 20px !important;
+    font-size: 14.5px !important;
+    margin-top: 6px !important;
+    box-sizing: border-box !important;
 }
 
 /* 5. Hero Section Styles */
@@ -2188,7 +2218,8 @@ img {
     }
     
     .footer-logo {
-        margin-left: -20px;
+        margin-left: 0;
+        max-width: 180px;
     }
     
     .footer-bottom-container {
@@ -2197,19 +2228,21 @@ img {
         text-align: center;
     }
     
-    /* Responsive Portfolio Tabs Scroll for Mobile */
+    /* Responsive Portfolio & Blog Tabs Scroll for Mobile */
     .portfolio-tabs {
         display: flex !important;
         justify-content: flex-start !important;
         overflow-x: auto !important;
         flex-wrap: nowrap !important;
         -webkit-overflow-scrolling: touch;
-        padding: 8px 16px !important;
-        margin-left: -16px;
-        margin-right: -16px;
-        border-radius: 0 !important;
-        border-left: none !important;
-        border-right: none !important;
+        scroll-behavior: smooth;
+        padding: 8px 12px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 16px !important;
+        box-sizing: border-box !important;
         gap: 8px !important;
     }
     
@@ -2219,6 +2252,9 @@ img {
     
     .tab-btn {
         flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        font-size: 13px !important;
+        padding: 8px 16px !important;
     }
 }
 
