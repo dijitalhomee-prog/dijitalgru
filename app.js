@@ -601,103 +601,89 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.scroll-reveal').forEach(el => sectionObserver.observe(el));
 
         // --- 10. Premium Glassmorphic Contact Form Handling ---
-        const contactFormCard = document.querySelector('.contact-form-card');
-        const contactForm = document.getElementById('contact-form');
-        const btnResetForm = document.getElementById('btn-reset-form');
+        const allContactForms = document.querySelectorAll('form.contact-form, #main-contact-form, #contact-form');
 
-        if (contactForm) {
+        allContactForms.forEach(contactForm => {
             contactForm.addEventListener('submit', (e) => {
                 e.preventDefault();
             
-                const submitBtn = contactForm.querySelector('.btn-submit');
-                const originalText = submitBtn.querySelector('.btn-text').textContent;
+                const submitBtn = contactForm.querySelector('.btn-submit, button[type="submit"]');
+                const btnSpan = submitBtn ? submitBtn.querySelector('span') : null;
+                const originalText = btnSpan ? btnSpan.textContent : (submitBtn ? submitBtn.textContent : 'Mesaj Gönder');
             
                 // Show loading state
-                submitBtn.disabled = true;
-                submitBtn.querySelector('.btn-text').textContent = 'Gönderiliyor...';
-                submitBtn.querySelector('.btn-icon').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-
-                const nameVal = document.getElementById('name').value;
-                const emailVal = document.getElementById('email').value;
-                const subjectVal = document.getElementById('subject').value || "Dijital Gru - Yeni Proje Teklifi";
-                const messageVal = document.getElementById('message').value;
-
-                // Web3Forms API Submission
-                // Get your free access key at https://web3forms.com
-                const WEB3FORMS_ACCESS_KEY = "f3e85c7b-b674-469d-8399-ae4d85dfadf5"; // Buraya Web3Forms access_key'inizi girin.
-
-                if (WEB3FORMS_ACCESS_KEY === "YOUR_ACCESS_KEY_HERE" || !WEB3FORMS_ACCESS_KEY) {
-                    console.warn("Web3Forms Access Key is not configured. Falling back to mailto link.");
-                    
-                    // Fallback to mailto
-                    const emailTarget = "dijitalgru@gmail.com";
-                    const mailtoBody = `Gönderen: ${nameVal}\nE-posta: ${emailVal}\n\nMesaj:\n${messageVal}`;
-                    const mailtoUrl = `mailto:${emailTarget}?subject=${encodeURIComponent(subjectVal)}&body=${encodeURIComponent(mailtoBody)}`;
-                    
-                    // Reset button state
-                    submitBtn.disabled = false;
-                    submitBtn.querySelector('.btn-text').textContent = originalText;
-                    submitBtn.querySelector('.btn-icon').innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
-                    
-                    // Trigger mail client opening
-                    window.location.href = mailtoUrl;
-
-                    // Show success screen
-                    contactFormCard.classList.add('success');
-                    contactForm.reset();
-                    
-                    // Trigger Google Ads conversion tracking for form submission
-                    if (typeof gtag_report_conversion === 'function') {
-                        gtag_report_conversion();
-                    }
-                    return;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    if (btnSpan) btnSpan.textContent = 'Gönderiliyor...';
+                    const icon = submitBtn.querySelector('i');
+                    if (icon) icon.className = 'fa-solid fa-circle-notch fa-spin';
                 }
 
-                const formData = {
-                    access_key: WEB3FORMS_ACCESS_KEY,
-                    name: nameVal,
-                    email: emailVal,
-                    subject: subjectVal,
-                    message: messageVal,
-                    from_name: "Dijital Gru Web İletişim"
-                };
+                const nameField = contactForm.querySelector('#name') || contactForm.querySelector('[name="name"]');
+                const emailField = contactForm.querySelector('#email') || contactForm.querySelector('[name="email"]');
+                const subjectField = contactForm.querySelector('#subject-field') || contactForm.querySelector('#subject') || contactForm.querySelector('[name="subject_title"]');
+                const messageField = contactForm.querySelector('#message') || contactForm.querySelector('[name="message"]');
 
-                fetch("https://api.web3forms.com/submit", {
+                const nameVal = nameField ? nameField.value : "";
+                const emailVal = emailField ? emailField.value : "";
+                const subjectVal = subjectField ? subjectField.value : "Dijital Gru - Web İletişim Teklifi";
+                const messageVal = messageField ? messageField.value : "";
+
+                // FormSubmit.co AJAX POST - Sends directly to dijitalgru@gmail.com
+                const formData = new FormData();
+                formData.append('name', nameVal);
+                formData.append('email', emailVal);
+                formData.append('subject', 'Dijital Gru Web İletişim: ' + subjectVal);
+                formData.append('message', messageVal);
+                formData.append('_captcha', 'false');
+
+                fetch("https://formsubmit.co/ajax/dijitalgru@gmail.com", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    },
-                    body: JSON.stringify(formData)
+                    body: formData
                 })
                 .then(async (response) => {
-                    let json = await response.json();
-                    if (response.status == 200) {
-                        // Show success screen
-                        contactFormCard.classList.add('success');
+                    if (response.ok) {
+                        // Display clean success alert inside the form card
+                        let container = contactForm.parentElement;
+                        contactForm.style.display = 'none';
+                        
+                        let successMsg = document.createElement('div');
+                        successMsg.className = 'form-success-box';
+                        successMsg.style.cssText = 'text-align: center; padding: 40px 20px; background: rgba(12, 19, 48, 0.9); border-radius: 20px; border: 1px solid rgba(220, 169, 99, 0.3);';
+                        successMsg.innerHTML = `
+                            <div style="font-size: 54px; color: #f59e0b; margin-bottom: 16px;"><i class="fa-solid fa-circle-check"></i></div>
+                            <h3 style="font-family: var(--font-headings); font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">Teşekkür Ederiz!</h3>
+                            <p style="color: rgba(255, 255, 255, 0.7); font-size: 15px; margin-bottom: 24px; line-height: 1.6;">Mesajınız dijitalgru@gmail.com adresimize başarıyla iletildi. En kısa sürede sizinle iletişime geçeceğiz.</p>
+                            <button onclick="location.reload()" class="btn btn-secondary" style="padding: 10px 24px; font-size: 14px;">Yeni Mesaj Gönder</button>
+                        `;
+                        container.appendChild(successMsg);
+
                         contactForm.reset();
                         
-                        // Trigger Google Ads conversion tracking for form submission
+                        // Trigger Google Ads conversion tracking
                         if (typeof gtag_report_conversion === 'function') {
                             gtag_report_conversion();
                         }
                     } else {
-                        console.error("Web3Forms Error:", json);
-                        alert("Mesaj gönderilirken bir hata oluştu: " + (json.message || "Bilinmeyen hata"));
+                        throw new Error("Formsubmit delivery failed");
                     }
                 })
                 .catch(error => {
-                    console.error("Connection Error:", error);
-                    alert("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin.");
+                    console.error("FormSubmit Error:", error);
+                    // Fallback to mailto link if offline or blocked
+                    const mailtoUrl = `mailto:dijitalgru@gmail.com?subject=${encodeURIComponent(subjectVal)}&body=${encodeURIComponent("Gönderen: " + nameVal + "\nE-posta: " + emailVal + "\n\nMesaj:\n" + messageVal)}`;
+                    window.location.href = mailtoUrl;
                 })
                 .finally(() => {
-                    // Reset button state
-                    submitBtn.disabled = false;
-                    submitBtn.querySelector('.btn-text').textContent = originalText;
-                    submitBtn.querySelector('.btn-icon').innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        if (btnSpan) btnSpan.textContent = originalText;
+                        const icon = submitBtn.querySelector('i');
+                        if (icon) icon.className = 'fa-solid fa-paper-plane';
+                    }
                 });
             });
-        }
+        });
 
         if (btnResetForm) {
             btnResetForm.addEventListener('click', () => {

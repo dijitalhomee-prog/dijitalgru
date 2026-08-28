@@ -1461,19 +1461,19 @@ img {
 
 .form-group {
     position: relative;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .form-group input,
 .form-group textarea {
     width: 100%;
-    padding: 16px 20px;
+    padding: 24px 18px 10px 18px;
     font-size: 15px;
     font-family: var(--font-body);
     color: #ffffff;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
+    border-radius: 14px;
     outline: none;
     transition: all 0.3s ease;
 }
@@ -1485,12 +1485,12 @@ img {
 
 .form-group label {
     position: absolute;
-    top: 16px;
-    left: 20px;
+    top: 18px;
+    left: 18px;
     font-size: 14px;
-    color: var(--theme-text-muted);
+    color: rgba(255, 255, 255, 0.5);
     pointer-events: none;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
     background: transparent;
 }
 
@@ -1498,22 +1498,33 @@ img {
 .form-group textarea:focus {
     border-color: var(--accent-gold);
     background: rgba(255, 255, 255, 0.07);
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
 }
 
-/* Float label logic */
+/* Chrome Autofill fix */
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover, 
+.form-group input:-webkit-autofill:focus,
+.form-group textarea:-webkit-autofill,
+.form-group textarea:-webkit-autofill:hover,
+.form-group textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0c1330 inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Float label logic inside top padding */
 .form-group input:focus ~ label,
 .form-group input:not(:placeholder-shown) ~ label,
 .form-group textarea:focus ~ label,
 .form-group textarea:not(:placeholder-shown) ~ label {
-    top: -10px;
-    left: 14px;
-    font-size: 12px;
+    top: 6px;
+    left: 18px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--accent-gold);
-    background: #0c1330;
-    padding: 2px 8px;
-    border-radius: 4px;
+    background: transparent;
+    padding: 0;
 }
 
 .btn-submit {
