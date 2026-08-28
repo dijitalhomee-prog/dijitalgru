@@ -75,6 +75,12 @@
     scroll-behavior: smooth;
 }
 
+html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden !important;
+}
+
 html {
     scroll-padding-top: var(--header-height);
 }
@@ -85,7 +91,6 @@ body {
     font-family: var(--font-body);
     font-size: 16px;
     line-height: 1.6;
-    overflow-x: hidden;
     transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -2187,16 +2192,36 @@ img {
     }
     
     .service-item {
-        grid-template-columns: 40px 1fr;
-        padding: 30px 12px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 24px 16px !important;
+        gap: 8px !important;
     }
     
-    .service-icon {
-        display: none;
+    .service-number {
+        font-size: 22px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .service-meta {
+        padding-right: 0 !important;
+        width: 100% !important;
     }
     
     .service-name {
-        font-size: 20px;
+        font-size: 20px !important;
+        line-height: 1.35 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .service-desc {
+        font-size: 14px !important;
+        line-height: 1.6 !important;
+    }
+    
+    .service-item .service-icon {
+        display: none !important;
     }
     
     .portfolio-grid {
@@ -4308,14 +4333,21 @@ img {
 
 @media (max-width: 768px) {
     .service-row-card {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 28px 22px;
-        gap: 16px;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 24px 18px !important;
+        gap: 16px !important;
+        position: relative !important;
     }
-    .service-icon {
-        align-self: flex-end;
-        margin-top: -36px;
+    .service-row-card .service-icon {
+        position: static !important;
+        align-self: flex-start !important;
+        margin-top: 0 !important;
+        margin-bottom: 4px !important;
+        width: 50px !important;
+        height: 50px !important;
+        min-width: 50px !important;
+        font-size: 22px !important;
     }
 }
 
