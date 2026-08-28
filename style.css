@@ -4370,6 +4370,230 @@ img {
     }
 }
 
+/* ==========================================================================
+   MOBILE PERFECTION & RESPONSIVE SUITE (68%+ Mobile Ad Traffic Optimization)
+   ========================================================================== */
+
+/* Prevent iOS Safari input auto-zoom by enforcing 16px minimum font size */
+@media (max-width: 768px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="password"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+
+    /* Container padding for mobile screens */
+    .container {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+    }
+
+    /* Header Mobile Adjustments */
+    .main-header {
+        padding: 14px 0 !important;
+    }
+
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .dijitalgru-logo.horizontal {
+        max-height: 38px !important;
+    }
+
+    .header-cta .btn-nav {
+        padding: 8px 14px !important;
+        font-size: 12px !important;
+    }
+
+    /* Mobile Drawer Touch Targets */
+    .mobile-nav-drawer {
+        z-index: 999999 !important;
+    }
+
+    .mobile-nav-link {
+        min-height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+        font-size: 17px !important;
+        font-weight: 700 !important;
+    }
+
+    /* Hero Section Mobile Perfection */
+    .hero-section {
+        padding-top: 130px !important;
+        padding-bottom: 60px !important;
+    }
+
+    .hero-title {
+        font-size: 32px !important;
+        line-height: 1.25 !important;
+        margin-bottom: 16px !important;
+    }
+
+    .hero-subtitle {
+        font-size: 15px !important;
+        line-height: 1.6 !important;
+        margin-bottom: 24px !important;
+    }
+
+    .hero-actions {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 12px !important;
+    }
+
+    .hero-actions .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 14px 20px !important;
+        font-size: 15px !important;
+    }
+
+    /* Product Grid Mobile Breakdown (yazilimlarimiz.html & ozel-yazilim.html) */
+    .product-grid {
+        grid-template-columns: 1fr !important;
+        gap: 28px !important;
+    }
+
+    .glass-card {
+        padding: 24px 18px !important;
+    }
+
+    .software-banner {
+        padding: 28px 18px !important;
+    }
+
+    .software-title {
+        font-size: 26px !important;
+        line-height: 1.3 !important;
+    }
+
+    .software-pillars-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .software-grid-wrap {
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+    }
+
+    /* Showcase Badges Mobile Layout */
+    .showcase-badges {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    .showcase-badge-card {
+        flex: 1 1 calc(50% - 10px) !important;
+        min-width: 135px !important;
+        padding: 10px 12px !important;
+    }
+
+    .badge-name {
+        font-size: 12px !important;
+    }
+
+    /* Service Cards (hizmetler.html) */
+    .service-row-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 24px 18px !important;
+        gap: 14px !important;
+    }
+
+    .service-title {
+        font-size: 20px !important;
+    }
+
+    .service-desc {
+        font-size: 14px !important;
+    }
+
+    .service-tags li {
+        font-size: 12px !important;
+        padding: 5px 12px !important;
+    }
+
+    /* Contact Section & Form (index.html & iletisim.html) */
+    .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 36px !important;
+    }
+
+    .info-item {
+        padding: 16px 18px !important;
+    }
+
+    .info-icon {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        font-size: 18px !important;
+    }
+
+    .contact-form-card {
+        padding: 24px 18px !important;
+    }
+
+    .form-submit-btn {
+        height: 52px !important;
+        font-size: 15px !important;
+    }
+
+    /* Footer Mobile Layout */
+    .footer-container {
+        grid-template-columns: 1fr !important;
+        gap: 36px !important;
+    }
+
+    .footer-links-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 28px !important;
+    }
+
+    .footer-col-title {
+        font-size: 16px !important;
+        margin-bottom: 14px !important;
+    }
+
+    /* Blog Grid Mobile */
+    .blog-grid {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+
+    /* Portfolio Projects Grid Mobile */
+    .portfolio-grid {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+}
+
+/* Extra Small Screens (360px - 420px) */
+@media (max-width: 420px) {
+    .showcase-badge-card {
+        flex: 1 1 100% !important;
+    }
+
+    .hero-title {
+        font-size: 27px !important;
+    }
+
+    .header-cta .btn-call-header {
+        display: none !important;
+    }
+}
+
 
 
 
