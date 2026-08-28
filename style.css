@@ -4283,6 +4283,93 @@ img {
     }
 }
 
+/* Kurumsal Sayfası Düzen & Ekip Mimarisi */
+.about-hero-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.about-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.team-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.team-card {
+    padding: 32px 24px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(16, 26, 66, 0.6) 0%, rgba(8, 13, 34, 0.85) 100%);
+    backdrop-filter: blur(16px);
+    text-align: center;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.team-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(220, 169, 99, 0.35);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), 0 0 20px rgba(220, 169, 99, 0.15);
+}
+
+.team-avatar-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    margin: 0 auto 18px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    transition: transform 0.35s ease;
+}
+
+.team-card:hover .team-avatar-icon {
+    transform: scale(1.1) rotate(6deg);
+}
+
+.team-name {
+    font-family: var(--font-headings);
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 6px;
+}
+
+.team-role {
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+@media (max-width: 992px) {
+    .about-hero-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .team-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .team-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .about-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 
 
 
