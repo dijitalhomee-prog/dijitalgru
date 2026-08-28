@@ -11,8 +11,8 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yazılım & Platform Projelerimiz — Dijital Gru SaaS & Dijital Sistemler</title>
-    <meta name="description" content="Dijital Gru tarafından geliştirilen SaaS platformları ve özel dijital sistemler: Presskit Live, Sinopia Mantı Dijital Sistem ve QR Dijital Gru Studio.">
+    <title>Yazılımlarımız & Özel Yazılım Çözümleri — Dijital Gru</title>
+    <meta name="description" content="Dijital Gru yazılım ekosistemi: PressKitlive, QR Studio, Grid Planner, Sinopia Mantı ve şirketlere özel web tabanlı SaaS platformları, yönetim panelleri ve otomasyonlar.">
     <link rel="canonical" href="https://dijitalgru.com/yazilimlarimiz.html">
 
     <!-- Schema.org JSON-LD -->
@@ -20,12 +20,13 @@
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "Dijital Gru SaaS & Platform Yazılımları",
-      "operatingSystem": "All",
+      "name": "Dijital Gru Yazılım & SaaS Platformları",
+      "operatingSystem": "Web Tabanlı",
       "applicationCategory": "BusinessApplication",
-      "author": {
+      "provider": {
         "@type": "AdvertisingAgency",
-        "name": "Dijital Gru"
+        "name": "Dijital Gru",
+        "url": "https://dijitalgru.com"
       }
     }
     </script>
@@ -33,7 +34,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
@@ -43,6 +44,24 @@
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W2PQLZM9"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+    <!-- Google Tag (gtag.js) GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-74RKNLN04N"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-74RKNLN04N');
+    </script>
+
+    <!-- Google Tag (gtag.js) Ads -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18158374918"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-18158374918');
+    </script>
 
     <!-- Dynamic Grid Background -->
     <div class="interactive-grid" id="interactive-grid"></div>
@@ -59,7 +78,6 @@
             <nav class="desktop-nav">
                 <ul>
                     <li><a href="index.html" class="nav-link">Ana Sayfa</a></li>
-                    <li><a href="ozel-yazilim.html" class="nav-link">Özel Yazılım</a></li>
                     <li><a href="yazilimlarimiz.html" class="nav-link active">Yazılımlarımız</a></li>
                     <li><a href="hizmetler.html" class="nav-link">Hizmetler</a></li>
                     <li><a href="kurumsal.html" class="nav-link">Kurumsal</a></li>
@@ -89,7 +107,6 @@
     <div class="mobile-nav-drawer" id="mobile-nav-drawer">
         <nav class="mobile-nav-links">
             <a href="index.html" class="mobile-nav-link">Ana Sayfa</a>
-            <a href="ozel-yazilim.html" class="mobile-nav-link">Özel Yazılım</a>
             <a href="yazilimlarimiz.html" class="mobile-nav-link active">Yazılımlarımız</a>
             <a href="hizmetler.html" class="mobile-nav-link">Hizmetler</a>
             <a href="kurumsal.html" class="mobile-nav-link">Kurumsal</a>
@@ -104,123 +121,325 @@
         </nav>
     </div>
 
-    <!-- Inner Page Banner -->
-    <section class="page-banner section-padding">
+    <!-- 1. Section: Yazılım Ekosistemi & Banner -->
+    <section class="custom-software-section section-padding" style="padding-top: 140px;">
         <div class="container">
-            <div class="badge-reveal scroll-reveal">
-                <span class="hero-badge"><i class="fa-solid fa-cubes"></i> SaaS & Platform Ürünlerimiz</span>
+            <div class="software-banner glass-card scroll-reveal">
+                <div class="software-header">
+                    <span class="section-tag">— DİJİTAL GRU YAZILIM EKOSİSTEMİ —</span>
+                    <h1 class="software-title" style="font-size: 38px; line-height: 1.25; margin-bottom: 20px;">
+                        Şirketinize Özel Yazılımlar & SaaS Platformlarımız
+                    </h1>
+                    <p class="software-subtitle">
+                        İşletmenizin operasyonel yükünü hafifleten, verimliliğinizi artırıp satışlarınızı büyüten markanıza özel web tabanlı yazılımlar ve SaaS ürünleri geliştiriyoruz. Modern cloud altyapımız, pratik otomasyon çözümlerimiz ve terzi usulü yazılım mimarilerimizle iş süreçlerinizi geleceğe taşıyoruz.
+                    </p>
+                </div>
+
+                <!-- 4 Pillars Grid -->
+                <div class="software-pillars-grid">
+                    <div class="pillar-card">
+                        <div class="pillar-icon"><i class="fa-solid fa-laptop-code"></i></div>
+                        <h3 class="pillar-title">Markaya Özel Web Uygulamaları</h3>
+                        <p class="pillar-desc">İhtiyacınıza tam uyan interaktif menüler, sipariş ve rezervasyon sistemleri, müşteri panelleri ve SaaS ürünleri.</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+                        <h3 class="pillar-title">Modern Altyapı & Işık Hızı</h3>
+                        <p class="pillar-desc">Vite, React, Next.js, Cloud altyapıları ve AI entegrasyonlarıyla yüksek performanslı ve geleceğe hazır mimari.</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                        <h3 class="pillar-title">%100 Mobil & SEO Uyumlu</h3>
+                        <p class="pillar-desc">Awwwards standartlarında brütalist & glassmorphism estetik, arama motorlarında öne çıkan teknik SEO altyapısı.</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-icon"><i class="fa-solid fa-gears"></i></div>
+                        <h3 class="pillar-title">Pratik İş Otomasyonları</h3>
+                        <p class="pillar-desc">Şirket içi karmaşık süreçleri sadeleştiren, ekibinizin verimliliğini %300'e kadar artıran özel otomasyon araçları.</p>
+                    </div>
+                </div>
+
+                <!-- Live Showcase Badges -->
+                <div class="software-showcase">
+                    <h4 class="showcase-heading"><i class="fa-solid fa-fire"></i> Öne Çıkan Canlı Web Tabanlı İşlerimiz:</h4>
+                    <div class="showcase-badges">
+                        <a href="https://www.presskitlive.com" target="_blank" rel="noopener noreferrer" class="showcase-badge-card" style="text-decoration: none; color: inherit;">
+                            <div class="badge-icon creative-gradient"><i class="fa-regular fa-newspaper"></i></div>
+                            <div class="badge-info">
+                                <span class="badge-name">PressKitlive</span>
+                            </div>
+                        </a>
+                        <a href="https://qrdijitalgru.com/" target="_blank" rel="noopener noreferrer" class="showcase-badge-card" style="text-decoration: none; color: inherit;">
+                            <div class="badge-icon tech-gradient"><i class="fa-solid fa-qrcode"></i></div>
+                            <div class="badge-info">
+                                <span class="badge-name">QR Studio</span>
+                            </div>
+                        </a>
+                        <div class="showcase-badge-card">
+                            <div class="badge-icon tech-gradient"><i class="fa-solid fa-calendar-days"></i></div>
+                            <div class="badge-info">
+                                <span class="badge-name">Grid Planner</span>
+                            </div>
+                        </div>
+                        <a href="https://sinopiamanti.com/" target="_blank" rel="noopener noreferrer" class="showcase-badge-card" style="text-decoration: none; color: inherit;">
+                            <div class="badge-icon tech-gradient"><i class="fa-solid fa-globe"></i></div>
+                            <div class="badge-info">
+                                <span class="badge-name">Sinopia Mantı</span>
+                            </div>
+                        </a>
+                        <a href="https://dijitalgru.com" class="showcase-badge-card" style="text-decoration: none; color: inherit;">
+                            <div class="badge-icon creative-gradient"><i class="fa-solid fa-rocket"></i></div>
+                            <div class="badge-info">
+                                <span class="badge-name">Dijital Gru</span>
+                            </div>
+                        </a>
+                        <div class="showcase-badge-card">
+                            <div class="badge-icon brand-gradient"><i class="fa-solid fa-utensils"></i></div>
+                            <div class="badge-info">
+                                <span class="badge-name">Shiso</span>
+                            </div>
+                        </div>
+                        <div class="showcase-badge-card">
+                            <div class="badge-icon social-gradient"><i class="fa-solid fa-leaf"></i></div>
+                            <div class="badge-info">
+                                <span class="badge-name">Isla</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Software Call to Action -->
+                <div class="software-cta">
+                    <a href="iletisim.html" class="btn btn-primary cta-btn glow-btn">
+                        <span>Markanıza Özel Yazılım Teklifi Alın</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a href="https://wa.me/905376274415?text=Merhaba,%20yazılımlarınız%20ve%20şirketime%20özel%20yazılım%20geliştirme%20hakkında%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn btn-secondary whatsapp-software-btn">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        <span>WhatsApp ile Hızlı Danışın</span>
+                    </a>
+                </div>
             </div>
-            <h1 class="page-title">Yazılım & Platform Projelerimiz</h1>
-            <p class="page-subtitle">
-                Dijital Gru altyapısıyla hayata geçirdiğimiz, markaların ve işletmelerin operasyonlarını dijitalleştiren SaaS platformlarımız ve özel yazılım sistemlerimiz.
-            </p>
         </div>
     </section>
 
-    <!-- Software Projects Section -->
-    <section class="software-projects-section section-padding" style="padding-top: 0;">
+    <!-- 2. Section: Detailed Software Showcase Grid (Detaylı Yazılım Ürünlerimiz) -->
+    <section class="software-products-detail section-padding" style="padding-top: 20px;">
         <div class="container">
-            <div class="software-cards-grid">
-                <!-- Software 1: PressKitlive -->
-                <div class="software-project-card glass-card scroll-reveal">
-                    <div class="software-card-header">
-                        <div class="software-icon-box presskit-icon-bg">
-                            <i class="fa-regular fa-newspaper"></i>
-                        </div>
-                        <div class="software-card-badge live-badge">
-                            <span class="pulse-dot"></span> Canlı / Yayında
-                        </div>
-                    </div>
-                    <div class="software-card-body">
-                        <span class="software-card-cat">Dijital PR & Basın Bülteni Platformu</span>
-                        <h3 class="software-card-title">PressKitlive</h3>
-                        <p class="software-card-desc">
-                            Markalar, lansmanlar ve ajanslar için canlı dijital basın odası, interaktif basın bülteni yayını ve 4K medya paylaşım platformu.
-                        </p>
-                        <ul class="software-feature-list">
-                            <li><i class="fa-solid fa-check"></i> Canlı Dijital Medya Odası</li>
-                            <li><i class="fa-solid fa-check"></i> 4K Medya Kiti & Bülten Dağıtımı</li>
-                            <li><i class="fa-solid fa-check"></i> Medya Mensuplarına Özel Şık Link</li>
-                        </ul>
-                    </div>
-                    <div class="software-card-footer">
-                        <a href="https://www.presskitlive.com/" target="_blank" rel="noopener noreferrer" class="software-btn presskit-btn">
-                            <span>Platformu İncele</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Software 2: Sinopia Mantı -->
-                <div class="software-project-card glass-card scroll-reveal">
-                    <div class="software-card-header">
-                        <div class="software-icon-box sinopia-icon-bg">
-                            <i class="fa-solid fa-utensils"></i>
-                        </div>
-                        <div class="software-card-badge live-badge">
-                            <span class="pulse-dot"></span> Canlı / Yayında
-                        </div>
-                    </div>
-                    <div class="software-card-body">
-                        <span class="software-card-cat">Sipariş & Dijital Menü Platformu</span>
-                        <h3 class="software-card-title">Sinopia Mantı Dijital Sistem</h3>
-                        <p class="software-card-desc">
-                            Sinopia Mantı için özel geliştirilen QR dijital menü, sipariş entegrasyonu, ürün katalog yönetimi ve müşteri etkileşim yazılımı.
-                        </p>
-                        <ul class="software-feature-list">
-                            <li><i class="fa-solid fa-check"></i> İnteraktif Lezzet Menüsü</li>
-                            <li><i class="fa-solid fa-check"></i> Pratik Ürün Katalog Yönetimi</li>
-                            <li><i class="fa-solid fa-check"></i> Anlık Menü & Fiyat Güncelleme</li>
-                        </ul>
-                    </div>
-                    <div class="software-card-footer">
-                        <a href="https://www.sinopiamanti.com/" target="_blank" rel="noopener noreferrer" class="software-btn sinopia-btn">
-                            <span>Sistemi İncele</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Software 3: QR Dijital Gru Studio -->
-                <div class="software-project-card glass-card scroll-reveal">
-                    <div class="software-card-header">
-                        <div class="software-icon-box qrstudio-icon-bg">
-                            <i class="fa-solid fa-qrcode"></i>
-                        </div>
-                        <div class="software-card-badge live-badge">
-                            <span class="pulse-dot"></span> Canlı / Yayında
-                        </div>
-                    </div>
-                    <div class="software-card-body">
-                        <span class="software-card-cat">QR Menü & Dijital Katalog Studio</span>
-                        <h3 class="software-card-title">QR Dijital Gru Studio</h3>
-                        <p class="software-card-desc">
-                            Restoran, kafe, otel ve perakende markaları için dokunsal, ultra hızlı dijital menü ve interaktif QR katalog altyapısı.
-                        </p>
-                        <ul class="software-feature-list">
-                            <li><i class="fa-solid fa-check"></i> Lüks Tasarım Şablonları</li>
-                            <li><i class="fa-solid fa-check"></i> Dokunsal Mobil Garson/Sipariş</li>
-                            <li><i class="fa-solid fa-check"></i> Satış Dönüşüm Odaklı Mimari</li>
-                        </ul>
-                    </div>
-                    <div class="software-card-footer">
-                        <a href="https://qrdijitalgru.com/" target="_blank" rel="noopener noreferrer" class="software-btn qrstudio-btn">
-                            <span>Studio'yu İncele</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        </a>
-                    </div>
-                </div>
+            <div class="section-header scroll-reveal" style="text-align: center; margin-bottom: 50px;">
+                <span class="section-tag">— ÖNE ÇIKAN YAZILIM ÜRÜNLERİMİZ —</span>
+                <h2 class="section-title">Hayata Geçirdiğimiz SaaS & Platform Projelerimiz</h2>
+                <p class="section-subtitle" style="max-width: 720px; margin: 12px auto 0 auto; color: var(--theme-text-muted);">
+                    Dijital Gru mimarisiyle sıfırdan geliştirdiğimiz, markaların ve kurumların iş süreçlerini dijitalleştiren canlı platformlarımız.
+                </p>
             </div>
 
-            <!-- Custom CTA Banner -->
-            <div class="custom-software-cta glass-card scroll-reveal" style="margin-top: 50px; padding: 40px; text-align: center; background: linear-gradient(135deg, rgba(22, 34, 82, 0.8), rgba(12, 19, 48, 0.95)); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 24px;">
-                <h3 style="font-size: 28px; color: #fff; margin-bottom: 12px;">Markanıza Özel Bir Yazılım Platformu mu Lazım?</h3>
-                <p style="color: var(--theme-text-muted); max-width: 700px; margin: 0 auto 24px auto; font-size: 16px;">
-                    İhtiyacınıza göre kurgulanmış SaaS ürünleri, pazaryeri yazılımları veya kurumsal müşteri panellerini sıfırdan hayata geçiriyoruz.
-                </p>
-                <a href="iletisim.html" class="btn btn-primary" style="padding: 14px 32px; font-size: 16px;">
-                    <i class="fa-solid fa-paper-plane"></i> Hemen Teklif Alın
-                </a>
+            <div style="display: flex; flex-direction: column; gap: 40px;">
+
+                <!-- Product 1: PressKitlive -->
+                <div class="glass-card scroll-reveal" style="padding: 40px; border-radius: 24px; border: 1px solid rgba(220, 169, 99, 0.25); background: linear-gradient(135deg, rgba(22, 34, 82, 0.8) 0%, rgba(12, 19, 48, 0.95) 100%);">
+                    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: center;" class="product-grid">
+                        <div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
+                                <span style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--accent-gold); font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">SaaS PR Platformu</span>
+                                <span style="background: rgba(39, 201, 63, 0.15); border: 1px solid rgba(39, 201, 63, 0.3); color: #27c93f; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Canlı Yayında</span>
+                            </div>
+                            <h3 style="font-family: var(--font-headings); font-size: 28px; font-weight: 800; color: #ffffff; margin-bottom: 12px;">
+                                PressKitlive — Yeni Nesil Dijital Basın Bülteni & PR Platformu
+                            </h3>
+                            <p style="color: var(--theme-text-muted); font-size: 15px; line-height: 1.7; margin-bottom: 24px;">
+                                Markaların lansmanlarını, basın bültenlerini ve etkinlik materyallerini gazeteciler, editörler ve yayıncılara tek bir canlı link üzerinden 4K yüksek çözünürlüklü dijital medya odasında sunan yenilikçi PR yazılım platformu.
+                            </p>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 28px 0; display: flex; flex-direction: column; gap: 10px;">
+                                <li style="display: flex; align-items: center; gap: 10px; color: #ffffff; font-size: 14px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--accent-gold);"></i> Canlı Dijital Medya Odası & 4K İndirilebilir Basın Kitleri
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 10px; color: #ffffff; font-size: 14px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--accent-gold);"></i> Gelişmiş Medya Erişim İstatistikleri & Canlı Güncelleme
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 10px; color: #ffffff; font-size: 14px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--accent-gold);"></i> Mobil Uyumlu Prestijli PR Tasarım Mimarisi
+                                </li>
+                            </ul>
+                            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                                <a href="https://www.presskitlive.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">
+                                    <span>PressKitlive'ı İnceleyin</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                                <a href="iletisim.html" class="btn btn-secondary" style="padding: 12px 24px; font-size: 14px;">
+                                    PR Platformu Teklifi Alın
+                                </a>
+                            </div>
+                        </div>
+                        <div style="background: rgba(0, 0, 0, 0.4); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; text-align: center;">
+                            <div style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-gold) 0%, #e69007 100%); color: #0c1330; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px auto;">
+                                <i class="fa-regular fa-newspaper"></i>
+                            </div>
+                            <h4 style="font-family: var(--font-headings); font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">presskitlive.com</h4>
+                            <p style="color: var(--theme-text-muted); font-size: 13px; margin-bottom: 16px;">Dijital Basın Odası Mimarısı</p>
+                            <span style="display: inline-block; background: rgba(245, 158, 11, 0.1); color: var(--accent-gold); font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 12px;">Aktif Canlı Servis</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2: QR Studio -->
+                <div class="glass-card scroll-reveal" style="padding: 40px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); background: linear-gradient(135deg, rgba(16, 26, 66, 0.8) 0%, rgba(8, 13, 34, 0.95) 100%);">
+                    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: center;" class="product-grid">
+                        <div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
+                                <span style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Restoran & E-Ticaret</span>
+                                <span style="background: rgba(39, 201, 63, 0.15); border: 1px solid rgba(39, 201, 63, 0.3); color: #27c93f; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Canlı Yayında</span>
+                            </div>
+                            <h3 style="font-family: var(--font-headings); font-size: 28px; font-weight: 800; color: #ffffff; margin-bottom: 12px;">
+                                QR Studio — Dinamik QR Kod & Menü Yönetim Yazılımı
+                            </h3>
+                            <p style="color: var(--theme-text-muted); font-size: 15px; line-height: 1.7; margin-bottom: 24px;">
+                                Restoranlar, kafeler, oteller ve işletmeler için anlık olarak güncellenebilen dijital menüler, sipariş otomasyonları ve özel tasarım QR kod yönetim altyapısı sunan güçlü SaaS yazılımı.
+                            </p>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 28px 0; display: flex; flex-direction: column; gap: 10px;">
+                                <li style="display: flex; align-items: center; gap: 10px; color: #ffffff; font-size: 14px;">
+                                    <i class="fa-solid fa-circle-check" style="color: #60a5fa;"></i> Anlık Fiyat & Ürün Güncelleme Paneli
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 10px; color: #ffffff; font-size: 14px;">
+                                    <i class="fa-solid fa-circle-check" style="color: #60a5fa;"></i> Işık Hızında Çalışan %100 Mobil Dijital Menü Tasarımı
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 10px; color: #ffffff; font-size: 14px;">
+                                    <i class="fa-solid fa-circle-check" style="color: #60a5fa;"></i> Detaylı Tarama & İstatistik Analitiği
+                                </li>
+                            </ul>
+                            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                                <a href="https://qrdijitalgru.com/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">
+                                    <span>Studio'yu İnceleyin</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                                <a href="iletisim.html" class="btn btn-secondary" style="padding: 12px 24px; font-size: 14px;">
+                                    QR Menü Teklifi Alın
+                                </a>
+                            </div>
+                        </div>
+                        <div style="background: rgba(0, 0, 0, 0.4); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; text-align: center;">
+                            <div style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px auto;">
+                                <i class="fa-solid fa-qrcode"></i>
+                            </div>
+                            <h4 style="font-family: var(--font-headings); font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">qrdijitalgru.com</h4>
+                            <p style="color: var(--theme-text-muted); font-size: 13px; margin-bottom: 16px;">Dijital QR Menü Platformu</p>
+                            <span style="display: inline-block; background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 12px;">Aktif Canlı Servis</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3: Sinopia Mantı ERP -->
+                <div class="glass-card scroll-reveal" style="padding: 40px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); background: linear-gradient(135deg, rgba(20, 30, 70, 0.8) 0%, rgba(10, 15, 38, 0.95) 100%);">
+                    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: center;" class="product-grid">
+                        <div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
+                                <span style="background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Özel Üretim & ERP</span>
+                                <span style="background: rgba(39, 201, 63, 0.15); border: 1px solid rgba(39, 201, 63, 0.3); color: #27c93f; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Canlı Yayında</span>
+                            </div>
+                            <h3 style="font-family: var(--font-headings); font-size: 28px; font-weight: 800; color: #ffffff; margin-bottom: 12px;">
+                                Sinopia Mantı — Sipariş & Üretim Takip Otomasyonu
+                            </h3>
+                            <p style="color: var(--theme-text-muted); font-size: 15px; line-height: 1.7; margin-bottom: 24px;">
+                                Sinopia Mantı markası için özel olarak tasarlayıp kodladığımız; sipariş toplama, şube stok senkronizasyonu ve üretim süreçlerini otomatize eden web tabanlı yönetim mimarisi.
+                            </p>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 28px 0; display: flex; flex-direction: column; gap: 10px;">
+                                <li style="display: flex; align-items: center; gap: 10px; color: #ffffff; font-size: 14px;">
+                                    <i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> Şube & Franchise Sipariş Yönetim Ekranları
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 10px; color: #ffffff; font-size: 14px;">
+                                    <i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> Gerçek Zamanlı Üretim & Stok Takip Altyapısı
+                                </li>
+                            </ul>
+                            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                                <a href="https://sinopiamanti.com/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">
+                                    <span>Sitemizi İnceleyin</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                                <a href="iletisim.html" class="btn btn-secondary" style="padding: 12px 24px; font-size: 14px;">
+                                    Özel ERP Teklifi Alın
+                                </a>
+                            </div>
+                        </div>
+                        <div style="background: rgba(0, 0, 0, 0.4); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; text-align: center;">
+                            <div style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px auto;">
+                                <i class="fa-solid fa-gears"></i>
+                            </div>
+                            <h4 style="font-family: var(--font-headings); font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">sinopiamanti.com</h4>
+                            <p style="color: var(--theme-text-muted); font-size: 13px; margin-bottom: 16px;">Üretim & Sipariş Paneli</p>
+                            <span style="display: inline-block; background: rgba(168, 85, 247, 0.15); color: #c084fc; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 12px;">Aktif Kullanımda</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Section: Software Architecture & Code Showcase -->
+    <section class="software-features-section section-padding" style="padding-top: 20px;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center;" class="software-grid-wrap">
+                
+                <!-- Left Feature Cards -->
+                <div class="software-feature-list scroll-reveal">
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        
+                        <div class="info-item" style="padding: 24px; border-radius: 20px;">
+                            <div class="info-icon" style="width: 56px; height: 56px; min-width: 56px;">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                            <div class="info-content">
+                                <h3 style="font-family: var(--font-headings); font-size: 19px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">İşletmeye Özel Mimari</h3>
+                                <p style="color: var(--theme-text-muted); font-size: 14px; line-height: 1.6; margin: 0;">Sadece ihtiyacınız olan modüllerle hafif, ışık hızında çalışan ve ölçeklenebilir yazılım altyapısı.</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item" style="padding: 24px; border-radius: 20px;">
+                            <div class="info-icon" style="width: 56px; height: 56px; min-width: 56px;">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div class="info-content">
+                                <h3 style="font-family: var(--font-headings); font-size: 19px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">%100 Marka Mülkiyeti & Güvenlik</h3>
+                                <p style="color: var(--theme-text-muted); font-size: 14px; line-height: 1.6; margin: 0;">Aylık aracı kiralama ücreti ödemeden tüm kod yapısı ve veri tabanı doğrudan şirketinize ait kalır.</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item" style="padding: 24px; border-radius: 20px;">
+                            <div class="info-icon" style="width: 56px; height: 56px; min-width: 56px;">
+                                <i class="fa-solid fa-diagram-project"></i>
+                            </div>
+                            <div class="info-content">
+                                <h3 style="font-family: var(--font-headings); font-size: 19px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">API & Sistem Entegrasyonları</h3>
+                                <p style="color: var(--theme-text-muted); font-size: 14px; line-height: 1.6; margin: 0;">ERP, CRM, e-fatura, ödeme sistemleri ve sosyal medya API'leri ile kusursuz senkronizasyon.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Code Editor Window -->
+                <div class="software-code-window scroll-reveal">
+                    <div class="glass-card" style="padding: 0; overflow: hidden; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);">
+                        <div style="background: rgba(0, 0, 0, 0.5); padding: 14px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; gap: 8px;">
+                                <span style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+                                <span style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+                                <span style="width: 12px; height: 12px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+                            </div>
+                            <span style="font-family: 'Fira Code', monospace; font-size: 12px; color: var(--accent-gold); font-weight: 600;">DijitalGru_Architecture.config.js</span>
+                            <i class="fa-solid fa-code" style="color: var(--theme-text-muted); font-size: 14px;"></i>
+                        </div>
+                        <pre style="margin: 0; padding: 25px; font-family: 'Fira Code', monospace; font-size: 13.5px; line-height: 1.7; color: #e2e8f0; background: #070c1e; overflow-x: auto;"><code><span style="color: #c792ea;">const</span> <span style="color: #82aaff;">DijitalGruSoftware</span> = {
+    <span style="color: #f78c6c;">client</span>: <span style="color: #ecc48d;">"Şirketinize Özel"</span>,
+    <span style="color: #f78c6c;">architecture</span>: <span style="color: #ecc48d;">"Cloud Native SaaS / Enterprise"</span>,
+    <span style="color: #f78c6c;">stack</span>: [<span style="color: #ecc48d;">"React"</span>, <span style="color: #ecc48d;">"Next.js"</span>, <span style="color: #ecc48d;">"Python"</span>, <span style="color: #ecc48d;">"Node.js"</span>],
+    <span style="color: #f78c6c;">performance</span>: <span style="color: #ecc48d;">"Ultra Fast &lt; 0.8s"</span>,
+    <span style="color: #f78c6c;">security</span>: <span style="color: #ecc48d;">"Enterprise End-to-End Encryption"</span>,
+    <span style="color: #f78c6c;">ownership</span>: <span style="color: #ecc48d;">"100% Brand Owned (No Subscription)"</span>
+};
+
+<span style="color: #546e7a; font-style: italic;">// Şirketiniz için özel yazılım fikrinizi gerçeğe dönüştürelim</span>
+<span style="color: #c792ea;">export default</span> DijitalGruSoftware;</code></pre>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
@@ -247,7 +466,6 @@
                     <h4 class="footer-col-title">Hızlı Menü</h4>
                     <ul>
                         <li><a href="index.html">Ana Sayfa</a></li>
-                        <li><a href="ozel-yazilim.html">Özel Yazılım</a></li>
                         <li><a href="yazilimlarimiz.html">Yazılımlarımız</a></li>
                         <li><a href="hizmetler.html">Hizmetler</a></li>
                         <li><a href="kurumsal.html">Kurumsal</a></li>
@@ -261,7 +479,7 @@
                 <div class="footer-col">
                     <h4 class="footer-col-title">Hizmetlerimiz</h4>
                     <ul>
-                        <li><a href="ozel-yazilim.html">Özel Web Yazılımı</a></li>
+                        <li><a href="yazilimlarimiz.html">Özel Web Yazılımı</a></li>
                         <li><a href="hizmetler.html">Kreatif Strateji & Branding</a></li>
                         <li><a href="hizmetler.html">Sosyal Medya Yönetimi & Reklam</a></li>
                         <li><a href="hizmetler.html">Sinematik Video & Drone Çekimi</a></li>
