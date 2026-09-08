@@ -282,7 +282,7 @@ function switchPreviewMode(mode) {
         landingTab.style.color = "#ffffff";
         qrTab.style.background = "transparent";
         qrTab.style.color = "var(--text-muted)";
-        landingBox.style.display = "block";
+        if (landingBox) landingBox.style.display = "flex";
         qrBox.style.display = "none";
         renderLandingPageMockup();
     }
@@ -324,32 +324,34 @@ function renderLandingPageMockup() {
     const container = document.getElementById("mockup-landing-content");
     if (!container) return;
 
-    if (payload.type === "url") {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 20px 10px;">
-                <div style="font-size: 32px; margin-bottom: 8px;">🌐</div>
-                <div style="font-size: 14px; font-weight: 700; color: #ffffff; word-break: break-all;">${payload.target_url || 'https://siteniz.com'}</div>
-                <div style="font-size: 11px; color: #10b981; margin-top: 8px; font-weight: 600;">⚡ Doğrudan Web Sitesi Yönlendirmesi</div>
-                <a href="${payload.target_url || '#'}" target="_blank" style="display: inline-block; margin-top: 16px; background: #6366f1; color: #fff; padding: 10px 16px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 700;">Siteyi Aç ↗</a>
+    const wrapperStart = `
+        <div style="width: 100%; min-height: 100%; box-sizing: border-box; background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff; padding: 24px 16px 20px 16px; display: flex; flex-direction: column; justify-content: space-between; border-radius: 26px;">
+            <div style="width: 100%;">
+    `;
+    const wrapperEnd = `
             </div>
-        `;
-    } else if (payload.type === "vcard") {
+            <div style="text-align: center; margin-top: auto; padding-top: 20px; font-size: 11px; color: #64748b; font-weight: 500;">
+                Powered by <strong style="color: #818cf8;">Dijitalgru QR Studio</strong>
+            </div>
+        </div>
+    `;
+
+    if (payload.type === "vcard" || payload.type === "static_vcard") {
         const v = payload.vcard_payload || {};
         const fullName = v.full_name || 'Ad Soyad';
         const avatarSrc = v.avatar_url;
         const initial = (fullName.trim()[0] || 'A').toUpperCase();
 
-        let avatarHTML = `<div style="width: 72px; height: 72px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; margin: 0 auto 12px auto; box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); border: 2px solid rgba(255,255,255,0.2);">${initial}</div>`;
+        let avatarHTML = `<div style="width: 76px; height: 76px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; color: #fff; margin: 0 auto 12px auto; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); border: 2px solid rgba(255,255,255,0.2);">${initial}</div>`;
         if (avatarSrc) {
             avatarHTML = `
-                <div style="position: relative; width: 72px; height: 72px; margin: 0 auto 12px auto;">
-                    <img src="${avatarSrc}" onerror="this.style.display='none'; document.getElementById('avatar-fallback-sim').style.display='flex';" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); border: 2px solid #6366f1; display: block;" />
-                    <div id="avatar-fallback-sim" style="display: none; position: absolute; top:0; left:0; width: 72px; height: 72px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); border: 2px solid rgba(255,255,255,0.2);">${initial}</div>
+                <div style="position: relative; width: 76px; height: 76px; margin: 0 auto 12px auto;">
+                    <img src="${avatarSrc}" onerror="this.style.display='none'; document.getElementById('avatar-fallback-sim').style.display='flex';" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); border: 2px solid #6366f1; display: block;" />
+                    <div id="avatar-fallback-sim" style="display: none; position: absolute; top:0; left:0; width: 76px; height: 76px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 50%; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; color: #fff; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); border: 2px solid rgba(255,255,255,0.2);">${initial}</div>
                 </div>
             `;
         }
 
-        // Quick action buttons bar HTML
         let quickActionsHTML = '<div style="display: flex; gap: 6px; justify-content: center; margin-bottom: 16px;">';
         if (v.phone) {
             quickActionsHTML += `
@@ -381,7 +383,6 @@ function renderLandingPageMockup() {
         }
         quickActionsHTML += '</div>';
 
-        // Detailed info items list HTML
         let detailsListHTML = '<div style="display: flex; flex-direction: column; gap: 8px; text-align: left;">';
         if (v.phone) {
             detailsListHTML += `
@@ -441,50 +442,89 @@ function renderLandingPageMockup() {
         detailsListHTML += '</div>';
 
         container.innerHTML = `
-            <div style="background: rgba(21, 25, 34, 0.95); border: 1px solid rgba(255,255,255,0.12); border-radius: 24px; padding: 24px 16px; text-align: center; backdrop-filter: blur(16px); box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
+            ${wrapperStart}
                 ${avatarHTML}
-                <div style="font-size: 18px; font-weight: 800; color: #ffffff;">${fullName}</div>
-                <div style="font-size: 12px; color: #818cf8; margin-top: 2px; font-weight: 600;">${v.title || 'Unvan'}</div>
-                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px; font-weight: 500;">${v.company || 'Şirket Adı'}</div>
+                <div style="font-size: 18px; font-weight: 800; color: #ffffff; text-align: center;">${fullName}</div>
+                <div style="font-size: 12px; color: #818cf8; margin-top: 2px; font-weight: 600; text-align: center;">${v.title || 'Unvan'}</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px; font-weight: 500; text-align: center;">${v.company || 'Şirket Adı'}</div>
                 ${v.bio ? `<div style="font-size: 11px; color: #cbd5e1; margin-top: 10px; line-height: 1.4; padding: 8px 10px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); text-align: left;">📝 ${v.bio}</div>` : ''}
 
-                <button type="button" onclick="downloadSimulatorVcard()" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; border-radius: 14px; font-size: 13px; font-weight: 800; color: #ffffff; border: none; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); margin: 16px 0; cursor: pointer; transition: all 0.2s ease;">
+                <button type="button" onclick="downloadSimulatorVcard()" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; border-radius: 14px; font-size: 13px; font-weight: 800; color: #ffffff; border: none; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); margin: 16px 0 12px 0; cursor: pointer; transition: all 0.2s ease;">
                     👤 Rehbere Kaydet (.vcf)
                 </button>
 
-                ${quickActionsHTML}
-                ${detailsListHTML}
+                ${v.phone || v.email || v.website ? quickActionsHTML : ''}
+                ${v.phone || v.phone2 || v.email || v.website || v.address ? detailsListHTML : ''}
 
-                ${v.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 12px; font-weight: 700; background: rgba(245,158,11,0.1); padding: 6px; border-radius: 8px;">⚡ Doğrudan .vcf İndirme Aktif</div>' : ''}
-            </div>
+                ${v.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 12px; font-weight: 700; background: rgba(245,158,11,0.1); padding: 6px; border-radius: 8px; text-align: center;">⚡ Doğrudan .vcf İndirme Aktif</div>' : ''}
+            ${wrapperEnd}
         `;
-    } else if (payload.type === "menu") {
+    } else if (payload.type === "company_card") {
+        const cName = getVal("comp-name", "Kurumsal Şirket Adı");
+        const cTagline = getVal("comp-tagline", "Kurumsal Vizyon & Slogan");
+        container.innerHTML = `
+            ${wrapperStart}
+                <div style="text-align: center; padding-top: 10px;">
+                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; margin: 0 auto 12px auto; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);">🏢</div>
+                    <div style="font-size: 18px; font-weight: 800; color: #ffffff;">${cName}</div>
+                    <div style="font-size: 12px; color: #60a5fa; margin-top: 4px; font-weight: 600;">${cTagline}</div>
+                </div>
+            ${wrapperEnd}
+        `;
+    } else if (payload.type === "social" || payload.type === "instagram" || payload.type === "linkedin" || payload.type === "pinterest" || payload.type === "facebook") {
+        const title = payload.type.toUpperCase();
+        container.innerHTML = `
+            ${wrapperStart}
+                <div style="text-align: center; padding-top: 10px;">
+                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #ec4899, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; margin: 0 auto 12px auto; box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4);">📲</div>
+                    <div style="font-size: 18px; font-weight: 800; color: #ffffff;">${title} Profili</div>
+                    <div style="font-size: 12px; color: #f472b6; margin-top: 4px; font-weight: 600;">Sosyal Medya Bağlantıları</div>
+                </div>
+            ${wrapperEnd}
+        `;
+    } else if (payload.type === "menu" || payload.type === "restaurant_menu" || payload.type === "pdf_catalog" || payload.type === "pdf_viewer") {
         const m = payload.menu_payload || {};
         container.innerHTML = `
-            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
-                <div style="font-size: 28px; margin-bottom: 6px;"></div>
-                <div style="font-size: 14px; font-weight: 800; color: #ffffff;">${m.title || 'Restoran Adı'}</div>
-                <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">${m.description || 'Menümüz ve Lezzetlerimiz'}</div>
-                ${m.pdf_url ? '<div style="margin-top: 12px; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); padding: 8px; border-radius: 8px; font-size: 10px; color: #a5b4fc; font-weight: 700;">PDF Menü Yüklendi</div>' : '<div style="margin-top: 12px; font-size: 10px; color: #ef4444;">PDF Henüz Yüklenmedi</div>'}
-                ${m.direct_redirect ? '<div style="font-size: 10px; color: #f59e0b; margin-top: 8px; font-weight: 700;">Doğrudan PDF Yönlendirmesi Aktif</div>' : ''}
-            </div>
+            ${wrapperStart}
+                <div style="text-align: center; padding-top: 10px;">
+                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; margin: 0 auto 12px auto; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);">📖</div>
+                    <div style="font-size: 18px; font-weight: 800; color: #ffffff;">${m.title || 'Restoran & Menü'}</div>
+                    <div style="font-size: 12px; color: #fbbf24; margin-top: 4px; font-weight: 600;">${m.description || 'Dijital Menümüz ve Lezzetlerimiz'}</div>
+                    ${m.pdf_url ? '<div style="margin-top: 16px; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); padding: 12px; border-radius: 12px; font-size: 12px; color: #a5b4fc; font-weight: 700;">📄 PDF Menü Yüklendi</div>' : '<div style="margin-top: 16px; font-size: 11px; color: #94a3b8;">PDF Menü İnceleyin</div>'}
+                </div>
+            ${wrapperEnd}
         `;
     } else if (payload.type === "wifi") {
+        const ssid = getVal("wifi-ssid", "Wi-Fi Ağ Adı");
         container.innerHTML = `
-            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
-                <div style="font-size: 32px; margin-bottom: 6px;">📶</div>
-                <div style="font-size: 14px; font-weight: 800; color: #ffffff;">${getVal("wifi-ssid", "Wi-Fi Ağ Adı")}</div>
-                <div style="font-size: 11px; color: #10b981; margin-top: 4px; font-weight: 700;"> Kamera ile Otomatik Bağlantı</div>
-            </div>
+            ${wrapperStart}
+                <div style="text-align: center; padding-top: 20px;">
+                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; margin: 0 auto 14px auto; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);">📶</div>
+                    <div style="font-size: 18px; font-weight: 800; color: #ffffff;">${ssid}</div>
+                    <div style="font-size: 12px; color: #34d399; margin-top: 6px; font-weight: 700;">Kamera ile Otomatik Bağlantı</div>
+                </div>
+            ${wrapperEnd}
         `;
     } else if (payload.type === "text") {
-        const textVal = getVal("static-text", "Sabit Metin / SMS İçeriği");
+        const textVal = getVal("static-text", "Sabit Metin İçeriği");
         container.innerHTML = `
-            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
-                <div style="font-size: 32px; margin-bottom: 6px;">📝</div>
-                <div style="font-size: 13px; font-weight: 700; color: #ffffff; white-space: pre-wrap; word-break: break-word;">${textVal}</div>
-                <div style="font-size: 11px; color: #94a3b8; margin-top: 8px; font-weight: 600;">📌 Statik İçerik (Sabit Veri)</div>
-            </div>
+            ${wrapperStart}
+                <div style="text-align: center; padding-top: 20px;">
+                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; margin: 0 auto 14px auto; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);">📝</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #ffffff; white-space: pre-wrap; word-break: break-word;">${textVal}</div>
+                    <div style="font-size: 11px; color: #94a3b8; margin-top: 10px; font-weight: 600;">📌 Statik Veri</div>
+                </div>
+            ${wrapperEnd}
+        `;
+    } else {
+        container.innerHTML = `
+            ${wrapperStart}
+                <div style="text-align: center; padding-top: 20px;">
+                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; margin: 0 auto 14px auto; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);">🌐</div>
+                    <div style="font-size: 15px; font-weight: 800; color: #ffffff; word-break: break-all;">${payload.target_url || 'https://siteniz.com'}</div>
+                    <div style="font-size: 12px; color: #10b981; margin-top: 8px; font-weight: 600;">⚡ Doğrudan Web Yönlendirmesi</div>
+                </div>
+            ${wrapperEnd}
         `;
     }
 }

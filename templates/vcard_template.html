@@ -7,8 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: #0b0e14; color: #ffffff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px 14px; }
-        .card-container { width: 100%; max-width: 420px; background: rgba(21, 25, 34, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 28px; backdrop-filter: blur(24px); padding: 32px 24px; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6); }
+        html, body { height: 100%; width: 100%; }
+        body { background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff; min-height: 100vh; display: flex; justify-content: center; align-items: stretch; }
+        .card-container { width: 100%; max-width: 500px; min-height: 100vh; background: transparent; padding: 32px 20px 24px 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
+        .card-main-content { width: 100%; }
         .avatar-img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #6366f1; object-fit: cover; margin: 0 auto 16px auto; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); display: block; }
         .initials-avatar { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #4f46e5); border: 3px solid rgba(255,255,255,0.2); margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; color: #ffffff; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); }
         .name { font-size: 22px; font-weight: 800; color: #ffffff; margin-bottom: 4px; }
@@ -35,12 +37,13 @@
         .detail-label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
         .detail-val { font-size: 13px; font-weight: 600; color: #f1f5f9; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
 
-        .footer { margin-top: 28px; font-size: 11px; color: #64748b; }
+        .footer { margin-top: auto; padding-top: 28px; font-size: 11px; color: #64748b; }
         .footer a { color: #818cf8; text-decoration: none; font-weight: 700; }
     </style>
 </head>
 <body>
     <div class="card-container">
+        <div class="card-main-content">
         <!-- Avatar -->
         <div style="position: relative; width: 90px; height: 90px; margin: 0 auto 16px auto;">
             {% if vcard.avatar_url %}
@@ -146,6 +149,8 @@
                 </div>
             </a>
             {% endif %}
+        </div>
+
         </div>
 
         <div class="footer">
