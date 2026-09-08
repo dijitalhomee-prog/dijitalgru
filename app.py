@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, send_file, Response
 import time
 import json
+import urllib.request
 import uuid
 import os
 import io
@@ -52,6 +53,38 @@ def index():
     }, format="base64")
     return render_template("index.html", initial_qr_image=initial_qr)
 
+def _get_geoip_data(visitor_ip):
+    """
+    Fetch real country and city from visitor IP using ip-api.com free tier.
+    Falls back to neutral 'Bilinmiyor' if request fails or if IP is local/private/invalid.
+    """
+    if not visitor_ip or visitor_ip in ("127.0.0.1", "localhost", "::1", "unknown", "0.0.0.0"):
+        return "Bilinmiyor", "Bilinmiyor"
+    
+    # Check for private IP ranges (10.x, 192.168.x, 127.x, 172.16-31.x)
+    if visitor_ip.startswith("10.") or visitor_ip.startswith("192.168.") or visitor_ip.startswith("127."):
+        return "Bilinmiyor", "Bilinmiyor"
+    if visitor_ip.startswith("172."):
+        parts = visitor_ip.split(".")
+        if len(parts) >= 2 and parts[1].isdigit():
+            val = int(parts[1])
+            if 16 <= val <= 31:
+                return "Bilinmiyor", "Bilinmiyor"
+                
+    try:
+        url = f"http://ip-api.com/json/{visitor_ip}?fields=status,country,city&lang=tr"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=2.5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if data.get("status") == "success":
+                country = data.get("country") or "Bilinmiyor"
+                city = data.get("city") or "Bilinmiyor"
+                return country, city
+    except Exception as e:
+        print(f"[geoip lookup error] ip={visitor_ip}: {e}")
+        
+    return "Bilinmiyor", "Bilinmiyor"
+
 def _log_scan_async(qr_id, visitor_ip, user_agent):
     """
     Background Thread: Asynchronously logs scan analytics without blocking user redirect.
@@ -65,10 +98,12 @@ def _log_scan_async(qr_id, visitor_ip, user_agent):
         device_type = "Mobile" if ("Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent) else "Desktop"
         browser = "Chrome" if "Chrome" in user_agent else ("Safari" if "Safari" in user_agent else "Other")
         
+        country, city = _get_geoip_data(visitor_ip)
+        
         cursor.execute("""
         INSERT INTO scan_logs (qr_id, scanned_at, ip_address, user_agent, device_type, browser, country, city)
-        VALUES (?, ?, ?, ?, ?, ?, 'Türkiye', 'İstanbul')
-        """, (qr_id, now, visitor_ip, user_agent, device_type, browser))
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (qr_id, now, visitor_ip, user_agent, device_type, browser, country, city))
         
         cursor.execute("UPDATE qr_codes SET scans_count = COALESCE(scans_count, 0) + 1 WHERE id = ?", (qr_id,))
         conn.commit()
@@ -1277,14 +1312,19 @@ def api_admin_accounting_summary():
     
     breakdown = {"starter": 0, "advanced": 0, "business": 0}
     mrr = 0.0
-    plan_monthly_prices = {"starter": 149.0, "advanced": 299.0, "business": 599.0}
+    
+    # Extract current monthly prices dynamically from payments.py PLANS dictionary
+    plan_monthly_prices = {
+        plan: data.get("pricing", {}).get("monthly", {}).get("price_per_month", 0.0)
+        for plan, data in PLANS.items()
+    }
     
     for r in plan_rows:
         p = r["plan"]
         cnt = r["cnt"]
         if p in breakdown:
             breakdown[p] = cnt
-            mrr += cnt * plan_monthly_prices.get(p, 0.0)
+        mrr += cnt * plan_monthly_prices.get(p, 0.0)
             
     conn.close()
     
