@@ -138,23 +138,80 @@
             <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">QR Kod Stüdyosu</h2>
             <p style="color: var(--text-muted); margin-bottom: 24px;">QR kodunuzun tipini seçin, renklerini özelleştirin ve canlı simülatörde anında önizleyin.</p>
 
-            <!-- QR Type Selector -->
-            <div class="type-selector">
-                <div class="type-btn active" data-type="url">
-                    <div class="title">Web Linki</div>
+            <!-- QR Category Filter Tabs: Dinamik QR Kodlar vs Statik QR Kodlar -->
+            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+                <button type="button" class="studio-cat-btn active" data-cat="all" onclick="filterStudioCategory('all')" style="padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 13px; border: 1px solid var(--primary); background: var(--primary); color: #ffffff; cursor: pointer; transition: all 0.2s;">
+                    ✨ Tüm QR Türleri
+                </button>
+                <button type="button" class="studio-cat-btn" data-cat="dynamic" onclick="filterStudioCategory('dynamic')" style="padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 13px; border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.12); color: #a5b4fc; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
+                    <span>⚡ Dinamik QR Kodlar</span>
+                    <span style="font-size: 10px; background: rgba(99, 102, 241, 0.25); color: #c7d2fe; padding: 2px 8px; border-radius: 6px; font-weight: 800;">Değiştirilebilir & Analizli</span>
+                </button>
+                <button type="button" class="studio-cat-btn" data-cat="static" onclick="filterStudioCategory('static')" style="padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 13px; border: 1px solid var(--card-border); background: rgba(255, 255, 255, 0.05); color: var(--text-muted); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
+                    <span>📌 Statik QR Kodlar</span>
+                    <span style="font-size: 10px; background: rgba(255, 255, 255, 0.08); color: #94a3b8; padding: 2px 8px; border-radius: 6px; font-weight: 800;">Sabit Veri (Sınırsız)</span>
+                </button>
+            </div>
+
+            <!-- Dynamic vs Static Category Group Containers -->
+            <div id="studio-category-groups" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+
+                <!-- 1. DYNAMIC QR CODES SECTION -->
+                <div class="studio-cat-section" id="sec-group-dynamic" style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.18); border-radius: 16px; padding: 18px 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                        <h4 style="font-size: 15px; font-weight: 800; color: #a5b4fc; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <span>⚡ Dinamik QR Kodlar</span>
+                            <span style="font-size: 10px; font-weight: 800; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 3px 8px; border-radius: 6px;">YAZDIRILDIKTAN SONRA DEĞİŞTİRİLEBİLİR</span>
+                        </h4>
+                        <div style="font-size: 11px; color: #cbd5e1;">QR kod basıldıktan sonra bile hedef bağlantıyı anında değiştirebilir, canlı analizleri takip edebilirsiniz.</div>
+                    </div>
+                    <div class="type-selector" style="margin-bottom: 0;">
+                        <div class="type-btn active" data-type="url" data-cat="dynamic">
+                            <div class="icon">🌐</div>
+                            <div class="title">Web Linki</div>
+                            <div style="font-size: 9px; font-weight: 800; color: #818cf8; margin-top: 4px;">⚡ DİNAMİK URL</div>
+                        </div>
+                        <div class="type-btn" data-type="vcard" data-cat="dynamic">
+                            <div class="icon">🎴</div>
+                            <div class="title">vCard Plus</div>
+                            <div style="font-size: 9px; font-weight: 800; color: #818cf8; margin-top: 4px;">⚡ KARTVİZİT</div>
+                        </div>
+                        <div class="type-btn" data-type="menu" data-cat="dynamic">
+                            <div class="icon">🍕</div>
+                            <div class="title">Menü / Katalog</div>
+                            <div style="font-size: 9px; font-weight: 800; color: #818cf8; margin-top: 4px;">⚡ PDF MENÜ</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="type-btn" data-type="vcard">
-                    <div class="title">vCard Plus</div>
+
+                <!-- 2. STATIC QR CODES SECTION -->
+                <div class="studio-cat-section" id="sec-group-static" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                        <h4 style="font-size: 15px; font-weight: 800; color: #f1f5f9; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <span>📌 Statik QR Kodlar</span>
+                            <span style="font-size: 10px; font-weight: 800; background: rgba(255, 255, 255, 0.08); color: #94a3b8; padding: 3px 8px; border-radius: 6px;">SABİT İÇERİK (SINIRSIZ)</span>
+                        </h4>
+                        <div style="font-size: 11px; color: var(--text-muted);">Veri doğrudan QR kod görseline işlenir, internet gerektirmeden çalışır. Yazdırıldıktan sonra içerik değişmez.</div>
+                    </div>
+                    <div class="type-selector" style="margin-bottom: 0;">
+                        <div class="type-btn" data-type="wifi" data-cat="static">
+                            <div class="icon">📶</div>
+                            <div class="title">Wi-Fi Bağlantı</div>
+                            <div style="font-size: 9px; font-weight: 800; color: #94a3b8; margin-top: 4px;">📌 STATİK AĞ</div>
+                        </div>
+                        <div class="type-btn" data-type="whatsapp" data-cat="static">
+                            <div class="icon">💬</div>
+                            <div class="title">WhatsApp</div>
+                            <div style="font-size: 9px; font-weight: 800; color: #94a3b8; margin-top: 4px;">📌 STATİK SOHBET</div>
+                        </div>
+                        <div class="type-btn" data-type="text" data-cat="static">
+                            <div class="icon">📝</div>
+                            <div class="title">Metin / SMS</div>
+                            <div style="font-size: 9px; font-weight: 800; color: #94a3b8; margin-top: 4px;">📌 STATİK METİN</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="type-btn" data-type="menu">
-                    <div class="title">Menü / Katalog</div>
-                </div>
-                <div class="type-btn" data-type="wifi">
-                    <div class="title">Wi-Fi Bağlantı</div>
-                </div>
-                <div class="type-btn" data-type="whatsapp">
-                    <div class="title">WhatsApp</div>
-                </div>
+
             </div>
 
             <div class="studio-grid">
@@ -334,6 +391,14 @@
                         <div class="form-group">
                             <label class="form-label">Hazır Mesaj Taslağı</label>
                             <input type="text" id="wa-msg" class="form-input" placeholder="Merhaba, bilgi almak istiyorum.">
+                        </div>
+                    </div>
+
+                    <!-- Type 6: Metin / SMS (Statik) -->
+                    <div id="form-text" class="type-form" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Sabit Metin veya SMS İçeriği</label>
+                            <textarea id="static-text" class="form-input" rows="4" placeholder="QR kod tarandığında ekranda görüntülenecek sabit metni veya SMS içeriğini buraya girin..."></textarea>
                         </div>
                     </div>
 

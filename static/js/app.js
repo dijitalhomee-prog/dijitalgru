@@ -196,6 +196,40 @@ function initNavigation() {
     }
 }
 
+function filterStudioCategory(category) {
+    document.querySelectorAll(".studio-cat-btn").forEach(btn => {
+        if (btn.getAttribute("data-cat") === category) {
+            btn.classList.add("active");
+            btn.style.background = "var(--primary)";
+            btn.style.borderColor = "var(--primary)";
+            btn.style.color = "#ffffff";
+        } else {
+            btn.classList.remove("active");
+            btn.style.background = "rgba(255, 255, 255, 0.05)";
+            btn.style.borderColor = "var(--card-border)";
+            btn.style.color = "var(--text-muted)";
+        }
+    });
+
+    const dynamicGroup = document.getElementById("sec-group-dynamic");
+    const staticGroup = document.getElementById("sec-group-static");
+
+    if (category === "all") {
+        if (dynamicGroup) dynamicGroup.style.display = "block";
+        if (staticGroup) staticGroup.style.display = "block";
+    } else if (category === "dynamic") {
+        if (dynamicGroup) dynamicGroup.style.display = "block";
+        if (staticGroup) staticGroup.style.display = "none";
+        const firstDynamic = dynamicGroup ? dynamicGroup.querySelector(".type-btn") : null;
+        if (firstDynamic) firstDynamic.click();
+    } else if (category === "static") {
+        if (dynamicGroup) dynamicGroup.style.display = "none";
+        if (staticGroup) staticGroup.style.display = "block";
+        const firstStatic = staticGroup ? staticGroup.querySelector(".type-btn") : null;
+        if (firstStatic) firstStatic.click();
+    }
+}
+
 // Type Selector
 function initTypeSelector() {
     document.querySelectorAll(".type-btn").forEach(btn => {
@@ -438,9 +472,18 @@ function renderLandingPageMockup() {
     } else if (payload.type === "wifi") {
         container.innerHTML = `
             <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
-                <div style="font-size: 32px; margin-bottom: 6px;"></div>
+                <div style="font-size: 32px; margin-bottom: 6px;">📶</div>
                 <div style="font-size: 14px; font-weight: 800; color: #ffffff;">${getVal("wifi-ssid", "Wi-Fi Ağ Adı")}</div>
                 <div style="font-size: 11px; color: #10b981; margin-top: 4px; font-weight: 700;"> Kamera ile Otomatik Bağlantı</div>
+            </div>
+        `;
+    } else if (payload.type === "text") {
+        const textVal = getVal("static-text", "Sabit Metin / SMS İçeriği");
+        container.innerHTML = `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; text-align: center;">
+                <div style="font-size: 32px; margin-bottom: 6px;">📝</div>
+                <div style="font-size: 13px; font-weight: 700; color: #ffffff; white-space: pre-wrap; word-break: break-word;">${textVal}</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 8px; font-weight: 600;">📌 Statik İçerik (Sabit Veri)</div>
             </div>
         `;
     }
@@ -463,9 +506,11 @@ async function updateLivePreview() {
         const pass = getVal("wifi-pass", "12345678");
         previewText = `WIFI:S:${ssid};T:WPA;P:${pass};;`;
     } else if (payload.type === "whatsapp") {
-        const phone = getVal("wa-phone", "905300000000");
+        const phone = getVal("wa-phone", "905000000000");
         const msg = encodeURIComponent(getVal("wa-msg", "Merhaba, bilgi almak istiyorum."));
         previewText = `https://wa.me/${phone}?text=${msg}`;
+    } else if (payload.type === "text") {
+        previewText = getVal("static-text", "Dijitalgru QR Studio");
     }
 
     // Representative sample QR fallback when input is empty
@@ -829,6 +874,8 @@ function getQRFormPayload() {
         const phone = getVal("wa-phone", "905000000000");
         const msg = encodeURIComponent(getVal("wa-msg", "Merhaba, bilgi almak istiyorum."));
         target_url = `https://wa.me/${phone}?text=${msg}`;
+    } else if (currentQrType === "text") {
+        target_url = getVal("static-text", "Dijitalgru QR Studio");
     }
 
     return {
