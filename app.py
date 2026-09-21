@@ -1248,13 +1248,17 @@ def api_admin_update_plan(user_id):
         return jsonify({"error": "Kullanıcı bulunamadı."}), 404
         
     old_plan = target_user["plan"]
+    amount = float(data.get("amount", 0.00))
+    source = data.get("source", "manual_admin")
+    custom_plan_name = data.get("plan_name", f"MANUAL {new_plan.upper()}")
+    
     cursor.execute("UPDATE users SET plan = ?, subscription_end = ?, dynamic_qr_limit = ? WHERE id = ?", (new_plan, sub_end, qr_limit, user_id))
     
-    # Record manual admin plan assignment in subscriptions table with source = 'manual_admin' and amount = 0.00
+    # Record plan assignment in subscriptions table
     cursor.execute("""
     INSERT INTO subscriptions (user_id, plan_name, amount, status, iyzico_sub_id, invoice_no, source, refund_status, refund_date, created_at)
-    VALUES (?, ?, 0.00, 'active', 'MANUAL-ADMIN', 'MANUAL-ADMIN', 'manual_admin', 'none', 0, ?)
-    """, (user_id, f"MANUAL {new_plan.upper()}", now))
+    VALUES (?, ?, ?, 'active', ?, ?, ?, 'none', 0, ?)
+    """, (user_id, custom_plan_name, amount, f"iyzi_manual_{now}", f"DJG2026{now}", source, now))
     
     conn.commit()
     conn.close()
@@ -1263,7 +1267,7 @@ def api_admin_update_plan(user_id):
         admin_id=admin["id"],
         target_user_id=user_id,
         action_type="UPDATE_PLAN",
-        details=f"Plan {old_plan} -> {new_plan} (Bitiş: {days} gün sonra) olarak manuel güncellendi."
+        details=f"Plan {old_plan} -> {new_plan} ({amount} TL, Bitiş: {days} gün sonra) olarak güncellendi."
     )
     
     return jsonify({"status": "success", "message": f"Kullanıcı planı {new_plan.upper()} olarak güncellendi."})
