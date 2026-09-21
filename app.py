@@ -1368,9 +1368,9 @@ def api_admin_accounting_transactions():
     for r in rows:
         d = dict(r)
         
-        if plan_filter and plan_filter not in d["plan_name"].lower():
+        if plan_filter and plan_filter.lower() not in d["plan_name"].lower():
             continue
-        if source_filter and d["source"] != source_filter:
+        if source_filter and source_filter.lower() != d["source"].lower():
             continue
             
         amount = float(d["amount"])
@@ -1383,6 +1383,43 @@ def api_admin_accounting_transactions():
         txs.append(d)
         
     return jsonify({"transactions": txs})
+
+@app.route("/api/admin/subscriptions/<int:sub_id>/update", methods=["POST"])
+def api_admin_update_subscription(sub_id):
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    data = request.json or {}
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    update_fields = []
+    params = []
+    if "amount" in data:
+        update_fields.append("amount = ?")
+        params.append(float(data["amount"]))
+    if "source" in data:
+        update_fields.append("source = ?")
+        params.append(data["source"])
+    if "plan_name" in data:
+        update_fields.append("plan_name = ?")
+        params.append(data["plan_name"])
+    if "invoice_no" in data:
+        update_fields.append("invoice_no = ?")
+        params.append(data["invoice_no"])
+        
+    if not update_fields:
+        conn.close()
+        return jsonify({"error": "Güncellenecek alan bulunamadı."}), 400
+        
+    params.append(sub_id)
+    sql = f"UPDATE subscriptions SET {', '.join(update_fields)} WHERE id = ?"
+    cursor.execute(sql, tuple(params))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"status": "success", "message": "İşlem kaydı güncellendi."})
 
 @app.route("/api/admin/accounting/export", methods=["GET"])
 def api_admin_accounting_export():
