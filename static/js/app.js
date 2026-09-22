@@ -1752,3 +1752,16 @@ async function handleCardImageUpload(input, type) {
         if (statusElem) statusElem.innerText = "❌ Yükleme hatası oluştu.";
     }
 }
+
+// Studio Accordion Toggle Handler
+function toggleStudioAccordion(headerElem) {
+    if (!headerElem) return;
+    const item = headerElem.closest('.studio-accordion-item');
+    if (!item) return;
+    item.classList.toggle('open');
+    const arrow = item.querySelector('.studio-accordion-arrow');
+    if (arrow) {
+        arrow.innerText = item.classList.contains('open') ? '▲' : '▼';
+    }
+}
+

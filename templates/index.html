@@ -61,6 +61,41 @@
             text-transform: uppercase;
         }
 
+        /* Studio Accordion Panel Styles */
+        .studio-accordion-item {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .studio-accordion-header {
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+        .studio-accordion-header:hover {
+            background: rgba(255, 255, 255, 0.07);
+        }
+        .studio-accordion-arrow {
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+        .studio-accordion-item:not(.open) .studio-accordion-body {
+            display: none;
+        }
+        .studio-accordion-body {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
         /* Upload Area */
         .pdf-upload-box {
             border: 2px dashed rgba(99, 102, 241, 0.4);
@@ -657,338 +692,374 @@
 
             <div class="studio-grid">
                 <!-- Generator Controls Left -->
-                <div class="glass-card">
-                    <!-- General Settings -->
-                    <div class="responsive-grid-2">
-                        <div class="form-group">
-                            <label class="form-label">QR Kod Başlığı (Referansınız İçin)</label>
-                            <input type="text" id="qr-title" class="form-input" placeholder="Örn: Benim QR Kodum">
+                <div class="glass-card" style="padding: 16px;">
+                    <!-- Panel 1: Temel QR Bilgileri -->
+                    <div class="studio-accordion-item open">
+                        <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-gear" style="color: #818cf8; font-size: 16px;"></i>
+                                <span style="font-size: 14px; font-weight: 700; color: #ffffff;">1. Temel QR Bilgileri & Klasör</span>
+                            </div>
+                            <span class="studio-accordion-arrow">▲</span>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Klasör Seçin</label>
-                            <select id="qr-folder" class="form-select" onchange="toggleCustomFolderInput(this.value)">
-                                <option value="Genel" selected>📁 Genel</option>
-                                <option value="Restoran Menüleri">📁 Restoran Menüleri</option>
-                                <option value="Kartvizitler">📁 Kartvizitler</option>
-                                <option value="Etkinlikler">📁 Etkinlikler</option>
-                                <option value="__new__">➕ Yeni Klasör Oluştur...</option>
-                            </select>
-                            <input type="text" id="custom-folder-input" class="form-input" placeholder="Yeni klasör adını yazın..." style="display: none; margin-top: 8px;">
-                        </div>
-                    </div>
-
-                    <!-- Type 1: URL -->
-                    <div id="form-url" class="type-form">
-                        <div class="form-group">
-                            <label class="form-label">Hedef Web Adresi (URL)</label>
-                            <input type="url" id="target-url" class="form-input" placeholder="https://siteniz.com">
-                        </div>
-                    </div>
-
-                    <!-- Type 2: vCard -->
-                    <div id="form-vcard" class="type-form" style="display: none;">
-                        <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">Dijital Kartvizit Bilgileri</h4>
-
-                        <!-- Direct vCard Redirect Switch -->
-                        <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <div style="font-weight: 700; font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 6px;">Doğrudan Rehbere Ekle (vCard İndirme)</div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Aktifleştiğinde kullanıcılar açılış sayfası görmez, doğrudan kişiyi rehbere ekleme penceresi açılır.</div>
+                        <div class="studio-accordion-body">
+                            <div class="responsive-grid-2">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">QR Kod Başlığı (Referansınız İçin)</label>
+                                    <input type="text" id="qr-title" class="form-input" placeholder="Örn: Benim QR Kodum">
                                 </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="direct-vcard-redirect" onchange="updateLivePreview()">
-                                    <span class="slider"></span>
-                                </label>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">Klasör Seçin</label>
+                                    <select id="qr-folder" class="form-select" onchange="toggleCustomFolderInput(this.value)">
+                                        <option value="Genel" selected>📁 Genel</option>
+                                        <option value="Restoran Menüleri">📁 Restoran Menüleri</option>
+                                        <option value="Kartvizitler">📁 Kartvizitler</option>
+                                        <option value="Etkinlikler">📁 Etkinlikler</option>
+                                        <option value="__new__">➕ Yeni Klasör Oluştur...</option>
+                                    </select>
+                                    <input type="text" id="custom-folder-input" class="form-input" placeholder="Yeni klasör adını yazın..." style="display: none; margin-top: 8px;">
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Profil Fotoğrafı Yükleme -->
-                        <div class="form-group">
-                            <label class="form-label">Profil Fotoğrafı</label>
-                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                                <label for="vcard-avatar-file" class="btn-secondary" style="padding: 12px 18px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; margin: 0; border-radius: 12px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; display: inline-flex; align-items: center; gap: 8px;">
-                                    <span id="vcard-avatar-btn-icon">📷</span>
-                                    <span id="vcard-avatar-btn-text">Profil Fotoğrafı Seç / Yükle</span>
-                                </label>
-                                <input type="file" id="vcard-avatar-file" accept="image/*" style="display: none;" onchange="handleVcardAvatarUpload(this)">
-                                <button type="button" id="vcard-avatar-crop-btn" onclick="openAvatarCropModal()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; font-weight: 700;">
-                                    ⚙️ Konumlandır & Kırp
-                                </button>
-                                <button type="button" id="vcard-avatar-remove-btn" onclick="removeVcardAvatar()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; font-weight: 700;">
-                                    🗑️ Görseli Kaldır
-                                </button>
-                            </div>
-                            <input type="hidden" id="vcard-avatar-url" value="">
-                            <div id="vcard-avatar-status" style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">İsteğe bağlı. Fotoğraf seçilmezse ad-soyad baş harfleri varsayılan olarak gösterilir.</div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            <div class="form-group">
-                                <label class="form-label">Ad Soyad</label>
-                                <input type="text" id="vcard-name" class="form-input" placeholder="Ad Soyad (Örn: Ahmet Yılmaz)" oninput="updateLivePreview()">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Unvan</label>
-                                <input type="text" id="vcard-title" class="form-input" placeholder="Unvan (Örn: Pazarlama Yöneticisi)" oninput="updateLivePreview()">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Şirket / Marka</label>
-                            <input type="text" id="vcard-company" class="form-input" placeholder="Şirket / Kurum Adı" oninput="updateLivePreview()">
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            <div class="form-group">
-                                <label class="form-label">Cep Telefonu</label>
-                                <input type="text" id="vcard-phone" class="form-input" placeholder="+90 5XX XXX XX XX" oninput="updateLivePreview()">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">İş Telefonu (Opsiyonel)</label>
-                                <input type="text" id="vcard-phone2" class="form-input" placeholder="+90 212 XXX XX XX" oninput="updateLivePreview()">
-                            </div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            <div class="form-group">
-                                <label class="form-label">E-posta</label>
-                                <input type="email" id="vcard-email" class="form-input" placeholder="eposta@sirketiniz.com" oninput="updateLivePreview()">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Web Sitesi</label>
-                                <input type="url" id="vcard-website" class="form-input" placeholder="https://siteniz.com" oninput="updateLivePreview()">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Adres / Şehir</label>
-                            <input type="text" id="vcard-address" class="form-input" placeholder="İstanbul, Türkiye" oninput="updateLivePreview()">
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Biyografi / Hakkında</label>
-                            <textarea id="vcard-bio" class="form-textarea" rows="2" placeholder="Kısa özgeçmiş veya firma tanımı..." oninput="updateLivePreview()"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Fotoğrafı - İsteğe Bağlı)</label>
-                            <input type="file" id="vcard-card-image-file" accept="image/*" class="form-input" style="padding: 8px;" onchange="handleCardImageUpload(this, 'vcard')">
-                            <input type="hidden" id="vcard-card-image-url">
-                            <div id="vcard-card-img-status" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
                         </div>
                     </div>
 
-                    <!-- Type 3: Menu -->
-                    <div id="form-menu" class="type-form" style="display: none;">
-                        <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">Dijital Menü & PDF Katalog Ayarları</h4>
-
-                        <!-- Direct PDF Redirect Switch -->
-                        <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <div style="font-weight: 700; font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 6px;">Doğrudan PDF Yönlendirmesi</div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Aktifleştiğinde kullanıcılar herhangi bir sayfa görmez, doğrudan PDF belgesine yönlendirilir.</div>
+                    <!-- Panel 2: İçerik & Yapılandırma Ayarları -->
+                    <div class="studio-accordion-item open">
+                        <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-pen-to-square" style="color: #38bdf8; font-size: 16px;"></i>
+                                <span style="font-size: 14px; font-weight: 700; color: #ffffff;">2. İçerik & Yapılandırma Ayarları</span>
+                            </div>
+                            <span class="studio-accordion-arrow">▲</span>
+                        </div>
+                        <div class="studio-accordion-body">
+                            <!-- Type 1: URL -->
+                            <div id="form-url" class="type-form">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">Hedef Web Adresi (URL)</label>
+                                    <input type="url" id="target-url" class="form-input" placeholder="https://siteniz.com">
                                 </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="direct-pdf-redirect" checked onchange="updateLivePreview()">
-                                    <span class="slider"></span>
-                                </label>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Mekan / İşletme Adı</label>
-                            <input type="text" id="menu-title" class="form-input" placeholder="İşletme / Restoran Adı (Örn: Lezzet Cafe)">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Açıklama</label>
-                            <input type="text" id="menu-desc" class="form-input" placeholder="Kısa slogan veya bilgilendirme metni">
-                        </div>
+                            <!-- Type 2: vCard -->
+                            <div id="form-vcard" class="type-form" style="display: none;">
+                                <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">Dijital Kartvizit Bilgileri</h4>
 
-                        <!-- PDF Upload Option -->
-                        <div class="form-group">
-                            <label class="form-label">PDF Menü / Katalog Dosyası Yükleyin (İsteğe Bağlı)</label>
-                            <div class="pdf-upload-box" onclick="document.getElementById('pdf-file-input').click()">
-                                <div style="font-size: 28px; margin-bottom: 6px;">📄</div>
-                                <div id="pdf-status-text" style="font-size: 13px; font-weight: 600; color: #ffffff;">Tıklayın ve PDF Menünüzü Seçin (.pdf)</div>
-                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Müşterileriniz QR tarattığında hazırladığınız PDF menüyü hemen görüntüler</div>
-                            </div>
-                            <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePDFUpload(this)">
-                        </div>
+                                <!-- Direct vCard Redirect Switch -->
+                                <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 6px;">Doğrudan Rehbere Ekle (vCard İndirme)</div>
+                                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Aktifleştiğinde kullanıcılar açılış sayfası görmez, doğrudan kişiyi rehbere ekleme penceresi açılır.</div>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="direct-vcard-redirect" onchange="updateLivePreview()">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
 
-                        <!-- İletişim / Kartvizit Bilgileri Card -->
-                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 14px; margin-top: 16px; margin-bottom: 16px;">
-                            <h5 style="color: #818cf8; font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                                📇 İşletme & İletişim Bilgileri (İsteğe Bağlı Kartvizit)
-                            </h5>
-                            
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <!-- Profil Fotoğrafı Yükleme -->
                                 <div class="form-group">
-                                    <label class="form-label" style="font-size: 11px;">Kişi / Yetkili / İşletme Adı</label>
-                                    <input type="text" id="menu-contact-name" class="form-input" placeholder="Örn: Mehmet Yılmaz">
+                                    <label class="form-label">Profil Fotoğrafı</label>
+                                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                        <label for="vcard-avatar-file" class="btn-secondary" style="padding: 12px 18px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; margin: 0; border-radius: 12px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; display: inline-flex; align-items: center; gap: 8px;">
+                                            <span id="vcard-avatar-btn-icon">📷</span>
+                                            <span id="vcard-avatar-btn-text">Profil Fotoğrafı Seç / Yükle</span>
+                                        </label>
+                                        <input type="file" id="vcard-avatar-file" accept="image/*" style="display: none;" onchange="handleVcardAvatarUpload(this)">
+                                        <button type="button" id="vcard-avatar-crop-btn" onclick="openAvatarCropModal()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; font-weight: 700;">
+                                            ⚙️ Konumlandır & Kırp
+                                        </button>
+                                        <button type="button" id="vcard-avatar-remove-btn" onclick="removeVcardAvatar()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; font-weight: 700;">
+                                            🗑️ Görseli Kaldır
+                                        </button>
+                                    </div>
+                                    <input type="hidden" id="vcard-avatar-url" value="">
+                                    <div id="vcard-avatar-status" style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">İsteğe bağlı. Fotoğraf seçilmezse ad-soyad baş harfleri varsayılan olarak gösterilir.</div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Ad Soyad</label>
+                                        <input type="text" id="vcard-name" class="form-input" placeholder="Ad Soyad (Örn: Ahmet Yılmaz)" oninput="updateLivePreview()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Unvan</label>
+                                        <input type="text" id="vcard-title" class="form-input" placeholder="Unvan (Örn: Pazarlama Yöneticisi)" oninput="updateLivePreview()">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Şirket / Marka</label>
+                                    <input type="text" id="vcard-company" class="form-input" placeholder="Şirket / Kurum Adı" oninput="updateLivePreview()">
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Cep Telefonu</label>
+                                        <input type="text" id="vcard-phone" class="form-input" placeholder="+90 5XX XXX XX XX" oninput="updateLivePreview()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">İş Telefonu (Opsiyonel)</label>
+                                        <input type="text" id="vcard-phone2" class="form-input" placeholder="+90 212 XXX XX XX" oninput="updateLivePreview()">
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="form-group">
+                                        <label class="form-label">E-posta</label>
+                                        <input type="email" id="vcard-email" class="form-input" placeholder="eposta@sirketiniz.com" oninput="updateLivePreview()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Web Sitesi</label>
+                                        <input type="url" id="vcard-website" class="form-input" placeholder="https://siteniz.com" oninput="updateLivePreview()">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Adres / Şehir</label>
+                                    <input type="text" id="vcard-address" class="form-input" placeholder="İstanbul, Türkiye" oninput="updateLivePreview()">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Biyografi / Hakkında</label>
+                                    <textarea id="vcard-bio" class="form-textarea" rows="2" placeholder="Kısa özgeçmiş veya firma tanımı..." oninput="updateLivePreview()"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Fotoğrafı - İsteğe Bağlı)</label>
+                                    <input type="file" id="vcard-card-image-file" accept="image/*" class="form-input" style="padding: 8px;" onchange="handleCardImageUpload(this, 'vcard')">
+                                    <input type="hidden" id="vcard-card-image-url">
+                                    <div id="vcard-card-img-status" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Type 3: Menu -->
+                            <div id="form-menu" class="type-form" style="display: none;">
+                                <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">Dijital Menü & PDF Katalog Ayarları</h4>
+
+                                <!-- Direct PDF Redirect Switch -->
+                                <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 6px;">Doğrudan PDF Yönlendirmesi</div>
+                                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Aktifleştiğinde kullanıcılar herhangi bir sayfa görmez, doğrudan PDF belgesine yönlendirilir.</div>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="direct-pdf-redirect" checked onchange="updateLivePreview()">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Mekan / İşletme Adı</label>
+                                    <input type="text" id="menu-title" class="form-input" placeholder="İşletme / Restoran Adı (Örn: Lezzet Cafe)">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" style="font-size: 11px;">Unvan / Pozisyon</label>
-                                    <input type="text" id="menu-contact-title" class="form-input" placeholder="Örn: İşletme Sahibi">
+                                    <label class="form-label">Açıklama</label>
+                                    <input type="text" id="menu-desc" class="form-input" placeholder="Kısa slogan veya bilgilendirme metni">
                                 </div>
-                            </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <!-- PDF Upload Option -->
                                 <div class="form-group">
-                                    <label class="form-label" style="font-size: 11px;">Telefon Numarası</label>
-                                    <input type="tel" id="menu-phone" class="form-input" placeholder="+90 532 XXX XX XX">
+                                    <label class="form-label">PDF Menü / Katalog Dosyası Yükleyin (İsteğe Bağlı)</label>
+                                    <div class="pdf-upload-box" onclick="document.getElementById('pdf-file-input').click()">
+                                        <div style="font-size: 28px; margin-bottom: 6px;">📄</div>
+                                        <div id="pdf-status-text" style="font-size: 13px; font-weight: 600; color: #ffffff;">Tıklayın ve PDF Menünüzü Seçin (.pdf)</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Müşterileriniz QR tarattığında hazırladığınız PDF menüyü hemen görüntüler</div>
+                                    </div>
+                                    <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePDFUpload(this)">
+                                </div>
+
+                                <!-- İletişim / Kartvizit Bilgileri Accordion Bar -->
+                                <div class="studio-accordion-item" style="margin-top: 16px; margin-bottom: 16px; border: 1px solid rgba(129, 140, 248, 0.25);">
+                                    <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)" style="background: rgba(99, 102, 241, 0.08);">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span>📇</span>
+                                            <span style="color: #818cf8; font-size: 13px; font-weight: 700;">İşletme & İletişim Bilgileri (İsteğe Bağlı Kartvizit)</span>
+                                        </div>
+                                        <span class="studio-accordion-arrow">▼</span>
+                                    </div>
+                                    <div class="studio-accordion-body" style="padding: 16px;">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">Kişi / Yetkili / İşletme Adı</label>
+                                                <input type="text" id="menu-contact-name" class="form-input" placeholder="Örn: Mehmet Yılmaz">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">Unvan / Pozisyon</label>
+                                                <input type="text" id="menu-contact-title" class="form-input" placeholder="Örn: İşletme Sahibi">
+                                            </div>
+                                        </div>
+
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">Telefon Numarası</label>
+                                                <input type="tel" id="menu-phone" class="form-input" placeholder="+90 532 XXX XX XX">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">WhatsApp / 2. Telefon</label>
+                                                <input type="tel" id="menu-phone2" class="form-input" placeholder="+90 530 XXX XX XX">
+                                            </div>
+                                        </div>
+
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">E-posta Adresi</label>
+                                                <input type="email" id="menu-email" class="form-input" placeholder="info@isletmeniz.com">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">Web Sitesi</label>
+                                                <input type="url" id="menu-website" class="form-input" placeholder="https://isletmeniz.com">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" style="margin-bottom: 12px;">
+                                            <label class="form-label" style="font-size: 11px;">Açık Adres / Konum</label>
+                                            <input type="text" id="menu-address" class="form-input" placeholder="Kadıköy, İstanbul">
+                                        </div>
+
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label" style="font-size: 11px;">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Fotoğrafı - İsteğe Bağlı)</label>
+                                            <input type="file" id="menu-card-image-file" accept="image/*" class="form-input" style="padding: 8px;" onchange="handleCardImageUpload(this, 'menu')">
+                                            <input type="hidden" id="menu-card-image-url">
+                                            <div id="menu-card-img-status" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Type 4: Wi-Fi -->
+                            <div id="form-wifi" class="type-form" style="display: none;">
+                                <div class="form-group">
+                                    <label class="form-label">Wi-Fi Ağ Adı (SSID)</label>
+                                    <input type="text" id="wifi-ssid" class="form-input" placeholder="Wi-Fi Ağ Adınız">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" style="font-size: 11px;">WhatsApp / 2. Telefon</label>
-                                    <input type="tel" id="menu-phone2" class="form-input" placeholder="+90 530 XXX XX XX">
+                                    <label class="form-label">Wi-Fi Şifresi</label>
+                                    <input type="password" id="wifi-pass" class="form-input" placeholder="Wi-Fi Şifreniz">
                                 </div>
                             </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <!-- Type 5: WhatsApp -->
+                            <div id="form-whatsapp" class="type-form" style="display: none;">
                                 <div class="form-group">
-                                    <label class="form-label" style="font-size: 11px;">E-posta Adresi</label>
-                                    <input type="email" id="menu-email" class="form-input" placeholder="info@isletmeniz.com">
+                                    <label class="form-label">WhatsApp Telefon Numarası (Ülke kodu ile)</label>
+                                    <input type="text" id="wa-phone" class="form-input" placeholder="905XXXXXXXXX">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" style="font-size: 11px;">Web Sitesi</label>
-                                    <input type="url" id="menu-website" class="form-input" placeholder="https://isletmeniz.com">
+                                    <label class="form-label">Hazır Mesaj Taslağı</label>
+                                    <input type="text" id="wa-msg" class="form-input" placeholder="Merhaba, bilgi almak istiyorum.">
                                 </div>
                             </div>
 
-                            <div class="form-group" style="margin-bottom: 12px;">
-                                <label class="form-label" style="font-size: 11px;">Açık Adres / Konum</label>
-                                <input type="text" id="menu-address" class="form-input" placeholder="Kadıköy, İstanbul">
-                            </div>
-
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label" style="font-size: 11px;">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Fotoğrafı - İsteğe Bağlı)</label>
-                                <input type="file" id="menu-card-image-file" accept="image/*" class="form-input" style="padding: 8px;" onchange="handleCardImageUpload(this, 'menu')">
-                                <input type="hidden" id="menu-card-image-url">
-                                <div id="menu-card-img-status" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
+                            <!-- Type 6: Metin / SMS (Statik) -->
+                            <div id="form-text" class="type-form" style="display: none;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">Sabit Metin veya SMS İçeriği</label>
+                                    <textarea id="static-text" class="form-input" rows="4" placeholder="QR kod tarandığında ekranda görüntülenecek sabit metni veya SMS içeriğini buraya girin..."></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Type 4: Wi-Fi -->
-                    <div id="form-wifi" class="type-form" style="display: none;">
-                        <div class="form-group">
-                            <label class="form-label">Wi-Fi Ağ Adı (SSID)</label>
-                            <input type="text" id="wifi-ssid" class="form-input" placeholder="Wi-Fi Ağ Adınız">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Wi-Fi Şifresi</label>
-                            <input type="password" id="wifi-pass" class="form-input" placeholder="Wi-Fi Şifreniz">
-                        </div>
-                    </div>
-
-                    <!-- Type 5: WhatsApp -->
-                    <div id="form-whatsapp" class="type-form" style="display: none;">
-                        <div class="form-group">
-                            <label class="form-label">WhatsApp Telefon Numarası (Ülke kodu ile)</label>
-                            <input type="text" id="wa-phone" class="form-input" placeholder="905XXXXXXXXX">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Hazır Mesaj Taslağı</label>
-                            <input type="text" id="wa-msg" class="form-input" placeholder="Merhaba, bilgi almak istiyorum.">
-                        </div>
-                    </div>
-
-                    <!-- Type 6: Metin / SMS (Statik) -->
-                    <div id="form-text" class="type-form" style="display: none;">
-                        <div class="form-group">
-                            <label class="form-label">Sabit Metin veya SMS İçeriği</label>
-                            <textarea id="static-text" class="form-input" rows="4" placeholder="QR kod tarandığında ekranda görüntülenecek sabit metni veya SMS içeriğini buraya girin..."></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Styling Customization with Premium Palettes & Hex Inputs -->
-                    <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 24px 0;">
-                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px;">Görsel Tasarım & Renk Paleti</h4>
-
-                    <div class="responsive-grid-2">
-                        <!-- QR Code Fill Color -->
-                        <div class="form-group">
-                            <label class="form-label">QR Kod Rengi</label>
-                            <div class="hex-input-group">
-                                <div class="color-preview-circle" id="fill-preview-circle" style="background-color: #4F46E5;"></div>
-                                <input type="text" id="fill-color" class="hex-text-input" value="#4F46E5" maxlength="7">
+                    <!-- Panel 3: Görsel Tasarım & Renk Paleti -->
+                    <div class="studio-accordion-item">
+                        <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-palette" style="color: #f472b6; font-size: 16px;"></i>
+                                <span style="font-size: 14px; font-weight: 700; color: #ffffff;">3. Görsel Tasarım & Renk Paleti</span>
                             </div>
-                            <div class="color-palette">
-                                <div class="color-swatch active" style="background: #4F46E5;" onclick="selectPresetColor('fill', '#4F46E5', this)"></div>
-                                <div class="color-swatch" style="background: #06B6D4;" onclick="selectPresetColor('fill', '#06B6D4', this)"></div>
-                                <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('fill', '#10B981', this)"></div>
-                                <div class="color-swatch" style="background: #F43F5E;" onclick="selectPresetColor('fill', '#F43F5E', this)"></div>
-                                <div class="color-swatch" style="background: #F59E0B;" onclick="selectPresetColor('fill', '#F59E0B', this)"></div>
-                                <div class="color-swatch" style="background: #0F172A;" onclick="selectPresetColor('fill', '#0F172A', this)"></div>
-                            </div>
+                            <span class="studio-accordion-arrow">▼</span>
                         </div>
+                        <div class="studio-accordion-body">
+                            <div class="responsive-grid-2">
+                                <!-- QR Code Fill Color -->
+                                <div class="form-group">
+                                    <label class="form-label">QR Kod Rengi</label>
+                                    <div class="hex-input-group">
+                                        <div class="color-preview-circle" id="fill-preview-circle" style="background-color: #4F46E5;"></div>
+                                        <input type="text" id="fill-color" class="hex-text-input" value="#4F46E5" maxlength="7">
+                                    </div>
+                                    <div class="color-palette">
+                                        <div class="color-swatch active" style="background: #4F46E5;" onclick="selectPresetColor('fill', '#4F46E5', this)"></div>
+                                        <div class="color-swatch" style="background: #06B6D4;" onclick="selectPresetColor('fill', '#06B6D4', this)"></div>
+                                        <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('fill', '#10B981', this)"></div>
+                                        <div class="color-swatch" style="background: #F43F5E;" onclick="selectPresetColor('fill', '#F43F5E', this)"></div>
+                                        <div class="color-swatch" style="background: #F59E0B;" onclick="selectPresetColor('fill', '#F59E0B', this)"></div>
+                                        <div class="color-swatch" style="background: #0F172A;" onclick="selectPresetColor('fill', '#0F172A', this)"></div>
+                                    </div>
+                                </div>
 
-                        <!-- QR Code Background Color -->
-                        <div class="form-group">
-                            <label class="form-label">Arka Plan Rengi</label>
-                            <div class="hex-input-group">
-                                <div class="color-preview-circle" id="back-preview-circle" style="background-color: #FFFFFF;"></div>
-                                <input type="text" id="back-color" class="hex-text-input" value="#FFFFFF" maxlength="7">
+                                <!-- QR Code Background Color -->
+                                <div class="form-group">
+                                    <label class="form-label">Arka Plan Rengi</label>
+                                    <div class="hex-input-group">
+                                        <div class="color-preview-circle" id="back-preview-circle" style="background-color: #FFFFFF;"></div>
+                                        <input type="text" id="back-color" class="hex-text-input" value="#FFFFFF" maxlength="7">
+                                    </div>
+                                    <div class="color-palette">
+                                        <div class="color-swatch active" style="background: #FFFFFF;" onclick="selectPresetColor('back', '#FFFFFF', this)"></div>
+                                        <div class="color-swatch" style="background: #F8FAFC;" onclick="selectPresetColor('back', '#F8FAFC', this)"></div>
+                                        <div class="color-swatch" style="background: #FEF3C7;" onclick="selectPresetColor('back', '#FEF3C7', this)"></div>
+                                        <div class="color-swatch" style="background: #E0E7FF;" onclick="selectPresetColor('back', '#E0E7FF', this)"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="color-palette">
-                                <div class="color-swatch active" style="background: #FFFFFF;" onclick="selectPresetColor('back', '#FFFFFF', this)"></div>
-                                <div class="color-swatch" style="background: #F8FAFC;" onclick="selectPresetColor('back', '#F8FAFC', this)"></div>
-                                <div class="color-swatch" style="background: #FEF3C7;" onclick="selectPresetColor('back', '#FEF3C7', this)"></div>
-                                <div class="color-swatch" style="background: #E0E7FF;" onclick="selectPresetColor('back', '#E0E7FF', this)"></div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="responsive-grid-2" style="margin-top: 12px;">
-                        <div class="form-group">
-                            <label class="form-label">Çerçeve Stili</label>
-                            <select id="frame-style" class="form-select">
-                                <option value="card" selected>Kart Çerçeve</option>
-                                <option value="none">Çerçevesiz</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Çerçeve Yazısı</label>
-                            <input type="text" id="frame-text" class="form-input" value="Beni Tara!">
-                        </div>
-                    </div>
+                            <div class="responsive-grid-2" style="margin-top: 12px;">
+                                <div class="form-group">
+                                    <label class="form-label">Çerçeve Stili</label>
+                                    <select id="frame-style" class="form-select">
+                                        <option value="card" selected>Kart Çerçeve</option>
+                                        <option value="none">Çerçevesiz</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Çerçeve Yazısı</label>
+                                    <input type="text" id="frame-text" class="form-input" value="Beni Tara!">
+                                </div>
+                            </div>
 
-                    <div class="responsive-grid-2" style="margin-top: 12px;">
-                        <!-- Frame Box/Border Color -->
-                        <div class="form-group">
-                            <label class="form-label">Çerçeve Rengi</label>
-                            <div class="hex-input-group">
-                                <div class="color-preview-circle" id="frame-preview-circle" style="background-color: #4F46E5;"></div>
-                                <input type="text" id="frame-color" class="hex-text-input" value="#4F46E5" maxlength="7">
-                            </div>
-                            <div class="color-palette" style="margin-top: 6px;">
-                                <div class="color-swatch active" style="background: #4F46E5;" onclick="selectPresetColor('frame', '#4F46E5', this)"></div>
-                                <div class="color-swatch" style="background: #06B6D4;" onclick="selectPresetColor('frame', '#06B6D4', this)"></div>
-                                <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('frame', '#10B981', this)"></div>
-                                <div class="color-swatch" style="background: #F43F5E;" onclick="selectPresetColor('frame', '#F43F5E', this)"></div>
-                                <div class="color-swatch" style="background: #F59E0B;" onclick="selectPresetColor('frame', '#F59E0B', this)"></div>
-                            </div>
-                        </div>
+                            <div class="responsive-grid-2" style="margin-top: 12px;">
+                                <!-- Frame Box/Border Color -->
+                                <div class="form-group">
+                                    <label class="form-label">Çerçeve Rengi</label>
+                                    <div class="hex-input-group">
+                                        <div class="color-preview-circle" id="frame-preview-circle" style="background-color: #4F46E5;"></div>
+                                        <input type="text" id="frame-color" class="hex-text-input" value="#4F46E5" maxlength="7">
+                                    </div>
+                                    <div class="color-palette" style="margin-top: 6px;">
+                                        <div class="color-swatch active" style="background: #4F46E5;" onclick="selectPresetColor('frame', '#4F46E5', this)"></div>
+                                        <div class="color-swatch" style="background: #06B6D4;" onclick="selectPresetColor('frame', '#06B6D4', this)"></div>
+                                        <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('frame', '#10B981', this)"></div>
+                                        <div class="color-swatch" style="background: #F43F5E;" onclick="selectPresetColor('frame', '#F43F5E', this)"></div>
+                                        <div class="color-swatch" style="background: #F59E0B;" onclick="selectPresetColor('frame', '#F59E0B', this)"></div>
+                                    </div>
+                                </div>
 
-                        <!-- Frame Text Color -->
-                        <div class="form-group">
-                            <label class="form-label">Yazı Rengi</label>
-                            <div class="hex-input-group">
-                                <div class="color-preview-circle" id="frame-text-preview-circle" style="background-color: #FFFFFF;"></div>
-                                <input type="text" id="frame-text-color" class="hex-text-input" value="#FFFFFF" maxlength="7">
-                            </div>
-                            <div class="color-palette" style="margin-top: 6px;">
-                                <div class="color-swatch active" style="background: #FFFFFF;" onclick="selectPresetColor('frame-text', '#FFFFFF', this)"></div>
-                                <div class="color-swatch" style="background: #FEF08A;" onclick="selectPresetColor('frame-text', '#FEF08A', this)"></div>
-                                <div class="color-swatch" style="background: #4F46E5;" onclick="selectPresetColor('frame-text', '#4F46E5', this)"></div>
-                                <div class="color-swatch" style="background: #0F172A;" onclick="selectPresetColor('frame-text', '#0F172A', this)"></div>
-                                <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('frame-text', '#10B981', this)"></div>
+                                <!-- Frame Text Color -->
+                                <div class="form-group">
+                                    <label class="form-label">Yazı Rengi</label>
+                                    <div class="hex-input-group">
+                                        <div class="color-preview-circle" id="frame-text-preview-circle" style="background-color: #FFFFFF;"></div>
+                                        <input type="text" id="frame-text-color" class="hex-text-input" value="#FFFFFF" maxlength="7">
+                                    </div>
+                                    <div class="color-palette" style="margin-top: 6px;">
+                                        <div class="color-swatch active" style="background: #FFFFFF;" onclick="selectPresetColor('frame-text', '#FFFFFF', this)"></div>
+                                        <div class="color-swatch" style="background: #FEF08A;" onclick="selectPresetColor('frame-text', '#FEF08A', this)"></div>
+                                        <div class="color-swatch" style="background: #4F46E5;" onclick="selectPresetColor('frame-text', '#4F46E5', this)"></div>
+                                        <div class="color-swatch" style="background: #0F172A;" onclick="selectPresetColor('frame-text', '#0F172A', this)"></div>
+                                        <div class="color-swatch" style="background: #10B981;" onclick="selectPresetColor('frame-text', '#10B981', this)"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <button class="btn-primary" id="save-qr-btn" style="width: 100%; margin-top: 16px; padding: 14px; justify-content: center;">QR Kodu Hesabıma Kaydet</button>
+                    <button class="btn-primary" id="save-qr-btn" style="width: 100%; margin-top: 12px; padding: 14px; justify-content: center; font-size: 15px; font-weight: 800;">🚀 QR Kodu Hesabıma Kaydet</button>
                 </div>
 
                 <!-- Simulator Preview Right & Download Format Options -->
