@@ -168,7 +168,9 @@ def redirect_qr(short_code):
     ).start()
 
     # ---- Target Resolution: ALWAYS redirect instantly to target_url ----
-    if target_url.startswith("micropage://vcard") or target_url == "vcard":
+    if target_url.endswith(".vcf"):
+        return download_vcard(qr_id)
+    elif target_url.startswith("micropage://vcard") or target_url == "vcard":
         return redirect(f"/p/vcard/{qr_id}", code=302)
     elif target_url.startswith("micropage://menu") or target_url == "menu" or target_url == "pdf":
         return redirect(f"/p/menu/{qr_id}", code=302)
