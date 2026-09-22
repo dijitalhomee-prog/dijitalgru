@@ -255,7 +255,7 @@
         
         if (toast && toastText) {
             if (isAndroid) {
-                toastText.innerHTML = 'Ekranda veya bildirim çubuğundaki <strong>"AÇ"</strong> ya da <strong>"Kişilere Ekle"</strong> butonuna dokunarak rehbere kaydedebilirsiniz.';
+                toastText.innerHTML = 'Açılan pencereden <strong>"İçeri Aktar"</strong> veya <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
             } else if (isIOS) {
                 toastText.innerHTML = 'Açılan kişi kartı penceresinden sağ üstteki <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
             }
@@ -263,28 +263,11 @@
             setTimeout(() => { toast.style.display = 'none'; }, 9000);
         }
 
-        if (isAndroid && e) {
-            try {
-                e.preventDefault();
-                const vcfStr = generateVcardText();
-                const blob = new Blob([vcfStr], { type: "text/vcard;charset=utf-8" });
-                const blobUrl = URL.createObjectURL(blob);
-                
-                const name = {{ (vcard.full_name or 'kisi') | tojson }};
-                const safeName = name.replace(/[^a-zA-Z0-9]/g, '_') || "kisi";
-                
-                const tempLink = document.createElement("a");
-                tempLink.href = blobUrl;
-                tempLink.setAttribute("download", `${safeName}.vcf`);
-                document.body.appendChild(tempLink);
-                tempLink.click();
-                document.body.removeChild(tempLink);
-                
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-                return false;
-            } catch (err) {
-                console.error("Blob download fallback:", err);
-            }
+        const targetUrl = url || `/p/vcard/{{ vcard.qr_id }}.vcf`;
+        if (isAndroid) {
+            window.location.href = targetUrl;
+            if (e) e.preventDefault();
+            return false;
         }
     }
     </script>

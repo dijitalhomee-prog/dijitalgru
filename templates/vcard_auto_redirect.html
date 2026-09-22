@@ -72,21 +72,22 @@
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const statusBox = document.getElementById("status-msg");
 
+        const vcfUrl = "/p/vcard/{{ qr_id }}.vcf";
+
         if (isAndroid) {
-            if (e) e.preventDefault();
-            const vcfText = generateRawVcard();
-            const b64 = btoa(unescape(encodeURIComponent(vcfText)));
-            const dataUri = "data:text/vcard;charset=utf-8;base64," + b64;
-            
             if (statusBox) {
-                statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarıldı</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan pencereden <strong>"Kişilere Ekle"</strong> butonuna dokunmanız yeterlidir.</span>';
+                statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarılıyor...</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan pencereden <strong>"İçeri Aktar"</strong> veya <strong>"Kaydet"</strong>e dokunmanız yeterlidir.</span>';
             }
-            window.location.href = dataUri;
+            window.location.href = vcfUrl;
+            if (e) e.preventDefault();
             return false;
         } else if (isIOS) {
             if (statusBox) {
                 statusBox.innerHTML = '✅ <strong>Kişi Kartı Hazırlandı</strong><br><span style="font-size: 11px; font-weight: 500;">Sağ üstteki <strong>"Kaydet"</strong>e dokunarak rehbere ekleyin.</span>';
             }
+            window.location.href = vcfUrl;
+            if (e) e.preventDefault();
+            return false;
         }
     }
 
