@@ -422,16 +422,14 @@ def serve_legacy_static_pdf(filename):
         
     return "PDF Dosyası Bulunamadı", 404
 
+@app.route("/p/media/<file_code>")
 @app.route("/p/pdf/<file_code>")
 @app.route("/p/pdf/<file_code>.pdf")
-def serve_pdf(file_code):
-    if file_code.endswith(".pdf"):
-        file_code = file_code[:-4]
-        
-    # 1. Check local disk static uploads first (Sub-10ms response!)
-    local_path = os.path.join(app.static_folder, "uploads", "pdfs", f"{file_code}.pdf")
-    if os.path.exists(local_path):
-        return send_file(local_path, mimetype="application/pdf")
+def serve_media(file_code):
+    for ext_suffix in [".pdf", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"]:
+        if file_code.endswith(ext_suffix):
+            file_code = file_code[:-len(ext_suffix)]
+            break
 
     conn = get_db()
     cursor = conn.cursor()
@@ -442,26 +440,29 @@ def serve_pdf(file_code):
     except Exception as ex:
         conn.rollback()
         conn.close()
-        return "PDF Bulunamadı", 404
+        return "Dosya Bulunamadı", 404
     conn.close()
-    
+
     if not row:
-        return "PDF Dosyası Bulunamadı", 404
-        
-    pdf_data = dict(row)
-    filename = pdf_data.get("filename", f"{file_code}.pdf")
-    content_type = pdf_data.get("content_type", "application/pdf")
-    
+        return "Dosya Bulunamadı", 404
+
+    file_data = dict(row)
+    content_type = file_data.get("content_type") or "application/octet-stream"
+    safe_ext = "png" if "png" in content_type else ("jpg" if "jpeg" in content_type or "jpg" in content_type else ("pdf" if "pdf" in content_type else "bin"))
+
+    local_path = os.path.join(app.static_folder, "uploads", "media", f"{file_code}.{safe_ext}")
+    if os.path.exists(local_path):
+        return send_file(local_path, mimetype=content_type)
+
     try:
-        pdf_bytes = base64.b64decode(pdf_data["data_b64"])
-        # Save to local disk cache for instant future hits
+        raw_bytes = base64.b64decode(file_data["data_b64"])
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
         with open(local_path, "wb") as f:
-            f.write(pdf_bytes)
+            f.write(raw_bytes)
         return send_file(local_path, mimetype=content_type)
     except Exception as ex:
-        print(f"PDF decode error for {file_code}:", ex)
-        return "PDF Dosyası Okunamadı", 500
+        print(f"Media decode error for {file_code}:", ex)
+        return "Dosya Okunamadı", 500
 
 @app.route("/api/upload/pdf", methods=["POST"])
 def api_upload_pdf():

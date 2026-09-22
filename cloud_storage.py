@@ -106,5 +106,8 @@ def upload_file_to_cloud(file_bytes, filename, content_type="application/pdf"):
     conn.commit()
     conn.close()
 
-    public_url = f"/p/pdf/{file_code}.pdf"
+    if content_type.startswith("image/"):
+        public_url = f"/p/media/{file_code}.{ext}"
+    else:
+        public_url = f"/p/pdf/{file_code}.pdf"
     return public_url, file_code
