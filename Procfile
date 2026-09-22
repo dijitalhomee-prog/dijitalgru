@@ -1,1 +1,1 @@
-web: node server.js
+web: python3 -m http.server $PORT
