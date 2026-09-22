@@ -2056,6 +2056,17 @@ async function openEditQRModal(qrId) {
                         <textarea id="edit-vcard-bio" class="form-textarea" rows="2">${v.bio || ''}</textarea>
                     </div>
 
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Profil Fotoğrafı URL</label>
+                            <input type="url" id="edit-vcard-avatar-url" class="form-input" placeholder="https://..." value="${v.avatar_url || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kartvizit Arka Plan Görseli URL</label>
+                            <input type="url" id="edit-vcard-card-image-url" class="form-input" placeholder="https://..." value="${v.card_image_url || ''}">
+                        </div>
+                    </div>
+
                     <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 16px; padding-top: 14px;">
                         <h4 style="color: #6366f1; margin-top: 0; margin-bottom: 12px; font-size: 13px;">🎨 Açılış Sayfası Teması & Rengi</h4>
                         <div class="form-group">
@@ -2213,6 +2224,8 @@ async function saveQREdit(event) {
             website: document.getElementById("edit-vcard-website") ? document.getElementById("edit-vcard-website").value.trim() : "",
             address: document.getElementById("edit-vcard-address") ? document.getElementById("edit-vcard-address").value.trim() : "",
             bio: document.getElementById("edit-vcard-bio") ? document.getElementById("edit-vcard-bio").value.trim() : "",
+            avatar_url: document.getElementById("edit-vcard-avatar-url") ? document.getElementById("edit-vcard-avatar-url").value.trim() : "",
+            card_image_url: document.getElementById("edit-vcard-card-image-url") ? document.getElementById("edit-vcard-card-image-url").value.trim() : "",
             social_links: {
                 instagram: document.getElementById("edit-vcard-social-instagram") ? document.getElementById("edit-vcard-social-instagram").value.trim() : "",
                 linkedin: document.getElementById("edit-vcard-social-linkedin") ? document.getElementById("edit-vcard-social-linkedin").value.trim() : "",

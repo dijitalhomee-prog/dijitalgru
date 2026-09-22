@@ -1935,6 +1935,14 @@
                 <button type="button" onclick="closeModal('modal-edit-qr')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
             </div>
 
+            <!-- Dinamik QR Güvencesi Bilgilendirme Kutusu -->
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">🛡️</span>
+                <span style="font-size: 12px; color: #34d399; font-weight: 600; line-height: 1.5;">
+                    <strong>Dinamik QR Güvencesi:</strong> Güncellediğiniz tüm bilgiler (Ad, Telefon, Sosyal Medya, Tema vb.) anında canlıya yansır. Basılmış kartvizitinizdeki veya fiziksel ürününüzdeki <strong>QR KOD GÖRSELİ KESİNLİKLE DEĞİŞMEZ</strong>. Tekrar baskı yapmanıza gerek yoktur.
+                </span>
+            </div>
+
             <form id="edit-qr-form" onsubmit="saveQREdit(event)">
                 <input type="hidden" id="edit-qr-id">
 
