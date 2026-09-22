@@ -186,15 +186,18 @@ function initNavigation() {
 
     const authBtn = document.getElementById("nav-auth-btn");
     if (authBtn) {
-        authBtn.addEventListener("click", () => {
-            if (currentUser) {
-                logout();
-            } else {
-                openModal("auth-modal");
-            }
-        });
+        authBtn.addEventListener("click", handleNavAuthClick);
     }
 }
+
+function handleNavAuthClick() {
+    if (currentUser) {
+        logout();
+    } else {
+        openModal("auth-modal");
+    }
+}
+window.handleNavAuthClick = handleNavAuthClick;
 
 function filterStudioCategory(category) {
     document.querySelectorAll(".studio-cat-btn").forEach(btn => {
