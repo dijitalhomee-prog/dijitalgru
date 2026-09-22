@@ -155,7 +155,8 @@ def init_db():
                 bio TEXT,
                 avatar_url TEXT,
                 card_image_url TEXT,
-                social_links TEXT
+                social_links TEXT,
+                theme_settings TEXT
             )
             """,
             """
@@ -295,6 +296,7 @@ def init_db():
                 avatar_url TEXT,
                 card_image_url TEXT,
                 social_links TEXT,
+                theme_settings TEXT,
                 FOREIGN KEY (qr_id) REFERENCES qr_codes (id)
             )
             """,

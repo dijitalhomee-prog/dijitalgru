@@ -248,7 +248,27 @@ def public_vcard(qr_id):
         return "Kartvizit Bulunamadı", 404
         
     vcard_data = dict(row)
-    return render_template("vcard_template.html", vcard=vcard_data)
+    social_links = {}
+    if vcard_data.get("social_links"):
+        try:
+            if isinstance(vcard_data["social_links"], str):
+                social_links = json.loads(vcard_data["social_links"])
+            elif isinstance(vcard_data["social_links"], dict):
+                social_links = vcard_data["social_links"]
+        except Exception:
+            social_links = {}
+
+    theme_data = {}
+    if vcard_data.get("theme_settings"):
+        try:
+            if isinstance(vcard_data["theme_settings"], str):
+                theme_data = json.loads(vcard_data["theme_settings"])
+            elif isinstance(vcard_data["theme_settings"], dict):
+                theme_data = vcard_data["theme_settings"]
+        except Exception:
+            theme_data = {}
+
+    return render_template("vcard_template.html", vcard=vcard_data, social=social_links, theme=theme_data)
 
 @app.route("/p/vcard/<int:qr_id>.vcf")
 def download_vcard(qr_id):

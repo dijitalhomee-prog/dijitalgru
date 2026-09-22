@@ -590,6 +590,45 @@ function getVal(id, defaultVal = "") {
 }
 
 let uploadedVcardAvatarUrl = "";
+let selectedVCardTheme = "midnight";
+let selectedVCardPrimaryColor = "#6366f1";
+let editSelectedVCardTheme = "midnight";
+let editSelectedVCardPrimaryColor = "#6366f1";
+
+function selectVCardTheme(themeKey, btnElem) {
+    selectedVCardTheme = themeKey;
+    const container = document.getElementById("vcard-theme-presets-grid");
+    if (container) {
+        container.querySelectorAll("button").forEach(b => {
+            b.style.borderColor = "rgba(255,255,255,0.12)";
+            b.style.transform = "none";
+        });
+    }
+    if (btnElem) {
+        btnElem.style.borderColor = "#6366f1";
+        btnElem.style.transform = "translateY(-2px)";
+    }
+}
+
+function updateVCardPrimaryColor(colorVal) {
+    selectedVCardPrimaryColor = colorVal;
+    const picker = document.getElementById("vcard-primary-color");
+    if (picker) picker.value = colorVal;
+}
+
+function selectVCardAccentPreset(colorVal, swatchElem) {
+    updateVCardPrimaryColor(colorVal);
+}
+
+function getVCardThemeSettings() {
+    const colorPicker = document.getElementById("vcard-primary-color");
+    const colorVal = colorPicker ? colorPicker.value : selectedVCardPrimaryColor;
+    return JSON.stringify({
+        theme: selectedVCardTheme || "midnight",
+        primary_color: colorVal || "#6366f1"
+    });
+}
+
 let cropRawImage = null;
 let cropCanvas = null;
 let cropCtx = null;
@@ -897,6 +936,7 @@ function getQRFormPayload() {
                 youtube: getVal("vcard-social-youtube", ""),
                 tiktok: getVal("vcard-social-tiktok", "")
             },
+            theme_settings: getVCardThemeSettings(),
             direct_redirect: directVcardEl ? directVcardEl.checked : false
         };
     } else if (currentQrType === "menu") {
@@ -1946,6 +1986,15 @@ async function openEditQRModal(qrId) {
             if (data.type === "vcard") {
                 const v = data.vcard || {};
                 const soc = v.social_links || {};
+                let themeObj = { theme: 'midnight', primary_color: '#6366f1' };
+                if (v.theme_settings) {
+                    try {
+                        themeObj = typeof v.theme_settings === 'string' ? JSON.parse(v.theme_settings) : v.theme_settings;
+                    } catch(e) {}
+                }
+                editSelectedVCardTheme = themeObj.theme || 'midnight';
+                editSelectedVCardPrimaryColor = themeObj.primary_color || '#6366f1';
+
                 container.innerHTML = `
                     <h4 style="color: var(--accent); margin-top: 0; margin-bottom: 14px; font-size: 14px;">📇 Dijital Kartvizit Bilgileri</h4>
                     
@@ -1995,6 +2044,28 @@ async function openEditQRModal(qrId) {
                     <div class="form-group">
                         <label class="form-label">Biyografi / Hakkında</label>
                         <textarea id="edit-vcard-bio" class="form-textarea" rows="2">${v.bio || ''}</textarea>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 16px; padding-top: 14px;">
+                        <h4 style="color: #6366f1; margin-top: 0; margin-bottom: 12px; font-size: 13px;">🎨 Açılış Sayfası Teması & Rengi</h4>
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 11px;">Hazır Tema Seçimi</label>
+                            <select id="edit-vcard-theme-select" class="form-select">
+                                <option value="midnight" ${editSelectedVCardTheme === 'midnight' ? 'selected' : ''}>Gece Koyu (Midnight)</option>
+                                <option value="minimal_light" ${editSelectedVCardTheme === 'minimal_light' ? 'selected' : ''}>Minimal Beyaz (Light)</option>
+                                <option value="purple" ${editSelectedVCardTheme === 'purple' ? 'selected' : ''}>Kraliyet Moru (Royal Purple)</option>
+                                <option value="emerald" ${editSelectedVCardTheme === 'emerald' ? 'selected' : ''}>Zümrüt Yeşili (Emerald)</option>
+                                <option value="crimson" ${editSelectedVCardTheme === 'crimson' ? 'selected' : ''}>Kızıl Yakut (Crimson)</option>
+                                <option value="cobalt" ${editSelectedVCardTheme === 'cobalt' ? 'selected' : ''}>Kurumsal Mavi (Blue)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" style="font-size: 11px;">Vurgu Rengi (Primary Accent)</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="color" id="edit-vcard-primary-color" value="${editSelectedVCardPrimaryColor}" style="width: 44px; height: 38px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: transparent; cursor: pointer; padding: 2px;">
+                                <span style="font-size: 12px; color: #94a3b8;">Özel marka vurgu renginiz</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 16px; padding-top: 14px;">
@@ -2139,7 +2210,11 @@ async function saveQREdit(event) {
                 facebook: document.getElementById("edit-vcard-social-facebook") ? document.getElementById("edit-vcard-social-facebook").value.trim() : "",
                 youtube: document.getElementById("edit-vcard-social-youtube") ? document.getElementById("edit-vcard-social-youtube").value.trim() : "",
                 tiktok: document.getElementById("edit-vcard-social-tiktok") ? document.getElementById("edit-vcard-social-tiktok").value.trim() : ""
-            }
+            },
+            theme_settings: JSON.stringify({
+                theme: document.getElementById("edit-vcard-theme-select") ? document.getElementById("edit-vcard-theme-select").value : "midnight",
+                primary_color: document.getElementById("edit-vcard-primary-color") ? document.getElementById("edit-vcard-primary-color").value : "#6366f1"
+            })
         };
     } else if (currentEditQRType === "menu") {
         payload.menu_payload = {
