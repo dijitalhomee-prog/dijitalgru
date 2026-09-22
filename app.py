@@ -726,26 +726,53 @@ def api_qr_update(qr_id):
     if vcard_payload:
         social_links_obj = vcard_payload.get("social_links", {})
         social_links_str = json.dumps(social_links_obj) if isinstance(social_links_obj, dict) else (social_links_obj or "{}")
+        theme_settings_val = vcard_payload.get("theme_settings")
+        if isinstance(theme_settings_val, dict):
+            theme_settings_val = json.dumps(theme_settings_val)
 
-        cursor.execute("""
-        UPDATE vcard_pages 
-        SET full_name = ?, title = ?, company = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, bio = ?, avatar_url = ?, card_image_url = ?, social_links = ?
-        WHERE qr_id = ?
-        """, (
-            vcard_payload.get("full_name"),
-            vcard_payload.get("title"),
-            vcard_payload.get("company"),
-            vcard_payload.get("phone"),
-            vcard_payload.get("phone2"),
-            vcard_payload.get("email"),
-            vcard_payload.get("website"),
-            vcard_payload.get("address"),
-            vcard_payload.get("bio"),
-            vcard_payload.get("avatar_url"),
-            vcard_payload.get("card_image_url"),
-            social_links_str,
-            qr_id
-        ))
+        cursor.execute("SELECT id FROM vcard_pages WHERE qr_id = ?", (qr_id,))
+        vcard_row = cursor.fetchone()
+        if not vcard_row:
+            cursor.execute("""
+            INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, phone2, email, website, address, bio, avatar_url, card_image_url, social_links, theme_settings)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                qr_id,
+                vcard_payload.get("full_name"),
+                vcard_payload.get("title"),
+                vcard_payload.get("company"),
+                vcard_payload.get("phone"),
+                vcard_payload.get("phone2"),
+                vcard_payload.get("email"),
+                vcard_payload.get("website"),
+                vcard_payload.get("address"),
+                vcard_payload.get("bio"),
+                vcard_payload.get("avatar_url"),
+                vcard_payload.get("card_image_url"),
+                social_links_str,
+                theme_settings_val
+            ))
+        else:
+            cursor.execute("""
+            UPDATE vcard_pages 
+            SET full_name = ?, title = ?, company = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, bio = ?, avatar_url = ?, card_image_url = ?, social_links = ?, theme_settings = ?
+            WHERE qr_id = ?
+            """, (
+                vcard_payload.get("full_name"),
+                vcard_payload.get("title"),
+                vcard_payload.get("company"),
+                vcard_payload.get("phone"),
+                vcard_payload.get("phone2"),
+                vcard_payload.get("email"),
+                vcard_payload.get("website"),
+                vcard_payload.get("address"),
+                vcard_payload.get("bio"),
+                vcard_payload.get("avatar_url"),
+                vcard_payload.get("card_image_url"),
+                social_links_str,
+                theme_settings_val,
+                qr_id
+            ))
 
     if menu_payload:
         pdf_url = menu_payload.get("pdf_url")

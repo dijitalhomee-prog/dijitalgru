@@ -1960,7 +1960,17 @@ let currentEditQRType = "url";
 
 async function openEditQRModal(qrId) {
     const token = localStorage.getItem("jwt_token");
-    if (!token) return;
+    if (!token) {
+        alert("QR kodunu düzenlemek için lütfen önce giriş yapın.");
+        openModal("auth-modal");
+        return;
+    }
+
+    const saveBtn = document.getElementById("edit-qr-save-btn");
+    if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerText = "💾 Değişiklikleri Kaydet";
+    }
 
     document.getElementById("edit-qr-id").value = qrId;
     document.getElementById("edit-qr-title").value = "Yükleniyor...";
@@ -2243,7 +2253,7 @@ async function saveQREdit(event) {
         if (res.ok && data.status === "success") {
             closeModal("modal-edit-qr");
             alert("✅ QR Kodu başarıyla güncellendi!");
-            if (typeof fetchQRCodes === "function") fetchQRCodes();
+            loadDashboardData();
         } else {
             alert(data.error || "Güncelleme kaydedilemedi.");
         }
