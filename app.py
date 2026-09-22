@@ -1232,8 +1232,8 @@ def api_admin_update_plan(user_id):
     if new_plan not in ["free", "starter", "advanced", "business"]:
         return jsonify({"error": "Geçersiz plan seçimi."}), 400
         
-    limits = {"free": 3, "starter": 20, "advanced": 100, "business": 10000}
-    qr_limit = limits.get(new_plan, 3)
+    limits = {"free": 3, "starter": 5, "advanced": 25, "business": 100}
+    qr_limit = int(data.get("dynamic_qr_limit")) if data.get("dynamic_qr_limit") is not None else limits.get(new_plan, 3)
     
     now = int(time.time())
     sub_end = now + (86400 * days) if new_plan != "free" else 0
