@@ -1477,8 +1477,8 @@ function renderQRList(codes) {
                 </div>
 
                 <!-- Edit QR Button -->
-                <button onclick="openEditQRModal(${qr.id})" title="QR Kodu Düzenle" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35); color: #a5b4fc; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                     Düzenle
+                <button onclick="openEditQRModal(${qr.id})" title="QR Kodu Düzenle" style="background: linear-gradient(135deg, #6366f1, #4f46e5); border: none; color: #ffffff; padding: 7px 14px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45); transition: all 0.2s ease;">
+                    ✏️ Düzenle
                 </button>
 
                 <!-- Analytics Icon Button -->
