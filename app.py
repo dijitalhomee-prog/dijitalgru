@@ -242,7 +242,9 @@ def download_vcard(qr_id):
     vcard_content = "\r\n".join(vcard_lines)
     response = Response(vcard_content, mimetype="text/vcard; charset=utf-8")
     safe_filename = "".join(c for c in name if c.isalnum() or c in (" ", "_", "-")).strip() or "kisi"
-    response.headers["Content-Disposition"] = f'attachment; filename="{safe_filename}.vcf"'
+    user_agent = request.headers.get("User-Agent", "").lower()
+    disposition = "inline" if ("iphone" in user_agent or "ipad" in user_agent or "android" in user_agent or "mobile" in user_agent) else "attachment"
+    response.headers["Content-Disposition"] = f'{disposition}; filename="{safe_filename}.vcf"'
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
