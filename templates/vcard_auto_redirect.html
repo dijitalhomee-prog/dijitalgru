@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ vcard.full_name or 'Rehbere Ekleniyor...' }} — Dijitalgru QR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+        .card { width: 100%; max-width: 420px; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .avatar-initials { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #10b981); margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; color: white; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+        .name { font-size: 20px; font-weight: 800; color: white; margin-bottom: 4px; }
+        .title { font-size: 13px; font-weight: 600; color: #818cf8; margin-bottom: 4px; }
+        .company { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
+        .status-box { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 14px; padding: 14px; color: #34d399; font-size: 13px; font-weight: 700; margin-bottom: 20px; line-height: 1.4; }
+        .btn-save { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 800; font-size: 15px; border-radius: 16px; text-decoration: none; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: all 0.2s; }
+        .btn-save:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="avatar-initials">
+            {{ (vcard.full_name.strip()[0] if vcard.full_name else 'A') | upper }}
+        </div>
+        <h1 class="name">{{ vcard.full_name or 'Ad Soyad' }}</h1>
+        <div class="title">{{ vcard.title or '' }}</div>
+        <div class="company">{{ vcard.company or '' }}</div>
+
+        <div class="status-box" id="status-msg">
+            ⏳ <strong>Kişi Kartı Ekranınıza Aktarılıyor...</strong>
+        </div>
+
+        <a id="vcf-trigger-btn" href="/p/vcard/{{ qr_id }}.vcf" class="btn-save" onclick="triggerContactSave(event)">
+            👤 Rehbere Ekle
+        </a>
+    </div>
+
+    <script>
+    function generateRawVcard() {
+        const name = {{ (vcard.full_name or 'Kişi Kartı') | tojson }};
+        const title = {{ (vcard.title or '') | tojson }};
+        const org = {{ (vcard.company or '') | tojson }};
+        const phone = {{ (vcard.phone or '') | tojson }};
+        const phone2 = {{ (vcard.phone2 or '') | tojson }};
+        const email = {{ (vcard.email or '') | tojson }};
+        const website = {{ (vcard.website or '') | tojson }};
+        const address = {{ (vcard.address or '') | tojson }};
+        const bio = {{ (vcard.bio or '') | tojson }};
+
+        let lines = [
+            "BEGIN:VCARD",
+            "VERSION:3.0",
+            `FN;CHARSET=UTF-8:${name}`,
+            `N;CHARSET=UTF-8:${name};;;;`
+        ];
+        if (title) lines.push(`TITLE;CHARSET=UTF-8:${title}`);
+        if (org) lines.push(`ORG;CHARSET=UTF-8:${org}`);
+        if (phone) lines.push(`TEL;TYPE=CELL:${phone}`);
+        if (phone2) lines.push(`TEL;TYPE=WORK:${phone2}`);
+        if (email) lines.push(`EMAIL;TYPE=INTERNET:${email}`);
+        if (website) lines.push(`URL:${website}`);
+        if (address) lines.push(`ADR;CHARSET=UTF-8:;;${address};;;;`);
+        if (bio) lines.push(`NOTE;CHARSET=UTF-8:${bio}`);
+        lines.push("END:VCARD");
+
+        return lines.join("\r\n");
+    }
+
+    function triggerContactSave(e) {
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const statusBox = document.getElementById("status-msg");
+
+        if (isAndroid) {
+            if (e) e.preventDefault();
+            const vcfText = generateRawVcard();
+            const b64 = btoa(unescape(encodeURIComponent(vcfText)));
+            const dataUri = "data:text/vcard;charset=utf-8;base64," + b64;
+            
+            if (statusBox) {
+                statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarıldı</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan pencereden <strong>"Kişilere Ekle"</strong> butonuna dokunmanız yeterlidir.</span>';
+            }
+            window.location.href = dataUri;
+            return false;
+        } else if (isIOS) {
+            if (statusBox) {
+                statusBox.innerHTML = '✅ <strong>Kişi Kartı Hazırlandı</strong><br><span style="font-size: 11px; font-weight: 500;">Sağ üstteki <strong>"Kaydet"</strong>e dokunarak rehbere ekleyin.</span>';
+            }
+        }
+    }
+
+    // Auto-trigger immediately on load
+    window.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            triggerContactSave(null);
+        }, 150);
+    });
+    </script>
+</body>
+</html>

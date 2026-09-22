@@ -169,6 +169,13 @@ def redirect_qr(short_code):
 
     # ---- Target Resolution: ALWAYS redirect instantly to target_url ----
     if target_url.endswith(".vcf"):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            return render_template("vcard_auto_redirect.html", vcard=dict(row), qr_id=qr_id)
         return download_vcard(qr_id)
     elif target_url.startswith("micropage://vcard") or target_url == "vcard":
         return redirect(f"/p/vcard/{qr_id}", code=302)
