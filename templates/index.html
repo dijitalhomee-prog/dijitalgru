@@ -833,6 +833,51 @@
                                     <input type="hidden" id="vcard-card-image-url">
                                     <div id="vcard-card-img-status" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
                                 </div>
+
+                                <!-- Sosyal Medya Hesapları Accordion Bar -->
+                                <div class="studio-accordion-item" style="margin-top: 16px; margin-bottom: 16px; border: 1px solid rgba(244, 114, 182, 0.3);">
+                                    <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)" style="background: rgba(244, 114, 182, 0.08);">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span>🌐</span>
+                                            <span style="color: #f472b6; font-size: 13px; font-weight: 700;">Sosyal Medya Profilleri (İsteğe Bağlı)</span>
+                                        </div>
+                                        <span class="studio-accordion-arrow">▼</span>
+                                    </div>
+                                    <div class="studio-accordion-body" style="padding: 16px;">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">Instagram Profil Linki</label>
+                                                <input type="url" id="vcard-social-instagram" class="form-input" placeholder="https://instagram.com/kullanici" oninput="updateLivePreview()">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">LinkedIn Profil Linki</label>
+                                                <input type="url" id="vcard-social-linkedin" class="form-input" placeholder="https://linkedin.com/in/kullanici" oninput="updateLivePreview()">
+                                            </div>
+                                        </div>
+
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">Twitter / X Linki</label>
+                                                <input type="url" id="vcard-social-twitter" class="form-input" placeholder="https://x.com/kullanici" oninput="updateLivePreview()">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-size: 11px;">Facebook Linki</label>
+                                                <input type="url" id="vcard-social-facebook" class="form-input" placeholder="https://facebook.com/kullanici" oninput="updateLivePreview()">
+                                            </div>
+                                        </div>
+
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                            <div class="form-group" style="margin-bottom: 0;">
+                                                <label class="form-label" style="font-size: 11px;">YouTube Kanal Linki</label>
+                                                <input type="url" id="vcard-social-youtube" class="form-input" placeholder="https://youtube.com/@kanal" oninput="updateLivePreview()">
+                                            </div>
+                                            <div class="form-group" style="margin-bottom: 0;">
+                                                <label class="form-label" style="font-size: 11px;">TikTok Profil Linki</label>
+                                                <input type="url" id="vcard-social-tiktok" class="form-input" placeholder="https://tiktok.com/@kullanici" oninput="updateLivePreview()">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Type 3: Menu -->
@@ -1825,6 +1870,43 @@
                     </table>
                 </div>
             </div>
+        </div>
+    <!-- EDIT QR MODAL -->
+    <div class="modal-overlay" id="modal-edit-qr">
+        <div class="modal-content" style="max-width: 750px; width: 95%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                <h3 style="font-size: 18px; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span>✏️</span> <span id="edit-qr-modal-header">QR Kodu Düzenle</span>
+                </h3>
+                <button type="button" onclick="closeModal('modal-edit-qr')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+
+            <form id="edit-qr-form" onsubmit="saveQREdit(event)">
+                <input type="hidden" id="edit-qr-id">
+
+                <!-- Common Header Fields -->
+                <div class="responsive-grid-2" style="margin-bottom: 16px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">QR Kod Başlığı</label>
+                        <input type="text" id="edit-qr-title" class="form-input" placeholder="QR Kod Adı" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Klasör Seçin</label>
+                        <input type="text" id="edit-qr-folder" class="form-input" placeholder="Genel">
+                    </div>
+                </div>
+
+                <!-- Dynamic Container for QR Type-Specific Inputs -->
+                <div id="edit-qr-dynamic-fields" style="background: rgba(15, 23, 42, 0.5); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; margin-bottom: 20px;">
+                    <!-- JS Injected Form Fields -->
+                </div>
+
+                <!-- Modal Actions -->
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-secondary" style="flex: 1; justify-content: center; padding: 12px; font-size: 13px;" onclick="closeModal('modal-edit-qr')">İptal</button>
+                    <button type="submit" id="edit-qr-save-btn" class="btn-primary" style="flex: 2; justify-content: center; padding: 12px; font-size: 14px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5);">💾 Değişiklikleri Kaydet</button>
+                </div>
+            </form>
         </div>
     </div>
 

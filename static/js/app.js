@@ -889,6 +889,14 @@ function getQRFormPayload() {
             bio: getVal("vcard-bio", ""),
             avatar_url: getVal("vcard-avatar-url", ""),
             card_image_url: getVal("vcard-card-image-url", ""),
+            social_links: {
+                instagram: getVal("vcard-social-instagram", ""),
+                linkedin: getVal("vcard-social-linkedin", ""),
+                twitter: getVal("vcard-social-twitter", ""),
+                facebook: getVal("vcard-social-facebook", ""),
+                youtube: getVal("vcard-social-youtube", ""),
+                tiktok: getVal("vcard-social-tiktok", "")
+            },
             direct_redirect: directVcardEl ? directVcardEl.checked : false
         };
     } else if (currentQrType === "menu") {
@@ -1428,6 +1436,11 @@ function renderQRList(codes) {
                     </label>
                 </div>
 
+                <!-- Edit QR Button -->
+                <button onclick="openEditQRModal(${qr.id})" title="QR Kodu Düzenle" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35); color: #a5b4fc; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                     Düzenle
+                </button>
+
                 <!-- Analytics Icon Button -->
                 <button onclick="openQRAnalytics(${qr.id}, '${qr.title}')" title="Analizler" style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); color: #06b6d4; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
                      Analitik
@@ -1900,6 +1913,274 @@ function downloadQRAnalyticsDirect(qrId, format) {
     }
     const downloadUrl = `/api/qr/${qrId}/analytics/export?format=${format || 'csv'}&token=${encodeURIComponent(token)}`;
     window.location.href = downloadUrl;
+}
+
+// QR Code Edit Modal Handlers
+let currentEditQRType = "url";
+
+async function openEditQRModal(qrId) {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+
+    document.getElementById("edit-qr-id").value = qrId;
+    document.getElementById("edit-qr-title").value = "Yükleniyor...";
+    document.getElementById("edit-qr-folder").value = "";
+    document.getElementById("edit-qr-dynamic-fields").innerHTML = "Veriler yükleniyor...";
+
+    openModal("modal-edit-qr");
+
+    try {
+        const res = await fetch(`/api/qr/${qrId}/details`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            currentEditQRType = data.type;
+            document.getElementById("edit-qr-modal-header").innerText = `QR Kodu Düzenle (${data.title})`;
+            document.getElementById("edit-qr-title").value = data.title || "";
+            document.getElementById("edit-qr-folder").value = data.folder_name || "Genel";
+
+            const container = document.getElementById("edit-qr-dynamic-fields");
+
+            if (data.type === "vcard") {
+                const v = data.vcard || {};
+                const soc = v.social_links || {};
+                container.innerHTML = `
+                    <h4 style="color: var(--accent); margin-top: 0; margin-bottom: 14px; font-size: 14px;">📇 Dijital Kartvizit Bilgileri</h4>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Ad Soyad</label>
+                            <input type="text" id="edit-vcard-name" class="form-input" value="${v.full_name || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Unvan</label>
+                            <input type="text" id="edit-vcard-title" class="form-input" value="${v.title || ''}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Şirket / Marka</label>
+                        <input type="text" id="edit-vcard-company" class="form-input" value="${v.company || ''}">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Cep Telefonu</label>
+                            <input type="text" id="edit-vcard-phone" class="form-input" value="${v.phone || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">İş Telefonu</label>
+                            <input type="text" id="edit-vcard-phone2" class="form-input" value="${v.phone2 || ''}">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">E-posta</label>
+                            <input type="email" id="edit-vcard-email" class="form-input" value="${v.email || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Web Sitesi</label>
+                            <input type="url" id="edit-vcard-website" class="form-input" value="${v.website || ''}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Adres / Şehir</label>
+                        <input type="text" id="edit-vcard-address" class="form-input" value="${v.address || ''}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Biyografi / Hakkında</label>
+                        <textarea id="edit-vcard-bio" class="form-textarea" rows="2">${v.bio || ''}</textarea>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 16px; padding-top: 14px;">
+                        <h4 style="color: #f472b6; margin-top: 0; margin-bottom: 12px; font-size: 13px;">🌐 Sosyal Medya Profilleri</h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 11px;">Instagram</label>
+                                <input type="url" id="edit-vcard-social-instagram" class="form-input" value="${soc.instagram || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 11px;">LinkedIn</label>
+                                <input type="url" id="edit-vcard-social-linkedin" class="form-input" value="${soc.linkedin || ''}">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 11px;">Twitter / X</label>
+                                <input type="url" id="edit-vcard-social-twitter" class="form-input" value="${soc.twitter || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 11px;">Facebook</label>
+                                <input type="url" id="edit-vcard-social-facebook" class="form-input" value="${soc.facebook || ''}">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 11px;">YouTube</label>
+                                <input type="url" id="edit-vcard-social-youtube" class="form-input" value="${soc.youtube || ''}">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 11px;">TikTok</label>
+                                <input type="url" id="edit-vcard-social-tiktok" class="form-input" value="${soc.tiktok || ''}">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (data.type === "menu") {
+                const m = data.menu || {};
+                container.innerHTML = `
+                    <h4 style="color: var(--accent); margin-top: 0; margin-bottom: 14px; font-size: 14px;">📄 Dijital Menü & Katalog Ayarları</h4>
+                    <div class="form-group">
+                        <label class="form-label">Mekan / İşletme Adı</label>
+                        <input type="text" id="edit-menu-title" class="form-input" value="${m.title || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Açıklama</label>
+                        <input type="text" id="edit-menu-desc" class="form-input" value="${m.description || ''}">
+                    </div>
+                    
+                    <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 16px; padding-top: 14px;">
+                        <h4 style="color: #818cf8; margin-top: 0; margin-bottom: 12px; font-size: 13px;">📇 İşletme İletişim Bilgileri</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 11px;">Yetkili Adı</label>
+                                <input type="text" id="edit-menu-contact-name" class="form-input" value="${m.contact_name || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 11px;">Unvan</label>
+                                <input type="text" id="edit-menu-contact-title" class="form-input" value="${m.contact_title || ''}">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 11px;">Telefon</label>
+                                <input type="text" id="edit-menu-phone" class="form-input" value="${m.phone || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 11px;">E-posta</label>
+                                <input type="email" id="edit-menu-email" class="form-input" value="${m.email || ''}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 11px;">Web Sitesi</label>
+                            <input type="url" id="edit-menu-website" class="form-input" value="${m.website || ''}">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" style="font-size: 11px;">Adres</label>
+                            <input type="text" id="edit-menu-address" class="form-input" value="${m.address || ''}">
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Hedef Web Adresi (URL) / Metin İçeriği</label>
+                        <input type="text" id="edit-target-url" class="form-input" value="${data.target_url || ''}">
+                    </div>
+                `;
+            }
+        } else {
+            alert(data.error || "QR detayları alınamadı.");
+            closeModal("modal-edit-qr");
+        }
+    } catch (err) {
+        console.error("QR details error:", err);
+        alert("Bağlantı hatası oluştu.");
+        closeModal("modal-edit-qr");
+    }
+}
+
+async function saveQREdit(event) {
+    event.preventDefault();
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+
+    const qrId = document.getElementById("edit-qr-id").value;
+    const title = document.getElementById("edit-qr-title").value.trim();
+    const folderName = document.getElementById("edit-qr-folder").value.trim();
+
+    const saveBtn = document.getElementById("edit-qr-save-btn");
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Kaydediliyor...";
+    }
+
+    const payload = {
+        title: title,
+        folder_name: folderName
+    };
+
+    if (currentEditQRType === "url" || currentEditQRType === "wifi" || currentEditQRType === "whatsapp" || currentEditQRType === "text" || currentEditQRType === "phone" || currentEditQRType === "sms") {
+        const targetUrlEl = document.getElementById("edit-target-url");
+        if (targetUrlEl) payload.target_url = targetUrlEl.value.trim();
+    } else if (currentEditQRType === "vcard") {
+        payload.vcard_payload = {
+            full_name: document.getElementById("edit-vcard-name") ? document.getElementById("edit-vcard-name").value.trim() : "",
+            title: document.getElementById("edit-vcard-title") ? document.getElementById("edit-vcard-title").value.trim() : "",
+            company: document.getElementById("edit-vcard-company") ? document.getElementById("edit-vcard-company").value.trim() : "",
+            phone: document.getElementById("edit-vcard-phone") ? document.getElementById("edit-vcard-phone").value.trim() : "",
+            phone2: document.getElementById("edit-vcard-phone2") ? document.getElementById("edit-vcard-phone2").value.trim() : "",
+            email: document.getElementById("edit-vcard-email") ? document.getElementById("edit-vcard-email").value.trim() : "",
+            website: document.getElementById("edit-vcard-website") ? document.getElementById("edit-vcard-website").value.trim() : "",
+            address: document.getElementById("edit-vcard-address") ? document.getElementById("edit-vcard-address").value.trim() : "",
+            bio: document.getElementById("edit-vcard-bio") ? document.getElementById("edit-vcard-bio").value.trim() : "",
+            social_links: {
+                instagram: document.getElementById("edit-vcard-social-instagram") ? document.getElementById("edit-vcard-social-instagram").value.trim() : "",
+                linkedin: document.getElementById("edit-vcard-social-linkedin") ? document.getElementById("edit-vcard-social-linkedin").value.trim() : "",
+                twitter: document.getElementById("edit-vcard-social-twitter") ? document.getElementById("edit-vcard-social-twitter").value.trim() : "",
+                facebook: document.getElementById("edit-vcard-social-facebook") ? document.getElementById("edit-vcard-social-facebook").value.trim() : "",
+                youtube: document.getElementById("edit-vcard-social-youtube") ? document.getElementById("edit-vcard-social-youtube").value.trim() : "",
+                tiktok: document.getElementById("edit-vcard-social-tiktok") ? document.getElementById("edit-vcard-social-tiktok").value.trim() : ""
+            }
+        };
+    } else if (currentEditQRType === "menu") {
+        payload.menu_payload = {
+            title: document.getElementById("edit-menu-title") ? document.getElementById("edit-menu-title").value.trim() : "",
+            description: document.getElementById("edit-menu-desc") ? document.getElementById("edit-menu-desc").value.trim() : "",
+            contact_name: document.getElementById("edit-menu-contact-name") ? document.getElementById("edit-menu-contact-name").value.trim() : "",
+            contact_title: document.getElementById("edit-menu-contact-title") ? document.getElementById("edit-menu-contact-title").value.trim() : "",
+            phone: document.getElementById("edit-menu-phone") ? document.getElementById("edit-menu-phone").value.trim() : "",
+            email: document.getElementById("edit-menu-email") ? document.getElementById("edit-menu-email").value.trim() : "",
+            website: document.getElementById("edit-menu-website") ? document.getElementById("edit-menu-website").value.trim() : "",
+            address: document.getElementById("edit-menu-address") ? document.getElementById("edit-menu-address").value.trim() : ""
+        };
+    }
+
+    try {
+        const res = await fetch(`/api/qr/${qrId}/update`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (res.ok && data.status === "success") {
+            closeModal("modal-edit-qr");
+            alert("✅ QR Kodu başarıyla güncellendi!");
+            if (typeof fetchQRCodes === "function") fetchQRCodes();
+        } else {
+            alert(data.error || "Güncelleme kaydedilemedi.");
+        }
+    } catch (err) {
+        console.error("Save edit error:", err);
+        alert("Sunucuya bağlanırken bir hata oluştu.");
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerText = "💾 Değişiklikleri Kaydet";
+        }
+    }
 }
 
 

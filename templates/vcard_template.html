@@ -104,6 +104,51 @@
             {% endif %}
         </div>
 
+        <!-- Social Media Profiles Section -->
+        {% if social and (social.instagram or social.linkedin or social.twitter or social.facebook or social.youtube or social.tiktok) %}
+        <div style="margin-bottom: 24px;">
+            <div style="font-size: 11px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; text-align: left;">🌐 Sosyal Medya Profilleri</div>
+            <div style="display: flex; gap: 8px; justify-content: flex-start; flex-wrap: wrap;">
+                {% if social.instagram %}
+                <a href="{{ social.instagram if (social.instagram.startswith('http') or social.instagram.startswith('//')) else 'https://' + social.instagram }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(225, 48, 108, 0.15); border-color: rgba(225, 48, 108, 0.4); color: #f472b6;">
+                    <span class="qa-icon">📸</span>
+                    <span>Instagram</span>
+                </a>
+                {% endif %}
+                {% if social.linkedin %}
+                <a href="{{ social.linkedin if (social.linkedin.startswith('http') or social.linkedin.startswith('//')) else 'https://' + social.linkedin }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(10, 102, 194, 0.15); border-color: rgba(10, 102, 194, 0.4); color: #38bdf8;">
+                    <span class="qa-icon">💼</span>
+                    <span>LinkedIn</span>
+                </a>
+                {% endif %}
+                {% if social.twitter %}
+                <a href="{{ social.twitter if (social.twitter.startswith('http') or social.twitter.startswith('//')) else 'https://' + social.twitter }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #ffffff;">
+                    <span class="qa-icon">𝕏</span>
+                    <span>Twitter / X</span>
+                </a>
+                {% endif %}
+                {% if social.facebook %}
+                <a href="{{ social.facebook if (social.facebook.startswith('http') or social.facebook.startswith('//')) else 'https://' + social.facebook }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(24, 119, 242, 0.15); border-color: rgba(24, 119, 242, 0.4); color: #60a5fa;">
+                    <span class="qa-icon">📘</span>
+                    <span>Facebook</span>
+                </a>
+                {% endif %}
+                {% if social.youtube %}
+                <a href="{{ social.youtube if (social.youtube.startswith('http') or social.youtube.startswith('//')) else 'https://' + social.youtube }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(255, 0, 0, 0.15); border-color: rgba(255, 0, 0, 0.4); color: #f87171;">
+                    <span class="qa-icon">▶️</span>
+                    <span>YouTube</span>
+                </a>
+                {% endif %}
+                {% if social.tiktok %}
+                <a href="{{ social.tiktok if (social.tiktok.startswith('http') or social.tiktok.startswith('//')) else 'https://' + social.tiktok }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(0, 242, 234, 0.15); border-color: rgba(0, 242, 234, 0.4); color: #2dd4bf;">
+                    <span class="qa-icon">🎵</span>
+                    <span>TikTok</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Detailed Information List Cards -->
         <div class="details-list">
             {% if vcard.phone %}

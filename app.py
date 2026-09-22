@@ -698,10 +698,17 @@ def api_qr_update(qr_id):
     if status:
         cursor.execute("UPDATE qr_codes SET status = ?, updated_at = ? WHERE id = ?", (status, now, qr_id))
 
+    folder_name = data.get("folder_name")
+    if folder_name:
+        cursor.execute("UPDATE qr_codes SET folder_name = ?, updated_at = ? WHERE id = ?", (folder_name, now, qr_id))
+
     if vcard_payload:
+        social_links_obj = vcard_payload.get("social_links", {})
+        social_links_str = json.dumps(social_links_obj) if isinstance(social_links_obj, dict) else (social_links_obj or "{}")
+
         cursor.execute("""
         UPDATE vcard_pages 
-        SET full_name = ?, title = ?, company = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, bio = ?, avatar_url = ?, card_image_url = ?
+        SET full_name = ?, title = ?, company = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, bio = ?, avatar_url = ?, card_image_url = ?, social_links = ?
         WHERE qr_id = ?
         """, (
             vcard_payload.get("full_name"),
@@ -715,6 +722,7 @@ def api_qr_update(qr_id):
             vcard_payload.get("bio"),
             vcard_payload.get("avatar_url"),
             vcard_payload.get("card_image_url"),
+            social_links_str,
             qr_id
         ))
 
@@ -743,6 +751,75 @@ def api_qr_update(qr_id):
         ))
         
     conn.commit()
+    conn.close()
+    
+    return jsonify({"status": "success", "message": "QR Kodu başarıyla güncellendi."})
+
+@app.route("/api/qr/<int:qr_id>/details", methods=["GET"])
+def api_qr_details(qr_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Yetkisiz erişim"}), 401
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM qr_codes WHERE id = ? AND user_id = ?", (qr_id, user["id"]))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return jsonify({"error": "QR Kod bulunamadı."}), 404
+
+    qr_data = dict(row)
+
+    # Fetch vCard data if type is vcard
+    vcard_data = None
+    if qr_data["type"] == "vcard":
+        cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
+        vrow = cursor.fetchone()
+        if vrow:
+            vcard_data = dict(vrow)
+            if vcard_data.get("social_links"):
+                try:
+                    if isinstance(vcard_data["social_links"], str):
+                        vcard_data["social_links"] = json.loads(vcard_data["social_links"])
+                except Exception:
+                    vcard_data["social_links"] = {}
+
+    # Fetch Menu data if type is menu
+    menu_data = None
+    if qr_data["type"] == "menu":
+        cursor.execute("SELECT * FROM menu_pages WHERE qr_id = ?", (qr_id,))
+        mrow = cursor.fetchone()
+        if mrow:
+            menu_data = dict(mrow)
+            if menu_data.get("social_links"):
+                try:
+                    if isinstance(menu_data["social_links"], str):
+                        menu_data["social_links"] = json.loads(menu_data["social_links"])
+                except Exception:
+                    menu_data["social_links"] = {}
+
+    conn.close()
+
+    custom_settings = {}
+    if qr_data.get("custom_settings"):
+        try:
+            custom_settings = json.loads(qr_data["custom_settings"])
+        except Exception:
+            pass
+
+    return jsonify({
+        "id": qr_data["id"],
+        "title": qr_data["title"],
+        "type": qr_data["type"],
+        "target_url": qr_data["target_url"],
+        "status": qr_data["status"],
+        "folder_name": qr_data.get("folder_name", "Genel"),
+        "is_dynamic": qr_data.get("is_dynamic", 1),
+        "custom_settings": custom_settings,
+        "vcard": vcard_data,
+        "menu": menu_data
+    })
     conn.close()
     
     return jsonify({"status": "success", "message": "QR Kod güncellendi!"})
