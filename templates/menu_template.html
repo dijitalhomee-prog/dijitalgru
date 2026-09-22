@@ -130,6 +130,12 @@
                 </div>
                 {% endif %}
             </div>
+
+            {% if menu.card_image_url %}
+            <div style="margin-top: 14px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+                <img src="{{ menu.card_image_url }}" alt="Fiziksel Kartvizit Görseli" style="width: 100%; height: auto; display: block; object-fit: contain;">
+            </div>
+            {% endif %}
         </div>
         {% endif %}
 

@@ -770,6 +770,13 @@
                             <label class="form-label">Biyografi / Hakkında</label>
                             <textarea id="vcard-bio" class="form-textarea" rows="2" placeholder="Kısa özgeçmiş veya firma tanımı..." oninput="updateLivePreview()"></textarea>
                         </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Fotoğrafı - İsteğe Bağlı)</label>
+                            <input type="file" id="vcard-card-image-file" accept="image/*" class="form-input" style="padding: 8px;" onchange="handleCardImageUpload(this, 'vcard')">
+                            <input type="hidden" id="vcard-card-image-url">
+                            <div id="vcard-card-img-status" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
+                        </div>
                     </div>
 
                     <!-- Type 3: Menu -->
@@ -849,9 +856,16 @@
                                 </div>
                             </div>
 
-                            <div class="form-group" style="margin-bottom: 0;">
+                            <div class="form-group" style="margin-bottom: 12px;">
                                 <label class="form-label" style="font-size: 11px;">Açık Adres / Konum</label>
                                 <input type="text" id="menu-address" class="form-input" placeholder="Kadıköy, İstanbul">
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 11px;">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Fotoğrafı - İsteğe Bağlı)</label>
+                                <input type="file" id="menu-card-image-file" accept="image/*" class="form-input" style="padding: 8px;" onchange="handleCardImageUpload(this, 'menu')">
+                                <input type="hidden" id="menu-card-image-url">
+                                <div id="menu-card-img-status" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
                             </div>
                         </div>
                     </div>

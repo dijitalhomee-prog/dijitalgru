@@ -548,8 +548,8 @@ def api_qr_create():
     # Handle micropage payloads
     if qr_type == "vcard" and vcard_payload:
         cursor.execute("""
-        INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, phone2, email, website, address, bio, avatar_url, social_links)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, phone2, email, website, address, bio, avatar_url, card_image_url, social_links)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             qr_id,
             vcard_payload.get("full_name"),
@@ -562,6 +562,7 @@ def api_qr_create():
             vcard_payload.get("address"),
             vcard_payload.get("bio"),
             vcard_payload.get("avatar_url"),
+            vcard_payload.get("card_image_url"),
             json.dumps(vcard_payload.get("social_links", {}))
         ))
         direct_vcard = vcard_payload.get("direct_redirect", False)
@@ -578,8 +579,8 @@ def api_qr_create():
         direct_redirect = menu_payload.get("direct_redirect", True)
 
         cursor.execute("""
-        INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, social_links)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, card_image_url, social_links)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             qr_id,
             menu_payload.get("title"),
@@ -594,6 +595,7 @@ def api_qr_create():
             menu_payload.get("email"),
             menu_payload.get("website"),
             menu_payload.get("address"),
+            menu_payload.get("card_image_url"),
             json.dumps(menu_payload.get("social_links", {}))
         ))
         
@@ -689,13 +691,33 @@ def api_qr_update(qr_id):
     if status:
         cursor.execute("UPDATE qr_codes SET status = ?, updated_at = ? WHERE id = ?", (status, now, qr_id))
 
+    if vcard_payload:
+        cursor.execute("""
+        UPDATE vcard_pages 
+        SET full_name = ?, title = ?, company = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, bio = ?, avatar_url = ?, card_image_url = ?
+        WHERE qr_id = ?
+        """, (
+            vcard_payload.get("full_name"),
+            vcard_payload.get("title"),
+            vcard_payload.get("company"),
+            vcard_payload.get("phone"),
+            vcard_payload.get("phone2"),
+            vcard_payload.get("email"),
+            vcard_payload.get("website"),
+            vcard_payload.get("address"),
+            vcard_payload.get("bio"),
+            vcard_payload.get("avatar_url"),
+            vcard_payload.get("card_image_url"),
+            qr_id
+        ))
+
     if menu_payload:
         pdf_url = menu_payload.get("pdf_url")
         if pdf_url in ["None", "null", "undefined", ""]:
             pdf_url = None
         cursor.execute("""
         UPDATE menu_pages 
-        SET title = ?, description = ?, pdf_url = ?, contact_name = ?, contact_title = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, social_links = ?
+        SET title = ?, description = ?, pdf_url = ?, contact_name = ?, contact_title = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, card_image_url = ?, social_links = ?
         WHERE qr_id = ?
         """, (
             menu_payload.get("title"),
@@ -708,6 +730,7 @@ def api_qr_update(qr_id):
             menu_payload.get("email"),
             menu_payload.get("website"),
             menu_payload.get("address"),
+            menu_payload.get("card_image_url"),
             json.dumps(menu_payload.get("social_links", {})),
             qr_id
         ))

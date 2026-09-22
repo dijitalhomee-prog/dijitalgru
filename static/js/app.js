@@ -888,6 +888,7 @@ function getQRFormPayload() {
             address: getVal("vcard-address", "İstanbul, Türkiye"),
             bio: getVal("vcard-bio", ""),
             avatar_url: getVal("vcard-avatar-url", ""),
+            card_image_url: getVal("vcard-card-image-url", ""),
             direct_redirect: directVcardEl ? directVcardEl.checked : false
         };
     } else if (currentQrType === "menu") {
@@ -904,6 +905,7 @@ function getQRFormPayload() {
             email: getVal("menu-email", ""),
             website: getVal("menu-website", ""),
             address: getVal("menu-address", ""),
+            card_image_url: getVal("menu-card-image-url", ""),
             categories: [
                 {
                     name: "Menü Kategori 1",
@@ -1717,5 +1719,36 @@ function toggleFaq(btn) {
 
     if (!isActive) {
         item.classList.add("active");
+    }
+}
+
+// Physical Business Card Front Image Upload Handler
+async function handleCardImageUpload(input, type) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const statusElem = document.getElementById(`${type}-card-img-status`);
+    const hiddenElem = document.getElementById(`${type}-card-image-url`);
+    
+    if (statusElem) statusElem.innerText = "⏳ Kartvizit görseli yükleniyor...";
+    
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    try {
+        const res = await fetch("/api/upload/image", {
+            method: "POST",
+            body: formData
+        });
+        const data = await res.json();
+        if (res.ok && data.image_url) {
+            if (hiddenElem) hiddenElem.value = data.image_url;
+            if (statusElem) statusElem.innerText = "✅ Kartvizit ön yüz görseli yüklendi!";
+            if (typeof updateLivePreview === "function") updateLivePreview();
+        } else {
+            if (statusElem) statusElem.innerText = "❌ Görsel yüklenemedi: " + (data.error || "Hata");
+        }
+    } catch (err) {
+        console.error("Card image upload error:", err);
+        if (statusElem) statusElem.innerText = "❌ Yükleme hatası oluştu.";
     }
 }

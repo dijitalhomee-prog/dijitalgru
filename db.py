@@ -148,11 +148,13 @@ def init_db():
                 title VARCHAR(255),
                 company VARCHAR(255),
                 phone VARCHAR(50),
+                phone2 VARCHAR(50),
                 email VARCHAR(255),
                 website TEXT,
                 address TEXT,
                 bio TEXT,
                 avatar_url TEXT,
+                card_image_url TEXT,
                 social_links TEXT
             )
             """,
@@ -172,6 +174,7 @@ def init_db():
                 email VARCHAR(255),
                 website TEXT,
                 address TEXT,
+                card_image_url TEXT,
                 social_links TEXT
             )
             """,
@@ -290,6 +293,7 @@ def init_db():
                 address TEXT,
                 bio TEXT,
                 avatar_url TEXT,
+                card_image_url TEXT,
                 social_links TEXT,
                 FOREIGN KEY (qr_id) REFERENCES qr_codes (id)
             )
@@ -310,6 +314,7 @@ def init_db():
                 email TEXT,
                 website TEXT,
                 address TEXT,
+                card_image_url TEXT,
                 social_links TEXT,
                 FOREIGN KEY (qr_id) REFERENCES qr_codes (id)
             )

@@ -200,13 +200,14 @@ def run_migrations():
         conn.rollback()
         print("⚠️ Identity migration note:", e)
 
-    # 7. Ensure vcard_pages phone2 column & menu_pages contact columns
+    # 7. Ensure vcard_pages & menu_pages card_image_url and contact columns
     try:
-        if is_postgres():
-            cursor.execute("ALTER TABLE vcard_pages ADD COLUMN IF NOT EXISTS phone2 VARCHAR(50) DEFAULT '';")
-        else:
+        for table in ["vcard_pages", "menu_pages"]:
             try:
-                cursor.execute("ALTER TABLE vcard_pages ADD COLUMN phone2 TEXT DEFAULT '';")
+                if is_postgres():
+                    cursor.execute(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS card_image_url TEXT;")
+                else:
+                    cursor.execute(f"ALTER TABLE {table} ADD COLUMN card_image_url TEXT;")
             except Exception:
                 pass
         
@@ -229,10 +230,10 @@ def run_migrations():
             except Exception:
                 pass
         conn.commit()
-        print("✅ Menu pages contact/vcard columns ensured.")
+        print("✅ Card image & menu contact columns ensured.")
     except Exception as e:
         conn.rollback()
-        print("⚠️ Menu pages contact migration note:", e)
+        print("⚠️ Card image migration note:", e)
         
     conn.close()
 
