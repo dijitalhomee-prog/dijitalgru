@@ -1079,50 +1079,89 @@ async function processPendingQRPurchaseOrSave(token) {
 function setupForms() {
     document.getElementById("login-form").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const res = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                email: document.getElementById("login-email").value,
-                password: document.getElementById("login-password").value
-            })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            localStorage.setItem("jwt_token", data.token);
-            const savedPending = await processPendingQRPurchaseOrSave(data.token);
-            closeModal("auth-modal");
-            checkAuthStatus();
-            if (!savedPending) {
-                alert("Giriş başarılı!");
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Giriş Yapılıyor...";
+        }
+        try {
+            const emailInput = document.getElementById("login-email");
+            const passInput = document.getElementById("login-password");
+            const cleanEmail = emailInput ? emailInput.value.trim().toLowerCase() : "";
+            const cleanPass = passInput ? passInput.value : "";
+
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: cleanEmail,
+                    password: cleanPass
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem("jwt_token", data.token);
+                const savedPending = await processPendingQRPurchaseOrSave(data.token);
+                closeModal("auth-modal");
+                checkAuthStatus();
+                if (!savedPending) {
+                    alert("✅ Giriş başarılı!");
+                }
+            } else {
+                alert("❌ " + (data.error || "Giriş hatası. Lütfen e-posta ve şifrenizi kontrol edin."));
             }
-        } else {
-            alert(data.error || "Giriş hatası");
+        } catch (err) {
+            console.error("Login error:", err);
+            alert("Sunucuya bağlanırken bir hata oluştu.");
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Giriş Yap";
+            }
         }
     });
 
     document.getElementById("register-form").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const res = await fetch("/api/auth/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: document.getElementById("reg-name").value,
-                email: document.getElementById("reg-email").value,
-                password: document.getElementById("reg-password").value
-            })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            localStorage.setItem("jwt_token", data.token);
-            const savedPending = await processPendingQRPurchaseOrSave(data.token);
-            closeModal("auth-modal");
-            checkAuthStatus();
-            if (!savedPending) {
-                alert("Kayıt başarılı! Hesabınız oluşturuldu.");
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Kayıt Yapılıyor...";
+        }
+        try {
+            const nameInput = document.getElementById("reg-name");
+            const emailInput = document.getElementById("reg-email");
+            const passInput = document.getElementById("reg-password");
+
+            const res = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: nameInput ? nameInput.value.trim() : "",
+                    email: emailInput ? emailInput.value.trim().toLowerCase() : "",
+                    password: passInput ? passInput.value : ""
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem("jwt_token", data.token);
+                const savedPending = await processPendingQRPurchaseOrSave(data.token);
+                closeModal("auth-modal");
+                checkAuthStatus();
+                if (!savedPending) {
+                    alert("✅ Kayıt başarılı! Hesabınız oluşturuldu.");
+                }
+            } else {
+                alert("❌ " + (data.error || "Kayıt hatası oluştu."));
             }
-        } else {
-            alert(data.error || "Kayıt hatası");
+        } catch (err) {
+            console.error("Register error:", err);
+            alert("Sunucuya bağlanırken bir hata oluştu.");
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Ücretsiz Üye Ol";
+            }
         }
     });
 
