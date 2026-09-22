@@ -1741,6 +1741,90 @@
                 <button type="button" class="btn-secondary" style="flex: 1; justify-content: center; padding: 12px; font-size: 13px;" onclick="closeModal('avatar-crop-modal')">İptal</button>
                 <button type="button" class="btn-primary" style="flex: 2; justify-content: center; padding: 12px; font-size: 13px; background: linear-gradient(135deg, #10b981, #059669);" onclick="applyAvatarCrop()">✓ Konumlandırmayı Uygula</button>
             </div>
+    <!-- QR DETAILED ANALYTICS MODAL -->
+    <div class="modal-overlay" id="modal-qr-analytics">
+        <div class="modal-content" style="max-width: 850px; width: 95%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                <div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <span>📊</span> <span id="analytics-modal-title">QR Analitik & Raporlama</span>
+                    </h3>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Cihaz, şehir, tarih ve saat bazlı detaylı tarama verileri</div>
+                </div>
+                <button onclick="closeModal('modal-qr-analytics')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+
+            <!-- Export Buttons Banner -->
+            <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 14px; padding: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <div style="font-size: 13px; font-weight: 700; color: #ffffff;">📥 Tarama Verilerini İndir / Dışa Aktar</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Tüm tarih, cihaz, şehir ve IP tarama verilerini Excel/CSV olarak bilgisayarınıza indirin.</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="downloadAnalyticsFile('csv')" class="btn-primary" style="padding: 8px 14px; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669); font-weight: 700; border-radius: 10px; cursor: pointer;">
+                        📊 Excel / CSV İndir
+                    </button>
+                    <button onclick="downloadAnalyticsFile('json')" class="btn-secondary" style="padding: 8px 14px; font-size: 12px; font-weight: 700; border-radius: 10px; cursor: pointer;">
+                        📄 JSON İndir
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Overview Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: 12px; border: 1px solid var(--card-border);">
+                    <div style="font-size: 11px; color: var(--text-muted);">Toplam Tarama</div>
+                    <div id="analytics-stat-total" style="font-size: 24px; font-weight: 800; color: #10b981; margin-top: 4px;">0</div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: 12px; border: 1px solid var(--card-border);">
+                    <div style="font-size: 11px; color: var(--text-muted);">Eşsiz Ziyaretçi</div>
+                    <div id="analytics-stat-unique" style="font-size: 24px; font-weight: 800; color: #06b6d4; margin-top: 4px;">0</div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: 12px; border: 1px solid var(--card-border);">
+                    <div style="font-size: 11px; color: var(--text-muted);">En Çok Kullanılan Cihaz</div>
+                    <div id="analytics-stat-top-device" style="font-size: 15px; font-weight: 800; color: #a5b4fc; margin-top: 8px;">-</div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: 12px; border: 1px solid var(--card-border);">
+                    <div style="font-size: 11px; color: var(--text-muted);">En Çok Taratılan Şehir</div>
+                    <div id="analytics-stat-top-city" style="font-size: 15px; font-weight: 800; color: #f472b6; margin-top: 8px;">-</div>
+                </div>
+            </div>
+
+            <!-- Breakdown Grids (Devices & Cities) -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;" class="responsive-grid-2">
+                <!-- Device Breakdown -->
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px;">
+                    <h4 style="font-size: 13px; font-weight: 700; color: #818cf8; margin-bottom: 10px; margin-top: 0;">📱 Cihaz Dağılımı</h4>
+                    <div id="analytics-device-list" style="font-size: 12px;">Yükleniyor...</div>
+                </div>
+
+                <!-- City Breakdown -->
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px;">
+                    <h4 style="font-size: 13px; font-weight: 700; color: #f472b6; margin-bottom: 10px; margin-top: 0;">📍 Şehir / Konum Dağılımı</h4>
+                    <div id="analytics-city-list" style="font-size: 12px;">Yükleniyor...</div>
+                </div>
+            </div>
+
+            <!-- Recent Scans Table -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px;">
+                <h4 style="font-size: 13px; font-weight: 700; color: #ffffff; margin-bottom: 12px; margin-top: 0;">🕒 Son Tarama Kayıtları</h4>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-muted);">
+                                <th style="padding: 8px;">Tarih / Saat</th>
+                                <th style="padding: 8px;">Cihaz Tipi</th>
+                                <th style="padding: 8px;">Tarayıcı</th>
+                                <th style="padding: 8px;">Şehir / Konum</th>
+                                <th style="padding: 8px;">IP Adresi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analytics-scans-tbody">
+                            <tr><td colspan="5" style="padding: 16px; text-align: center; color: var(--text-muted);">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 

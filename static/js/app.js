@@ -1478,18 +1478,24 @@ function renderQRList(codes) {
             <!-- BOTTOM STATS AND EXPORT BUTTONS ROW -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 12px;">
                 
-                <!-- Left: Eşsiz Tarama ve Toplam Tarama Numbers -->
-                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <!-- Left: Eşsiz Tarama, Toplam Tarama & Analytics Modal Button -->
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <div style="font-size: 12px; font-weight: 700; color: #06b6d4; background: rgba(6, 182, 212, 0.1); padding: 4px 10px; border-radius: 8px;">
-                         Eşsiz Tarama: <strong>${qr.unique_scans || 0}</strong> <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(Farklı kişi/cihaz)</span>
+                         Eşsiz Tarama: <strong>${qr.unique_scans || 0}</strong>
                     </div>
                     <div style="font-size: 12px; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 8px;">
-                        Toplam Tarama: <strong>${qr.scan_count || qr.scans_count || 0}</strong> <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(Tüm okutmalar)</span>
+                        Toplam Tarama: <strong>${qr.scan_count || qr.scans_count || 0}</strong>
                     </div>
+                    <button onclick="openQRAnalyticsModal(${qr.id}, '${escapeJsString(qr.title)}')" class="btn-secondary" style="padding: 5px 10px; font-size: 11px; font-weight: 700; background: rgba(129, 140, 248, 0.15); color: #a5b4fc; border: 1px solid rgba(129, 140, 248, 0.35); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                        📊 Detaylı Analiz
+                    </button>
                 </div>
 
-                <!-- Right: Export Buttons (PNG, SVG, EPS) -->
+                <!-- Right: Export Buttons (Analiz CSV, PNG, SVG, EPS) -->
                 <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <button onclick="downloadQRAnalyticsDirect(${qr.id}, 'csv')" class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); font-weight: 700; cursor: pointer;">
+                        📊 Analiz İndir (CSV)
+                    </button>
                     <a href="/api/qr/export/${qr.id}?format=png" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;"> PNG İndir</a>
                     <a href="/api/qr/export/${qr.id}?format=svg" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;"> SVG (Vektörel)</a>
                     <a href="/api/qr/export/${qr.id}?format=eps" class="btn-primary" style="padding: 5px 10px; font-size: 11px;"> EPS (Vektörel Baskı)</a>
@@ -1764,4 +1770,136 @@ function toggleStudioAccordion(headerElem) {
         arrow.innerText = item.classList.contains('open') ? '▲' : '▼';
     }
 }
+
+// QR Analytics Modal & Data Export Handlers
+let currentAnalyticsQRId = null;
+
+function escapeJsString(str) {
+    if (!str) return '';
+    return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+async function openQRAnalyticsModal(qrId, title) {
+    currentAnalyticsQRId = qrId;
+    const modalTitle = document.getElementById("analytics-modal-title");
+    if (modalTitle) modalTitle.innerText = `${title} — Tarama Analitiği`;
+
+    if (document.getElementById("analytics-stat-total")) document.getElementById("analytics-stat-total").innerText = "⏳";
+    if (document.getElementById("analytics-stat-unique")) document.getElementById("analytics-stat-unique").innerText = "⏳";
+    if (document.getElementById("analytics-stat-top-device")) document.getElementById("analytics-stat-top-device").innerText = "⏳";
+    if (document.getElementById("analytics-stat-top-city")) document.getElementById("analytics-stat-top-city").innerText = "⏳";
+    if (document.getElementById("analytics-device-list")) document.getElementById("analytics-device-list").innerHTML = "Yükleniyor...";
+    if (document.getElementById("analytics-city-list")) document.getElementById("analytics-city-list").innerHTML = "Yükleniyor...";
+    if (document.getElementById("analytics-scans-tbody")) {
+        document.getElementById("analytics-scans-tbody").innerHTML = `<tr><td colspan="5" style="padding: 16px; text-align: center; color: var(--text-muted);">Veriler yükleniyor...</td></tr>`;
+    }
+
+    openModal("modal-qr-analytics");
+
+    const token = localStorage.getItem("jwt_token");
+    try {
+        const res = await fetch(`/api/qr/${qrId}/analytics`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            if (document.getElementById("analytics-stat-total")) document.getElementById("analytics-stat-total").innerText = data.total_scans || 0;
+            if (document.getElementById("analytics-stat-unique")) document.getElementById("analytics-stat-unique").innerText = data.unique_visitors || 0;
+
+            const topDevice = data.devices && data.devices.length > 0 ? `${data.devices[0].device_type} (${data.devices[0].count})` : "-";
+            if (document.getElementById("analytics-stat-top-device")) document.getElementById("analytics-stat-top-device").innerText = topDevice;
+
+            const topCity = data.cities && data.cities.length > 0 ? `${data.cities[0].city} (${data.cities[0].count})` : "-";
+            if (document.getElementById("analytics-stat-top-city")) document.getElementById("analytics-stat-top-city").innerText = topCity;
+
+            // Render Devices List
+            if (document.getElementById("analytics-device-list")) {
+                if (data.devices && data.devices.length > 0) {
+                    const total = data.total_scans || 1;
+                    document.getElementById("analytics-device-list").innerHTML = data.devices.map(d => {
+                        const pct = Math.round((d.count / total) * 100);
+                        return `
+                            <div style="margin-bottom: 8px;">
+                                <div style="display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 2px; color: #e2e8f0;">
+                                    <span>${d.device_type}</span>
+                                    <span>${d.count} (%${pct})</span>
+                                </div>
+                                <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                                    <div style="height: 100%; width: ${pct}%; background: #6366f1;"></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join("");
+                } else {
+                    document.getElementById("analytics-device-list").innerHTML = `<span style="color: var(--text-muted);">Henüz cihaz verisi kaydı bulunmuyor.</span>`;
+                }
+            }
+
+            // Render Cities List
+            if (document.getElementById("analytics-city-list")) {
+                if (data.cities && data.cities.length > 0) {
+                    const total = data.total_scans || 1;
+                    document.getElementById("analytics-city-list").innerHTML = data.cities.map(c => {
+                        const pct = Math.round((c.count / total) * 100);
+                        return `
+                            <div style="margin-bottom: 8px;">
+                                <div style="display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 2px; color: #e2e8f0;">
+                                    <span>📍 ${c.city}</span>
+                                    <span>${c.count} (%${pct})</span>
+                                </div>
+                                <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                                    <div style="height: 100%; width: ${pct}%; background: #f472b6;"></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join("");
+                } else {
+                    document.getElementById("analytics-city-list").innerHTML = `<span style="color: var(--text-muted);">Henüz konum verisi kaydı bulunmuyor.</span>`;
+                }
+            }
+
+            // Render Scans Table
+            if (document.getElementById("analytics-scans-tbody")) {
+                if (data.recent_scans && data.recent_scans.length > 0) {
+                    document.getElementById("analytics-scans-tbody").innerHTML = data.recent_scans.map(s => `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <td style="padding: 8px; color: #ffffff; font-weight: 600;">${s.formatted_date}</td>
+                            <td style="padding: 8px;"><span style="background: rgba(99,102,241,0.15); color: #a5b4fc; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${s.device_type}</span></td>
+                            <td style="padding: 8px; color: var(--text-muted);">${s.browser || '-'}</td>
+                            <td style="padding: 8px; color: #ffffff;">📍 ${s.city || 'Bilinmiyor'}, ${s.country || 'Türkiye'}</td>
+                            <td style="padding: 8px; font-family: monospace; color: var(--text-muted);">${s.ip_address || '-'}</td>
+                        </tr>
+                    `).join("");
+                } else {
+                    document.getElementById("analytics-scans-tbody").innerHTML = `<tr><td colspan="5" style="padding: 16px; text-align: center; color: var(--text-muted);">Henüz kayıtlı tarama verisi bulunmuyor.</td></tr>`;
+                }
+            }
+
+        } else {
+            alert(data.error || "Analiz verileri alınamadı.");
+            closeModal("modal-qr-analytics");
+        }
+    } catch (err) {
+        console.error("Analytics fetch error:", err);
+        alert("Sunucuya bağlanırken bir hata oluştu.");
+        closeModal("modal-qr-analytics");
+    }
+}
+
+function downloadAnalyticsFile(format) {
+    if (!currentAnalyticsQRId) return;
+    downloadQRAnalyticsDirect(currentAnalyticsQRId, format);
+}
+
+function downloadQRAnalyticsDirect(qrId, format) {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) {
+        alert("Lütfen önce oturum açın.");
+        return;
+    }
+    const downloadUrl = `/api/qr/${qrId}/analytics/export?format=${format || 'csv'}&token=${encodeURIComponent(token)}`;
+    window.location.href = downloadUrl;
+}
+
 

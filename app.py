@@ -1,3 +1,5 @@
+import datetime
+import csv
 from flask import Flask, render_template, request, jsonify, redirect, send_file, Response
 import time
 import json
@@ -31,9 +33,14 @@ except Exception as e:
 # --- Helper Auth Middleware ---
 def get_current_user():
     auth_header = request.headers.get("Authorization")
-    if not auth_header:
+    token = None
+    if auth_header:
+        token = auth_header.replace("Bearer ", "").strip()
+    elif request.args.get("token"):
+        token = request.args.get("token").strip()
+
+    if not token:
         return None
-    token = auth_header.replace("Bearer ", "").strip()
     payload = decode_token(token)
     if not payload:
         return None
@@ -1037,6 +1044,159 @@ def api_analytics_dashboard():
         "plan": user["plan"],
         "devices": devices
     })
+
+@app.route("/api/qr/<int:qr_id>/analytics", methods=["GET"])
+def api_qr_analytics(qr_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Yetkisiz erişim"}), 401
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Verify ownership
+    cursor.execute("SELECT id, title, scans_count, user_id FROM qr_codes WHERE id = ?", (qr_id,))
+    qr = cursor.fetchone()
+    if not qr or (qr["user_id"] != user["id"] and user["role"] != "admin"):
+        conn.close()
+        return jsonify({"error": "QR Kod bulunamadı veya erişim yetkiniz yok."}), 404
+
+    # Unique visitors
+    cursor.execute("SELECT COUNT(DISTINCT ip_address) as unique_visitors FROM scan_logs WHERE qr_id = ?", (qr_id,))
+    uv_row = cursor.fetchone()
+    unique_visitors = (uv_row["unique_visitors"] if uv_row and "unique_visitors" in uv_row else 0) or 0
+
+    # Device breakdown
+    cursor.execute("""
+    SELECT COALESCE(device_type, 'Bilinmiyor') as device_type, COUNT(*) as count 
+    FROM scan_logs 
+    WHERE qr_id = ? 
+    GROUP BY device_type 
+    ORDER BY count DESC
+    """, (qr_id,))
+    devices = [dict(r) for r in cursor.fetchall()]
+
+    # City breakdown
+    cursor.execute("""
+    SELECT COALESCE(city, 'Bilinmiyor') as city, COUNT(*) as count 
+    FROM scan_logs 
+    WHERE qr_id = ? 
+    GROUP BY city 
+    ORDER BY count DESC 
+    LIMIT 10
+    """, (qr_id,))
+    cities = [dict(r) for r in cursor.fetchall()]
+
+    # Recent 100 scan logs
+    cursor.execute("""
+    SELECT scanned_at, ip_address, device_type, browser, country, city, user_agent 
+    FROM scan_logs 
+    WHERE qr_id = ? 
+    ORDER BY scanned_at DESC 
+    LIMIT 100
+    """, (qr_id,))
+    raw_scans = cursor.fetchall()
+    scans = []
+    for r in raw_scans:
+        item = dict(r)
+        scanned_at_ts = item.get("scanned_at") or 0
+        try:
+            item["formatted_date"] = datetime.datetime.fromtimestamp(scanned_at_ts).strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            item["formatted_date"] = "Bilinmiyor"
+        scans.append(item)
+
+    conn.close()
+
+    return jsonify({
+        "qr_id": qr_id,
+        "title": qr["title"],
+        "total_scans": qr["scans_count"] or 0,
+        "unique_visitors": unique_visitors,
+        "devices": devices,
+        "cities": cities,
+        "recent_scans": scans
+    })
+
+@app.route("/api/qr/<int:qr_id>/analytics/export", methods=["GET"])
+def api_qr_analytics_export(qr_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Yetkisiz erişim. Lütfen önce giriş yapın."}), 401
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, title, user_id FROM qr_codes WHERE id = ?", (qr_id,))
+    qr = cursor.fetchone()
+    if not qr or (qr["user_id"] != user["id"] and user["role"] != "admin"):
+        conn.close()
+        return jsonify({"error": "QR Kod bulunamadı veya erişim yetkiniz yok."}), 404
+
+    cursor.execute("""
+    SELECT scanned_at, ip_address, device_type, browser, country, city, user_agent 
+    FROM scan_logs 
+    WHERE qr_id = ? 
+    ORDER BY scanned_at DESC
+    """, (qr_id,))
+    scans = cursor.fetchall()
+    conn.close()
+
+    export_format = request.args.get("format", "csv").lower()
+
+    if export_format == "json":
+        json_data = []
+        for s in scans:
+            row = dict(s)
+            try:
+                row["scanned_at_formatted"] = datetime.datetime.fromtimestamp(row.get("scanned_at") or 0).strftime("%Y-%m-%d %H:%M:%S")
+            except Exception:
+                row["scanned_at_formatted"] = ""
+            json_data.append(row)
+        return jsonify({
+            "qr_id": qr_id,
+            "title": qr["title"],
+            "total_logs": len(json_data),
+            "scan_logs": json_data
+        })
+
+    # Default CSV Export with UTF-8 BOM (\ufeff) for Excel compatibility
+    output = io.StringIO()
+    output.write('\ufeff')
+    writer = csv.writer(output)
+
+    # CSV Header
+    writer.writerow(["Tarih / Saat", "Cihaz Tipi", "Tarayıcı", "Şehir", "Ülke", "IP Adresi", "User Agent"])
+
+    for s in scans:
+        ts = s["scanned_at"] or 0
+        try:
+            dt_str = datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            dt_str = "-"
+        
+        writer.writerow([
+            dt_str,
+            s["device_type"] or "Bilinmiyor",
+            s["browser"] or "Bilinmiyor",
+            s["city"] or "Bilinmiyor",
+            s["country"] or "Türkiye",
+            s["ip_address"] or "-",
+            s["user_agent"] or "-"
+        ])
+
+    csv_content = output.getvalue()
+    clean_title = "".join(c for c in qr["title"] if c.isalnum() or c in (' ', '_', '-')).strip().replace(' ', '_') or f"QR_{qr_id}"
+    filename = f"Analitik_{clean_title}_QR{qr_id}.csv"
+
+    return Response(
+        csv_content,
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Content-Type": "text/csv; charset=utf-8"
+        }
+    )
 
 @app.route("/api/subscriptions/plans", methods=["GET"])
 def api_get_plans():
