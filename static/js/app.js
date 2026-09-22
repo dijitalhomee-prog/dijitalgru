@@ -1253,7 +1253,17 @@ async function loadDashboardData() {
             if (document.getElementById("stat-unique-visitors")) document.getElementById("stat-unique-visitors").innerText = data.stats.unique_visitors || 0;
             if (document.getElementById("stat-avg-scans")) document.getElementById("stat-avg-scans").innerText = data.stats.avg_scans_per_qr || 0.0;
             if (document.getElementById("stat-limit")) document.getElementById("stat-limit").innerText = `${data.stats.dynamic_qr_count} / ${data.user.dynamic_qr_limit}`;
-            if (document.getElementById("stat-plan")) document.getElementById("stat-plan").innerText = data.user.plan.toUpperCase();
+            
+            const alertElem = document.getElementById("trial-expired-alert");
+            const planElem = document.getElementById("stat-plan");
+
+            if (data.user && data.user.trial_expired) {
+                if (planElem) planElem.innerHTML = '<span style="color: #f87171; font-size: 16px; font-weight: 800;">DENEME DOLDU</span>';
+                if (alertElem) alertElem.style.display = "block";
+            } else {
+                if (planElem) planElem.innerText = (data.user.plan || "free").toUpperCase();
+                if (alertElem) alertElem.style.display = "none";
+            }
 
             allQRCodes = data.qr_codes || [];
             renderQRList(allQRCodes);

@@ -591,7 +591,7 @@
                             <i class="fa-solid fa-table-cells-large" style="color: #f87171;"></i>
                             Statik QR Code
                         </h4>
-                        <span class="badge-static-pill">Takip Edilemez (Ömür Boyu Ücretsiz)</span>
+                        <span class="badge-static-pill">Takip Edilemez (1 Ay Ücretsiz Deneme)</span>
                     </div>
 
                     <div class="qr-type-card-grid">
@@ -965,6 +965,24 @@
         <!-- 3. DASHBOARD TAB -->
         <section id="dashboard-tab" class="page-section">
             <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px;">Yönetim Paneli</h2>
+
+            <!-- Trial Expired Warning Banner -->
+            <div id="trial-expired-alert" style="display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); padding: 18px 24px; border-radius: 16px; margin-bottom: 24px; backdrop-filter: blur(10px);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); display: flex; align-items: center; justify-content: center; shrink: 0;">
+                            <i class="fa-solid fa-triangle-exclamation" style="font-size: 20px; color: #f87171;"></i>
+                        </div>
+                        <div>
+                            <strong style="font-size: 16px; color: #ffffff; display: block; margin-bottom: 2px;">⚠️ 1 Aylık Ücretsiz Deneme Süreniz Dolmuştur!</strong>
+                            <span style="font-size: 13px; color: #fca5a5;">Mevcut QR kodlarınız pasife alınmış olup taratıldığında siteye yönlendirilmektedir. Kodlarınızı tekrar aktif etmek için paket satın alın.</span>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('pricing-tab')" class="btn-primary" style="padding: 10px 20px; font-size: 13px; background: #ef4444; border: none; font-weight: 700; cursor: pointer; border-radius: 10px;">
+                        🚀 Hemen Paket Satın Al
+                    </button>
+                </div>
+            </div>
 
             <!-- Analytics Stats Overview -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 32px;">

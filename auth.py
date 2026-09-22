@@ -98,7 +98,7 @@ def register_user(name, email, password):
         cursor.execute("""
         INSERT INTO users (name, email, password_hash, plan, subscription_end, dynamic_qr_limit, created_at)
         VALUES (?, ?, ?, 'free', ?, 3, ?)
-        """, (clean_name, clean_email, pwd_hash, now + (86400 * 7), now))
+        """, (clean_name, clean_email, pwd_hash, now + (86400 * 30), now))
         
         user_id = cursor.lastrowid
         conn.commit()
@@ -107,6 +107,7 @@ def register_user(name, email, password):
         user = dict(cursor.fetchone())
         conn.close()
         
+        user["trial_expired"] = bool(user.get("plan") == "free" and user.get("subscription_end") and user.get("subscription_end") < int(time.time()))
         token = create_token(user)
         return {"token": token, "user": user}, None
     except Exception as e:
@@ -149,6 +150,7 @@ def login_user(email, password):
     conn.close()
     
     del user["password_hash"]
+    user["trial_expired"] = bool(user.get("plan") == "free" and user.get("subscription_end") and user.get("subscription_end") < int(time.time()))
     token = create_token(user)
     return {"token": token, "user": user}, None
 

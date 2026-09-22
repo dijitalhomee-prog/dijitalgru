@@ -122,17 +122,44 @@ def _log_scan_async(qr_id, visitor_ip, user_agent):
             except Exception:
                 pass
 
+def _is_owner_trial_expired(qr_id):
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+        SELECT u.plan, u.subscription_end 
+        FROM qr_codes q 
+        JOIN users u ON q.user_id = u.id 
+        WHERE q.id = ?
+        """, (qr_id,))
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            p = row["plan"]
+            sub_end = row["subscription_end"]
+            now = int(time.time())
+            return (p == "free" and sub_end and sub_end < now)
+    except Exception:
+        pass
+    return False
+
 @app.route("/r/<short_code>")
 def redirect_qr(short_code):
     """
     Ultra-fast Dynamic QR short URL redirect engine (<50ms).
-    Target is ALWAYS the QR's own target_url/file, NEVER /panel or static admin page.
+    Target is ALWAYS the QR's own target_url/file.
+    If free trial has expired, redirects directly to DijitalGru QR homepage.
     """
     conn = get_db()
     cursor = conn.cursor()
     
     try:
-        cursor.execute("SELECT id, type, target_url, status FROM qr_codes WHERE short_code = ?", (short_code,))
+        cursor.execute("""
+        SELECT q.id, q.type, q.target_url, q.status, q.user_id, u.plan, u.subscription_end, u.account_status
+        FROM qr_codes q
+        LEFT JOIN users u ON q.user_id = u.id
+        WHERE q.short_code = ?
+        """, (short_code,))
         qr_row = cursor.fetchone()
         cursor.close()
     except Exception as ex:
@@ -150,6 +177,17 @@ def redirect_qr(short_code):
     qr_id = qr["id"]
     status = qr.get("status", "active")
     target_url = (qr.get("target_url") or "").strip()
+    user_plan = qr.get("plan")
+    sub_end = qr.get("subscription_end")
+    acc_status = qr.get("account_status", "active")
+    
+    if acc_status == "suspended":
+        return "<h3>🚫 Hesabınız Askıya Alınmıştır</h3><p>Lütfen destek ekibi ile iletişime geçin.</p>", 403
+
+    now = int(time.time())
+    # If 1-month free trial has expired and user hasn't bought a paid plan, redirect scan to main website
+    if user_plan == "free" and sub_end and sub_end < now:
+        return redirect("https://qrdijitalgru.com", code=302)
     
     if status in ["passive", "paused", "deleted", "archived"]:
         return "<h3>🟡 Bu QR Kod Pasife Alınmıştır</h3><p>Bu QR kod şu anda aktif değildir.</p>", 403
@@ -190,6 +228,9 @@ def redirect_qr(short_code):
 
 @app.route("/p/vcard/<int:qr_id>")
 def public_vcard(qr_id):
+    if _is_owner_trial_expired(qr_id):
+        return redirect("https://qrdijitalgru.com", code=302)
+        
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
@@ -204,6 +245,9 @@ def public_vcard(qr_id):
 
 @app.route("/p/vcard/<int:qr_id>.vcf")
 def download_vcard(qr_id):
+    if _is_owner_trial_expired(qr_id):
+        return redirect("https://qrdijitalgru.com", code=302)
+        
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
@@ -259,6 +303,9 @@ def download_vcard(qr_id):
 
 @app.route("/p/menu/<int:qr_id>")
 def public_menu(qr_id):
+    if _is_owner_trial_expired(qr_id):
+        return redirect("https://qrdijitalgru.com", code=302)
+        
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM menu_pages WHERE qr_id = ?", (qr_id,))
@@ -457,6 +504,11 @@ def api_qr_create():
     user = get_current_user()
     if not user:
         return jsonify({"error": "Lütfen önce giriş yapın."}), 401
+
+    if user.get("trial_expired"):
+        return jsonify({
+            "error": "1 Aylık Ücretsiz Deneme Süreniz Dolmuştur! QR kodlarınız pasife alınmıştır. Kullanmaya devam etmek ve yeni QR oluşturmak için lütfen bir abonelik paketi satın alın."
+        }), 403
         
     data = request.json or {}
     title = data.get("title", "Yeni QR Kod")
