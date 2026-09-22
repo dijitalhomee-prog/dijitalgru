@@ -76,9 +76,18 @@
 
         if (isAndroid) {
             if (statusBox) {
-                statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarılıyor...</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan pencereden <strong>"İçeri Aktar"</strong> veya <strong>"Kaydet"</strong>e dokunmanız yeterlidir.</span>';
+                statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarılıyor...</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan rehber ekranından <strong>"İçeri Aktar"</strong> veya <strong>"Kaydet"</strong>e dokunun.</span>';
             }
-            window.location.href = vcfUrl;
+            try {
+                const absUrl = new URL(vcfUrl, window.location.href);
+                const scheme = absUrl.protocol.replace(':', '');
+                const hostAndPath = absUrl.host + absUrl.pathname + absUrl.search;
+                const fallbackUrl = encodeURIComponent(absUrl.href);
+                const intentUrl = `intent://${hostAndPath}#Intent;scheme=${scheme};type=text/x-vcard;action=android.intent.action.VIEW;S.browser_fallback_url=${fallbackUrl};end`;
+                window.location.href = intentUrl;
+            } catch (err) {
+                window.location.href = vcfUrl;
+            }
             if (e) e.preventDefault();
             return false;
         } else if (isIOS) {

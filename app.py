@@ -322,11 +322,12 @@ def download_vcard(qr_id):
     vcard_content = "\r\n".join(vcard_lines)
     user_agent = request.headers.get("User-Agent", "").lower()
     
-    # Use text/x-vcard on Android to trigger native Contacts import intent directly
-    mimetype = "text/x-vcard" if "android" in user_agent else "text/vcard"
+    # Use text/x-vcard on Android OS and system components to trigger native Contacts import intent directly
+    is_android = any(k in user_agent for k in ["android", "dalvik", "stagefright", "downloadmanager"])
+    mimetype = "text/x-vcard" if is_android else "text/vcard"
     response = Response(vcard_content, mimetype=f"{mimetype}; charset=utf-8")
     safe_filename = "".join(c for c in name if c.isalnum() or c in (" ", "_", "-")).strip() or "kisi"
-    disposition = "inline" if ("iphone" in user_agent or "ipad" in user_agent or "android" in user_agent or "mobile" in user_agent) else "attachment"
+    disposition = "inline" if ("iphone" in user_agent or "ipad" in user_agent or is_android or "mobile" in user_agent) else "attachment"
     response.headers["Content-Disposition"] = f'{disposition}; filename="{safe_filename}.vcf"'
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response

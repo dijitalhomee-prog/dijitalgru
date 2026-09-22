@@ -265,7 +265,16 @@
 
         const targetUrl = url || `/p/vcard/{{ vcard.qr_id }}.vcf`;
         if (isAndroid) {
-            window.location.href = targetUrl;
+            try {
+                const absUrl = new URL(targetUrl, window.location.href);
+                const scheme = absUrl.protocol.replace(':', '');
+                const hostAndPath = absUrl.host + absUrl.pathname + absUrl.search;
+                const fallbackUrl = encodeURIComponent(absUrl.href);
+                const intentUrl = `intent://${hostAndPath}#Intent;scheme=${scheme};type=text/x-vcard;action=android.intent.action.VIEW;S.browser_fallback_url=${fallbackUrl};end`;
+                window.location.href = intentUrl;
+            } catch (err) {
+                window.location.href = targetUrl;
+            }
             if (e) e.preventDefault();
             return false;
         }
