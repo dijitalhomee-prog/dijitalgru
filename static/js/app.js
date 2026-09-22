@@ -897,6 +897,13 @@ function getQRFormPayload() {
             description: getVal("menu-desc", "Menümüz ve Lezzetlerimiz"),
             pdf_url: uploadedPdfUrl,
             direct_redirect: directPdfEl ? directPdfEl.checked : true,
+            contact_name: getVal("menu-contact-name", ""),
+            contact_title: getVal("menu-contact-title", ""),
+            phone: getVal("menu-phone", ""),
+            phone2: getVal("menu-phone2", ""),
+            email: getVal("menu-email", ""),
+            website: getVal("menu-website", ""),
+            address: getVal("menu-address", ""),
             categories: [
                 {
                     name: "Menü Kategori 1",

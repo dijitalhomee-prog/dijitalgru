@@ -164,7 +164,15 @@ def init_db():
                 description TEXT,
                 cover_url TEXT,
                 pdf_url TEXT,
-                categories TEXT
+                categories TEXT,
+                contact_name VARCHAR(255),
+                contact_title VARCHAR(255),
+                phone VARCHAR(100),
+                phone2 VARCHAR(100),
+                email VARCHAR(255),
+                website TEXT,
+                address TEXT,
+                social_links TEXT
             )
             """,
             """
@@ -295,6 +303,14 @@ def init_db():
                 cover_url TEXT,
                 pdf_url TEXT,
                 categories TEXT,
+                contact_name TEXT,
+                contact_title TEXT,
+                phone TEXT,
+                phone2 TEXT,
+                email TEXT,
+                website TEXT,
+                address TEXT,
+                social_links TEXT,
                 FOREIGN KEY (qr_id) REFERENCES qr_codes (id)
             )
             """,

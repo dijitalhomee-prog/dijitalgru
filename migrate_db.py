@@ -200,7 +200,7 @@ def run_migrations():
         conn.rollback()
         print("⚠️ Identity migration note:", e)
 
-    # 7. Ensure vcard_pages phone2 column
+    # 7. Ensure vcard_pages phone2 column & menu_pages contact columns
     try:
         if is_postgres():
             cursor.execute("ALTER TABLE vcard_pages ADD COLUMN IF NOT EXISTS phone2 VARCHAR(50) DEFAULT '';")
@@ -209,9 +209,30 @@ def run_migrations():
                 cursor.execute("ALTER TABLE vcard_pages ADD COLUMN phone2 TEXT DEFAULT '';")
             except Exception:
                 pass
+        
+        menu_cols = [
+            ("contact_name", "TEXT", "VARCHAR(255)"),
+            ("contact_title", "TEXT", "VARCHAR(255)"),
+            ("phone", "TEXT", "VARCHAR(100)"),
+            ("phone2", "TEXT", "VARCHAR(100)"),
+            ("email", "TEXT", "VARCHAR(255)"),
+            ("website", "TEXT", "TEXT"),
+            ("address", "TEXT", "TEXT"),
+            ("social_links", "TEXT", "TEXT")
+        ]
+        for col_name, sqlite_type, pg_type in menu_cols:
+            try:
+                if is_postgres():
+                    cursor.execute(f"ALTER TABLE menu_pages ADD COLUMN IF NOT EXISTS {col_name} {pg_type};")
+                else:
+                    cursor.execute(f"ALTER TABLE menu_pages ADD COLUMN {col_name} {sqlite_type};")
+            except Exception:
+                pass
         conn.commit()
+        print("✅ Menu pages contact/vcard columns ensured.")
     except Exception as e:
         conn.rollback()
+        print("⚠️ Menu pages contact migration note:", e)
         
     conn.close()
 

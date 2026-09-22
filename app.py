@@ -578,15 +578,23 @@ def api_qr_create():
         direct_redirect = menu_payload.get("direct_redirect", True)
 
         cursor.execute("""
-        INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, social_links)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             qr_id,
             menu_payload.get("title"),
             menu_payload.get("description"),
             menu_payload.get("cover_url"),
             pdf_url,
-            json.dumps(menu_payload.get("categories", []))
+            json.dumps(menu_payload.get("categories", [])),
+            menu_payload.get("contact_name"),
+            menu_payload.get("contact_title"),
+            menu_payload.get("phone"),
+            menu_payload.get("phone2"),
+            menu_payload.get("email"),
+            menu_payload.get("website"),
+            menu_payload.get("address"),
+            json.dumps(menu_payload.get("social_links", {}))
         ))
         
         # If PDF is uploaded AND direct_redirect is True, redirect QR scans DIRECTLY to the PDF file!
@@ -641,11 +649,9 @@ def api_qr_download(qr_id):
     elif fmt == "svg":
         mimetype = "image/svg+xml"
         
+    filename = f"qr_code_{qr['short_code']}.{fmt}"
     buffer = io.BytesIO(img_data)
     buffer.seek(0)
-    
-    safe_title = "".join(c for c in qr['title'] if c.isalnum() or c in (' ', '_', '-')).strip() or "qr_code"
-    filename = f"{safe_title}.{fmt}"
     
     return send_file(buffer, mimetype=mimetype, as_attachment=True, download_name=filename)
 
@@ -654,11 +660,18 @@ def api_qr_update(qr_id):
     user = get_current_user()
     if not user:
         return jsonify({"error": "Yetkisiz erişim"}), 401
+
+    if user.get("trial_expired"):
+        return jsonify({
+            "error": "1 Aylık Ücretsiz Deneme Süreniz Dolmuştur! QR kodlarınızı düzenlemek için lütfen abonelik paketi satın alın."
+        }), 403
         
     data = request.json or {}
     target_url = data.get("target_url")
     title = data.get("title")
     status = data.get("status")
+    menu_payload = data.get("menu_payload")
+    vcard_payload = data.get("vcard_payload")
     
     conn = get_db()
     cursor = conn.cursor()
@@ -675,6 +688,29 @@ def api_qr_update(qr_id):
         cursor.execute("UPDATE qr_codes SET title = ?, updated_at = ? WHERE id = ?", (title, now, qr_id))
     if status:
         cursor.execute("UPDATE qr_codes SET status = ?, updated_at = ? WHERE id = ?", (status, now, qr_id))
+
+    if menu_payload:
+        pdf_url = menu_payload.get("pdf_url")
+        if pdf_url in ["None", "null", "undefined", ""]:
+            pdf_url = None
+        cursor.execute("""
+        UPDATE menu_pages 
+        SET title = ?, description = ?, pdf_url = ?, contact_name = ?, contact_title = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, social_links = ?
+        WHERE qr_id = ?
+        """, (
+            menu_payload.get("title"),
+            menu_payload.get("description"),
+            pdf_url,
+            menu_payload.get("contact_name"),
+            menu_payload.get("contact_title"),
+            menu_payload.get("phone"),
+            menu_payload.get("phone2"),
+            menu_payload.get("email"),
+            menu_payload.get("website"),
+            menu_payload.get("address"),
+            json.dumps(menu_payload.get("social_links", {})),
+            qr_id
+        ))
         
     conn.commit()
     conn.close()
