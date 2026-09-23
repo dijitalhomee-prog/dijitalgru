@@ -242,11 +242,27 @@ function initTypeSelector() {
             currentQrType = btn.getAttribute("data-type");
 
             document.querySelectorAll(".type-form").forEach(f => f.style.display = "none");
-            const targetForm = document.getElementById(`form-${currentQrType}`);
+
+            let formId = `form-${currentQrType}`;
+            if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
+                formId = "form-menu";
+            } else if (["vcard", "company_card"].includes(currentQrType)) {
+                formId = "form-vcard";
+            } else if (["dynamic_whatsapp", "whatsapp"].includes(currentQrType)) {
+                formId = "form-whatsapp";
+            } else if (["url", "social", "instagram", "linkedin", "pinterest", "facebook", "static_url"].includes(currentQrType)) {
+                formId = "form-url";
+            } else if (["wifi"].includes(currentQrType)) {
+                formId = "form-wifi";
+            } else if (["text", "sms", "phone"].includes(currentQrType)) {
+                formId = "form-text";
+            }
+
+            const targetForm = document.getElementById(formId);
             if (targetForm) targetForm.style.display = "block";
 
             // Automatically switch phone simulator to landing page mode for rich types
-            if (currentQrType === "vcard" || currentQrType === "menu") {
+            if (["vcard", "company_card", "menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
                 switchPreviewMode("landing");
             } else {
                 switchPreviewMode("qr");
@@ -537,22 +553,22 @@ async function updateLivePreview() {
     const payload = getQRFormPayload();
     let previewText = "";
 
-    if (payload.type === "url") {
+    if (["url", "static_url", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(payload.type)) {
         previewText = getVal("target-url", "");
-    } else if (payload.type === "vcard") {
+    } else if (["vcard", "company_card"].includes(payload.type)) {
         const v = payload.vcard_payload || {};
         previewText = `BEGIN:VCARD\nVERSION:3.0\nN:${v.full_name || 'Isim'}\nTEL:${v.phone || ''}\nEMAIL:${v.email || ''}\nEND:VCARD`;
-    } else if (payload.type === "menu") {
+    } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(payload.type)) {
         previewText = payload.menu_payload?.pdf_url || "https://qrdijitalgru.com/menu";
     } else if (payload.type === "wifi") {
         const ssid = getVal("wifi-ssid", "Dijitalgru_Wifi");
         const pass = getVal("wifi-pass", "12345678");
         previewText = `WIFI:S:${ssid};T:WPA;P:${pass};;`;
-    } else if (payload.type === "whatsapp") {
+    } else if (["whatsapp", "dynamic_whatsapp"].includes(payload.type)) {
         const phone = getVal("wa-phone", "905000000000");
         const msg = encodeURIComponent(getVal("wa-msg", "Merhaba, bilgi almak istiyorum."));
         previewText = `https://wa.me/${phone}?text=${msg}`;
-    } else if (payload.type === "text") {
+    } else if (["text", "sms", "phone"].includes(payload.type)) {
         previewText = getVal("static-text", "Dijitalgru QR Studio");
     }
 
@@ -925,9 +941,9 @@ function getQRFormPayload() {
     let vcard_payload = null;
     let menu_payload = null;
 
-    if (currentQrType === "url") {
+    if (["url", "static_url", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(currentQrType)) {
         target_url = normalizeUrlInput(getVal("target-url", "https://qrdijitalgru.com"));
-    } else if (currentQrType === "vcard") {
+    } else if (["vcard", "company_card"].includes(currentQrType)) {
         const directVcardEl = document.getElementById("direct-vcard-redirect");
         vcard_payload = {
             full_name: getVal("vcard-name", "Ad Soyad"),
@@ -952,7 +968,7 @@ function getQRFormPayload() {
             theme_settings: getVCardThemeSettings(),
             direct_redirect: directVcardEl ? directVcardEl.checked : false
         };
-    } else if (currentQrType === "menu") {
+    } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
         const directPdfEl = document.getElementById("direct-pdf-redirect");
         menu_payload = {
             title: getVal("menu-title", "Restoran / İşletme Adı"),
@@ -980,11 +996,11 @@ function getQRFormPayload() {
         const ssid = getVal("wifi-ssid", "Misafir_Wifi");
         const pass = getVal("wifi-pass", "12345678");
         target_url = `WIFI:S:${ssid};T:WPA;P:${pass};;`;
-    } else if (currentQrType === "whatsapp") {
+    } else if (["whatsapp", "dynamic_whatsapp"].includes(currentQrType)) {
         const phone = getVal("wa-phone", "905000000000");
         const msg = encodeURIComponent(getVal("wa-msg", "Merhaba, bilgi almak istiyorum."));
         target_url = `https://wa.me/${phone}?text=${msg}`;
-    } else if (currentQrType === "text") {
+    } else if (["text", "sms", "phone"].includes(currentQrType)) {
         target_url = getVal("static-text", "Dijitalgru QR Studio");
     }
 
