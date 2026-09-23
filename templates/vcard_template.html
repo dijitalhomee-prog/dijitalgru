@@ -279,14 +279,15 @@
                     return false;
                 }
             } catch (shareErr) {
-                console.log('Web Share API share skipped or cancelled:', shareErr);
+                console.warn('Web Share API error / cancelled:', shareErr);
                 if (shareErr && (shareErr.name === 'AbortError' || shareErr.code === 20)) {
                     return false; // User closed share menu
                 }
+                console.error('Web Share failed, executing fallback download:', shareErr);
             }
         }
 
-        // TIER 2: Blob Download Fallback (Samsung Internet, UC Browser, Mi Browser, Huawei Browser, etc.)
+        // TIER 2: Blob Download Fallback
         if (isAndroid) {
             try {
                 const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' });
@@ -297,16 +298,19 @@
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
 
                 if (toast && toastText) {
                     toastText.innerHTML = '✅ <strong>Kişi Kartı (.vcf) İndirildi!</strong><br><span style="font-size: 11px; color: #cbd5e1;">Üst bildirim alanından veya İndirilenler klasöründen dosyaya dokunarak rehbere ekleyin.</span>';
                     toast.style.display = 'block';
                     setTimeout(() => { toast.style.display = 'none'; }, 10000);
                 }
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 300);
                 return false;
             } catch (blobErr) {
-                console.log('Blob download error:', blobErr);
+                console.error('Blob download error:', blobErr);
             }
         }
 

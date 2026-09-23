@@ -28,7 +28,7 @@
         <div class="company">{{ vcard.company or '' }}</div>
 
         <div class="status-box" id="status-msg">
-            ⏳ <strong>Kişi Kartı Ekranınıza Aktarılıyor...</strong>
+            👤 <strong>Kişi kartını rehberinize eklemek için aşağıdaki butona dokunun.</strong>
         </div>
 
         <a id="vcf-trigger-btn" href="/p/vcard/{{ qr_id }}.vcf" class="btn-save" onclick="triggerContactSave(event)">
@@ -80,7 +80,7 @@
         const fileName = `${safeName}.vcf`;
         const vcardContent = generateRawVcard();
 
-        // TIER 1: Web Share API File Sharing (Stock Android Chrome)
+        // TIER 1: Web Share API File Sharing (User gesture required)
         if (isAndroid || (!isIOS && navigator.canShare)) {
             try {
                 const vcfFile = new File([vcardContent], fileName, { type: 'text/vcard' });
@@ -96,14 +96,16 @@
                     return false;
                 }
             } catch (shareErr) {
-                console.log('Auto redirect Web Share API error / cancelled:', shareErr);
+                console.warn('Web Share API error / cancelled:', shareErr);
                 if (shareErr && (shareErr.name === 'AbortError' || shareErr.code === 20)) {
+                    // User explicitly cancelled share modal
                     return false;
                 }
+                console.error('Web Share failed, executing fallback download:', shareErr);
             }
         }
 
-        // TIER 2: Blob Download Fallback (Samsung Internet, UC Browser, Mi Browser, Huawei Browser, etc.)
+        // TIER 2: Blob Download Fallback
         if (isAndroid) {
             try {
                 const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' });
@@ -114,18 +116,21 @@
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
 
                 if (statusBox) {
                     statusBox.innerHTML = '✅ <strong>Kişi Kartı (.vcf) İndirildi!</strong><br><span style="font-size: 11px; font-weight: 500;">Üst bildirim alanından veya İndirilenler klasöründen dosyaya dokunarak rehbere ekleyin.</span>';
                 }
+                setTimeout(() => {
+                    window.location.href = vcfUrl;
+                }, 300);
                 return false;
             } catch (blobErr) {
-                console.log('Blob download error:', blobErr);
+                console.error('Blob download error:', blobErr);
             }
         }
 
-        // TIER 3: iOS Safari & Direct Navigation Fallback
+        // TIER 3: Direct HTTP Navigation Fallback
         if (statusBox) {
             if (isIOS) {
                 statusBox.innerHTML = '✅ <strong>Kişi Kartı Hazırlandı</strong><br><span style="font-size: 11px; font-weight: 500;">Sağ üstteki <strong>"Kaydet"</strong>e dokunarak rehbere ekleyin.</span>';
@@ -136,13 +141,6 @@
         window.location.href = vcfUrl;
         return false;
     }
-
-    // Auto-trigger immediately on load
-    window.addEventListener("DOMContentLoaded", function() {
-        setTimeout(function() {
-            triggerContactSave(null);
-        }, 150);
-    });
     </script>
 </body>
 </html>
