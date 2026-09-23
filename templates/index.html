@@ -813,7 +813,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Web Sitesi</label>
-                                        <input type="url" id="vcard-website" class="form-input" placeholder="https://siteniz.com" oninput="updateLivePreview()">
+                                        <input type="text" id="vcard-website" class="form-input" placeholder="siteniz.com" oninput="updateLivePreview()">
                                     </div>
                                 </div>
 
@@ -847,33 +847,33 @@
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                                             <div class="form-group">
                                                 <label class="form-label" style="font-size: 11px;">Instagram Profil Linki</label>
-                                                <input type="url" id="vcard-social-instagram" class="form-input" placeholder="https://instagram.com/kullanici" oninput="updateLivePreview()">
+                                                <input type="text" id="vcard-social-instagram" class="form-input" placeholder="instagram.com/kullanici" oninput="updateLivePreview()">
                                             </div>
                                             <div class="form-group">
                                                 <label class="form-label" style="font-size: 11px;">LinkedIn Profil Linki</label>
-                                                <input type="url" id="vcard-social-linkedin" class="form-input" placeholder="https://linkedin.com/in/kullanici" oninput="updateLivePreview()">
+                                                <input type="text" id="vcard-social-linkedin" class="form-input" placeholder="linkedin.com/in/kullanici" oninput="updateLivePreview()">
                                             </div>
                                         </div>
 
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                                             <div class="form-group">
                                                 <label class="form-label" style="font-size: 11px;">Twitter / X Linki</label>
-                                                <input type="url" id="vcard-social-twitter" class="form-input" placeholder="https://x.com/kullanici" oninput="updateLivePreview()">
+                                                <input type="text" id="vcard-social-twitter" class="form-input" placeholder="x.com/kullanici" oninput="updateLivePreview()">
                                             </div>
                                             <div class="form-group">
                                                 <label class="form-label" style="font-size: 11px;">Facebook Linki</label>
-                                                <input type="url" id="vcard-social-facebook" class="form-input" placeholder="https://facebook.com/kullanici" oninput="updateLivePreview()">
+                                                <input type="text" id="vcard-social-facebook" class="form-input" placeholder="facebook.com/kullanici" oninput="updateLivePreview()">
                                             </div>
                                         </div>
 
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                                             <div class="form-group" style="margin-bottom: 0;">
                                                 <label class="form-label" style="font-size: 11px;">YouTube Kanal Linki</label>
-                                                <input type="url" id="vcard-social-youtube" class="form-input" placeholder="https://youtube.com/@kanal" oninput="updateLivePreview()">
+                                                <input type="text" id="vcard-social-youtube" class="form-input" placeholder="youtube.com/@kanal" oninput="updateLivePreview()">
                                             </div>
                                             <div class="form-group" style="margin-bottom: 0;">
                                                 <label class="form-label" style="font-size: 11px;">TikTok Profil Linki</label>
-                                                <input type="url" id="vcard-social-tiktok" class="form-input" placeholder="https://tiktok.com/@kullanici" oninput="updateLivePreview()">
+                                                <input type="text" id="vcard-social-tiktok" class="form-input" placeholder="tiktok.com/@kullanici" oninput="updateLivePreview()">
                                             </div>
                                         </div>
                                     </div>
@@ -1011,7 +1011,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <label class="form-label" style="font-size: 11px;">Web Sitesi</label>
-                                                <input type="url" id="menu-website" class="form-input" placeholder="https://isletmeniz.com">
+                                                <input type="text" id="menu-website" class="form-input" placeholder="isletmeniz.com">
                                             </div>
                                         </div>
 
@@ -1940,7 +1940,7 @@
                 </span>
             </div>
 
-            <form id="edit-qr-form" onsubmit="saveQREdit(event)">
+            <form id="edit-qr-form" onsubmit="saveQREdit(event)" novalidate>
                 <input type="hidden" id="edit-qr-id">
 
                 <!-- Common Header Fields -->

@@ -587,6 +587,16 @@ async function updateLivePreview() {
     }
 }
 
+function normalizeUrlInput(val) {
+    if (!val) return "";
+    let str = String(val).trim();
+    if (!str) return "";
+    if (!/^https?:\/\//i.test(str) && !/^\/\//i.test(str) && !/^mailto:/i.test(str) && !/^tel:/i.test(str) && !/^data:/i.test(str)) {
+        return "https://" + str;
+    }
+    return str;
+}
+
 function getVal(id, defaultVal = "") {
     const el = document.getElementById(id);
     return el ? (el.value !== undefined ? el.value : defaultVal) : defaultVal;
@@ -916,7 +926,7 @@ function getQRFormPayload() {
     let menu_payload = null;
 
     if (currentQrType === "url") {
-        target_url = getVal("target-url", "https://qrdijitalgru.com");
+        target_url = normalizeUrlInput(getVal("target-url", "https://qrdijitalgru.com"));
     } else if (currentQrType === "vcard") {
         const directVcardEl = document.getElementById("direct-vcard-redirect");
         vcard_payload = {
@@ -926,18 +936,18 @@ function getQRFormPayload() {
             phone: getVal("vcard-phone", "+90 5XX XXX XX XX"),
             phone2: getVal("vcard-phone2", ""),
             email: getVal("vcard-email", "eposta@sirketiniz.com"),
-            website: getVal("vcard-website", "https://siteniz.com"),
+            website: normalizeUrlInput(getVal("vcard-website", "")),
             address: getVal("vcard-address", "İstanbul, Türkiye"),
             bio: getVal("vcard-bio", ""),
-            avatar_url: getVal("vcard-avatar-url", ""),
-            card_image_url: getVal("vcard-card-image-url", ""),
+            avatar_url: normalizeUrlInput(getVal("vcard-avatar-url", "")),
+            card_image_url: normalizeUrlInput(getVal("vcard-card-image-url", "")),
             social_links: {
-                instagram: getVal("vcard-social-instagram", ""),
-                linkedin: getVal("vcard-social-linkedin", ""),
-                twitter: getVal("vcard-social-twitter", ""),
-                facebook: getVal("vcard-social-facebook", ""),
-                youtube: getVal("vcard-social-youtube", ""),
-                tiktok: getVal("vcard-social-tiktok", "")
+                instagram: normalizeUrlInput(getVal("vcard-social-instagram", "")),
+                linkedin: normalizeUrlInput(getVal("vcard-social-linkedin", "")),
+                twitter: normalizeUrlInput(getVal("vcard-social-twitter", "")),
+                facebook: normalizeUrlInput(getVal("vcard-social-facebook", "")),
+                youtube: normalizeUrlInput(getVal("vcard-social-youtube", "")),
+                tiktok: normalizeUrlInput(getVal("vcard-social-tiktok", ""))
             },
             theme_settings: getVCardThemeSettings(),
             direct_redirect: directVcardEl ? directVcardEl.checked : false
@@ -954,7 +964,7 @@ function getQRFormPayload() {
             phone: getVal("menu-phone", ""),
             phone2: getVal("menu-phone2", ""),
             email: getVal("menu-email", ""),
-            website: getVal("menu-website", ""),
+            website: normalizeUrlInput(getVal("menu-website", "")),
             address: getVal("menu-address", ""),
             card_image_url: getVal("menu-card-image-url", ""),
             categories: [
@@ -2084,7 +2094,7 @@ async function openEditQRModal(qrId) {
                         </div>
                         <div class="form-group">
                             <label class="form-label">Web Sitesi</label>
-                            <input type="url" id="edit-vcard-website" class="form-input" value="${v.website || ''}">
+                            <input type="text" id="edit-vcard-website" class="form-input" placeholder="siteniz.com" value="${v.website || ''}">
                         </div>
                     </div>
 
@@ -2101,11 +2111,11 @@ async function openEditQRModal(qrId) {
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div class="form-group">
                             <label class="form-label">Profil Fotoğrafı URL</label>
-                            <input type="url" id="edit-vcard-avatar-url" class="form-input" placeholder="https://..." value="${v.avatar_url || ''}">
+                            <input type="text" id="edit-vcard-avatar-url" class="form-input" placeholder="https://..." value="${v.avatar_url || ''}">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Kartvizit Arka Plan Görseli URL</label>
-                            <input type="url" id="edit-vcard-card-image-url" class="form-input" placeholder="https://..." value="${v.card_image_url || ''}">
+                            <input type="text" id="edit-vcard-card-image-url" class="form-input" placeholder="https://..." value="${v.card_image_url || ''}">
                         </div>
                     </div>
 
@@ -2137,33 +2147,33 @@ async function openEditQRModal(qrId) {
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <div class="form-group">
                                 <label class="form-label" style="font-size: 11px;">Instagram</label>
-                                <input type="url" id="edit-vcard-social-instagram" class="form-input" value="${soc.instagram || ''}">
+                                <input type="text" id="edit-vcard-social-instagram" class="form-input" placeholder="instagram.com/kullanici" value="${soc.instagram || ''}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label" style="font-size: 11px;">LinkedIn</label>
-                                <input type="url" id="edit-vcard-social-linkedin" class="form-input" value="${soc.linkedin || ''}">
+                                <input type="text" id="edit-vcard-social-linkedin" class="form-input" placeholder="linkedin.com/in/kullanici" value="${soc.linkedin || ''}">
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <div class="form-group">
                                 <label class="form-label" style="font-size: 11px;">Twitter / X</label>
-                                <input type="url" id="edit-vcard-social-twitter" class="form-input" value="${soc.twitter || ''}">
+                                <input type="text" id="edit-vcard-social-twitter" class="form-input" placeholder="x.com/kullanici" value="${soc.twitter || ''}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label" style="font-size: 11px;">Facebook</label>
-                                <input type="url" id="edit-vcard-social-facebook" class="form-input" value="${soc.facebook || ''}">
+                                <input type="text" id="edit-vcard-social-facebook" class="form-input" placeholder="facebook.com/kullanici" value="${soc.facebook || ''}">
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label class="form-label" style="font-size: 11px;">YouTube</label>
-                                <input type="url" id="edit-vcard-social-youtube" class="form-input" value="${soc.youtube || ''}">
+                                <input type="text" id="edit-vcard-social-youtube" class="form-input" placeholder="youtube.com/@kanal" value="${soc.youtube || ''}">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label class="form-label" style="font-size: 11px;">TikTok</label>
-                                <input type="url" id="edit-vcard-social-tiktok" class="form-input" value="${soc.tiktok || ''}">
+                                <input type="text" id="edit-vcard-social-tiktok" class="form-input" placeholder="tiktok.com/@kullanici" value="${soc.tiktok || ''}">
                             </div>
                         </div>
                     </div>
@@ -2205,7 +2215,7 @@ async function openEditQRModal(qrId) {
                         </div>
                         <div class="form-group">
                             <label class="form-label" style="font-size: 11px;">Web Sitesi</label>
-                            <input type="url" id="edit-menu-website" class="form-input" value="${m.website || ''}">
+                            <input type="text" id="edit-menu-website" class="form-input" placeholder="isletmeniz.com" value="${m.website || ''}">
                         </div>
                         <div class="form-group" style="margin-bottom: 0;">
                             <label class="form-label" style="font-size: 11px;">Adres</label>
@@ -2254,7 +2264,11 @@ async function saveQREdit(event) {
 
     if (currentEditQRType === "url" || currentEditQRType === "wifi" || currentEditQRType === "whatsapp" || currentEditQRType === "text" || currentEditQRType === "phone" || currentEditQRType === "sms") {
         const targetUrlEl = document.getElementById("edit-target-url");
-        if (targetUrlEl) payload.target_url = targetUrlEl.value.trim();
+        if (targetUrlEl) {
+            let val = targetUrlEl.value.trim();
+            if (currentEditQRType === "url") val = normalizeUrlInput(val);
+            payload.target_url = val;
+        }
     } else if (currentEditQRType === "vcard") {
         payload.vcard_payload = {
             full_name: document.getElementById("edit-vcard-name") ? document.getElementById("edit-vcard-name").value.trim() : "",
@@ -2263,18 +2277,18 @@ async function saveQREdit(event) {
             phone: document.getElementById("edit-vcard-phone") ? document.getElementById("edit-vcard-phone").value.trim() : "",
             phone2: document.getElementById("edit-vcard-phone2") ? document.getElementById("edit-vcard-phone2").value.trim() : "",
             email: document.getElementById("edit-vcard-email") ? document.getElementById("edit-vcard-email").value.trim() : "",
-            website: document.getElementById("edit-vcard-website") ? document.getElementById("edit-vcard-website").value.trim() : "",
+            website: document.getElementById("edit-vcard-website") ? normalizeUrlInput(document.getElementById("edit-vcard-website").value) : "",
             address: document.getElementById("edit-vcard-address") ? document.getElementById("edit-vcard-address").value.trim() : "",
             bio: document.getElementById("edit-vcard-bio") ? document.getElementById("edit-vcard-bio").value.trim() : "",
-            avatar_url: document.getElementById("edit-vcard-avatar-url") ? document.getElementById("edit-vcard-avatar-url").value.trim() : "",
-            card_image_url: document.getElementById("edit-vcard-card-image-url") ? document.getElementById("edit-vcard-card-image-url").value.trim() : "",
+            avatar_url: document.getElementById("edit-vcard-avatar-url") ? normalizeUrlInput(document.getElementById("edit-vcard-avatar-url").value) : "",
+            card_image_url: document.getElementById("edit-vcard-card-image-url") ? normalizeUrlInput(document.getElementById("edit-vcard-card-image-url").value) : "",
             social_links: {
-                instagram: document.getElementById("edit-vcard-social-instagram") ? document.getElementById("edit-vcard-social-instagram").value.trim() : "",
-                linkedin: document.getElementById("edit-vcard-social-linkedin") ? document.getElementById("edit-vcard-social-linkedin").value.trim() : "",
-                twitter: document.getElementById("edit-vcard-social-twitter") ? document.getElementById("edit-vcard-social-twitter").value.trim() : "",
-                facebook: document.getElementById("edit-vcard-social-facebook") ? document.getElementById("edit-vcard-social-facebook").value.trim() : "",
-                youtube: document.getElementById("edit-vcard-social-youtube") ? document.getElementById("edit-vcard-social-youtube").value.trim() : "",
-                tiktok: document.getElementById("edit-vcard-social-tiktok") ? document.getElementById("edit-vcard-social-tiktok").value.trim() : ""
+                instagram: document.getElementById("edit-vcard-social-instagram") ? normalizeUrlInput(document.getElementById("edit-vcard-social-instagram").value) : "",
+                linkedin: document.getElementById("edit-vcard-social-linkedin") ? normalizeUrlInput(document.getElementById("edit-vcard-social-linkedin").value) : "",
+                twitter: document.getElementById("edit-vcard-social-twitter") ? normalizeUrlInput(document.getElementById("edit-vcard-social-twitter").value) : "",
+                facebook: document.getElementById("edit-vcard-social-facebook") ? normalizeUrlInput(document.getElementById("edit-vcard-social-facebook").value) : "",
+                youtube: document.getElementById("edit-vcard-social-youtube") ? normalizeUrlInput(document.getElementById("edit-vcard-social-youtube").value) : "",
+                tiktok: document.getElementById("edit-vcard-social-tiktok") ? normalizeUrlInput(document.getElementById("edit-vcard-social-tiktok").value) : ""
             },
             theme_settings: JSON.stringify({
                 theme: document.getElementById("edit-vcard-theme-select") ? document.getElementById("edit-vcard-theme-select").value : "midnight",
@@ -2289,7 +2303,7 @@ async function saveQREdit(event) {
             contact_title: document.getElementById("edit-menu-contact-title") ? document.getElementById("edit-menu-contact-title").value.trim() : "",
             phone: document.getElementById("edit-menu-phone") ? document.getElementById("edit-menu-phone").value.trim() : "",
             email: document.getElementById("edit-menu-email") ? document.getElementById("edit-menu-email").value.trim() : "",
-            website: document.getElementById("edit-menu-website") ? document.getElementById("edit-menu-website").value.trim() : "",
+            website: document.getElementById("edit-menu-website") ? normalizeUrlInput(document.getElementById("edit-menu-website").value) : "",
             address: document.getElementById("edit-menu-address") ? document.getElementById("edit-menu-address").value.trim() : ""
         };
     }
