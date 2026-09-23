@@ -247,24 +247,52 @@
         return lines.join("\r\n");
     }
 
-    function handleVcfDownload(e, url) {
+    async function handleVcfDownload(e, url) {
+        if (e && e.preventDefault) e.preventDefault();
+
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const toast = document.getElementById('vcf-toast');
         const toastText = document.getElementById('vcf-toast-text');
-        
-        if (toast && toastText) {
-            if (isAndroid) {
-                toastText.innerHTML = 'Açılan pencereden <strong>"İçeri Aktar"</strong> veya <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
-            } else if (isIOS) {
-                toastText.innerHTML = 'Açılan kişi kartı penceresinden sağ üstteki <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
+        const targetUrl = url || `/p/vcard/{{ vcard.qr_id }}.vcf`;
+
+        // 1. Web Share API File Sharing (Android Chrome & modern mobile browsers)
+        if (isAndroid || (!isIOS && navigator.canShare)) {
+            try {
+                const vcardContent = generateVcardText();
+                const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
+                const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
+                const fileName = `${safeName}.vcf`;
+                const vcfFile = new File([vcardContent], fileName, { type: 'text/vcard' });
+
+                if (navigator.canShare && navigator.canShare({ files: [vcfFile] })) {
+                    if (toast && toastText) {
+                        toastText.innerHTML = 'Açılan menüden <strong>"Kişiler"</strong> seçeneğine dokunarak ekleyebilirsiniz.';
+                        toast.style.display = 'block';
+                        setTimeout(() => { toast.style.display = 'none'; }, 9000);
+                    }
+                    await navigator.share({
+                        files: [vcfFile],
+                        title: rawName,
+                        text: `${rawName} kişi kartı`
+                    });
+                    return false;
+                }
+            } catch (shareErr) {
+                console.log('Web Share API share skipped or cancelled:', shareErr);
+                if (shareErr && shareErr.name === 'AbortError') {
+                    return false; // User closed share menu
+                }
             }
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 9000);
         }
 
-        const targetUrl = url || `/p/vcard/{{ vcard.qr_id }}.vcf`;
+        // 2. Android Fallback (Intent URI or Direct HTTP)
         if (isAndroid) {
+            if (toast && toastText) {
+                toastText.innerHTML = 'Açılan pencereden <strong>"İçeri Aktar"</strong> veya <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 9000);
+            }
             try {
                 const absUrl = new URL(targetUrl, window.location.href);
                 const scheme = absUrl.protocol.replace(':', '');
@@ -275,9 +303,17 @@
             } catch (err) {
                 window.location.href = targetUrl;
             }
-            if (e) e.preventDefault();
             return false;
         }
+
+        // 3. iOS & Default Fallback
+        if (toast && toastText && isIOS) {
+            toastText.innerHTML = 'Açılan kişi kartı penceresinden sağ üstteki <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 9000);
+        }
+        window.location.href = targetUrl;
+        return false;
     }
     </script>
 </body>

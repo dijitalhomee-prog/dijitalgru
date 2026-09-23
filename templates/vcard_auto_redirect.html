@@ -67,13 +67,43 @@
         return lines.join("\r\n");
     }
 
-    function triggerContactSave(e) {
+    async function triggerContactSave(e) {
+        if (e && e.preventDefault) e.preventDefault();
+
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const statusBox = document.getElementById("status-msg");
-
         const vcfUrl = "/p/vcard/{{ qr_id }}.vcf";
 
+        // 1. Web Share API File Sharing (Android Chrome & modern mobile browsers)
+        if (isAndroid || (!isIOS && navigator.canShare)) {
+            try {
+                const vcardContent = generateRawVcard();
+                const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
+                const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
+                const fileName = `${safeName}.vcf`;
+                const vcfFile = new File([vcardContent], fileName, { type: 'text/vcard' });
+
+                if (navigator.canShare && navigator.canShare({ files: [vcfFile] })) {
+                    if (statusBox) {
+                        statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarılıyor...</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan menüden <strong>"Kişiler"</strong> seçeneğine dokunarak ekleyin.</span>';
+                    }
+                    await navigator.share({
+                        files: [vcfFile],
+                        title: rawName,
+                        text: `${rawName} kişi kartı`
+                    });
+                    return false;
+                }
+            } catch (shareErr) {
+                console.log('Auto redirect Web Share API error / cancelled:', shareErr);
+                if (shareErr && shareErr.name === 'AbortError') {
+                    return false;
+                }
+            }
+        }
+
+        // 2. Android Fallback (Intent / location)
         if (isAndroid) {
             if (statusBox) {
                 statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarılıyor...</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan rehber ekranından <strong>"İçeri Aktar"</strong> veya <strong>"Kaydet"</strong>e dokunun.</span>';
@@ -88,14 +118,12 @@
             } catch (err) {
                 window.location.href = vcfUrl;
             }
-            if (e) e.preventDefault();
             return false;
         } else if (isIOS) {
             if (statusBox) {
                 statusBox.innerHTML = '✅ <strong>Kişi Kartı Hazırlandı</strong><br><span style="font-size: 11px; font-weight: 500;">Sağ üstteki <strong>"Kaydet"</strong>e dokunarak rehbere ekleyin.</span>';
             }
             window.location.href = vcfUrl;
-            if (e) e.preventDefault();
             return false;
         }
     }
