@@ -325,7 +325,7 @@ def download_vcard(qr_id):
     # Use text/x-vcard on Android OS and system components to trigger native Contacts import intent directly
     is_android = any(k in user_agent for k in ["android", "dalvik", "stagefright", "downloadmanager"])
     mimetype = "text/x-vcard" if is_android else "text/vcard"
-    response = Response(vcard_content, mimetype=f"{mimetype}; charset=utf-8")
+    response = Response(vcard_content, mimetype=mimetype)
     safe_filename = "".join(c for c in name if c.isalnum() or c in (" ", "_", "-")).strip() or "kisi"
     disposition = "inline" if ("iphone" in user_agent or "ipad" in user_agent or is_android or "mobile" in user_agent) else "attachment"
     response.headers["Content-Disposition"] = f'{disposition}; filename="{safe_filename}.vcf"'
