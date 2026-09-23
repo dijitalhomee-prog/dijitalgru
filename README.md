@@ -1,15 +1,18 @@
 # Dijital Gru QR Studio — SaaS Platformu
 
-🚨 **KRİTİK GİT DEPOSU VE DEPLOYMENT UYARISI:**
+🚨 **KRİTİK GİT VE DEPLOYMENT MİMARİSİ UYARISI:**
 
 > [!CAUTION]
-> **BU KLASÖR YALNIZCA QR STUDIO SAAS SİSTEMİNE AİTTİR!**
+> **DİKKAT: BU PROJE `dijitalhomee-prog/dijitalgru` DEPOSUNUN `qr-studio` DALINDA (BRANCH) ÇALIŞMAKTADIR!**
 > 
-> - **Git Remote URL:** `https://github.com/dijitalhomee-prog/dijitalgru-qr-web.git`
+> - **GitHub Deposu:** `https://github.com/dijitalhomee-prog/dijitalgru.git`
+> - **Çalışma Dalı (Branch):** `qr-studio` ⚠️
 > - **Canlı Yayın Adresi:** [https://qrdijitalgru.com/](https://qrdijitalgru.com/)
-> - **Railway Servis Adı:** `dijitalgru-qr-web`
+> - **Railway Servis Adı:** `dijitalgru-qr-web` (Yalnızca `qr-studio` dalını dinler)
 > 
-> 🛑 **ÖNEMLİ:** Bu depodaki kodları **ASLA** Dijital Gru ana web sitesi deposu olan `dijitalhomee-prog/dijitalgru` adresine **push etmeyiniz**! Yanlış push işlemi `dijitalgru.com` ana sayfasının üzerine QR Studio uygulamasını yazarak ana sitenin çökmesine yol açar.
+> 🛑 **KESİNLİKLE YAPILMAMASI GEREKEN HATA:**
+> Bu klasörde çalışırken **ASLA `main` DALINA (BRANCH) GEÇMEYİN VE PUSH ETMEYİN!** (`git push origin main` yapmayınız!)
+> `main` dalı Dijital Gru kurumsal web sitesine (`dijitalgru.com`) aittir. `main` dalına push yapmak `dijitalgru.com` ana sayfasının çökmesine neden olur.
 
 ---
 
@@ -23,31 +26,29 @@
 - `app.py` — Flask Ana Uygulama & API Endpoint'leri
 - `auth.py` — Kullanıcı Kimlik Doğrulama & Oturum Yönetimi
 - `qr_engine.py` — QR Kod Üretim ve Kişiselleştirme Motoru
-- `payments.py` — Ödeme Sistemleri & Abonelik Entegrasyonları
-- `cloud_storage.py` — Görsel ve Dosya Bulut Depolama (S3 / Cloudinary vb.)
+- `payments.py` — Ödeme Sistemleri & Abonelik Entegrasyonları (iyzico)
+- `cloud_storage.py` — Görsel ve Dosya Bulut Depolama
 - `db.py` & `migrate_db.py` — Veritabanı Modelleri & Migrasyon Yönetimi
-- `templates/` — Jinja2 HTML Şablonları (Dashboard, QR Oluşturucu, Landing)
+- `templates/` — Jinja2 HTML Şablonları (Dashboard, QR Oluşturucu, vCard Mikrosite)
 - `static/` — CSS, JavaScript ve Statik Medya Dosyaları
 
 ---
 
-## 🚀 Yayına Alma (Deployment Workflow)
+## 🚀 Doğru Güncelleme ve Yayına Alma Adımları
 
-Değişiklik yapmadan önce Git remote adresini her zaman kontrol edin:
-
-```bash
-git remote -v
-# Çıktının aşağıdaki gibi olduğundan emin olun:
-# origin https://github.com/dijitalhomee-prog/dijitalgru-qr-web.git (fetch)
-# origin https://github.com/dijitalhomee-prog/dijitalgru-qr-web.git (push)
-```
-
-QR Studio sistemini güncellemek ve canlıya (`qrdijitalgru.com`) almak için:
+QR Studio üzerinde bir değişiklik yaptıktan sonra canlıya (`qrdijitalgru.com`) almak için şu adımları izleyin:
 
 ```bash
+# 1. Aktif dalın qr-studio olduğundan emin olun:
+git branch
+# Çıktıda * qr-studio görünmelidir.
+
+# 2. Değişiklikleri commit edin:
 git add .
-git commit -m "feat: QR studio yeni güncelleme"
-git push origin main
+git commit -m "feat: QR Studio yeni güncelleme"
+
+# 3. YALNIZCA qr-studio dalına push edin:
+git push origin qr-studio
 ```
 
-Railway platformu `dijitalgru-qr-web` servisi üzerinden otomatik olarak derleyip `https://qrdijitalgru.com/` adresinde yayına alacaktır.
+Railway platformundaki `dijitalgru-qr-web` servisi `qr-studio` dalını otomatik algılayarak [qrdijitalgru.com](https://qrdijitalgru.com/) adresinde yayına alacaktır.
