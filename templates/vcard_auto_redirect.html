@@ -75,15 +75,15 @@
         const statusBox = document.getElementById("status-msg");
         const vcfUrl = "/p/vcard/{{ qr_id }}.vcf";
 
-        // 1. Web Share API File Sharing (Android Chrome & modern mobile browsers)
+        const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
+        const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
+        const fileName = `${safeName}.vcf`;
+        const vcardContent = generateRawVcard();
+
+        // TIER 1: Web Share API File Sharing (Stock Android Chrome)
         if (isAndroid || (!isIOS && navigator.canShare)) {
             try {
-                const vcardContent = generateRawVcard();
-                const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
-                const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
-                const fileName = `${safeName}.vcf`;
                 const vcfFile = new File([vcardContent], fileName, { type: 'text/vcard' });
-
                 if (navigator.canShare && navigator.canShare({ files: [vcfFile] })) {
                     if (statusBox) {
                         statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarılıyor...</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan menüden <strong>"Kişiler"</strong> seçeneğine dokunarak ekleyin.</span>';
@@ -97,35 +97,44 @@
                 }
             } catch (shareErr) {
                 console.log('Auto redirect Web Share API error / cancelled:', shareErr);
-                if (shareErr && shareErr.name === 'AbortError') {
+                if (shareErr && (shareErr.name === 'AbortError' || shareErr.code === 20)) {
                     return false;
                 }
             }
         }
 
-        // 2. Android Fallback (Intent / location)
+        // TIER 2: Blob Download Fallback (Samsung Internet, UC Browser, Mi Browser, Huawei Browser, etc.)
         if (isAndroid) {
-            if (statusBox) {
-                statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarılıyor...</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan rehber ekranından <strong>"İçeri Aktar"</strong> veya <strong>"Kaydet"</strong>e dokunun.</span>';
-            }
             try {
-                const absUrl = new URL(vcfUrl, window.location.href);
-                const scheme = absUrl.protocol.replace(':', '');
-                const hostAndPath = absUrl.host + absUrl.pathname + absUrl.search;
-                const fallbackUrl = encodeURIComponent(absUrl.href);
-                const intentUrl = `intent://${hostAndPath}#Intent;scheme=${scheme};type=text/x-vcard;action=android.intent.action.VIEW;S.browser_fallback_url=${fallbackUrl};end`;
-                window.location.href = intentUrl;
-            } catch (err) {
-                window.location.href = vcfUrl;
+                const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' });
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+
+                if (statusBox) {
+                    statusBox.innerHTML = '✅ <strong>Kişi Kartı (.vcf) İndirildi!</strong><br><span style="font-size: 11px; font-weight: 500;">Üst bildirim alanından veya İndirilenler klasöründen dosyaya dokunarak rehbere ekleyin.</span>';
+                }
+                return false;
+            } catch (blobErr) {
+                console.log('Blob download error:', blobErr);
             }
-            return false;
-        } else if (isIOS) {
-            if (statusBox) {
-                statusBox.innerHTML = '✅ <strong>Kişi Kartı Hazırlandı</strong><br><span style="font-size: 11px; font-weight: 500;">Sağ üstteki <strong>"Kaydet"</strong>e dokunarak rehbere ekleyin.</span>';
-            }
-            window.location.href = vcfUrl;
-            return false;
         }
+
+        // TIER 3: iOS Safari & Direct Navigation Fallback
+        if (statusBox) {
+            if (isIOS) {
+                statusBox.innerHTML = '✅ <strong>Kişi Kartı Hazırlandı</strong><br><span style="font-size: 11px; font-weight: 500;">Sağ üstteki <strong>"Kaydet"</strong>e dokunarak rehbere ekleyin.</span>';
+            } else {
+                statusBox.innerHTML = '✅ <strong>Kişi Kartı İndiriliyor...</strong><br><span style="font-size: 11px; font-weight: 500;">İndirilen dosyaya dokunarak rehbere ekleyin.</span>';
+            }
+        }
+        window.location.href = vcfUrl;
+        return false;
     }
 
     // Auto-trigger immediately on load

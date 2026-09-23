@@ -256,18 +256,18 @@
         const toastText = document.getElementById('vcf-toast-text');
         const targetUrl = url || `/p/vcard/{{ vcard.qr_id }}.vcf`;
 
-        // 1. Web Share API File Sharing (Android Chrome & modern mobile browsers)
+        const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
+        const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
+        const fileName = `${safeName}.vcf`;
+        const vcardContent = generateVcardText();
+
+        // TIER 1: Web Share API File Sharing (Stock Android Chrome)
         if (isAndroid || (!isIOS && navigator.canShare)) {
             try {
-                const vcardContent = generateVcardText();
-                const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
-                const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
-                const fileName = `${safeName}.vcf`;
                 const vcfFile = new File([vcardContent], fileName, { type: 'text/vcard' });
-
                 if (navigator.canShare && navigator.canShare({ files: [vcfFile] })) {
                     if (toast && toastText) {
-                        toastText.innerHTML = 'Açılan menüden <strong>"Kişiler"</strong> seçeneğine dokunarak ekleyebilirsiniz.';
+                        toastText.innerHTML = '📱 Açılan menüden <strong>"Kişiler"</strong> seçeneğine dokunarak ekleyebilirsiniz.';
                         toast.style.display = 'block';
                         setTimeout(() => { toast.style.display = 'none'; }, 9000);
                     }
@@ -280,35 +280,43 @@
                 }
             } catch (shareErr) {
                 console.log('Web Share API share skipped or cancelled:', shareErr);
-                if (shareErr && shareErr.name === 'AbortError') {
+                if (shareErr && (shareErr.name === 'AbortError' || shareErr.code === 20)) {
                     return false; // User closed share menu
                 }
             }
         }
 
-        // 2. Android Fallback (Intent URI or Direct HTTP)
+        // TIER 2: Blob Download Fallback (Samsung Internet, UC Browser, Mi Browser, Huawei Browser, etc.)
         if (isAndroid) {
-            if (toast && toastText) {
-                toastText.innerHTML = 'Açılan pencereden <strong>"İçeri Aktar"</strong> veya <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
-                toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 9000);
-            }
             try {
-                const absUrl = new URL(targetUrl, window.location.href);
-                const scheme = absUrl.protocol.replace(':', '');
-                const hostAndPath = absUrl.host + absUrl.pathname + absUrl.search;
-                const fallbackUrl = encodeURIComponent(absUrl.href);
-                const intentUrl = `intent://${hostAndPath}#Intent;scheme=${scheme};type=text/x-vcard;action=android.intent.action.VIEW;S.browser_fallback_url=${fallbackUrl};end`;
-                window.location.href = intentUrl;
-            } catch (err) {
-                window.location.href = targetUrl;
+                const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' });
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+
+                if (toast && toastText) {
+                    toastText.innerHTML = '✅ <strong>Kişi Kartı (.vcf) İndirildi!</strong><br><span style="font-size: 11px; color: #cbd5e1;">Üst bildirim alanından veya İndirilenler klasöründen dosyaya dokunarak rehbere ekleyin.</span>';
+                    toast.style.display = 'block';
+                    setTimeout(() => { toast.style.display = 'none'; }, 10000);
+                }
+                return false;
+            } catch (blobErr) {
+                console.log('Blob download error:', blobErr);
             }
-            return false;
         }
 
-        // 3. iOS & Default Fallback
-        if (toast && toastText && isIOS) {
-            toastText.innerHTML = 'Açılan kişi kartı penceresinden sağ üstteki <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
+        // TIER 3: iOS Safari & Direct Navigation Fallback
+        if (toast && toastText) {
+            if (isIOS) {
+                toastText.innerHTML = 'Açılan kişi kartı penceresinden sağ üstteki <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
+            } else {
+                toastText.innerHTML = '✅ <strong>Kişi kartı indiriliyor...</strong><br><span style="font-size: 11px; color: #cbd5e1;">İndirilen dosyaya dokunarak rehbere ekleyin.</span>';
+            }
             toast.style.display = 'block';
             setTimeout(() => { toast.style.display = 'none'; }, 9000);
         }
