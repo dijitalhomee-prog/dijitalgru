@@ -69,7 +69,7 @@
 
         {% if vcard.card_image_url %}
         <div style="margin: 16px 0; border-radius: 18px; overflow: hidden; border: 1px solid rgba(129, 140, 248, 0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.4); background: rgba(0,0,0,0.2);">
-            <img src="{{ vcard.card_image_url }}" alt="Kartvizit Ön Yüz Görseli" style="width: 100%; height: auto; display: block; object-fit: contain;">
+            <img src="{{ vcard.card_image_url }}" alt="Kartvizit Ön Yüz Görseli" style="width: 100%; height: auto; display: block; object-fit: contain;" onerror="this.parentElement.style.display='none';">
         </div>
         {% endif %}
 

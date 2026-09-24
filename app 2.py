@@ -50,12 +50,7 @@ def get_current_user():
 @app.route("/health")
 @app.route("/api/health")
 def health_check():
-    return jsonify({
-        "status": "healthy",
-        "service": "Dijitalgru QR Studio",
-        "version": "2026.09.24.v3_social_fields_fix",
-        "timestamp": int(time.time())
-    }), 200
+    return jsonify({"status": "healthy", "service": "Dijitalgru QR Studio", "timestamp": int(time.time())}), 200
 
 # --- Public Routes ---
 
@@ -229,7 +224,7 @@ def redirect_qr(short_code):
                     target_url = f"micropage://vcard/{qr_id}"
                 elif qr.get("type") in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"]:
                     target_url = f"micropage://menu/{qr_id}"
-                elif qr.get("type") in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"]:
+                elif qr.get("type") in ["vcard", "company_card"]:
                     target_url = f"micropage://vcard/{qr_id}"
 
             if target_url:
@@ -300,7 +295,6 @@ def public_vcard(qr_id):
         vcard_data["card_image_url"] = _clean_media_url(vcard_data["card_image_url"])
     if vcard_data.get("avatar_url"):
         vcard_data["avatar_url"] = _clean_media_url(vcard_data["avatar_url"])
-
     social_links = {}
     if vcard_data.get("social_links"):
         try:
@@ -638,7 +632,7 @@ def api_qr_create():
     qr_id = cursor.lastrowid
     
     # Handle micropage payloads
-    if qr_type in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"] and vcard_payload:
+    if qr_type in ["vcard", "company_card"] and vcard_payload:
         cursor.execute("""
         INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, phone2, email, website, address, bio, avatar_url, card_image_url, social_links)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -698,7 +692,7 @@ def api_qr_create():
             cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
     elif qr_type in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"] and not target_url:
         cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
-    elif qr_type in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"] and not target_url:
+    elif qr_type in ["vcard", "company_card"] and not target_url:
         cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://vcard/{qr_id}", qr_id))
         
     conn.commit()
@@ -918,9 +912,9 @@ def api_qr_details(qr_id):
 
     qr_data = dict(row)
 
-    # Fetch vCard data if type is vcard, company_card, social, etc.
+    # Fetch vCard data if type is vcard or company_card
     vcard_data = None
-    if qr_data["type"] in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"]:
+    if qr_data["type"] in ["vcard", "company_card"]:
         cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
         vrow = cursor.fetchone()
         if vrow:

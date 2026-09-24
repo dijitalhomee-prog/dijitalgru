@@ -753,10 +753,14 @@ function normalizeUrlInput(val) {
     if (!val) return "";
     let str = String(val).trim();
     if (!str) return "";
-    if (!/^https?:\/\//i.test(str) && !/^\/\//i.test(str) && !/^mailto:/i.test(str) && !/^tel:/i.test(str) && !/^data:/i.test(str)) {
-        return "https://" + str;
+
+    // Clean up corrupted relative upload paths if present
+    str = str.replace(/^https?:\/\/(?:qrdijitalgru\.com)?\/*p\/media\//i, "/p/media/");
+
+    if (str.startsWith("/") || /^https?:\/\//i.test(str) || /^\/\//i.test(str) || /^mailto:/i.test(str) || /^tel:/i.test(str) || /^data:/i.test(str)) {
+        return str;
     }
-    return str;
+    return "https://" + str;
 }
 
 function getVal(id, defaultVal = "") {
