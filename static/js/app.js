@@ -1880,6 +1880,101 @@ async function handleCardImageUpload(input, type) {
     }
 }
 
+// Edit QR Modal Avatar Upload Handler
+async function handleEditAvatarUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const statusElem = document.getElementById('edit-vcard-avatar-status');
+    const hiddenInput = document.getElementById('edit-vcard-avatar-url');
+    const previewImg = document.getElementById('edit-vcard-avatar-preview');
+
+    if (statusElem) {
+        statusElem.innerText = '⏳ Profil fotoğrafı yükleniyor...';
+        statusElem.style.color = '#f59e0b';
+    }
+
+    const formData = new FormData();
+    formData.append('avatar_file', file);
+
+    try {
+        const res = await fetch('/api/upload/avatar', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (res.ok && (data.avatar_url || data.image_url)) {
+            const finalUrl = data.avatar_url || data.image_url;
+            if (hiddenInput) hiddenInput.value = finalUrl;
+            if (statusElem) {
+                statusElem.innerText = '✅ Profil fotoğrafı yüklendi!';
+                statusElem.style.color = '#34d399';
+            }
+            if (previewImg) {
+                previewImg.src = finalUrl;
+                previewImg.style.display = 'block';
+            }
+        } else {
+            if (statusElem) {
+                statusElem.innerText = '❌ Yükleme hatası: ' + (data.error || 'Bilinmeyen hata');
+                statusElem.style.color = '#f43f5e';
+            }
+        }
+    } catch (err) {
+        console.error('Edit avatar upload error:', err);
+        if (statusElem) {
+            statusElem.innerText = '❌ Yükleme hatası oluştu.';
+            statusElem.style.color = '#f43f5e';
+        }
+    }
+}
+
+// Edit QR Modal Card Image Upload Handler
+async function handleEditCardImageUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const statusElem = document.getElementById('edit-vcard-card-img-status');
+    const hiddenInput = document.getElementById('edit-vcard-card-image-url');
+    const previewImg = document.getElementById('edit-vcard-card-img-preview');
+
+    if (statusElem) {
+        statusElem.innerText = '⏳ Kartvizit görseli yükleniyor...';
+        statusElem.style.color = '#f59e0b';
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const res = await fetch('/api/upload/image', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (res.ok && data.image_url) {
+            if (hiddenInput) hiddenInput.value = data.image_url;
+            if (statusElem) {
+                statusElem.innerText = '✅ Kartvizit ön yüz görseli yüklendi!';
+                statusElem.style.color = '#34d399';
+            }
+            if (previewImg) {
+                previewImg.src = data.image_url;
+                previewImg.style.display = 'block';
+            }
+        } else {
+            if (statusElem) {
+                statusElem.innerText = '❌ Yükleme hatası: ' + (data.error || 'Bilinmeyen hata');
+                statusElem.style.color = '#f43f5e';
+            }
+        }
+    } catch (err) {
+        console.error('Edit card image upload error:', err);
+        if (statusElem) {
+            statusElem.innerText = '❌ Yükleme hatası oluştu.';
+            statusElem.style.color = '#f43f5e';
+        }
+    }
+}
+
 // Studio Accordion Toggle Handler
 function toggleStudioAccordion(headerElem) {
     if (!headerElem) return;
@@ -2124,14 +2219,37 @@ async function openEditQRModal(qrId) {
                         <textarea id="edit-vcard-bio" class="form-textarea" rows="2">${v.bio || ''}</textarea>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <div class="form-group">
-                            <label class="form-label">Profil Fotoğrafı URL</label>
-                            <input type="text" id="edit-vcard-avatar-url" class="form-input" placeholder="https://..." value="${v.avatar_url || ''}">
+                    <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 16px; padding-top: 14px;">
+                        <h4 style="color: #38bdf8; margin-top: 0; margin-bottom: 12px; font-size: 13px;">📷 Profil Fotoğrafı & Kartvizit Görselleri</h4>
+                        
+                        <!-- Profil Fotoğrafı Yükleme -->
+                        <div class="form-group" style="margin-bottom: 14px;">
+                            <label class="form-label">Profil Fotoğrafı Yükleyin (JPG / PNG)</label>
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <label for="edit-vcard-avatar-file" class="btn-secondary" style="padding: 10px 14px; font-size: 12px; font-weight: 700; cursor: pointer; border-radius: 10px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
+                                    <span>📷</span>
+                                    <span>Profil Fotoğrafı Seç / Yükle</span>
+                                </label>
+                                <input type="file" id="edit-vcard-avatar-file" accept="image/*" style="display: none;" onchange="handleEditAvatarUpload(this)">
+                                <input type="hidden" id="edit-vcard-avatar-url" value="${v.avatar_url || ''}">
+                                <img id="edit-vcard-avatar-preview" src="${v.avatar_url || ''}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #6366f1; display: ${v.avatar_url ? 'block' : 'none'};">
+                            </div>
+                            <div id="edit-vcard-avatar-status" style="font-size: 11px; color: #94a3b8; margin-top: 4px;">${v.avatar_url ? '✅ Mevcut profil fotoğrafı yüklü.' : 'İsteğe bağlı profil görseli.'}</div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Kartvizit Arka Plan Görseli URL</label>
-                            <input type="text" id="edit-vcard-card-image-url" class="form-input" placeholder="https://..." value="${v.card_image_url || ''}">
+
+                        <!-- Fiziksel Kartvizit Görseli (Jpeg) Yükleme -->
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Jpeg / Fotoğraf)</label>
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <label for="edit-vcard-card-image-file" class="btn-secondary" style="padding: 10px 14px; font-size: 12px; font-weight: 700; cursor: pointer; border-radius: 10px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
+                                    <span>🖼️</span>
+                                    <span>Kartvizit Görseli (Jpeg) Seç / Yükle</span>
+                                </label>
+                                <input type="file" id="edit-vcard-card-image-file" accept="image/*" style="display: none;" onchange="handleEditCardImageUpload(this)">
+                                <input type="hidden" id="edit-vcard-card-image-url" value="${v.card_image_url || ''}">
+                                <img id="edit-vcard-card-img-preview" src="${v.card_image_url || ''}" style="height: 40px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); display: ${v.card_image_url ? 'block' : 'none'};">
+                            </div>
+                            <div id="edit-vcard-card-img-status" style="font-size: 11px; color: #94a3b8; margin-top: 4px;">${v.card_image_url ? '✅ Mevcut kartvizit görseli yüklü.' : 'İsteğe bağlı ön yüz kartvizit görseli.'}</div>
                         </div>
                     </div>
 
