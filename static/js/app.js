@@ -14,12 +14,12 @@ const CYCLE_PRICES = {
         subtextBusiness: 'Aylık Düzenli Yenilemeli Ödeme'
     },
     semi_annual: {
-        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #10b981; font-weight: 800;">₺159</span>',
-        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #10b981; font-weight: 800;">₺319</span>',
-        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #10b981; font-weight: 800;">₺719</span>',
-        subtextStarter: 'Tek Çekim 6 Aylık Toplam: 954 ₺ (Aylık 159 ₺)',
-        subtextAdvanced: 'Tek Çekim 6 Aylık Toplam: 1.914 ₺ (Aylık 319 ₺)',
-        subtextBusiness: 'Tek Çekim 6 Aylık Toplam: 4.314 ₺ (Aylık 719 ₺)'
+        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #10b981; font-weight: 800;">₺189</span>',
+        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #10b981; font-weight: 800;">₺379</span>',
+        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #10b981; font-weight: 800;">₺854</span>',
+        subtextStarter: 'Tek Çekim 6 Aylık Toplam: 1.134 ₺ (Aylık 189 ₺)',
+        subtextAdvanced: 'Tek Çekim 6 Aylık Toplam: 2.274 ₺ (Aylık 379 ₺)',
+        subtextBusiness: 'Tek Çekim 6 Aylık Toplam: 5.124 ₺ (Aylık 854 ₺)'
     },
     annual: {
         starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #6366f1; font-weight: 800;">₺179</span>',
