@@ -50,7 +50,12 @@ def get_current_user():
 @app.route("/health")
 @app.route("/api/health")
 def health_check():
-    return jsonify({"status": "healthy", "service": "Dijitalgru QR Studio", "timestamp": int(time.time())}), 200
+    return jsonify({
+        "status": "healthy",
+        "service": "Dijitalgru QR Studio",
+        "version": "2026.09.24.v2_pdf_type_support",
+        "timestamp": int(time.time())
+    }), 200
 
 # --- Public Routes ---
 
