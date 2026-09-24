@@ -242,6 +242,72 @@ def run_migrations():
     except Exception as e:
         conn.rollback()
         print("⚠️ Card image migration note:", e)
+
+    # 8. Auto-repair empty target_url in qr_codes for pdf/menu/vcard types
+    try:
+        if is_postgres():
+            cursor.execute("SELECT id, type, target_url FROM qr_codes WHERE target_url IS NULL OR target_url = '' OR target_url = 'None'")
+        else:
+            cursor.execute("SELECT id, type, target_url FROM qr_codes WHERE target_url IS NULL OR target_url = '' OR target_url = 'None'")
+        empty_rows = cursor.fetchall()
+        repaired_count = 0
+        for r in empty_rows:
+            qid = r['id']
+            qtype = r['type']
+            # Check menu_pages
+            if is_postgres():
+                cursor.execute("SELECT pdf_url FROM menu_pages WHERE qr_id = %s", (qid,))
+            else:
+                cursor.execute("SELECT pdf_url FROM menu_pages WHERE qr_id = ?", (qid,))
+            mrow = cursor.fetchone()
+            if mrow:
+                pdf_url = mrow['pdf_url'] if isinstance(mrow, dict) else mrow[0]
+                if pdf_url and (str(pdf_url).startswith('/') or str(pdf_url).startswith('http')):
+                    new_target = str(pdf_url)
+                else:
+                    new_target = f"micropage://menu/{qid}"
+                if is_postgres():
+                    cursor.execute("UPDATE qr_codes SET target_url = %s WHERE id = %s", (new_target, qid))
+                else:
+                    cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (new_target, qid))
+                repaired_count += 1
+                continue
+
+            # Check vcard_pages
+            if is_postgres():
+                cursor.execute("SELECT id FROM vcard_pages WHERE qr_id = %s", (qid,))
+            else:
+                cursor.execute("SELECT id FROM vcard_pages WHERE qr_id = ?", (qid,))
+            vrow = cursor.fetchone()
+            if vrow:
+                new_target = f"micropage://vcard/{qid}"
+                if is_postgres():
+                    cursor.execute("UPDATE qr_codes SET target_url = %s WHERE id = %s", (new_target, qid))
+                else:
+                    cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (new_target, qid))
+                repaired_count += 1
+                continue
+                
+            # Default fallback by type
+            if qtype in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"]:
+                new_target = f"micropage://menu/{qid}"
+            elif qtype in ["vcard", "company_card"]:
+                new_target = f"micropage://vcard/{qid}"
+            else:
+                new_target = "https://qrdijitalgru.com"
+
+            if is_postgres():
+                cursor.execute("UPDATE qr_codes SET target_url = %s WHERE id = %s", (new_target, qid))
+            else:
+                cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (new_target, qid))
+            repaired_count += 1
+
+        conn.commit()
+        if repaired_count > 0:
+            print(f"✅ Repaired target_url for {repaired_count} empty QR codes.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ target_url auto-repair migration note:", e)
         
     conn.close()
 

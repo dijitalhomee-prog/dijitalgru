@@ -206,6 +206,36 @@ def redirect_qr(short_code):
         return "<h3>🟡 Bu QR Kod Pasife Alınmıştır</h3><p>Bu QR kod şu anda aktif değildir.</p>", 403
         
     if not target_url:
+        try:
+            conn_repair = get_db()
+            r_cursor = conn_repair.cursor()
+            r_cursor.execute("SELECT pdf_url FROM menu_pages WHERE qr_id = ?", (qr_id,))
+            mrow = r_cursor.fetchone()
+            if mrow:
+                m_pdf = mrow["pdf_url"] if isinstance(mrow, dict) else mrow[0]
+                if m_pdf and (m_pdf.startswith("/") or m_pdf.startswith("http")):
+                    target_url = m_pdf
+                else:
+                    target_url = f"micropage://menu/{qr_id}"
+            else:
+                r_cursor.execute("SELECT id FROM vcard_pages WHERE qr_id = ?", (qr_id,))
+                vrow = r_cursor.fetchone()
+                if vrow:
+                    target_url = f"micropage://vcard/{qr_id}"
+                elif qr.get("type") in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"]:
+                    target_url = f"micropage://menu/{qr_id}"
+                elif qr.get("type") in ["vcard", "company_card"]:
+                    target_url = f"micropage://vcard/{qr_id}"
+
+            if target_url:
+                r_cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (target_url, qr_id))
+                conn_repair.commit()
+            r_cursor.close()
+            conn_repair.close()
+        except Exception as repair_ex:
+            print(f"[/r/{short_code}] Target URL repair note:", repair_ex)
+
+    if not target_url:
         return "<h3>⚠️ Hedef Adres Bulunamadı</h3><p>Bu QR kod için geçerli bir hedef bulunamadı.</p>", 404
 
     # ---- Async Scan Analytics Logging (Non-blocking Thread) ----
@@ -563,7 +593,7 @@ def api_qr_create():
     conn = get_db()
     cursor = conn.cursor()
     
-    is_dynamic = 1 if qr_type in ["url", "vcard", "menu"] else 0
+    is_dynamic = 1 if qr_type in ["url", "vcard", "company_card", "menu", "pdf_catalog", "pdf_viewer", "restaurant_menu", "social", "dynamic_whatsapp", "instagram", "linkedin", "pinterest", "facebook"] else 0
 
     # Check user dynamic limits ONLY if creating a dynamic QR code
     if is_dynamic == 1:
@@ -584,7 +614,7 @@ def api_qr_create():
     qr_id = cursor.lastrowid
     
     # Handle micropage payloads
-    if qr_type == "vcard" and vcard_payload:
+    if qr_type in ["vcard", "company_card"] and vcard_payload:
         cursor.execute("""
         INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, phone2, email, website, address, bio, avatar_url, card_image_url, social_links)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -609,7 +639,7 @@ def api_qr_create():
         else:
             cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://vcard/{qr_id}", qr_id))
         
-    elif qr_type == "menu" and menu_payload:
+    elif qr_type in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"] and menu_payload:
         pdf_url = menu_payload.get("pdf_url")
         if pdf_url in ["None", "null", "undefined", ""]:
             pdf_url = None
@@ -642,6 +672,10 @@ def api_qr_create():
             cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (pdf_url, qr_id))
         else:
             cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
+    elif qr_type in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"] and not target_url:
+        cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
+    elif qr_type in ["vcard", "company_card"] and not target_url:
+        cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://vcard/{qr_id}", qr_id))
         
     conn.commit()
     conn.close()
@@ -788,25 +822,56 @@ def api_qr_update(qr_id):
         pdf_url = menu_payload.get("pdf_url")
         if pdf_url in ["None", "null", "undefined", ""]:
             pdf_url = None
-        cursor.execute("""
-        UPDATE menu_pages 
-        SET title = ?, description = ?, pdf_url = ?, contact_name = ?, contact_title = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, card_image_url = ?, social_links = ?
-        WHERE qr_id = ?
-        """, (
-            menu_payload.get("title"),
-            menu_payload.get("description"),
-            pdf_url,
-            menu_payload.get("contact_name"),
-            menu_payload.get("contact_title"),
-            menu_payload.get("phone"),
-            menu_payload.get("phone2"),
-            menu_payload.get("email"),
-            menu_payload.get("website"),
-            menu_payload.get("address"),
-            menu_payload.get("card_image_url"),
-            json.dumps(menu_payload.get("social_links", {})),
-            qr_id
-        ))
+
+        cursor.execute("SELECT id FROM menu_pages WHERE qr_id = ?", (qr_id,))
+        mrow = cursor.fetchone()
+        if not mrow:
+            cursor.execute("""
+            INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, card_image_url, social_links)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                qr_id,
+                menu_payload.get("title"),
+                menu_payload.get("description"),
+                menu_payload.get("cover_url"),
+                pdf_url,
+                json.dumps(menu_payload.get("categories", [])),
+                menu_payload.get("contact_name"),
+                menu_payload.get("contact_title"),
+                menu_payload.get("phone"),
+                menu_payload.get("phone2"),
+                menu_payload.get("email"),
+                menu_payload.get("website"),
+                menu_payload.get("address"),
+                menu_payload.get("card_image_url"),
+                json.dumps(menu_payload.get("social_links", {}))
+            ))
+        else:
+            cursor.execute("""
+            UPDATE menu_pages 
+            SET title = ?, description = ?, pdf_url = ?, contact_name = ?, contact_title = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, card_image_url = ?, social_links = ?
+            WHERE qr_id = ?
+            """, (
+                menu_payload.get("title"),
+                menu_payload.get("description"),
+                pdf_url,
+                menu_payload.get("contact_name"),
+                menu_payload.get("contact_title"),
+                menu_payload.get("phone"),
+                menu_payload.get("phone2"),
+                menu_payload.get("email"),
+                menu_payload.get("website"),
+                menu_payload.get("address"),
+                menu_payload.get("card_image_url"),
+                json.dumps(menu_payload.get("social_links", {})),
+                qr_id
+            ))
+            
+        direct_redirect = menu_payload.get("direct_redirect", True)
+        if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")) and direct_redirect:
+            cursor.execute("UPDATE qr_codes SET target_url = ?, updated_at = ? WHERE id = ?", (pdf_url, now, qr_id))
+        elif not target_url:
+            cursor.execute("UPDATE qr_codes SET target_url = ?, updated_at = ? WHERE id = ?", (f"micropage://menu/{qr_id}", now, qr_id))
         
     conn.commit()
     conn.close()
@@ -829,9 +894,9 @@ def api_qr_details(qr_id):
 
     qr_data = dict(row)
 
-    # Fetch vCard data if type is vcard
+    # Fetch vCard data if type is vcard or company_card
     vcard_data = None
-    if qr_data["type"] == "vcard":
+    if qr_data["type"] in ["vcard", "company_card"]:
         cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
         vrow = cursor.fetchone()
         if vrow:
@@ -843,9 +908,9 @@ def api_qr_details(qr_id):
                 except Exception:
                     vcard_data["social_links"] = {}
 
-    # Fetch Menu data if type is menu
+    # Fetch Menu data if type is menu, pdf_catalog, pdf_viewer, or restaurant_menu
     menu_data = None
-    if qr_data["type"] == "menu":
+    if qr_data["type"] in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"]:
         cursor.execute("SELECT * FROM menu_pages WHERE qr_id = ?", (qr_id,))
         mrow = cursor.fetchone()
         if mrow:
