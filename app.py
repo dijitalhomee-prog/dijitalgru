@@ -53,7 +53,7 @@ def health_check():
     return jsonify({
         "status": "healthy",
         "service": "Dijitalgru QR Studio",
-        "version": "2026.09.24.v2_pdf_type_support",
+        "version": "2026.09.24.v3_social_fields_fix",
         "timestamp": int(time.time())
     }), 200
 
@@ -229,7 +229,7 @@ def redirect_qr(short_code):
                     target_url = f"micropage://vcard/{qr_id}"
                 elif qr.get("type") in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"]:
                     target_url = f"micropage://menu/{qr_id}"
-                elif qr.get("type") in ["vcard", "company_card"]:
+                elif qr.get("type") in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"]:
                     target_url = f"micropage://vcard/{qr_id}"
 
             if target_url:
@@ -619,7 +619,7 @@ def api_qr_create():
     qr_id = cursor.lastrowid
     
     # Handle micropage payloads
-    if qr_type in ["vcard", "company_card"] and vcard_payload:
+    if qr_type in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"] and vcard_payload:
         cursor.execute("""
         INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, phone2, email, website, address, bio, avatar_url, card_image_url, social_links)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -679,7 +679,7 @@ def api_qr_create():
             cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
     elif qr_type in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"] and not target_url:
         cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
-    elif qr_type in ["vcard", "company_card"] and not target_url:
+    elif qr_type in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"] and not target_url:
         cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://vcard/{qr_id}", qr_id))
         
     conn.commit()
@@ -899,9 +899,9 @@ def api_qr_details(qr_id):
 
     qr_data = dict(row)
 
-    # Fetch vCard data if type is vcard or company_card
+    # Fetch vCard data if type is vcard, company_card, social, etc.
     vcard_data = None
-    if qr_data["type"] in ["vcard", "company_card"]:
+    if qr_data["type"] in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"]:
         cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
         vrow = cursor.fetchone()
         if vrow:

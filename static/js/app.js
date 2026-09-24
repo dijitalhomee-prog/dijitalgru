@@ -246,11 +246,11 @@ function initTypeSelector() {
             let formId = `form-${currentQrType}`;
             if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
                 formId = "form-menu";
-            } else if (["vcard", "company_card"].includes(currentQrType)) {
+            } else if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(currentQrType)) {
                 formId = "form-vcard";
             } else if (["dynamic_whatsapp", "whatsapp"].includes(currentQrType)) {
                 formId = "form-whatsapp";
-            } else if (["url", "social", "instagram", "linkedin", "pinterest", "facebook", "static_url"].includes(currentQrType)) {
+            } else if (["url", "static_url"].includes(currentQrType)) {
                 formId = "form-url";
             } else if (["wifi"].includes(currentQrType)) {
                 formId = "form-wifi";
@@ -553,9 +553,9 @@ async function updateLivePreview() {
     const payload = getQRFormPayload();
     let previewText = "";
 
-    if (["url", "static_url", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(payload.type)) {
+    if (["url", "static_url"].includes(payload.type)) {
         previewText = getVal("target-url", "");
-    } else if (["vcard", "company_card"].includes(payload.type)) {
+    } else if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(payload.type)) {
         const v = payload.vcard_payload || {};
         previewText = `BEGIN:VCARD\nVERSION:3.0\nN:${v.full_name || 'Isim'}\nTEL:${v.phone || ''}\nEMAIL:${v.email || ''}\nEND:VCARD`;
     } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(payload.type)) {
@@ -941,9 +941,9 @@ function getQRFormPayload() {
     let vcard_payload = null;
     let menu_payload = null;
 
-    if (["url", "static_url", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(currentQrType)) {
+    if (["url", "static_url"].includes(currentQrType)) {
         target_url = normalizeUrlInput(getVal("target-url", "https://qrdijitalgru.com"));
-    } else if (["vcard", "company_card"].includes(currentQrType)) {
+    } else if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(currentQrType)) {
         const directVcardEl = document.getElementById("direct-vcard-redirect");
         vcard_payload = {
             full_name: getVal("vcard-name", "Ad Soyad"),
@@ -2156,7 +2156,7 @@ async function openEditQRModal(qrId) {
 
             const container = document.getElementById("edit-qr-dynamic-fields");
 
-            if (data.type === "vcard") {
+            if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(data.type)) {
                 const v = data.vcard || {};
                 const soc = v.social_links || {};
                 let themeObj = { theme: 'midnight', primary_color: '#6366f1' };
@@ -2312,7 +2312,7 @@ async function openEditQRModal(qrId) {
                         </div>
                     </div>
                 `;
-            } else if (data.type === "menu") {
+            } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(data.type)) {
                 const m = data.menu || {};
                 container.innerHTML = `
                     <h4 style="color: var(--accent); margin-top: 0; margin-bottom: 14px; font-size: 14px;">📄 Dijital Menü & Katalog Ayarları</h4>
@@ -2403,7 +2403,7 @@ async function saveQREdit(event) {
             if (currentEditQRType === "url") val = normalizeUrlInput(val);
             payload.target_url = val;
         }
-    } else if (currentEditQRType === "vcard") {
+    } else if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(currentEditQRType)) {
         payload.vcard_payload = {
             full_name: document.getElementById("edit-vcard-name") ? document.getElementById("edit-vcard-name").value.trim() : "",
             title: document.getElementById("edit-vcard-title") ? document.getElementById("edit-vcard-title").value.trim() : "",
@@ -2429,7 +2429,7 @@ async function saveQREdit(event) {
                 primary_color: document.getElementById("edit-vcard-primary-color") ? document.getElementById("edit-vcard-primary-color").value : "#6366f1"
             })
         };
-    } else if (currentEditQRType === "menu") {
+    } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentEditQRType)) {
         payload.menu_payload = {
             title: document.getElementById("edit-menu-title") ? document.getElementById("edit-menu-title").value.trim() : "",
             description: document.getElementById("edit-menu-desc") ? document.getElementById("edit-menu-desc").value.trim() : "",
