@@ -46,6 +46,12 @@ def get_current_user():
         return None
     return get_user_by_id(payload["user_id"])
 
+# --- Health Check Endpoint (Zero-Downtime Deployment) ---
+@app.route("/health")
+@app.route("/api/health")
+def health_check():
+    return jsonify({"status": "healthy", "service": "Dijitalgru QR Studio", "timestamp": int(time.time())}), 200
+
 # --- Public Routes ---
 
 @app.route("/")

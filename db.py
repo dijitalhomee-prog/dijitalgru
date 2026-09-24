@@ -86,7 +86,7 @@ def get_db():
     else:
         db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "dijitalgru_qr.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        raw_conn = sqlite3.connect(db_path)
+        raw_conn = sqlite3.connect(db_path, timeout=30.0)
         raw_conn.row_factory = sqlite3.Row
         return SmartConn(raw_conn, is_pg=False)
 
