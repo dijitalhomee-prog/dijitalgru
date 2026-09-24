@@ -381,7 +381,26 @@ function initTypeSelector() {
             const directPdfHintEl = document.getElementById("direct-pdf-label-hint");
             const menuAccHeaderEl = document.getElementById("menu-accordion-header-text");
 
-            if (currentQrType === "pdf_viewer") {
+            const menuBuilderSec = document.getElementById("menu-builder-section");
+            const menuThemeSec = document.getElementById("menu-theme-section");
+            const menuPdfGroup = document.getElementById("menu-pdf-group");
+            const directPdfGroup = document.getElementById("direct-pdf-group");
+
+            if (currentQrType === "restaurant_menu") {
+                if (menuHeadingEl) menuHeadingEl.innerText = "🍽️ Restoran Dijital Menü Ayarları";
+                if (menuTitleLabelEl) menuTitleLabelEl.innerText = "Restoran / İşletme Adı";
+                if (menuTitleInputEl) menuTitleInputEl.placeholder = "İşletme Adı (Örn: Güneş Restoran & Cafe)";
+                if (menuDescLabelEl) menuDescLabelEl.innerText = "Açıklama / Slogan";
+                if (menuDescInputEl) menuDescInputEl.placeholder = "Örn: Günlük taze lezzetler, eşsiz İtalyan mutfağı";
+                if (menuAccHeaderEl) menuAccHeaderEl.innerText = "Restoran & İletişim Bilgileri (İsteğe Bağlı)";
+
+                if (menuBuilderSec) menuBuilderSec.style.display = "block";
+                if (menuThemeSec) menuThemeSec.style.display = "block";
+                if (menuPdfGroup) menuPdfGroup.style.display = "none";
+                if (directPdfGroup) directPdfGroup.style.display = "none";
+
+                if (typeof renderMenuBuilderUI === "function") renderMenuBuilderUI();
+            } else if (currentQrType === "pdf_viewer") {
                 if (menuHeadingEl) menuHeadingEl.innerText = "📄 PDF Belge Görüntüleyici Ayarları";
                 if (menuTitleLabelEl) menuTitleLabelEl.innerText = "Belge / Dosya Adı";
                 if (menuTitleInputEl) menuTitleInputEl.placeholder = "Örn: 2026 Ürün Kullanım Kılavuzu & Garanti Belgesi.pdf";
@@ -393,7 +412,12 @@ function initTypeSelector() {
                 if (directPdfTitleEl) directPdfTitleEl.innerText = "Doğrudan PDF Belgesini Aç (Önerilen)";
                 if (directPdfHintEl) directPdfHintEl.innerText = "Aktifleştiğinde kullanıcılar doğrudan PDF belgesini görüntüler.";
                 if (menuAccHeaderEl) menuAccHeaderEl.innerText = "Belge Sahibi & İletişim Bilgileri (İsteğe Bağlı)";
-            } else if (["menu", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
+
+                if (menuBuilderSec) menuBuilderSec.style.display = "none";
+                if (menuThemeSec) menuThemeSec.style.display = "none";
+                if (menuPdfGroup) menuPdfGroup.style.display = "block";
+                if (directPdfGroup) directPdfGroup.style.display = "block";
+            } else if (["menu", "pdf_catalog"].includes(currentQrType)) {
                 if (menuHeadingEl) menuHeadingEl.innerText = "📖 Online Katalog & Dijital Menü Ayarları";
                 if (menuTitleLabelEl) menuTitleLabelEl.innerText = "İşletme / Katalog / Menü Adı";
                 if (menuTitleInputEl) menuTitleInputEl.placeholder = "İşletme / Restoran Adı (Örn: Lezzet Cafe)";
@@ -405,6 +429,13 @@ function initTypeSelector() {
                 if (directPdfTitleEl) directPdfTitleEl.innerText = "Doğrudan PDF Yönlendirmesi";
                 if (directPdfHintEl) directPdfHintEl.innerText = "Aktifleştiğinde kullanıcılar herhangi bir sayfa görmez, doğrudan PDF dosyasına yönlendirilir.";
                 if (menuAccHeaderEl) menuAccHeaderEl.innerText = "İşletme & İletişim Bilgileri (İsteğe Bağlı Kartvizit)";
+
+                if (menuBuilderSec) menuBuilderSec.style.display = "block";
+                if (menuThemeSec) menuThemeSec.style.display = "block";
+                if (menuPdfGroup) menuPdfGroup.style.display = "block";
+                if (directPdfGroup) directPdfGroup.style.display = "block";
+
+                if (typeof renderMenuBuilderUI === "function") renderMenuBuilderUI();
             }
 
             // Automatically switch phone simulator to landing page mode for rich types
@@ -1076,6 +1107,140 @@ function removeVcardAvatar() {
     updateLivePreview();
 }
 
+// --- Interactive Digital Menu Builder State & Functions ---
+let menuCategoriesData = [
+    {
+        name: "Çorbalar",
+        items: [
+            { name: "Süzme Mercimek Çorbası", price: "120 ₺", description: "Tereyağlı ve kruton ekmekli lezzetli mercimek çorbası", image_url: "" }
+        ]
+    },
+    {
+        name: "Ana Yemekler",
+        items: [
+            { name: "Izgara Köfte", price: "320 ₺", description: "Pirinç pilavı, közlenmiş biber ve domates ile", image_url: "" },
+            { name: "Tavuk Külbastı", price: "280 ₺", description: "Özel soslu tavuk göğsü, elma dilim patates", image_url: "" }
+        ]
+    }
+];
+
+function renderMenuBuilderUI() {
+    const container = document.getElementById("menu-categories-list-container");
+    if (!container) return;
+
+    if (!menuCategoriesData || menuCategoriesData.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: var(--text-muted); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; font-size: 12px;">
+                Henüz kategori eklenmedi. Yukarıdaki "+ Kategori Ekle" butonuna basarak ilk kategorinizi oluşturabilirsiniz.
+            </div>
+        `;
+        return;
+    }
+
+    let html = "";
+    menuCategoriesData.forEach((cat, catIdx) => {
+        html += `
+            <div class="menu-cat-card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px; margin-bottom: 14px;">
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 16px;">📂</span>
+                    <input type="text" class="form-input" value="${cat.name || ''}" placeholder="Kategori Adı (Örn: Başlangıçlar, İçecekler)" oninput="updateMenuCatName(${catIdx}, this.value)" style="font-weight: 700; color: #818cf8; font-size: 13px; flex: 1;">
+                    <button type="button" class="btn-danger" onclick="removeMenuCategory(${catIdx})" style="padding: 6px 10px; font-size: 11px; border-radius: 8px;" title="Kategoriyi Sil">🗑️ Sil</button>
+                </div>
+                
+                <div class="menu-items-list" style="display: flex; flex-direction: column; gap: 10px; margin-left: 10px; border-left: 2px solid rgba(129, 140, 248, 0.2); padding-left: 12px;">
+        `;
+
+        (cat.items || []).forEach((item, itemIdx) => {
+            html += `
+                <div class="menu-item-row" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px;">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; margin-bottom: 6px;">
+                        <input type="text" class="form-input" value="${item.name || ''}" placeholder="Ürün Adı (Örn: Adana Kebap)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'name', this.value)" style="font-size: 12px;">
+                        <input type="text" class="form-input" value="${item.price || ''}" placeholder="Fiyat (Örn: 250 ₺)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'price', this.value)" style="font-size: 12px; font-weight: 600; color: #34d399;">
+                        <button type="button" style="background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.3); color: #f43f5e; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 11px;" onclick="removeMenuItem(${catIdx}, ${itemIdx})">✕</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+                        <input type="text" class="form-input" value="${item.description || item.desc || ''}" placeholder="Ürün İçeriği / Açıklama (Örn: Yanında garnitür ile servisi yapılır)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'description', this.value)" style="font-size: 11px; color: #cbd5e1;">
+                        <input type="text" class="form-input" value="${item.image_url || ''}" placeholder="Görsel URL (İsteğe bağlı)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'image_url', this.value)" style="font-size: 11px;">
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                    <button type="button" class="btn-secondary" onclick="addMenuItemToCat(${catIdx})" style="align-self: flex-start; margin-top: 4px; padding: 5px 10px; font-size: 11px; border-radius: 8px;">+ Ürün Ekle</button>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function addMenuCategory() {
+    if (!menuCategoriesData) menuCategoriesData = [];
+    menuCategoriesData.push({
+        name: "Yeni Kategori",
+        items: [{ name: "", price: "", description: "", image_url: "" }]
+    });
+    renderMenuBuilderUI();
+    updateLivePreview();
+}
+
+function removeMenuCategory(catIdx) {
+    if (menuCategoriesData && menuCategoriesData[catIdx]) {
+        menuCategoriesData.splice(catIdx, 1);
+        renderMenuBuilderUI();
+        updateLivePreview();
+    }
+}
+
+function updateMenuCatName(catIdx, val) {
+    if (menuCategoriesData && menuCategoriesData[catIdx]) {
+        menuCategoriesData[catIdx].name = val;
+        updateLivePreview();
+    }
+}
+
+function addMenuItemToCat(catIdx) {
+    if (menuCategoriesData && menuCategoriesData[catIdx]) {
+        if (!menuCategoriesData[catIdx].items) menuCategoriesData[catIdx].items = [];
+        menuCategoriesData[catIdx].items.push({ name: "", price: "", description: "", image_url: "" });
+        renderMenuBuilderUI();
+        updateLivePreview();
+    }
+}
+
+function removeMenuItem(catIdx, itemIdx) {
+    if (menuCategoriesData && menuCategoriesData[catIdx] && menuCategoriesData[catIdx].items) {
+        menuCategoriesData[catIdx].items.splice(itemIdx, 1);
+        renderMenuBuilderUI();
+        updateLivePreview();
+    }
+}
+
+function updateMenuItemField(catIdx, itemIdx, field, val) {
+    if (menuCategoriesData && menuCategoriesData[catIdx] && menuCategoriesData[catIdx].items && menuCategoriesData[catIdx].items[itemIdx]) {
+        menuCategoriesData[catIdx].items[itemIdx][field] = val;
+        updateLivePreview();
+    }
+}
+
+function setMenuPrimaryColor(hex) {
+    const el = document.getElementById("menu-theme-primary");
+    if (el) {
+        el.value = hex;
+        updateLivePreview();
+    }
+}
+
+window.addMenuCategory = addMenuCategory;
+window.removeMenuCategory = removeMenuCategory;
+window.updateMenuCatName = updateMenuCatName;
+window.addMenuItemToCat = addMenuItemToCat;
+window.removeMenuItem = removeMenuItem;
+window.updateMenuItemField = updateMenuItemField;
+window.setMenuPrimaryColor = setMenuPrimaryColor;
+
 function getQRFormPayload() {
     const title = getVal("qr-title", "Benim QR Kodum");
     const settings = {
@@ -1121,11 +1286,14 @@ function getQRFormPayload() {
         };
     } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
         const directPdfEl = document.getElementById("direct-pdf-redirect");
+        const primaryColor = getVal("menu-theme-primary", "#818cf8");
+        const bgPreset = getVal("menu-theme-bg-preset", "linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%)");
+
         menu_payload = {
             title: getVal("menu-title", "Restoran / İşletme Adı"),
             description: getVal("menu-desc", "Menümüz ve Lezzetlerimiz"),
-            pdf_url: uploadedPdfUrl,
-            direct_redirect: directPdfEl ? directPdfEl.checked : true,
+            pdf_url: currentQrType === "restaurant_menu" ? "" : uploadedPdfUrl,
+            direct_redirect: currentQrType === "restaurant_menu" ? false : (directPdfEl ? directPdfEl.checked : true),
             contact_name: getVal("menu-contact-name", ""),
             contact_title: getVal("menu-contact-title", ""),
             phone: getVal("menu-phone", ""),
@@ -1134,14 +1302,13 @@ function getQRFormPayload() {
             website: normalizeUrlInput(getVal("menu-website", "")),
             address: getVal("menu-address", ""),
             card_image_url: getVal("menu-card-image-url", ""),
-            categories: [
-                {
-                    name: "Menü Kategori 1",
-                    items: [
-                        { name: "Ürün 1", desc: "Ürün açıklaması", price: "100" }
-                    ]
-                }
-            ]
+            categories: menuCategoriesData && menuCategoriesData.length > 0 ? menuCategoriesData : [],
+            theme_settings: {
+                primary_color: primaryColor,
+                bg_gradient: bgPreset,
+                card_bg: "rgba(30, 41, 59, 0.7)",
+                text_color: "#f8fafc"
+            }
         };
     } else if (currentQrType === "wifi") {
         const ssid = getVal("wifi-ssid", "Misafir_Wifi");

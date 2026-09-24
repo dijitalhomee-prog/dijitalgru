@@ -6,21 +6,30 @@
     <title>{{ menu.title }} — Dijital Menü</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --menu-primary: {{ theme.primary_color or '#818cf8' }};
+            --menu-bg: {{ theme.bg_gradient or 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%)' }};
+            --menu-card-bg: {{ theme.card_bg or 'rgba(21, 25, 34, 0.8)' }};
+            --menu-text: {{ theme.text_color or '#ffffff' }};
+            --menu-subtext: {{ theme.subtext_color or '#94a3b8' }};
+            --menu-price-color: {{ theme.price_color or '#34d399' }};
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         html, body { height: 100%; width: 100%; }
-        body { background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff; min-height: 100vh; display: flex; justify-content: center; align-items: stretch; }
+        body { background: var(--menu-bg); color: var(--menu-text); min-height: 100vh; display: flex; justify-content: center; align-items: stretch; }
         .menu-container { width: 100%; max-width: 540px; min-height: 100vh; padding: 28px 20px 24px 20px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
         .menu-main-content { width: 100%; }
         .cover { width: 100%; height: 180px; border-radius: 20px; object-fit: cover; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .menu-header { text-align: center; margin-bottom: 24px; }
-        .menu-title { font-size: 24px; font-weight: 700; color: #ffffff; }
-        .menu-desc { font-size: 14px; color: #94a3b8; margin-top: 6px; }
-        .category-title { font-size: 18px; font-weight: 700; color: #818cf8; margin: 24px 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid rgba(129, 140, 248, 0.2); }
-        .item-card { background: rgba(21, 25, 34, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .item-info { flex: 1; padding-right: 12px; }
-        .item-name { font-size: 15px; font-weight: 600; color: #f8fafc; }
-        .item-desc { font-size: 12px; color: #94a3b8; margin-top: 4px; }
-        .item-price { font-size: 16px; font-weight: 700; color: #34d399; background: rgba(52, 211, 153, 0.1); padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(52, 211, 153, 0.2); }
+        .menu-title { font-size: 24px; font-weight: 700; color: var(--menu-text); }
+        .menu-desc { font-size: 14px; color: var(--menu-subtext); margin-top: 6px; }
+        .category-title { font-size: 18px; font-weight: 700; color: var(--menu-primary); margin: 24px 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid var(--menu-primary); opacity: 0.9; }
+        .item-card { background: var(--menu-card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .item-img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
+        .item-info { flex: 1; padding-right: 8px; }
+        .item-name { font-size: 15px; font-weight: 600; color: var(--menu-text); }
+        .item-desc { font-size: 12px; color: var(--menu-subtext); margin-top: 4px; line-height: 1.4; }
+        .item-price { font-size: 16px; font-weight: 700; color: var(--menu-price-color); background: rgba(52, 211, 153, 0.1); padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(52, 211, 153, 0.2); white-space: nowrap; flex-shrink: 0; }
         
         .pdf-viewer-box {
             background: rgba(21, 25, 34, 0.85);
@@ -56,7 +65,7 @@
             background: #ffffff;
         }
         .footer { text-align: center; margin-top: auto; padding-top: 30px; font-size: 12px; color: #64748b; }
-        .footer a { color: #818cf8; text-decoration: none; }
+        .footer a { color: var(--menu-primary); text-decoration: none; }
     </style>
 </head>
 <body>
@@ -71,15 +80,15 @@
         </div>
 
         {% if menu.contact_name or menu.phone or menu.email or menu.address or menu.website %}
-        <div class="contact-card-box" style="background: rgba(21, 25, 34, 0.85); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 20px; padding: 20px; margin-bottom: 24px; text-align: left;">
+        <div class="contact-card-box" style="background: var(--menu-card-bg); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 20px; padding: 20px; margin-bottom: 24px; text-align: left;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
-                <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(99, 102, 241, 0.2); color: #818cf8; display: flex; align-items: center; justify-content: center; font-size: 18px; shrink: 0;">
+                <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(99, 102, 241, 0.2); color: var(--menu-primary); display: flex; align-items: center; justify-content: center; font-size: 18px; shrink: 0;">
                     📇
                 </div>
                 <div>
-                    <h3 style="font-size: 16px; font-weight: 700; color: #ffffff;">{{ menu.contact_name or 'İşletme & İletişim Bilgileri' }}</h3>
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--menu-text);">{{ menu.contact_name or 'İşletme & İletişim Bilgileri' }}</h3>
                     {% if menu.contact_title %}
-                    <p style="font-size: 12px; color: #818cf8; margin-top: 1px;">{{ menu.contact_title }}</p>
+                    <p style="font-size: 12px; color: var(--menu-primary); margin-top: 1px;">{{ menu.contact_title }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -87,8 +96,8 @@
             <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
                 {% if menu.phone %}
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 8px; color: #cbd5e1;">
-                        <span>📞</span> <span style="font-weight: 600;">{{ menu.phone }}</span>
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--menu-subtext);">
+                        <span>📞</span> <span style="font-weight: 600; color: var(--menu-text);">{{ menu.phone }}</span>
                     </div>
                     <a href="tel:{{ menu.phone }}" style="background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); padding: 5px 12px; border-radius: 8px; font-size: 12px; text-decoration: none; font-weight: 600;">Hemen Ara</a>
                 </div>
@@ -96,8 +105,8 @@
 
                 {% if menu.phone2 %}
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 8px; color: #cbd5e1;">
-                        <span>💬</span> <span style="font-weight: 600;">{{ menu.phone2 }}</span>
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--menu-subtext);">
+                        <span>💬</span> <span style="font-weight: 600; color: var(--menu-text);">{{ menu.phone2 }}</span>
                     </div>
                     <a href="https://wa.me/{{ menu.phone2 | replace(' ', '') | replace('+', '') }}" target="_blank" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); padding: 5px 12px; border-radius: 8px; font-size: 12px; text-decoration: none; font-weight: 600;">WhatsApp</a>
                 </div>
@@ -105,7 +114,7 @@
 
                 {% if menu.email %}
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 8px; color: #cbd5e1; word-break: break-all;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--menu-subtext); word-break: break-all;">
                         <span>✉️</span> <span>{{ menu.email }}</span>
                     </div>
                     <a href="mailto:{{ menu.email }}" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 5px 12px; border-radius: 8px; font-size: 12px; text-decoration: none; font-weight: 600;">E-posta</a>
@@ -114,7 +123,7 @@
 
                 {% if menu.website %}
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 8px; color: #cbd5e1; word-break: break-all;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--menu-subtext); word-break: break-all;">
                         <span>🌐</span> <span>{{ menu.website }}</span>
                     </div>
                     <a href="{{ menu.website if (menu.website.startswith('http://') or menu.website.startswith('https://')) else 'https://' + menu.website }}" target="_blank" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); padding: 5px 12px; border-radius: 8px; font-size: 12px; text-decoration: none; font-weight: 600;">Siteye Git</a>
@@ -123,7 +132,7 @@
 
                 {% if menu.address %}
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-top: 2px;">
-                    <div style="display: flex; align-items: flex-start; gap: 8px; color: #cbd5e1; line-height: 1.4;">
+                    <div style="display: flex; align-items: flex-start; gap: 8px; color: var(--menu-subtext); line-height: 1.4;">
                         <span style="margin-top: 2px;">📍</span> <span>{{ menu.address }}</span>
                     </div>
                     <a href="https://maps.google.com/?q={{ menu.address | urlencode }}" target="_blank" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); padding: 5px 12px; border-radius: 8px; font-size: 12px; text-decoration: none; font-weight: 600; shrink: 0;">Haritada Gör</a>
@@ -151,14 +160,21 @@
         {% endif %}
 
         {% for cat in menu.categories %}
-        <div class="category-title">🍽️ {{ cat.name }}</div>
+        <div class="category-title">{{ cat.name }}</div>
         {% for item in cat['items'] %}
         <div class="item-card">
+            {% if item.image_url or item.image %}
+            <img src="{{ item.image_url or item.image }}" alt="{{ item.name }}" class="item-img" onerror="this.style.display='none';">
+            {% endif %}
             <div class="item-info">
                 <div class="item-name">{{ item.name }}</div>
+                {% if item.desc %}
                 <div class="item-desc">{{ item.desc }}</div>
+                {% endif %}
             </div>
-            <div class="item-price">₺{{ item.price }}</div>
+            {% if item.price %}
+            <div class="item-price">{% if not ('₺' in item.price or '$' in item.price or '€' in item.price) %}₺{% endif %}{{ item.price }}</div>
+            {% endif %}
         </div>
         {% endfor %}
         {% endfor %}

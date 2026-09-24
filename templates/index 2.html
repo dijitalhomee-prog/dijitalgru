@@ -975,8 +975,57 @@
                                     <input type="text" id="menu-desc" class="form-input" placeholder="Kısa slogan veya bilgilendirme metni">
                                 </div>
 
+                                <!-- Dynamic Interactive Menu Items Builder -->
+                                <div id="menu-builder-section" style="margin-top: 16px; margin-bottom: 20px; background: rgba(255,255,255,0.02); border: 1px solid rgba(129, 140, 248, 0.2); border-radius: 16px; padding: 18px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                                        <div>
+                                            <h4 style="color: #34d399; font-size: 14px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 6px;">🍽️ Menü Kategorileri & Ürün Listesi</h4>
+                                            <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Kategori ekleyin, altına ürün adı, fiyat ve içeriğini doldurun.</p>
+                                        </div>
+                                        <button type="button" class="btn-secondary" onclick="addMenuCategory()" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;">+ Kategori Ekle</button>
+                                    </div>
+                                    <div id="menu-categories-list-container">
+                                        <!-- Categories and items rendered via JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Theme & Color Options for Menu -->
+                                <div id="menu-theme-section" class="studio-accordion-item" style="margin-top: 16px; margin-bottom: 16px; border: 1px solid rgba(129, 140, 248, 0.25);">
+                                    <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)" style="background: rgba(99, 102, 241, 0.08);">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span>🎨</span>
+                                            <span style="color: #818cf8; font-size: 13px; font-weight: 700;">Markaya Özel Tasarım & Renk Düzenleme</span>
+                                        </div>
+                                        <span class="studio-accordion-arrow">▼</span>
+                                    </div>
+                                    <div class="studio-accordion-body" style="padding: 16px;">
+                                        <div class="form-group">
+                                            <label class="form-label" style="font-size: 11px;">Vurgu Rengi (Başlıklar & Fiyatlar)</label>
+                                            <div style="display: flex; gap: 8px; align-items: center;">
+                                                <input type="color" id="menu-theme-primary" value="#818cf8" style="width: 44px; height: 36px; border-radius: 8px; border: none; cursor: pointer; background: transparent;" onchange="updateLivePreview()">
+                                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                                    <span onclick="setMenuPrimaryColor('#818cf8')" style="width: 24px; height: 24px; border-radius: 50%; background: #818cf8; cursor: pointer; display: inline-block;"></span>
+                                                    <span onclick="setMenuPrimaryColor('#10b981')" style="width: 24px; height: 24px; border-radius: 50%; background: #10b981; cursor: pointer; display: inline-block;"></span>
+                                                    <span onclick="setMenuPrimaryColor('#f59e0b')" style="width: 24px; height: 24px; border-radius: 50%; background: #f59e0b; cursor: pointer; display: inline-block;"></span>
+                                                    <span onclick="setMenuPrimaryColor('#f43f5e')" style="width: 24px; height: 24px; border-radius: 50%; background: #f43f5e; cursor: pointer; display: inline-block;"></span>
+                                                    <span onclick="setMenuPrimaryColor('#06b6d4')" style="width: 24px; height: 24px; border-radius: 50%; background: #06b6d4; cursor: pointer; display: inline-block;"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label" style="font-size: 11px;">Arka Plan Teması</label>
+                                            <select id="menu-theme-bg-preset" class="form-input" style="font-size: 12px;" onchange="updateLivePreview()">
+                                                <option value="linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%)">Gece Mavisi (Lüks Dark)</option>
+                                                <option value="linear-gradient(180deg, #09090b 0%, #18181b 100%)">Siyah & Altın Elegance</option>
+                                                <option value="linear-gradient(180deg, #1c1917 0%, #292524 100%)">Sıcak Ahşap & Kahve</option>
+                                                <option value="linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)">Temiz Açık Tema (Light Mode)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- PDF Upload Option -->
-                                <div class="form-group">
+                                <div id="menu-pdf-group" class="form-group">
                                     <label id="menu-pdf-upload-label" class="form-label">PDF Menü / Katalog Dosyası Yükleyin (İsteğe Bağlı)</label>
                                     <div class="pdf-upload-box" onclick="document.getElementById('pdf-file-input').click()">
                                         <div style="font-size: 28px; margin-bottom: 6px;">📄</div>

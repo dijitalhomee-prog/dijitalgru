@@ -214,8 +214,10 @@ def run_migrations():
         try:
             if is_postgres():
                 cursor.execute("ALTER TABLE vcard_pages ADD COLUMN IF NOT EXISTS theme_settings TEXT;")
+                cursor.execute("ALTER TABLE menu_pages ADD COLUMN IF NOT EXISTS theme_settings TEXT;")
             else:
                 cursor.execute("ALTER TABLE vcard_pages ADD COLUMN theme_settings TEXT;")
+                cursor.execute("ALTER TABLE menu_pages ADD COLUMN theme_settings TEXT;")
         except Exception:
             pass
         

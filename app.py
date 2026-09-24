@@ -69,7 +69,11 @@ def index():
         "frame_color": "#4F46E5",
         "frame_text_color": "#FFFFFF"
     }, format="base64")
-    return render_template("index.html", initial_qr_image=initial_qr)
+    resp = make_response(render_template("index.html", initial_qr_image=initial_qr))
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
 
 def _get_geoip_data(visitor_ip):
     """
@@ -424,7 +428,17 @@ def public_menu(qr_id):
     if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")) and not menu_data["categories"]:
         return redirect(pdf_url)
         
-    return render_template("menu_template.html", menu=menu_data)
+    theme_data = {}
+    if menu_data.get("theme_settings"):
+        try:
+            if isinstance(menu_data["theme_settings"], str):
+                theme_data = json.loads(menu_data["theme_settings"])
+            elif isinstance(menu_data["theme_settings"], dict):
+                theme_data = menu_data["theme_settings"]
+        except Exception:
+            theme_data = {}
+
+    return render_template("menu_template.html", menu=menu_data, theme=theme_data)
 
 # --- REST API Endpoints ---
 
@@ -670,9 +684,13 @@ def api_qr_create():
 
         direct_redirect = menu_payload.get("direct_redirect", True)
 
+        menu_theme_val = menu_payload.get("theme_settings")
+        if isinstance(menu_theme_val, dict):
+            menu_theme_val = json.dumps(menu_theme_val)
+
         cursor.execute("""
-        INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, card_image_url, social_links)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, card_image_url, social_links, theme_settings)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             qr_id,
             menu_payload.get("title"),
@@ -688,7 +706,8 @@ def api_qr_create():
             menu_payload.get("website"),
             menu_payload.get("address"),
             menu_payload.get("card_image_url"),
-            json.dumps(menu_payload.get("social_links", {}))
+            json.dumps(menu_payload.get("social_links", {})),
+            menu_theme_val
         ))
         
         # If PDF is uploaded AND direct_redirect is True, redirect QR scans DIRECTLY to the PDF file!
@@ -847,12 +866,16 @@ def api_qr_update(qr_id):
         if pdf_url in ["None", "null", "undefined", ""]:
             pdf_url = None
 
+        menu_theme_val = menu_payload.get("theme_settings")
+        if isinstance(menu_theme_val, dict):
+            menu_theme_val = json.dumps(menu_theme_val)
+
         cursor.execute("SELECT id FROM menu_pages WHERE qr_id = ?", (qr_id,))
         mrow = cursor.fetchone()
         if not mrow:
             cursor.execute("""
-            INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, card_image_url, social_links)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, card_image_url, social_links, theme_settings)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 qr_id,
                 menu_payload.get("title"),
@@ -868,12 +891,13 @@ def api_qr_update(qr_id):
                 menu_payload.get("website"),
                 menu_payload.get("address"),
                 menu_payload.get("card_image_url"),
-                json.dumps(menu_payload.get("social_links", {}))
+                json.dumps(menu_payload.get("social_links", {})),
+                menu_theme_val
             ))
         else:
             cursor.execute("""
             UPDATE menu_pages 
-            SET title = ?, description = ?, pdf_url = ?, contact_name = ?, contact_title = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, card_image_url = ?, social_links = ?
+            SET title = ?, description = ?, pdf_url = ?, contact_name = ?, contact_title = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, card_image_url = ?, social_links = ?, theme_settings = ?
             WHERE qr_id = ?
             """, (
                 menu_payload.get("title"),
@@ -888,6 +912,7 @@ def api_qr_update(qr_id):
                 menu_payload.get("address"),
                 menu_payload.get("card_image_url"),
                 json.dumps(menu_payload.get("social_links", {})),
+                menu_theme_val,
                 qr_id
             ))
             
