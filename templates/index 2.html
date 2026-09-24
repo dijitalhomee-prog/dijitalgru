@@ -948,16 +948,16 @@
                                 </div>
                             </div>
 
-                            <!-- Type 3: Menu -->
+                            <!-- Type 3: Menu & PDF Viewer -->
                             <div id="form-menu" class="type-form" style="display: none;">
-                                <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">Dijital Menü & PDF Katalog Ayarları</h4>
+                                <h4 id="menu-form-heading" style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">Online Katalog & Dijital Menü Ayarları</h4>
 
                                 <!-- Direct PDF Redirect Switch -->
                                 <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                         <div>
-                                            <div style="font-weight: 700; font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 6px;">Doğrudan PDF Yönlendirmesi</div>
-                                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Aktifleştiğinde kullanıcılar herhangi bir sayfa görmez, doğrudan PDF belgesine yönlendirilir.</div>
+                                            <div id="direct-pdf-label-title" style="font-weight: 700; font-size: 13px; color: #ffffff; display: flex; align-items: center; gap: 6px;">Doğrudan PDF Yönlendirmesi</div>
+                                            <div id="direct-pdf-label-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Aktifleştiğinde kullanıcılar herhangi bir sayfa görmez, doğrudan PDF belgesine yönlendirilir.</div>
                                         </div>
                                         <label class="switch">
                                             <input type="checkbox" id="direct-pdf-redirect" checked onchange="updateLivePreview()">
@@ -967,21 +967,21 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Mekan / İşletme Adı</label>
+                                    <label id="menu-title-label" class="form-label">Mekan / İşletme Adı</label>
                                     <input type="text" id="menu-title" class="form-input" placeholder="İşletme / Restoran Adı (Örn: Lezzet Cafe)">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Açıklama</label>
+                                    <label id="menu-desc-label" class="form-label">Açıklama</label>
                                     <input type="text" id="menu-desc" class="form-input" placeholder="Kısa slogan veya bilgilendirme metni">
                                 </div>
 
                                 <!-- PDF Upload Option -->
                                 <div class="form-group">
-                                    <label class="form-label">PDF Menü / Katalog Dosyası Yükleyin (İsteğe Bağlı)</label>
+                                    <label id="menu-pdf-upload-label" class="form-label">PDF Menü / Katalog Dosyası Yükleyin (İsteğe Bağlı)</label>
                                     <div class="pdf-upload-box" onclick="document.getElementById('pdf-file-input').click()">
                                         <div style="font-size: 28px; margin-bottom: 6px;">📄</div>
-                                        <div id="pdf-status-text" style="font-size: 13px; font-weight: 600; color: #ffffff;">Tıklayın ve PDF Menünüzü Seçin (.pdf)</div>
-                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Müşterileriniz QR tarattığında hazırladığınız PDF menüyü hemen görüntüler</div>
+                                        <div id="pdf-status-text" style="font-size: 13px; font-weight: 600; color: #ffffff;">Tıklayın ve PDF Dosyanızı Seçin (.pdf)</div>
+                                        <div id="pdf-status-subtext" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Müşterileriniz QR tarattığında hazırladığınız PDF belgesini hemen görüntüler</div>
                                     </div>
                                     <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePDFUpload(this)">
                                 </div>
@@ -991,7 +991,7 @@
                                     <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)" style="background: rgba(99, 102, 241, 0.08);">
                                         <div style="display: flex; align-items: center; gap: 8px;">
                                             <span>📇</span>
-                                            <span style="color: #818cf8; font-size: 13px; font-weight: 700;">İşletme & İletişim Bilgileri (İsteğe Bağlı Kartvizit)</span>
+                                            <span id="menu-accordion-header-text" style="color: #818cf8; font-size: 13px; font-weight: 700;">İşletme & İletişim Bilgileri (İsteğe Bağlı Kartvizit)</span>
                                         </div>
                                         <span class="studio-accordion-arrow">▼</span>
                                     </div>
@@ -1302,11 +1302,10 @@
             <div class="pricing-grid">
                 <!-- Starter -->
                 <div class="pricing-card">
-                    <div style="position: absolute; top: -12px; left: 24px; background: #ef4444; color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800;">%50 İNDİRİM</div>
                     <h3 style="font-size: 20px; font-weight: 700;">Başlangıç (Starter)</h3>
                     <p style="font-size: 13px; color: var(--text-muted);">Küçük işletmeler & şahsi kullanım için</p>
-                    <div class="pricing-price" id="price-starter"><s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span> <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
-                    <div id="subtext-starter" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">İlk Aya Özel Net %50 İndirimli Ödeme</div>
+                    <div class="pricing-price" id="price-starter"><span style="color: #ffffff; font-weight: 800;">₺199</span> <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
+                    <div id="subtext-starter" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">Aylık Düzenli Yenilemeli Ödeme</div>
                     <ul class="pricing-features">
                         <li>5 Adet Dinamik QR Kod</li>
                         <li>15.000 Tarama / ay</li>
@@ -1319,11 +1318,10 @@
                 <!-- Advanced -->
                 <div class="pricing-card popular">
                     <div style="position: absolute; top: -12px; right: 24px; background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;">EN ÇOK TERCİH EDİLEN</div>
-                    <div style="position: absolute; top: -12px; left: 24px; background: #ef4444; color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800;">%50 İNDİRİM</div>
                     <h3 style="font-size: 20px; font-weight: 700;">Profesyonel (Advanced)</h3>
                     <p style="font-size: 13px; color: var(--text-muted);">Büyüyen markalar ve ajanslar için</p>
-                    <div class="pricing-price" id="price-advanced"><s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #ef4444; font-weight: 800;">₺199</span> <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
-                    <div id="subtext-advanced" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">İlk Aya Özel Net %50 İndirimli Ödeme</div>
+                    <div class="pricing-price" id="price-advanced"><span style="color: #ffffff; font-weight: 800;">₺399</span> <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
+                    <div id="subtext-advanced" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">Aylık Düzenli Yenilemeli Ödeme</div>
                     <ul class="pricing-features">
                         <li>25 Adet Dinamik QR Kod</li>
                         <li>Limitsiz Tarama Sayısı</li>
@@ -1336,11 +1334,10 @@
 
                 <!-- Business -->
                 <div class="pricing-card">
-                    <div style="position: absolute; top: -12px; left: 24px; background: #ef4444; color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800;">%50 İNDİRİM</div>
                     <h3 style="font-size: 20px; font-weight: 700;">Kurumsal (Business)</h3>
                     <p style="font-size: 13px; color: var(--text-muted);">Zincir markalar ve büyük ölçek için</p>
-                    <div class="pricing-price" id="price-business"><s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #ef4444; font-weight: 800;">₺449</span> <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
-                    <div id="subtext-business" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">İlk Aya Özel Net %50 İndirimli Ödeme</div>
+                    <div class="pricing-price" id="price-business"><span style="color: #ffffff; font-weight: 800;">₺899</span> <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span></div>
+                    <div id="subtext-business" style="font-size: 12px; color: var(--accent); margin-top: -12px; margin-bottom: 12px;">Aylık Düzenli Yenilemeli Ödeme</div>
                     <ul class="pricing-features">
                         <li>100 Adet Dinamik QR Kod</li>
                         <li>Limitsiz Tarama Sayısı</li>

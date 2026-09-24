@@ -3,15 +3,15 @@ let currentQrType = "url";
 let currentCycle = "monthly";
 let uploadedPdfUrl = null;
 
-// Cycle Pricing Config (1st Month %50 OFF | 6-Month %20 OFF | Annual %10 OFF)
+// Cycle Pricing Config (6-Month %20 OFF | Annual %10 OFF)
 const CYCLE_PRICES = {
     monthly: {
-        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #ef4444; font-weight: 800;">₺99</span>',
-        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #ef4444; font-weight: 800;">₺199</span>',
-        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #ef4444; font-weight: 800;">₺449</span>',
-        subtextStarter: 'İlk Aya Özel Net %50 İndirimli Ödeme',
-        subtextAdvanced: 'İlk Aya Özel Net %50 İndirimli Ödeme',
-        subtextBusiness: 'İlk Aya Özel Net %50 İndirimli Ödeme'
+        starter: '<span style="color: #ffffff; font-weight: 800;">₺199</span>',
+        advanced: '<span style="color: #ffffff; font-weight: 800;">₺399</span>',
+        business: '<span style="color: #ffffff; font-weight: 800;">₺899</span>',
+        subtextStarter: 'Aylık Düzenli Yenilemeli Ödeme',
+        subtextAdvanced: 'Aylık Düzenli Yenilemeli Ödeme',
+        subtextBusiness: 'Aylık Düzenli Yenilemeli Ödeme'
     },
     semi_annual: {
         starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #10b981; font-weight: 800;">₺159</span>',
@@ -366,6 +366,45 @@ function initTypeSelector() {
             } else {
                 if (headingEl) headingEl.innerText = currentQrType === "company_card" ? "Kurumsal Kartvizit Bilgileri" : "Dijital Kartvizit Bilgileri";
                 if (boxEl) boxEl.style.display = "none";
+            }
+
+            // PDF Viewer vs Menu / Catalog form customization
+            const menuHeadingEl = document.getElementById("menu-form-heading");
+            const menuTitleLabelEl = document.getElementById("menu-title-label");
+            const menuTitleInputEl = document.getElementById("menu-title");
+            const menuDescLabelEl = document.getElementById("menu-desc-label");
+            const menuDescInputEl = document.getElementById("menu-desc");
+            const menuPdfLabelEl = document.getElementById("menu-pdf-upload-label");
+            const pdfStatusTextEl = document.getElementById("pdf-status-text");
+            const pdfStatusSubtextEl = document.getElementById("pdf-status-subtext");
+            const directPdfTitleEl = document.getElementById("direct-pdf-label-title");
+            const directPdfHintEl = document.getElementById("direct-pdf-label-hint");
+            const menuAccHeaderEl = document.getElementById("menu-accordion-header-text");
+
+            if (currentQrType === "pdf_viewer") {
+                if (menuHeadingEl) menuHeadingEl.innerText = "📄 PDF Belge Görüntüleyici Ayarları";
+                if (menuTitleLabelEl) menuTitleLabelEl.innerText = "Belge / Dosya Adı";
+                if (menuTitleInputEl) menuTitleInputEl.placeholder = "Örn: 2026 Ürün Kullanım Kılavuzu & Garanti Belgesi.pdf";
+                if (menuDescLabelEl) menuDescLabelEl.innerText = "Belge Açıklaması / Sürüm Notu (İsteğe Bağlı)";
+                if (menuDescInputEl) menuDescInputEl.placeholder = "Örn: v2.4 Türkçe Kullanım Talimatları";
+                if (menuPdfLabelEl) menuPdfLabelEl.innerText = "PDF Belgenizi Yükleyin (Zorunlu / Gerekli)";
+                if (pdfStatusTextEl && !uploadedPdfUrl) pdfStatusTextEl.innerText = "Tıklayın ve PDF Belgenizi Seçin (.pdf)";
+                if (pdfStatusSubtextEl) pdfStatusSubtextEl.innerText = "Kullanıcılar QR tarattığında PDF belgenizi doğrudan görüntüler";
+                if (directPdfTitleEl) directPdfTitleEl.innerText = "Doğrudan PDF Belgesini Aç (Önerilen)";
+                if (directPdfHintEl) directPdfHintEl.innerText = "Aktifleştiğinde kullanıcılar doğrudan PDF belgesini görüntüler.";
+                if (menuAccHeaderEl) menuAccHeaderEl.innerText = "Belge Sahibi & İletişim Bilgileri (İsteğe Bağlı)";
+            } else if (["menu", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
+                if (menuHeadingEl) menuHeadingEl.innerText = "📖 Online Katalog & Dijital Menü Ayarları";
+                if (menuTitleLabelEl) menuTitleLabelEl.innerText = "İşletme / Katalog / Menü Adı";
+                if (menuTitleInputEl) menuTitleInputEl.placeholder = "İşletme / Restoran Adı (Örn: Lezzet Cafe)";
+                if (menuDescLabelEl) menuDescLabelEl.innerText = "Menü / Katalog Açıklaması";
+                if (menuDescInputEl) menuDescInputEl.placeholder = "Kısa slogan veya bilgilendirme metni";
+                if (menuPdfLabelEl) menuPdfLabelEl.innerText = "PDF Menü / Katalog Dosyası Yükleyin (İsteğe Bağlı)";
+                if (pdfStatusTextEl && !uploadedPdfUrl) pdfStatusTextEl.innerText = "Tıklayın ve PDF Menü/Kataloğunuzu Seçin (.pdf)";
+                if (pdfStatusSubtextEl) pdfStatusSubtextEl.innerText = "Müşterileriniz QR tarattığında hazırladığınız PDF menüyü/kataloğu görüntüler";
+                if (directPdfTitleEl) directPdfTitleEl.innerText = "Doğrudan PDF Yönlendirmesi";
+                if (directPdfHintEl) directPdfHintEl.innerText = "Aktifleştiğinde kullanıcılar herhangi bir sayfa görmez, doğrudan PDF dosyasına yönlendirilir.";
+                if (menuAccHeaderEl) menuAccHeaderEl.innerText = "İşletme & İletişim Bilgileri (İsteğe Bağlı Kartvizit)";
             }
 
             // Automatically switch phone simulator to landing page mode for rich types
@@ -2475,26 +2514,33 @@ async function openEditQRModal(qrId) {
                 `;
             } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(data.type)) {
                 const m = data.menu || {};
+                const isPdfViewer = data.type === "pdf_viewer";
+                const modalHeading = isPdfViewer ? "📄 PDF Belge Görüntüleyici Ayarları" : "📖 Online Katalog & Dijital Menü Ayarları";
+                const titleLabel = isPdfViewer ? "Belge / Dosya Adı" : "Mekan / İşletme Adı";
+                const titlePlaceholder = isPdfViewer ? "Örn: Ürün Kullanım Kılavuzu.pdf" : "İşletme Adı (Örn: Lezzet Cafe)";
+                const descLabel = isPdfViewer ? "Belge Açıklaması / Not" : "Açıklama / Slogan";
+                const accTitle = isPdfViewer ? "📇 Belge Sahibi & İletişim Bilgileri (İsteğe Bağlı)" : "📇 İşletme İletişim Bilgileri";
+
                 container.innerHTML = `
-                    <h4 style="color: var(--accent); margin-top: 0; margin-bottom: 14px; font-size: 14px;">📄 Dijital Menü & Katalog Ayarları</h4>
+                    <h4 style="color: var(--accent); margin-top: 0; margin-bottom: 14px; font-size: 14px;">${modalHeading}</h4>
                     <div class="form-group">
-                        <label class="form-label">Mekan / İşletme Adı</label>
-                        <input type="text" id="edit-menu-title" class="form-input" value="${m.title || ''}">
+                        <label class="form-label">${titleLabel}</label>
+                        <input type="text" id="edit-menu-title" class="form-input" placeholder="${titlePlaceholder}" value="${m.title || ''}">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Açıklama</label>
+                        <label class="form-label">${descLabel}</label>
                         <input type="text" id="edit-menu-desc" class="form-input" value="${m.description || ''}">
                     </div>
                     
                     <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 16px; padding-top: 14px;">
-                        <h4 style="color: #818cf8; margin-top: 0; margin-bottom: 12px; font-size: 13px;">📇 İşletme İletişim Bilgileri</h4>
+                        <h4 style="color: #818cf8; margin-top: 0; margin-bottom: 12px; font-size: 13px;">${accTitle}</h4>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <div class="form-group">
-                                <label class="form-label" style="font-size: 11px;">Yetkili Adı</label>
+                                <label class="form-label" style="font-size: 11px;">Yetkili Adı / İsim</label>
                                 <input type="text" id="edit-menu-contact-name" class="form-input" value="${m.contact_name || ''}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" style="font-size: 11px;">Unvan</label>
+                                <label class="form-label" style="font-size: 11px;">Unvan / Görev</label>
                                 <input type="text" id="edit-menu-contact-title" class="form-input" value="${m.contact_title || ''}">
                             </div>
                         </div>
@@ -2510,10 +2556,10 @@ async function openEditQRModal(qrId) {
                         </div>
                         <div class="form-group">
                             <label class="form-label" style="font-size: 11px;">Web Sitesi</label>
-                            <input type="text" id="edit-menu-website" class="form-input" placeholder="isletmeniz.com" value="${m.website || ''}">
+                            <input type="text" id="edit-menu-website" class="form-input" placeholder="siteniz.com" value="${m.website || ''}">
                         </div>
                         <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label" style="font-size: 11px;">Adres</label>
+                            <label class="form-label" style="font-size: 11px;">Adres / Şehir</label>
                             <input type="text" id="edit-menu-address" class="form-input" value="${m.address || ''}">
                         </div>
                     </div>
