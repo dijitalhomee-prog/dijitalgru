@@ -233,29 +233,6 @@ function filterStudioCategory(category) {
     }
 }
 
-function handlePrimarySocialInput(inputEl) {
-    if (!inputEl) return;
-    const val = inputEl.value.trim();
-    const socialConfigs = {
-        instagram: { fieldId: "vcard-social-instagram", prefix: "https://instagram.com/" },
-        facebook: { fieldId: "vcard-social-facebook", prefix: "https://facebook.com/" },
-        linkedin: { fieldId: "vcard-social-linkedin", prefix: "https://linkedin.com/in/" },
-        pinterest: { fieldId: "vcard-social-pinterest", prefix: "https://pinterest.com/" },
-        social: { fieldId: "vcard-social-instagram", prefix: "https://instagram.com/" }
-    };
-
-    const cfg = socialConfigs[currentQrType] || socialConfigs.instagram;
-    const targetEl = document.getElementById(cfg.fieldId);
-    if (targetEl) {
-        if (val.startsWith("@")) {
-            targetEl.value = cfg.prefix + val.substring(1);
-        } else {
-            targetEl.value = val;
-        }
-    }
-    updateLivePreview();
-}
-
 // Type Selector
 function initTypeSelector() {
     document.querySelectorAll(".type-btn").forEach(btn => {
@@ -269,11 +246,11 @@ function initTypeSelector() {
             let formId = `form-${currentQrType}`;
             if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
                 formId = "form-menu";
-            } else if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(currentQrType)) {
+            } else if (["vcard", "company_card"].includes(currentQrType)) {
                 formId = "form-vcard";
             } else if (["dynamic_whatsapp", "whatsapp"].includes(currentQrType)) {
                 formId = "form-whatsapp";
-            } else if (["url", "static_url"].includes(currentQrType)) {
+            } else if (["url", "social", "instagram", "linkedin", "pinterest", "facebook", "static_url"].includes(currentQrType)) {
                 formId = "form-url";
             } else if (["wifi"].includes(currentQrType)) {
                 formId = "form-wifi";
@@ -284,92 +261,8 @@ function initTypeSelector() {
             const targetForm = document.getElementById(formId);
             if (targetForm) targetForm.style.display = "block";
 
-            // Social platform specific configuration updates
-            const socialConfigs = {
-                instagram: {
-                    title: "📸 Instagram Profil & Sayfa Ayarları",
-                    label: "Instagram Profil Linki veya Kullanıcı Adı",
-                    placeholder: "instagram.com/kullaniciadi veya @kullaniciadi",
-                    hint: "Kullanıcı adınızı (@kullanici) veya direkt profil bağlantınızı yazabilirsiniz.",
-                    bg: "rgba(225, 48, 108, 0.12)",
-                    border: "rgba(225, 48, 108, 0.35)",
-                    color: "#f472b6",
-                    fieldId: "vcard-social-instagram"
-                },
-                facebook: {
-                    title: "📘 Facebook Sayfa & Profil Ayarları",
-                    label: "Facebook Sayfası veya Profil Linki",
-                    placeholder: "facebook.com/sayfaadi",
-                    hint: "Facebook sayfa URL'nizi veya profil bağlantınızı girin.",
-                    bg: "rgba(24, 119, 242, 0.12)",
-                    border: "rgba(24, 119, 242, 0.35)",
-                    color: "#60a5fa",
-                    fieldId: "vcard-social-facebook"
-                },
-                linkedin: {
-                    title: "💼 LinkedIn Profil & Şirket Sayfası Ayarları",
-                    label: "LinkedIn Profil veya Şirket Sayfası Linki",
-                    placeholder: "linkedin.com/in/kullaniciadi veya linkedin.com/company/sirketadi",
-                    hint: "LinkedIn kişisel veya şirket bağlantınızı girin.",
-                    bg: "rgba(10, 102, 194, 0.12)",
-                    border: "rgba(10, 102, 194, 0.35)",
-                    color: "#38bdf8",
-                    fieldId: "vcard-social-linkedin"
-                },
-                pinterest: {
-                    title: "📌 Pinterest Pano & Profil Ayarları",
-                    label: "Pinterest Pano veya Profil Linki",
-                    placeholder: "pinterest.com/kullaniciadi",
-                    hint: "Pinterest profilinizi veya pano bağlantınızı girin.",
-                    bg: "rgba(230, 0, 35, 0.12)",
-                    border: "rgba(230, 0, 35, 0.35)",
-                    color: "#f87171",
-                    fieldId: "vcard-social-pinterest"
-                },
-                social: {
-                    title: "🌐 Sosyal Medya Profil & Bağlantı Ayarları",
-                    label: "Sosyal Medya Profil / Web Bağlantısı",
-                    placeholder: "instagram.com/kullaniciadi veya siteniz.com",
-                    hint: "Ana sosyal medya veya profil bağlantınızı girin.",
-                    bg: "rgba(129, 140, 248, 0.12)",
-                    border: "rgba(129, 140, 248, 0.35)",
-                    color: "#a5b4fc",
-                    fieldId: "vcard-social-instagram"
-                }
-            };
-
-            const headingEl = document.getElementById("vcard-form-heading");
-            const boxEl = document.getElementById("vcard-primary-social-box");
-            const labelEl = document.getElementById("vcard-primary-social-label");
-            const inputEl = document.getElementById("vcard-primary-social-input");
-            const hintEl = document.getElementById("vcard-primary-social-hint");
-
-            if (socialConfigs[currentQrType]) {
-                const cfg = socialConfigs[currentQrType];
-                if (headingEl) headingEl.innerText = cfg.title;
-                if (boxEl) {
-                    boxEl.style.display = "block";
-                    boxEl.style.background = cfg.bg;
-                    boxEl.style.borderColor = cfg.border;
-                }
-                if (labelEl) {
-                    labelEl.innerText = cfg.label;
-                    labelEl.style.color = cfg.color;
-                }
-                if (inputEl) {
-                    inputEl.placeholder = cfg.placeholder;
-                    inputEl.style.borderColor = cfg.border;
-                    const currentSocialVal = document.getElementById(cfg.fieldId) ? document.getElementById(cfg.fieldId).value : "";
-                    inputEl.value = currentSocialVal;
-                }
-                if (hintEl) hintEl.innerText = cfg.hint;
-            } else {
-                if (headingEl) headingEl.innerText = currentQrType === "company_card" ? "Kurumsal Kartvizit Bilgileri" : "Dijital Kartvizit Bilgileri";
-                if (boxEl) boxEl.style.display = "none";
-            }
-
             // Automatically switch phone simulator to landing page mode for rich types
-            if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook", "menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
+            if (["vcard", "company_card", "menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentQrType)) {
                 switchPreviewMode("landing");
             } else {
                 switchPreviewMode("qr");
@@ -660,9 +553,9 @@ async function updateLivePreview() {
     const payload = getQRFormPayload();
     let previewText = "";
 
-    if (["url", "static_url"].includes(payload.type)) {
+    if (["url", "static_url", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(payload.type)) {
         previewText = getVal("target-url", "");
-    } else if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(payload.type)) {
+    } else if (["vcard", "company_card"].includes(payload.type)) {
         const v = payload.vcard_payload || {};
         previewText = `BEGIN:VCARD\nVERSION:3.0\nN:${v.full_name || 'Isim'}\nTEL:${v.phone || ''}\nEMAIL:${v.email || ''}\nEND:VCARD`;
     } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(payload.type)) {
@@ -1048,9 +941,9 @@ function getQRFormPayload() {
     let vcard_payload = null;
     let menu_payload = null;
 
-    if (["url", "static_url"].includes(currentQrType)) {
+    if (["url", "static_url", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(currentQrType)) {
         target_url = normalizeUrlInput(getVal("target-url", "https://qrdijitalgru.com"));
-    } else if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(currentQrType)) {
+    } else if (["vcard", "company_card"].includes(currentQrType)) {
         const directVcardEl = document.getElementById("direct-vcard-redirect");
         vcard_payload = {
             full_name: getVal("vcard-name", "Ad Soyad"),
@@ -1070,8 +963,7 @@ function getQRFormPayload() {
                 twitter: normalizeUrlInput(getVal("vcard-social-twitter", "")),
                 facebook: normalizeUrlInput(getVal("vcard-social-facebook", "")),
                 youtube: normalizeUrlInput(getVal("vcard-social-youtube", "")),
-                tiktok: normalizeUrlInput(getVal("vcard-social-tiktok", "")),
-                pinterest: normalizeUrlInput(getVal("vcard-social-pinterest", ""))
+                tiktok: normalizeUrlInput(getVal("vcard-social-tiktok", ""))
             },
             theme_settings: getVCardThemeSettings(),
             direct_redirect: directVcardEl ? directVcardEl.checked : false
@@ -2264,7 +2156,7 @@ async function openEditQRModal(qrId) {
 
             const container = document.getElementById("edit-qr-dynamic-fields");
 
-            if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(data.type)) {
+            if (data.type === "vcard") {
                 const v = data.vcard || {};
                 const soc = v.social_links || {};
                 let themeObj = { theme: 'midnight', primary_color: '#6366f1' };
@@ -2276,54 +2168,8 @@ async function openEditQRModal(qrId) {
                 editSelectedVCardTheme = themeObj.theme || 'midnight';
                 editSelectedVCardPrimaryColor = themeObj.primary_color || '#6366f1';
 
-                const socialEditConfigs = {
-                    instagram: {
-                        label: "📸 Instagram Profil Linki veya Kullanıcı Adı",
-                        placeholder: "instagram.com/kullaniciadi veya @kullaniciadi",
-                        color: "#f472b6",
-                        val: soc.instagram || ""
-                    },
-                    facebook: {
-                        label: "📘 Facebook Sayfa & Profil Linki",
-                        placeholder: "facebook.com/sayfaadi",
-                        color: "#60a5fa",
-                        val: soc.facebook || ""
-                    },
-                    linkedin: {
-                        label: "💼 LinkedIn Profil & Şirket Sayfası Linki",
-                        placeholder: "linkedin.com/in/kullaniciadi",
-                        color: "#38bdf8",
-                        val: soc.linkedin || ""
-                    },
-                    pinterest: {
-                        label: "📌 Pinterest Pano & Profil Linki",
-                        placeholder: "pinterest.com/panoadi",
-                        color: "#f87171",
-                        val: soc.pinterest || ""
-                    },
-                    social: {
-                        label: "🌐 Sosyal Medya Profil / Web Linki",
-                        placeholder: "instagram.com/kullaniciadi",
-                        color: "#a5b4fc",
-                        val: soc.instagram || ""
-                    }
-                };
-
-                let primarySocialHTML = "";
-                if (socialEditConfigs[data.type]) {
-                    const cfg = socialEditConfigs[data.type];
-                    primarySocialHTML = `
-                        <div style="background: rgba(255,255,255,0.04); padding: 14px 16px; border-radius: 14px; border: 1px solid ${cfg.color}; margin-bottom: 16px;">
-                            <label class="form-label" style="color: ${cfg.color}; font-weight: 800; font-size: 13px;">${cfg.label}</label>
-                            <input type="text" id="edit-vcard-primary-social" class="form-input" placeholder="${cfg.placeholder}" value="${cfg.val}" style="border-color: ${cfg.color};">
-                            <div style="font-size: 11px; color: #cbd5e1; margin-top: 6px;">@kullaniciadi veya direkt bağlantı girebilirsiniz. Güncellediğiniz veri canlı QR kodunuza anında yansır.</div>
-                        </div>
-                    `;
-                }
-
                 container.innerHTML = `
-                    ${primarySocialHTML}
-                    <h4 style="color: var(--accent); margin-top: 0; margin-bottom: 14px; font-size: 14px;">📇 Profil & Kartvizit Detayları (Alt Bilgiler)</h4>
+                    <h4 style="color: var(--accent); margin-top: 0; margin-bottom: 14px; font-size: 14px;">📇 Dijital Kartvizit Bilgileri</h4>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div class="form-group">
@@ -2454,7 +2300,7 @@ async function openEditQRModal(qrId) {
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label class="form-label" style="font-size: 11px;">YouTube</label>
                                 <input type="text" id="edit-vcard-social-youtube" class="form-input" placeholder="youtube.com/@kanal" value="${soc.youtube || ''}">
@@ -2464,16 +2310,9 @@ async function openEditQRModal(qrId) {
                                 <input type="text" id="edit-vcard-social-tiktok" class="form-input" placeholder="tiktok.com/@kullanici" value="${soc.tiktok || ''}">
                             </div>
                         </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label" style="font-size: 11px;">Pinterest</label>
-                                <input type="text" id="edit-vcard-social-pinterest" class="form-input" placeholder="pinterest.com/panoadi" value="${soc.pinterest || ''}">
-                            </div>
-                        </div>
                     </div>
                 `;
-            } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(data.type)) {
+            } else if (data.type === "menu") {
                 const m = data.menu || {};
                 container.innerHTML = `
                     <h4 style="color: var(--accent); margin-top: 0; margin-bottom: 14px; font-size: 14px;">📄 Dijital Menü & Katalog Ayarları</h4>
@@ -2564,35 +2403,7 @@ async function saveQREdit(event) {
             if (currentEditQRType === "url") val = normalizeUrlInput(val);
             payload.target_url = val;
         }
-    } else if (["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"].includes(currentEditQRType)) {
-        let primarySocialVal = document.getElementById("edit-vcard-primary-social") ? document.getElementById("edit-vcard-primary-social").value.trim() : "";
-
-        let socInsta = document.getElementById("edit-vcard-social-instagram") ? normalizeUrlInput(document.getElementById("edit-vcard-social-instagram").value) : "";
-        let socFb = document.getElementById("edit-vcard-social-facebook") ? normalizeUrlInput(document.getElementById("edit-vcard-social-facebook").value) : "";
-        let socLinkedin = document.getElementById("edit-vcard-social-linkedin") ? normalizeUrlInput(document.getElementById("edit-vcard-social-linkedin").value) : "";
-        let socPinterest = document.getElementById("edit-vcard-social-pinterest") ? normalizeUrlInput(document.getElementById("edit-vcard-social-pinterest").value) : "";
-
-        if (primarySocialVal) {
-            if (primarySocialVal.startsWith("@")) {
-                const prefixes = {
-                    instagram: "https://instagram.com/",
-                    facebook: "https://facebook.com/",
-                    linkedin: "https://linkedin.com/in/",
-                    pinterest: "https://pinterest.com/",
-                    social: "https://instagram.com/"
-                };
-                const pref = prefixes[currentEditQRType] || "https://instagram.com/";
-                primarySocialVal = pref + primarySocialVal.substring(1);
-            } else {
-                primarySocialVal = normalizeUrlInput(primarySocialVal);
-            }
-
-            if (currentEditQRType === "instagram") socInsta = primarySocialVal;
-            if (currentEditQRType === "facebook") socFb = primarySocialVal;
-            if (currentEditQRType === "linkedin") socLinkedin = primarySocialVal;
-            if (currentEditQRType === "pinterest") socPinterest = primarySocialVal;
-        }
-
+    } else if (currentEditQRType === "vcard") {
         payload.vcard_payload = {
             full_name: document.getElementById("edit-vcard-name") ? document.getElementById("edit-vcard-name").value.trim() : "",
             title: document.getElementById("edit-vcard-title") ? document.getElementById("edit-vcard-title").value.trim() : "",
@@ -2606,20 +2417,19 @@ async function saveQREdit(event) {
             avatar_url: document.getElementById("edit-vcard-avatar-url") ? normalizeUrlInput(document.getElementById("edit-vcard-avatar-url").value) : "",
             card_image_url: document.getElementById("edit-vcard-card-image-url") ? normalizeUrlInput(document.getElementById("edit-vcard-card-image-url").value) : "",
             social_links: {
-                instagram: socInsta,
-                linkedin: socLinkedin,
+                instagram: document.getElementById("edit-vcard-social-instagram") ? normalizeUrlInput(document.getElementById("edit-vcard-social-instagram").value) : "",
+                linkedin: document.getElementById("edit-vcard-social-linkedin") ? normalizeUrlInput(document.getElementById("edit-vcard-social-linkedin").value) : "",
                 twitter: document.getElementById("edit-vcard-social-twitter") ? normalizeUrlInput(document.getElementById("edit-vcard-social-twitter").value) : "",
-                facebook: socFb,
+                facebook: document.getElementById("edit-vcard-social-facebook") ? normalizeUrlInput(document.getElementById("edit-vcard-social-facebook").value) : "",
                 youtube: document.getElementById("edit-vcard-social-youtube") ? normalizeUrlInput(document.getElementById("edit-vcard-social-youtube").value) : "",
-                tiktok: document.getElementById("edit-vcard-social-tiktok") ? normalizeUrlInput(document.getElementById("edit-vcard-social-tiktok").value) : "",
-                pinterest: socPinterest
+                tiktok: document.getElementById("edit-vcard-social-tiktok") ? normalizeUrlInput(document.getElementById("edit-vcard-social-tiktok").value) : ""
             },
             theme_settings: JSON.stringify({
                 theme: document.getElementById("edit-vcard-theme-select") ? document.getElementById("edit-vcard-theme-select").value : "midnight",
                 primary_color: document.getElementById("edit-vcard-primary-color") ? document.getElementById("edit-vcard-primary-color").value : "#6366f1"
             })
         };
-    } else if (["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"].includes(currentEditQRType)) {
+    } else if (currentEditQRType === "menu") {
         payload.menu_payload = {
             title: document.getElementById("edit-menu-title") ? document.getElementById("edit-menu-title").value.trim() : "",
             description: document.getElementById("edit-menu-desc") ? document.getElementById("edit-menu-desc").value.trim() : "",
