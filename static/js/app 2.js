@@ -343,6 +343,10 @@ function initTypeSelector() {
             const labelEl = document.getElementById("vcard-primary-social-label");
             const inputEl = document.getElementById("vcard-primary-social-input");
             const hintEl = document.getElementById("vcard-primary-social-hint");
+            const vcardExtraSec = document.getElementById("vcard-extra-details-container");
+            const vcardSocialAcc = document.getElementById("vcard-social-accordion-item");
+            const directVcardEl = document.getElementById("direct-vcard-redirect");
+            const directVcardBox = directVcardEl ? directVcardEl.closest(".form-group") : null;
 
             if (socialConfigs[currentQrType]) {
                 const cfg = socialConfigs[currentQrType];
@@ -363,9 +367,17 @@ function initTypeSelector() {
                     inputEl.value = currentSocialVal;
                 }
                 if (hintEl) hintEl.innerText = cfg.hint;
+
+                if (vcardExtraSec) vcardExtraSec.style.display = "none";
+                if (vcardSocialAcc) vcardSocialAcc.style.display = "none";
+                if (directVcardBox) directVcardBox.style.display = "none";
             } else {
                 if (headingEl) headingEl.innerText = currentQrType === "company_card" ? "Kurumsal Kartvizit Bilgileri" : "Dijital Kartvizit Bilgileri";
                 if (boxEl) boxEl.style.display = "none";
+
+                if (vcardExtraSec) vcardExtraSec.style.display = "block";
+                if (vcardSocialAcc) vcardSocialAcc.style.display = "block";
+                if (directVcardBox) directVcardBox.style.display = "block";
             }
 
             // PDF Viewer vs Menu / Catalog form customization
@@ -2599,21 +2611,6 @@ async function openEditQRModal(qrId) {
                                 <img id="edit-vcard-avatar-preview" src="${v.avatar_url || ''}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #6366f1; display: ${v.avatar_url ? 'block' : 'none'};">
                             </div>
                             <div id="edit-vcard-avatar-status" style="font-size: 11px; color: #94a3b8; margin-top: 4px;">${v.avatar_url ? '✅ Mevcut profil fotoğrafı yüklü.' : 'İsteğe bağlı profil görseli.'}</div>
-                        </div>
-
-                        <!-- Fiziksel Kartvizit Görseli (Jpeg) Yükleme -->
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Jpeg / Fotoğraf)</label>
-                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                                <label for="edit-vcard-card-image-file" class="btn-secondary" style="padding: 10px 14px; font-size: 12px; font-weight: 700; cursor: pointer; border-radius: 10px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
-                                    <span>🖼️</span>
-                                    <span>Kartvizit Görseli (Jpeg) Seç / Yükle</span>
-                                </label>
-                                <input type="file" id="edit-vcard-card-image-file" accept="image/*" style="display: none;" onchange="handleEditCardImageUpload(this)">
-                                <input type="hidden" id="edit-vcard-card-image-url" value="${v.card_image_url || ''}">
-                                <img id="edit-vcard-card-img-preview" src="${v.card_image_url || ''}" style="height: 40px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); display: ${v.card_image_url ? 'block' : 'none'};">
-                            </div>
-                            <div id="edit-vcard-card-img-status" style="font-size: 11px; color: #94a3b8; margin-top: 4px;">${v.card_image_url ? '✅ Mevcut kartvizit görseli yüklü.' : 'İsteğe bağlı ön yüz kartvizit görseli.'}</div>
                         </div>
                     </div>
 

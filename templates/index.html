@@ -786,63 +786,58 @@
                                     <div id="vcard-avatar-status" style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">İsteğe bağlı. Fotoğraf seçilmezse ad-soyad baş harfleri varsayılan olarak gösterilir.</div>
                                 </div>
 
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                    <div class="form-group">
-                                        <label class="form-label">Ad Soyad</label>
-                                        <input type="text" id="vcard-name" class="form-input" placeholder="Ad Soyad (Örn: Ahmet Yılmaz)" oninput="updateLivePreview()">
+                                <div id="vcard-extra-details-container">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <div class="form-group">
+                                            <label class="form-label">Ad Soyad</label>
+                                            <input type="text" id="vcard-name" class="form-input" placeholder="Ad Soyad (Örn: Ahmet Yılmaz)" oninput="updateLivePreview()">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Unvan</label>
+                                            <input type="text" id="vcard-title" class="form-input" placeholder="Unvan (Örn: Pazarlama Yöneticisi)" oninput="updateLivePreview()">
+                                        </div>
                                     </div>
+
                                     <div class="form-group">
-                                        <label class="form-label">Unvan</label>
-                                        <input type="text" id="vcard-title" class="form-input" placeholder="Unvan (Örn: Pazarlama Yöneticisi)" oninput="updateLivePreview()">
+                                        <label class="form-label">Şirket / Marka</label>
+                                        <input type="text" id="vcard-company" class="form-input" placeholder="Şirket / Kurum Adı" oninput="updateLivePreview()">
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label class="form-label">Şirket / Marka</label>
-                                    <input type="text" id="vcard-company" class="form-input" placeholder="Şirket / Kurum Adı" oninput="updateLivePreview()">
-                                </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <div class="form-group">
+                                            <label class="form-label">Cep Telefonu</label>
+                                            <input type="text" id="vcard-phone" class="form-input" placeholder="+90 5XX XXX XX XX" oninput="updateLivePreview()">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">İş Telefonu (Opsiyonel)</label>
+                                            <input type="text" id="vcard-phone2" class="form-input" placeholder="+90 212 XXX XX XX" oninput="updateLivePreview()">
+                                        </div>
+                                    </div>
 
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <div class="form-group">
+                                            <label class="form-label">E-posta</label>
+                                            <input type="email" id="vcard-email" class="form-input" placeholder="eposta@sirketiniz.com" oninput="updateLivePreview()">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Web Sitesi</label>
+                                            <input type="text" id="vcard-website" class="form-input" placeholder="siteniz.com" oninput="updateLivePreview()">
+                                        </div>
+                                    </div>
+
                                     <div class="form-group">
-                                        <label class="form-label">Cep Telefonu</label>
-                                        <input type="text" id="vcard-phone" class="form-input" placeholder="+90 5XX XXX XX XX" oninput="updateLivePreview()">
+                                        <label class="form-label">Adres / Şehir</label>
+                                        <input type="text" id="vcard-address" class="form-input" placeholder="İstanbul, Türkiye" oninput="updateLivePreview()">
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label">İş Telefonu (Opsiyonel)</label>
-                                        <input type="text" id="vcard-phone2" class="form-input" placeholder="+90 212 XXX XX XX" oninput="updateLivePreview()">
+
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="form-label">Biyografi / Hakkında</label>
+                                        <textarea id="vcard-bio" class="form-textarea" rows="2" placeholder="Kısa özgeçmiş veya firma tanımı..." oninput="updateLivePreview()"></textarea>
                                     </div>
-                                </div>
-
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                    <div class="form-group">
-                                        <label class="form-label">E-posta</label>
-                                        <input type="email" id="vcard-email" class="form-input" placeholder="eposta@sirketiniz.com" oninput="updateLivePreview()">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Web Sitesi</label>
-                                        <input type="text" id="vcard-website" class="form-input" placeholder="siteniz.com" oninput="updateLivePreview()">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Adres / Şehir</label>
-                                    <input type="text" id="vcard-address" class="form-input" placeholder="İstanbul, Türkiye" oninput="updateLivePreview()">
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Biyografi / Hakkında</label>
-                                    <textarea id="vcard-bio" class="form-textarea" rows="2" placeholder="Kısa özgeçmiş veya firma tanımı..." oninput="updateLivePreview()"></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Fotoğrafı - İsteğe Bağlı)</label>
-                                    <input type="file" id="vcard-card-image-file" accept="image/*" class="form-input" style="padding: 8px;" onchange="handleCardImageUpload(this, 'vcard')">
-                                    <input type="hidden" id="vcard-card-image-url">
-                                    <div id="vcard-card-img-status" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
                                 </div>
 
                                 <!-- Sosyal Medya Hesapları Accordion Bar -->
-                                <div class="studio-accordion-item" style="margin-top: 16px; margin-bottom: 16px; border: 1px solid rgba(244, 114, 182, 0.3);">
+                                <div id="vcard-social-accordion-item" class="studio-accordion-item" style="margin-top: 16px; margin-bottom: 16px; border: 1px solid rgba(244, 114, 182, 0.3);">
                                     <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)" style="background: rgba(244, 114, 182, 0.08);">
                                         <div style="display: flex; align-items: center; gap: 8px;">
                                             <span>🌐</span>
@@ -1078,17 +1073,11 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-group" style="margin-bottom: 12px;">
+                                        <div class="form-group" style="margin-bottom: 0;">
                                             <label class="form-label" style="font-size: 11px;">Açık Adres / Konum</label>
                                             <input type="text" id="menu-address" class="form-input" placeholder="Kadıköy, İstanbul">
                                         </div>
-
-                                        <div class="form-group" style="margin-bottom: 0;">
-                                            <label class="form-label" style="font-size: 11px;">Fiziksel Kartvizit Görseli Yükleyin (Ön Yüz Fotoğrafı - İsteğe Bağlı)</label>
-                                            <input type="file" id="menu-card-image-file" accept="image/*" class="form-input" style="padding: 8px;" onchange="handleCardImageUpload(this, 'menu')">
-                                            <input type="hidden" id="menu-card-image-url">
-                                            <div id="menu-card-img-status" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
-                                        </div>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
