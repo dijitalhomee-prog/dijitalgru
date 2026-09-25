@@ -102,10 +102,18 @@ function renderAccountingTransactionsTable(txs) {
         return;
     }
 
-    tbody.innerHTML = txs.map(t => {
-        const sourceBadge = t.source === 'iyzico' 
-            ? `<span class="admin-badge badge-iyzico">İyzico Gerçek</span>`
+    const getSourceBadge = (source, amount) => {
+        if (source === 'iyzico') return `<span class="admin-badge badge-iyzico">İyzico Gerçek</span>`;
+        if (source === 'havale_eft') return `<span class="admin-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4);">Havale / EFT</span>`;
+        if (source === 'nakit') return `<span class="admin-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);">Nakit</span>`;
+        if (source === 'kredi_karti') return `<span class="admin-badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4);">Kredi Kartı</span>`;
+        return amount > 0 
+            ? `<span class="admin-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">Admin Manuel (${amount.toFixed(0)}₺)</span>`
             : `<span class="admin-badge badge-manual">Admin Manuel (0₺)</span>`;
+    };
+
+    tbody.innerHTML = txs.map(t => {
+        const sourceBadge = getSourceBadge(t.source, t.amount);
             
         const isRefunded = t.refund_status === 'refunded';
         const refundBadge = isRefunded
@@ -310,6 +318,9 @@ async function submitPlanUpdate() {
     const userId = document.getElementById("plan-modal-user-id").value;
     const plan = document.getElementById("plan-modal-select").value;
     const days = parseInt(document.getElementById("plan-modal-days").value || "30");
+    const amountVal = document.getElementById("plan-modal-amount").value;
+    const amount = amountVal !== "" ? parseFloat(amountVal) : 0.0;
+    const source = document.getElementById("plan-modal-source").value;
 
     const headers = getAuthHeader();
     if (!headers) return;
@@ -318,15 +329,67 @@ async function submitPlanUpdate() {
         const res = await fetch(`/api/admin/users/${userId}/update-plan`, {
             method: "POST",
             headers,
-            body: JSON.stringify({ plan, days })
+            body: JSON.stringify({ plan, days, amount, source })
         });
         const data = await res.json();
         if (res.ok) {
             alert("✅ " + data.message);
             closeModal("modal-update-plan");
             loadAdminData();
+            loadAccountingData();
         } else {
             alert("⚠️ " + (data.error || "Güncelleme başarısız."));
+        }
+    } catch (err) {
+        alert("Hata oluştu.");
+    }
+}
+
+function openAddTransactionModal(userEmail = '') {
+    if (userEmail) {
+        document.getElementById("tx-modal-user").value = userEmail;
+    }
+    openModal("modal-add-transaction");
+}
+
+async function submitAddTransaction() {
+    const user = document.getElementById("tx-modal-user").value.trim();
+    const planName = document.getElementById("tx-modal-plan-name").value.trim();
+    const amount = parseFloat(document.getElementById("tx-modal-amount").value || "0");
+    const source = document.getElementById("tx-modal-source").value;
+    const invoiceNo = document.getElementById("tx-modal-invoice").value.trim();
+    const updateUserPlan = document.getElementById("tx-modal-update-plan-check").checked;
+
+    if (!user) {
+        alert("Lütfen müşteri e-posta adresini veya ID'sini girin.");
+        return;
+    }
+
+    const headers = getAuthHeader();
+    if (!headers) return;
+
+    try {
+        const res = await fetch("/api/admin/accounting/transactions/create", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+                user,
+                plan_name: planName,
+                amount,
+                source,
+                invoice_no: invoiceNo,
+                update_user_plan: updateUserPlan,
+                plan_key: planName.toLowerCase().includes("business") ? "business" : (planName.toLowerCase().includes("starter") ? "starter" : "advanced")
+            })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert("✅ " + data.message);
+            closeModal("modal-add-transaction");
+            loadAccountingData();
+            loadAdminData();
+        } else {
+            alert("⚠️ " + (data.error || "İşlem eklenemedi."));
         }
     } catch (err) {
         alert("Hata oluştu.");

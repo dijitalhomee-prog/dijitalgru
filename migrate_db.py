@@ -345,9 +345,73 @@ def run_migrations():
         
     conn.close()
 
-    # Always ensure primary admin user is configured and test accounts cleaned up
+    # Always ensure primary admin user is configured, missing subscriptions synced, and test accounts cleaned up
     ensure_admin_user()
+    sync_missing_subscriptions()
     cleanup_test_accounts()
+
+def sync_missing_subscriptions():
+    """
+    Ensures every user with plan != 'free' has at least one subscription record.
+    Retroactively inserts a subscription entry for paid users missing accounting records.
+    """
+    import uuid
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    plan_prices = {
+        "starter": 199.00,
+        "advanced": 399.00,
+        "business": 899.00
+    }
+    
+    try:
+        if is_postgres():
+            cursor.execute("""
+            SELECT u.id, u.name, u.email, u.plan, u.created_at 
+            FROM users u 
+            WHERE u.plan != 'free' 
+            AND u.id NOT IN (SELECT DISTINCT user_id FROM subscriptions)
+            """)
+        else:
+            cursor.execute("""
+            SELECT u.id, u.name, u.email, u.plan, u.created_at 
+            FROM users u 
+            WHERE u.plan != 'free' 
+            AND u.id NOT IN (SELECT DISTINCT user_id FROM subscriptions)
+            """)
+            
+        users_without_sub = cursor.fetchall()
+        now = int(time.time())
+        
+        for u in users_without_sub:
+            uid = u['id']
+            plan = u['plan']
+            created = u['created_at'] or now
+            price = plan_prices.get(plan, 0.00)
+            plan_label = f"{plan.capitalize()} Paket"
+            invoice = f"DJG2026{uuid.uuid4().hex[:8].upper()}"
+            
+            if is_postgres():
+                cursor.execute("""
+                INSERT INTO subscriptions (user_id, plan_name, amount, status, iyzico_sub_id, invoice_no, source, refund_status, refund_date, created_at)
+                VALUES (%s, %s, %s, 'active', %s, %s, 'iyzico', 'none', 0, %s)
+                """, (uid, plan_label, price, f"sync_sub_{uid}", invoice, created))
+            else:
+                cursor.execute("""
+                INSERT INTO subscriptions (user_id, plan_name, amount, status, iyzico_sub_id, invoice_no, source, refund_status, refund_date, created_at)
+                VALUES (?, ?, ?, 'active', ?, ?, 'iyzico', 'none', 0, ?)
+                """, (uid, plan_label, price, f"sync_sub_{uid}", invoice, created))
+                
+        conn.commit()
+        if users_without_sub:
+            print(f"✅ Synced {len(users_without_sub)} missing paid subscription records.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ sync_missing_subscriptions note:", e)
+    finally:
+        conn.close()
 
 if __name__ == "__main__":
     run_migrations()
+

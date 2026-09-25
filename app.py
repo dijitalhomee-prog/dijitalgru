@@ -1791,7 +1791,8 @@ def api_admin_update_plan(user_id):
     old_plan = target_user["plan"]
     amount = float(data.get("amount", 0.00))
     source = data.get("source", "manual_admin")
-    custom_plan_name = data.get("plan_name", f"MANUAL {new_plan.upper()}")
+    invoice_no = data.get("invoice_no") or f"DJG2026{uuid.uuid4().hex[:8].upper()}"
+    custom_plan_name = data.get("plan_name", f"{new_plan.capitalize()} Paket (Manuel)")
     
     cursor.execute("UPDATE users SET plan = ?, subscription_end = ?, dynamic_qr_limit = ? WHERE id = ?", (new_plan, sub_end, qr_limit, user_id))
     
@@ -1799,7 +1800,7 @@ def api_admin_update_plan(user_id):
     cursor.execute("""
     INSERT INTO subscriptions (user_id, plan_name, amount, status, iyzico_sub_id, invoice_no, source, refund_status, refund_date, created_at)
     VALUES (?, ?, ?, 'active', ?, ?, ?, 'none', 0, ?)
-    """, (user_id, custom_plan_name, amount, f"iyzi_manual_{now}", f"DJG2026{now}", source, now))
+    """, (user_id, custom_plan_name, amount, f"iyzi_manual_{now}", invoice_no, source, now))
     
     conn.commit()
     conn.close()
@@ -1808,12 +1809,76 @@ def api_admin_update_plan(user_id):
         admin_id=admin["id"],
         target_user_id=user_id,
         action_type="UPDATE_PLAN",
-        details=f"Plan {old_plan} -> {new_plan} ({amount} TL, Bitiş: {days} gün sonra) olarak güncellendi."
+        details=f"Plan {old_plan} -> {new_plan} ({amount} TL, Kaynak: {source}, Bitiş: {days} gün sonra) olarak güncellendi."
     )
     
     return jsonify({"status": "success", "message": f"Kullanıcı planı {new_plan.upper()} olarak güncellendi."})
 
 # --- Admin Accounting & Revenue Endpoints ---
+
+@app.route("/api/admin/accounting/transactions/create", methods=["POST"])
+def api_admin_create_transaction():
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+        
+    data = request.json or {}
+    user_input = str(data.get("user") or data.get("user_id") or "").strip()
+    plan_name = str(data.get("plan_name") or "Özel Abonelik / Ödeme").strip()
+    amount = float(data.get("amount", 0.00))
+    source = data.get("source", "manual_admin")
+    invoice_no = str(data.get("invoice_no") or "").strip() or f"DJG2026{uuid.uuid4().hex[:8].upper()}"
+    update_user_plan = bool(data.get("update_user_plan", False))
+    plan_key = data.get("plan_key", "starter")
+    
+    if not user_input:
+        return jsonify({"error": "Geçerli bir kullanıcı e-postası veya ID girilmelidir."}), 400
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    user_id = None
+    if user_input.isdigit():
+        cursor.execute("SELECT id, email FROM users WHERE id = ?", (int(user_input),))
+        row = cursor.fetchone()
+        if row:
+            user_id = row["id"]
+            
+    if not user_id:
+        cursor.execute("SELECT id, email FROM users WHERE LOWER(email) = LOWER(?)", (user_input,))
+        row = cursor.fetchone()
+        if row:
+            user_id = row["id"]
+            
+    if not user_id:
+        conn.close()
+        return jsonify({"error": f"'{user_input}' e-posta veya ID'sine sahip kullanıcı bulunamadı."}), 404
+        
+    now = int(time.time())
+    
+    cursor.execute("""
+    INSERT INTO subscriptions (user_id, plan_name, amount, status, iyzico_sub_id, invoice_no, source, refund_status, refund_date, created_at)
+    VALUES (?, ?, ?, 'active', ?, ?, ?, 'none', 0, ?)
+    """, (user_id, plan_name, amount, f"tx_manual_{now}", invoice_no, source, now))
+    
+    if update_user_plan and plan_key in ["starter", "advanced", "business"]:
+        limits = {"starter": 5, "advanced": 25, "business": 100}
+        days = int(data.get("days", 30))
+        sub_end = now + (86400 * days)
+        cursor.execute("UPDATE users SET plan = ?, subscription_end = ?, dynamic_qr_limit = ? WHERE id = ?", 
+                       (plan_key, sub_end, limits.get(plan_key, 5), user_id))
+                       
+    conn.commit()
+    conn.close()
+    
+    log_admin_action(
+        admin_id=admin["id"],
+        target_user_id=user_id,
+        action_type="CREATE_TRANSACTION",
+        details=f"Manuel Ödeme Kaydı Eklendi: {amount:.2f} TL, Kaynak: {source}, Fatura: {invoice_no}"
+    )
+    
+    return jsonify({"status": "success", "message": f"{amount:.2f} ₺ tutarındaki ödeme ve fatura kaydı başarıyla eklendi."})
 
 @app.route("/api/admin/accounting/summary", methods=["GET"])
 def api_admin_accounting_summary():
@@ -1824,11 +1889,11 @@ def api_admin_accounting_summary():
     conn = get_db()
     cursor = conn.cursor()
     
-    # 1. Total Revenue (ONLY source = 'iyzico' and refund_status != 'refunded')
+    # 1. Total Revenue (All valid paid subscriptions with amount > 0, excluding refunded)
     cursor.execute("""
     SELECT COALESCE(SUM(amount), 0.0) as total 
     FROM subscriptions 
-    WHERE source = 'iyzico' AND (refund_status IS NULL OR refund_status != 'refunded')
+    WHERE amount > 0 AND (refund_status IS NULL OR refund_status != 'refunded')
     """)
     total_revenue = float(cursor.fetchone()["total"])
     
@@ -1838,7 +1903,7 @@ def api_admin_accounting_summary():
     cursor.execute("""
     SELECT COALESCE(SUM(amount), 0.0) as month_total 
     FROM subscriptions 
-    WHERE source = 'iyzico' AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
+    WHERE amount > 0 AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
     """, (month_start,))
     this_month_revenue = float(cursor.fetchone()["month_total"])
     
@@ -1847,7 +1912,7 @@ def api_admin_accounting_summary():
     cursor.execute("""
     SELECT COALESCE(SUM(amount), 0.0) as year_total 
     FROM subscriptions 
-    WHERE source = 'iyzico' AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
+    WHERE amount > 0 AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
     """, (year_start,))
     this_year_revenue = float(cursor.fetchone()["year_total"])
     

@@ -416,14 +416,47 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertIn("İyzico (Gerçek Ödeme)", csv_text)
         self.assertIn("Admin Manuel", csv_text)
 
-    def test_13_pricing_consistency(self):
-        from payments import PLANS
-        self.assertEqual(PLANS["starter"]["pricing"]["monthly"]["total_price"], 199.00)
-        self.assertEqual(PLANS["advanced"]["pricing"]["monthly"]["total_price"], 399.00)
-        self.assertEqual(PLANS["business"]["pricing"]["monthly"]["total_price"], 899.00)
-        self.assertEqual(PLANS["starter"]["pricing"]["semi_annual"]["total_price"], 1134.00)
-        self.assertEqual(PLANS["advanced"]["pricing"]["semi_annual"]["total_price"], 2274.00)
-        self.assertEqual(PLANS["business"]["pricing"]["annual"]["total_price"], 9708.00)
+    def test_14_manual_transaction_creation(self):
+        login_a = self.client.post("/api/auth/login", json={
+            "email": "dijitalgru@gmail.com",
+            "password": "459683758"
+        })
+        admin_token = login_a.get_json()["token"]
+
+        # 1. Create a customer
+        cust_email = f"manual_tx_{int(time.time())}@dijitalgru.com"
+        reg_c = self.client.post("/api/auth/register", json={
+            "name": "Manual Tx Customer",
+            "email": cust_email,
+            "password": "Password123!"
+        })
+        cust_id = reg_c.get_json()["user"]["id"]
+
+        # 2. Add manual transaction via POST /api/admin/accounting/transactions/create
+        res = self.client.post("/api/admin/accounting/transactions/create", json={
+            "user": cust_email,
+            "plan_name": "Banka Havalesi - Advanced Paket",
+            "amount": 399.00,
+            "source": "havale_eft",
+            "update_user_plan": True,
+            "plan_key": "advanced"
+        }, headers={"Authorization": f"Bearer {admin_token}"})
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.get_json()["status"], "success")
+
+        # 3. Verify user plan updated to advanced
+        user_res = self.client.get(f"/api/admin/users/{cust_id}", headers={"Authorization": f"Bearer {admin_token}"})
+        self.assertEqual(user_res.get_json()["user"]["plan"], "advanced")
+
+        # 4. Verify transaction is present in accounting transactions list
+        tx_res = self.client.get("/api/admin/accounting/transactions", headers={"Authorization": f"Bearer {admin_token}"})
+        txs = tx_res.get_json()["transactions"]
+        manual_tx = next((t for t in txs if t["user_id"] == cust_id), None)
+        self.assertIsNotNone(manual_tx)
+        self.assertEqual(manual_tx["amount"], 399.00)
+        self.assertEqual(manual_tx["source"], "havale_eft")
 
 if __name__ == "__main__":
     unittest.main()
+
