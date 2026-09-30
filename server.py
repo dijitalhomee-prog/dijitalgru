@@ -20,7 +20,7 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        if self.path in ['/api/contact', '/submit-contact', '/api/contact/']:
+        if self.path.startswith('/api/contact') or self.path.startswith('/submit-contact'):
             content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length).decode('utf-8')
             
@@ -120,9 +120,12 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
             resp = {"success": True, "message": "Mesajınız başarıyla iletildi."}
             self.wfile.write(json.dumps(resp).encode('utf-8'))
             return
-
-        # Serve static files as usual
-        return super().do_POST()
+        else:
+            self.send_response(404)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(b'{"error": "Not Found"}')
+            return
 
     def do_GET(self):
         # Protected leads view endpoint
