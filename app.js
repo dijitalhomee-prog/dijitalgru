@@ -629,17 +629,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const subjectVal = subjectField ? subjectField.value : "Dijital Gru - Web İletişim Teklifi";
                 const messageVal = messageField ? messageField.value : "";
 
-                // FormSubmit.co AJAX POST - Sends directly to dijitalgru@gmail.com
-                const formData = new FormData();
-                formData.append('name', nameVal);
-                formData.append('email', emailVal);
-                formData.append('subject', 'Dijital Gru Web İletişim: ' + subjectVal);
-                formData.append('message', messageVal);
-                formData.append('_captcha', 'false');
+                // Direct Railway Backend API POST - 100% Reliable & Persistent
+                const payload = {
+                    name: nameVal,
+                    email: emailVal,
+                    subject_title: subjectVal,
+                    message: messageVal
+                };
 
-                fetch("https://formsubmit.co/ajax/dijitalgru@gmail.com", {
+                fetch("/api/contact", {
                     method: "POST",
-                    body: formData
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
                 })
                 .then(async (response) => {
                     if (response.ok) {
