@@ -164,7 +164,7 @@
                 </div>
 
                 <div class="contact-form-container scroll-reveal">
-                    <form class="contact-form glass-card" id="main-contact-form" action="javascript:void(0);" onsubmit="window.processContactForm(this); return false;">
+                    <form class="contact-form glass-card" id="main-contact-form" action="javascript:void(0);" onsubmit="return window.processContactForm(event, this);">
                         <div class="form-group-row">
                             <div class="form-group">
                                 <input type="text" id="name" name="name" required placeholder=" ">
@@ -183,7 +183,7 @@
                             <textarea id="message" name="message" rows="5" required placeholder=" "></textarea>
                             <label for="message">Proje Detayları & Mesajınız</label>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-submit" id="contact-submit-btn" onclick="window.processContactForm(this);">
+                        <button type="submit" class="btn btn-primary btn-submit" id="contact-submit-btn">
                             <span>Mesaj Gönder</span> <i class="fa-solid fa-paper-plane"></i>
                         </button>
                     </form>
@@ -252,6 +252,6 @@
     </footer>
 
     <!-- App Scripts -->
-    <script src="app.js?v=4.4"></script>
+    <script src="app.js?v=5.0"></script>
 </body>
 </html>

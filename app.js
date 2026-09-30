@@ -3,46 +3,80 @@
    ========================================================================== */
 
 // Top-Level Global Contact Form Handler (Available immediately)
-window.processContactForm = function(el) {
-    var contactForm = el ? (el.tagName === 'FORM' ? el : el.closest('form')) : document.querySelector('form.contact-form, #main-contact-form');
-    if (!contactForm) return false;
+window.processContactForm = function(evt, el) {
+    if (evt && typeof evt.preventDefault === 'function') {
+        evt.preventDefault();
+        if (typeof evt.stopPropagation === 'function') evt.stopPropagation();
+    }
 
-    var nameField = contactForm.querySelector('#name') || contactForm.querySelector('[name="name"]');
-    var emailField = contactForm.querySelector('#email') || contactForm.querySelector('[name="email"]');
-    var subjectField = contactForm.querySelector('#subject-field') || contactForm.querySelector('#subject') || contactForm.querySelector('[name="subject_title"]');
-    var messageField = contactForm.querySelector('#message') || contactForm.querySelector('[name="message"]');
+    var targetEl = el || (evt && evt.target ? evt.target : null);
+    var contactForm = targetEl ? (targetEl.tagName === 'FORM' ? targetEl : targetEl.closest('form')) : document.querySelector('form.contact-form, #main-contact-form');
+    if (!contactForm) return false;
 
     if (typeof contactForm.checkValidity === 'function' && !contactForm.checkValidity()) {
         contactForm.reportValidity();
         return false;
     }
 
+    var nameField = contactForm.querySelector('#name') || contactForm.querySelector('[name="name"]');
+    var emailField = contactForm.querySelector('#email') || contactForm.querySelector('[name="email"]');
+    var subjectField = contactForm.querySelector('#subject-field') || contactForm.querySelector('#subject') || contactForm.querySelector('[name="subject_title"]');
+    var messageField = contactForm.querySelector('#message') || contactForm.querySelector('[name="message"]');
+
     var nameVal = nameField ? nameField.value.trim() : "";
     var emailVal = emailField ? emailField.value.trim() : "";
     var subjectVal = subjectField ? subjectField.value.trim() : "Dijital Gru - Web İletişim Teklifi";
     var messageVal = messageField ? messageField.value.trim() : "";
 
-    var container = contactForm.parentElement;
-    contactForm.style.display = 'none';
+    var submitBtn = contactForm.querySelector('button[type="submit"], #contact-submit-btn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Gönderiliyor...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
+    }
 
     var waText = encodeURIComponent("Merhaba Dijital Gru, web siteniz üzerinden mesaj gönderdim:\n\n👤 Ad Soyad: " + nameVal + "\n📧 E-posta: " + emailVal + "\n📌 Konu: " + subjectVal + "\n\n💬 Mesaj:\n" + messageVal);
     var waUrl = "https://wa.me/905376274415?text=" + waText;
     var mailtoUrl = "mailto:dijitalgru@gmail.com?subject=" + encodeURIComponent(subjectVal) + "&body=" + encodeURIComponent("Gönderen: " + nameVal + "\nE-posta: " + emailVal + "\n\nMesaj:\n" + messageVal);
+
+    // Send email to dijitalgru@gmail.com in background via FormSubmit AJAX API
+    try {
+        fetch("https://formsubmit.co/ajax/dijitalgru@gmail.com", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: nameVal,
+                email: emailVal,
+                subject: subjectVal,
+                message: messageVal,
+                _subject: "Yeni İletişim Formu Mesajı: " + nameVal + " (" + subjectVal + ")"
+            })
+        }).catch(function(err) {
+            console.log("FormSubmit delivery log:", err);
+        });
+    } catch(err) {
+        console.log("FormSubmit exception:", err);
+    }
+
+    var container = contactForm.parentElement;
+    contactForm.style.display = 'none';
 
     var successMsg = document.createElement('div');
     successMsg.className = 'form-success-box';
     successMsg.style.cssText = 'text-align: center; padding: 40px 20px; background: rgba(12, 19, 48, 0.95); border-radius: 20px; border: 1px solid rgba(220, 169, 99, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.5);';
     successMsg.innerHTML = `
         <div style="font-size: 54px; color: #10b981; margin-bottom: 16px;"><i class="fa-solid fa-circle-check"></i></div>
-        <h3 style="font-family: var(--font-headings); font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">Talebiniz Alındı!</h3>
-        <p style="color: rgba(255, 255, 255, 0.85); font-size: 15px; margin-bottom: 24px; line-height: 1.6;">Doldurduğunuz bilgiler doğrultusunda mesajınız oluşturuldu. Anında dönüş almak için <strong>WhatsApp</strong> üzerinden veya <strong>E-posta</strong> ile doğrudan iletebilirsiniz:</p>
+        <h3 style="font-family: var(--font-headings); font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">Mesajınız Ekibimize İletildi!</h3>
+        <p style="color: rgba(255, 255, 255, 0.85); font-size: 15px; margin-bottom: 24px; line-height: 1.6;">Talebiniz alınmış ve e-posta kutumuza yönlendirilmiştir. Dilerseniz <strong>WhatsApp</strong> üzerinden de anında iletişime geçebilirsiniz:</p>
         
         <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
             <a href="${waUrl}" target="_blank" rel="noopener" class="btn" style="background: #25D366; color: #ffffff; padding: 14px 28px; font-weight: 700; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; font-size: 16px; box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);">
-                <i class="fa-brands fa-whatsapp" style="font-size: 22px;"></i> WhatsApp ile Anında Gönder
+                <i class="fa-brands fa-whatsapp" style="font-size: 22px;"></i> WhatsApp ile Sohbet Başlat
             </a>
             <a href="${mailtoUrl}" class="btn" style="background: rgba(255,255,255,0.12); color: #ffffff; padding: 14px 24px; font-weight: 600; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; border: 1px solid rgba(255,255,255,0.2);">
-                <i class="fa-solid fa-envelope"></i> E-posta ile İlet
+                <i class="fa-solid fa-envelope"></i> E-posta Gönder
             </a>
         </div>
         <button onclick="location.reload()" class="btn btn-secondary" style="padding: 8px 20px; font-size: 13px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7);">Yeni Mesaj Gönder</button>
