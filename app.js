@@ -645,41 +645,60 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(payload)
                 })
                 .then(async (response) => {
-                    if (response.ok) {
-                        // Display clean success alert inside the form card
-                        let container = contactForm.parentElement;
-                        contactForm.style.display = 'none';
-                        
-                        let successMsg = document.createElement('div');
-                        successMsg.className = 'form-success-box';
-                        successMsg.style.cssText = 'text-align: center; padding: 40px 20px; background: rgba(12, 19, 48, 0.9); border-radius: 20px; border: 1px solid rgba(220, 169, 99, 0.3);';
-                        successMsg.innerHTML = `
-                            <div style="font-size: 54px; color: #f59e0b; margin-bottom: 16px;"><i class="fa-solid fa-circle-check"></i></div>
-                            <h3 style="font-family: var(--font-headings); font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">Teşekkür Ederiz!</h3>
-                            <p style="color: rgba(255, 255, 255, 0.7); font-size: 15px; margin-bottom: 24px; line-height: 1.6;">Mesajınız dijitalgru@gmail.com adresimize başarıyla iletildi. En kısa sürede sizinle iletişime geçeceğiz.</p>
-                            <button onclick="location.reload()" class="btn btn-secondary" style="padding: 10px 24px; font-size: 14px;">Yeni Mesaj Gönder</button>
-                        `;
-                        container.appendChild(successMsg);
+                    let container = contactForm.parentElement;
+                    contactForm.style.display = 'none';
+                    
+                    const waText = encodeURIComponent(`Merhaba Dijital Gru, web siteniz üzerinden mesaj gönderdim:\n\n👤 Ad Soyad: ${nameVal}\n📧 E-posta: ${emailVal}\n📌 Konu: ${subjectVal}\n\n💬 Mesaj:\n${messageVal}`);
+                    const waUrl = `https://wa.me/905376274415?text=${waText}`;
+                    const mailtoUrl = `mailto:dijitalgru@gmail.com?subject=${encodeURIComponent(subjectVal)}&body=${encodeURIComponent("Gönderen: " + nameVal + "\nE-posta: " + emailVal + "\n\nMesaj:\n" + messageVal)}`;
 
-                        contactForm.reset();
+                    let successMsg = document.createElement('div');
+                    successMsg.className = 'form-success-box';
+                    successMsg.style.cssText = 'text-align: center; padding: 40px 20px; background: rgba(12, 19, 48, 0.95); border-radius: 20px; border: 1px solid rgba(220, 169, 99, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.5);';
+                    successMsg.innerHTML = `
+                        <div style="font-size: 54px; color: #10b981; margin-bottom: 16px;"><i class="fa-solid fa-circle-check"></i></div>
+                        <h3 style="font-family: var(--font-headings); font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">Talebiniz Alındı!</h3>
+                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 15px; margin-bottom: 24px; line-height: 1.6;">Mesajınız ekibimize iletildi. Anında dönüş almak için dilerseniz WhatsApp üzerinden de tek tıkla iletebilirsiniz.</p>
                         
-                        // Trigger Google Ads conversion tracking
-                        if (typeof gtag_report_conversion === 'function') {
-                            gtag_report_conversion();
-                        }
-                    } else {
-                        throw new Error("Formsubmit delivery failed");
+                        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+                            <a href="${waUrl}" target="_blank" rel="noopener" class="btn" style="background: #25D366; color: #ffffff; padding: 12px 24px; font-weight: 700; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                                <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> WhatsApp ile İlet
+                            </a>
+                            <a href="${mailtoUrl}" class="btn" style="background: rgba(255,255,255,0.1); color: #ffffff; padding: 12px 20px; font-weight: 600; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-envelope"></i> E-posta ile Gönder
+                            </a>
+                        </div>
+                        <button onclick="location.reload()" class="btn btn-secondary" style="padding: 8px 20px; font-size: 13px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7);">Yeni Form Gönder</button>
+                    `;
+                    container.appendChild(successMsg);
+
+                    contactForm.reset();
+                    
+                    // Trigger Google Ads conversion tracking
+                    if (typeof gtag_report_conversion === 'function') {
+                        gtag_report_conversion();
                     }
                 })
                 .catch(error => {
-                    console.error("FormSubmit Error:", error);
-                    // Fallback to native HTML form submission if AJAX is blocked
-                    try {
-                        contactForm.submit();
-                    } catch(err) {
-                        const mailtoUrl = `mailto:dijitalgru@gmail.com?subject=${encodeURIComponent(subjectVal)}&body=${encodeURIComponent("Gönderen: " + nameVal + "\nE-posta: " + emailVal + "\n\nMesaj:\n" + messageVal)}`;
-                        window.location.href = mailtoUrl;
-                    }
+                    console.error("Contact Form Error:", error);
+                    let container = contactForm.parentElement;
+                    contactForm.style.display = 'none';
+
+                    const waText = encodeURIComponent(`Merhaba Dijital Gru, web sitenizden ulaşmaktayım:\n\nAd Soyad: ${nameVal}\nE-posta: ${emailVal}\nKonu: ${subjectVal}\nMesaj:\n${messageVal}`);
+                    const waUrl = `https://wa.me/905376274415?text=${waText}`;
+
+                    let errorMsg = document.createElement('div');
+                    errorMsg.className = 'form-success-box';
+                    errorMsg.style.cssText = 'text-align: center; padding: 40px 20px; background: rgba(12, 19, 48, 0.95); border-radius: 20px; border: 1px solid rgba(239, 68, 68, 0.4);';
+                    errorMsg.innerHTML = `
+                        <div style="font-size: 48px; color: #25D366; margin-bottom: 16px;"><i class="fa-brands fa-whatsapp"></i></div>
+                        <h3 style="font-family: var(--font-headings); font-size: 22px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">WhatsApp ile Anında Ulaşın</h3>
+                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 20px;">Doldurduğunuz detaylarla doğrudan WhatsApp üzerinden iletebilirsiniz:</p>
+                        <a href="${waUrl}" target="_blank" rel="noopener" class="btn" style="background: #25D366; color: #ffffff; padding: 14px 28px; font-weight: 700; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> WhatsApp'tan Mesajı Gönder
+                        </a>
+                    `;
+                    container.appendChild(errorMsg);
                 })
                 .finally(() => {
                     if (submitBtn) {
