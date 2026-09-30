@@ -670,9 +670,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(error => {
                     console.error("FormSubmit Error:", error);
-                    // Fallback to mailto link if offline or blocked
-                    const mailtoUrl = `mailto:dijitalgru@gmail.com?subject=${encodeURIComponent(subjectVal)}&body=${encodeURIComponent("Gönderen: " + nameVal + "\nE-posta: " + emailVal + "\n\nMesaj:\n" + messageVal)}`;
-                    window.location.href = mailtoUrl;
+                    // Fallback to native HTML form submission if AJAX is blocked
+                    try {
+                        contactForm.submit();
+                    } catch(err) {
+                        const mailtoUrl = `mailto:dijitalgru@gmail.com?subject=${encodeURIComponent(subjectVal)}&body=${encodeURIComponent("Gönderen: " + nameVal + "\nE-posta: " + emailVal + "\n\nMesaj:\n" + messageVal)}`;
+                        window.location.href = mailtoUrl;
+                    }
                 })
                 .finally(() => {
                     if (submitBtn) {
