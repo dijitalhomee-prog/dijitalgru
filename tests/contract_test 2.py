@@ -423,7 +423,7 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertEqual(PLANS["business"]["pricing"]["monthly"]["total_price"], 899.00)
         self.assertEqual(PLANS["starter"]["pricing"]["semi_annual"]["total_price"], 1134.00)
         self.assertEqual(PLANS["advanced"]["pricing"]["semi_annual"]["total_price"], 2274.00)
-        self.assertEqual(PLANS["business"]["pricing"]["annual"]["total_price"], 9708.00)
+        self.assertEqual(PLANS["business"]["pricing"]["annual"]["total_price"], 9924.96)
 
 if __name__ == "__main__":
     unittest.main()

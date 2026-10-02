@@ -3,7 +3,7 @@ let currentQrType = "url";
 let currentCycle = "monthly";
 let uploadedPdfUrl = null;
 
-// Cycle Pricing Config (6-Month %20 OFF | Annual %10 OFF)
+// Cycle Pricing Config (6-Month %5 OFF | Annual %8 OFF)
 const CYCLE_PRICES = {
     monthly: {
         starter: '<span style="color: #ffffff; font-weight: 800;">₺199</span>',
@@ -22,12 +22,12 @@ const CYCLE_PRICES = {
         subtextBusiness: 'Tek Çekim 6 Aylık Toplam: 5.124 ₺ (Aylık 854 ₺)'
     },
     annual: {
-        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #6366f1; font-weight: 800;">₺179</span>',
-        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #6366f1; font-weight: 800;">₺359</span>',
-        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #6366f1; font-weight: 800;">₺809</span>',
-        subtextStarter: 'Tek Çekim Yıllık Toplam: 2.148 ₺ (Aylık 179 ₺ - 1 Yıl)',
-        subtextAdvanced: 'Tek Çekim Yıllık Toplam: 4.308 ₺ (Aylık 359 ₺ - 1 Yıl)',
-        subtextBusiness: 'Tek Çekim Yıllık Toplam: 9.708 ₺ (Aylık 809 ₺ - 1 Yıl)'
+        starter: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺199</s> <span style="color: #6366f1; font-weight: 800;">₺183</span>',
+        advanced: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺399</s> <span style="color: #6366f1; font-weight: 800;">₺367</span>',
+        business: '<s style="font-size: 16px; color: #94a3b8; margin-right: 6px;">₺899</s> <span style="color: #6366f1; font-weight: 800;">₺827</span>',
+        subtextStarter: 'Tek Çekim Yıllık Toplam: 2.197 ₺ (Aylık 183 ₺ - 1 Yıl)',
+        subtextAdvanced: 'Tek Çekim Yıllık Toplam: 4.405 ₺ (Aylık 367 ₺ - 1 Yıl)',
+        subtextBusiness: 'Tek Çekim Yıllık Toplam: 9.925 ₺ (Aylık 827 ₺ - 1 Yıl)'
     }
 };
 
