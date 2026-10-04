@@ -207,7 +207,7 @@ def redirect_qr(short_code):
         return "<h3>🚫 Hesabınız Askıya Alınmıştır</h3><p>Lütfen destek ekibi ile iletişime geçin.</p>", 403
 
     now = int(time.time())
-    # If 1-month free trial has expired and user hasn't bought a paid plan, redirect scan to main website
+    # If 7-day free trial has expired and user hasn't bought a paid plan, redirect scan to main website
     if user_plan == "free" and sub_end and sub_end < now:
         return redirect("https://qrdijitalgru.com", code=302)
     
@@ -613,7 +613,7 @@ def api_qr_create():
 
     if user.get("trial_expired"):
         return jsonify({
-            "error": "1 Aylık Ücretsiz Deneme Süreniz Dolmuştur! QR kodlarınız pasife alınmıştır. Kullanmaya devam etmek ve yeni QR oluşturmak için lütfen bir abonelik paketi satın alın."
+            "error": "7 Günlük Ücretsiz Deneme Süreniz Dolmuştur! QR kodlarınız pasife alınmıştır. Kullanmaya devam etmek ve yeni QR oluşturmak için lütfen bir abonelik paketi satın alın."
         }), 403
         
     data = request.json or {}
@@ -780,7 +780,7 @@ def api_qr_update(qr_id):
 
     if user.get("trial_expired"):
         return jsonify({
-            "error": "1 Aylık Ücretsiz Deneme Süreniz Dolmuştur! QR kodlarınızı düzenlemek için lütfen abonelik paketi satın alın."
+            "error": "7 Günlük Ücretsiz Deneme Süreniz Dolmuştur! QR kodlarınızı düzenlemek için lütfen abonelik paketi satın alın."
         }), 403
         
     data = request.json or {}
