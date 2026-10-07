@@ -1157,11 +1157,17 @@ def api_export_qr(qr_id):
         qr = dict(row)
         short_url = f"{request.host_url.rstrip('/')}/r/{qr['short_code']}"
         settings = {}
-        if qr.get("custom_settings"):
-            try:
-                settings = json.loads(qr["custom_settings"])
-            except Exception:
-                pass
+        raw_settings = qr.get("custom_settings")
+        if raw_settings:
+            if isinstance(raw_settings, dict):
+                settings = raw_settings
+            elif isinstance(raw_settings, str):
+                try:
+                    settings = json.loads(raw_settings)
+                except Exception:
+                    settings = {}
+        if not isinstance(settings, dict):
+            settings = {}
                 
         raw_title = qr.get("title") or "qr_code"
         title = str(raw_title).strip().replace(" ", "_")

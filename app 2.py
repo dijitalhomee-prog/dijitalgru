@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, jsonify, redirect, send_file,
 import time
 import json
 import urllib.request
+from urllib.parse import quote
 import uuid
 import os
 import io
@@ -1135,61 +1136,74 @@ def api_qr_list():
 
 @app.route("/api/qr/export/<int:qr_id>", methods=["GET"])
 def api_export_qr(qr_id):
-    export_format = request.args.get("format", "png").lower()
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM qr_codes WHERE id = ?", (qr_id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    if not row:
-        return "QR Kodu Bulunamadı", 404
+    try:
+        export_format = (request.args.get("format") or "png").lower()
         
-    qr = dict(row)
-    short_url = f"{request.host_url.rstrip('/')}/r/{qr['short_code']}"
-    settings = {}
-    if qr.get("custom_settings"):
-        try:
-            settings = json.loads(qr["custom_settings"])
-        except Exception:
-            pass
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM qr_codes WHERE id = ?", (qr_id,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if not row:
+            return "QR Kodu Bulunamadı", 404
             
-    title = qr.get("title", "qr_code").replace(" ", "_")
-    
-    if export_format == "svg":
-        svg_bytes = generate_qr_image(short_url, settings, format="svg")
-        response = Response(svg_bytes, mimetype="image/svg+xml")
-        response.headers["Content-Disposition"] = f'attachment; filename="{title}.svg"'
-        return response
+        qr = dict(row)
+        short_url = f"{request.host_url.rstrip('/')}/r/{qr['short_code']}"
+        settings = {}
+        raw_settings = qr.get("custom_settings")
+        if raw_settings:
+            if isinstance(raw_settings, dict):
+                settings = raw_settings
+            elif isinstance(raw_settings, str):
+                try:
+                    settings = json.loads(raw_settings)
+                except Exception:
+                    settings = {}
+        if not isinstance(settings, dict):
+            settings = {}
+                
+        raw_title = qr.get("title") or "qr_code"
+        title = str(raw_title).strip().replace(" ", "_")
+        encoded_filename = quote(f"{title}.{export_format}")
         
-    elif export_format == "eps":
-        png_bytes = generate_qr_image(short_url, settings, format="png")
-        img = Image.open(io.BytesIO(png_bytes)).convert("RGB")
-        eps_buffer = io.BytesIO()
-        img.save(eps_buffer, format="EPS")
-        eps_buffer.seek(0)
-        
-        response = Response(eps_buffer.getvalue(), mimetype="application/postscript")
-        response.headers["Content-Disposition"] = f'attachment; filename="{title}.eps"'
-        return response
-        
-    elif export_format == "pdf":
-        png_bytes = generate_qr_image(short_url, settings, format="png")
-        img = Image.open(io.BytesIO(png_bytes))
-        pdf_buffer = io.BytesIO()
-        img.save(pdf_buffer, format="PDF", resolution=300.0)
-        pdf_buffer.seek(0)
-        
-        response = Response(pdf_buffer.getvalue(), mimetype="application/pdf")
-        response.headers["Content-Disposition"] = f'attachment; filename="{title}.pdf"'
-        return response
-        
-    else: # PNG
-        png_bytes = generate_qr_image(short_url, settings, format="png")
-        response = Response(png_bytes, mimetype="image/png")
-        response.headers["Content-Disposition"] = f'attachment; filename="{title}.png"'
-        return response
+        if export_format == "svg":
+            svg_bytes = generate_qr_image(short_url, settings, format="svg")
+            response = Response(svg_bytes, mimetype="image/svg+xml")
+            response.headers["Content-Disposition"] = f'attachment; filename="{title}.svg"; filename*=UTF-8\'\'{encoded_filename}'
+            return response
+            
+        elif export_format == "eps":
+            png_bytes = generate_qr_image(short_url, settings, format="png")
+            img = Image.open(io.BytesIO(png_bytes)).convert("RGB")
+            eps_buffer = io.BytesIO()
+            img.save(eps_buffer, format="EPS")
+            eps_buffer.seek(0)
+            
+            response = Response(eps_buffer.getvalue(), mimetype="application/postscript")
+            response.headers["Content-Disposition"] = f'attachment; filename="{title}.eps"; filename*=UTF-8\'\'{encoded_filename}'
+            return response
+            
+        elif export_format == "pdf":
+            png_bytes = generate_qr_image(short_url, settings, format="png")
+            img = Image.open(io.BytesIO(png_bytes))
+            pdf_buffer = io.BytesIO()
+            img.save(pdf_buffer, format="PDF", resolution=300.0)
+            pdf_buffer.seek(0)
+            
+            response = Response(pdf_buffer.getvalue(), mimetype="application/pdf")
+            response.headers["Content-Disposition"] = f'attachment; filename="{title}.pdf"; filename*=UTF-8\'\'{encoded_filename}'
+            return response
+            
+        else: # PNG
+            png_bytes = generate_qr_image(short_url, settings, format="png")
+            response = Response(png_bytes, mimetype="image/png")
+            response.headers["Content-Disposition"] = f'attachment; filename="{title}.png"; filename*=UTF-8\'\'{encoded_filename}'
+            return response
+            
+    except Exception as e:
+        app.logger.error(f"Error exporting QR #{qr_id}: {e}", exc_info=True)
+        return jsonify({"error": f"QR aktarma hatası: {str(e)}"}), 500
 
 @app.route("/api/qr/<int:qr_id>/update_folder", methods=["POST"])
 def api_update_qr_folder(qr_id):
