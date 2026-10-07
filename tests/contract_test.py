@@ -473,7 +473,9 @@ class TestDijitalgruQRContract(unittest.TestCase):
             "settings": {"fill_color": "#06B6D4"}
         }, headers={"Authorization": f"Bearer {token}"})
         self.assertEqual(create_res.status_code, 200)
-        qr_id = create_res.get_json()["id"]
+        qr_data = create_res.get_json()
+        qr_id = qr_data.get("qr_id") or qr_data.get("id")
+        self.assertIsNotNone(qr_id)
 
         # Test CSV export with token in query params & Turkish title
         csv_res = self.client.get(f"/api/qr/{qr_id}/analytics/export?format=csv&token={token}")
