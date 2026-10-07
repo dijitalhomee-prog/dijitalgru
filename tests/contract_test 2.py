@@ -419,11 +419,11 @@ class TestDijitalgruQRContract(unittest.TestCase):
     def test_13_pricing_consistency(self):
         from payments import PLANS
         self.assertEqual(PLANS["starter"]["pricing"]["monthly"]["total_price"], 199.00)
-        self.assertEqual(PLANS["advanced"]["pricing"]["monthly"]["total_price"], 399.00)
-        self.assertEqual(PLANS["business"]["pricing"]["monthly"]["total_price"], 899.00)
+        self.assertEqual(PLANS["advanced"]["pricing"]["monthly"]["total_price"], 1000.00)
+        self.assertEqual(PLANS["business"]["pricing"]["monthly"]["total_price"], 2500.00)
         self.assertEqual(PLANS["starter"]["pricing"]["semi_annual"]["total_price"], 1134.00)
-        self.assertEqual(PLANS["advanced"]["pricing"]["semi_annual"]["total_price"], 2274.00)
-        self.assertEqual(PLANS["business"]["pricing"]["annual"]["total_price"], 9924.96)
+        self.assertEqual(PLANS["advanced"]["pricing"]["semi_annual"]["total_price"], 5700.00)
+        self.assertEqual(PLANS["business"]["pricing"]["annual"]["total_price"], 27600.00)
 
 if __name__ == "__main__":
     unittest.main()

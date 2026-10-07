@@ -361,8 +361,8 @@ def sync_missing_subscriptions():
     
     plan_prices = {
         "starter": 199.00,
-        "advanced": 399.00,
-        "business": 899.00
+        "advanced": 1000.00,
+        "business": 2500.00
     }
     
     try:

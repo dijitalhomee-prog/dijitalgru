@@ -436,7 +436,7 @@ class TestDijitalgruQRContract(unittest.TestCase):
         res = self.client.post("/api/admin/accounting/transactions/create", json={
             "user": cust_email,
             "plan_name": "Banka Havalesi - Advanced Paket",
-            "amount": 399.00,
+            "amount": 1000.00,
             "source": "havale_eft",
             "update_user_plan": True,
             "plan_key": "advanced"
@@ -454,7 +454,7 @@ class TestDijitalgruQRContract(unittest.TestCase):
         txs = tx_res.get_json()["transactions"]
         manual_tx = next((t for t in txs if t["user_id"] == cust_id), None)
         self.assertIsNotNone(manual_tx)
-        self.assertEqual(manual_tx["amount"], 399.00)
+        self.assertEqual(manual_tx["amount"], 1000.00)
         self.assertEqual(manual_tx["source"], "havale_eft")
 
 if __name__ == "__main__":

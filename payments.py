@@ -24,18 +24,18 @@ PLANS = {
         "name": "Profesyonel (Advanced)",
         "dynamic_limit": 25,
         "pricing": {
-            "monthly": {"price_per_month": 399.00, "total_price": 399.00, "months": 1, "label": "Aylık Paket"},
-            "semi_annual": {"price_per_month": 379.00, "total_price": 2274.00, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
-            "annual": {"price_per_month": 367.08, "total_price": 4404.96, "months": 12, "label": "Yıllık Peşin (%8 İndirimli)"}
+            "monthly": {"price_per_month": 1000.00, "total_price": 1000.00, "months": 1, "label": "Aylık Paket"},
+            "semi_annual": {"price_per_month": 950.00, "total_price": 5700.00, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
+            "annual": {"price_per_month": 920.00, "total_price": 11040.00, "months": 12, "label": "Yıllık Peşin (%8 İndirimli)"}
         }
     },
     "business": {
         "name": "Kurumsal (Business)",
         "dynamic_limit": 100,
         "pricing": {
-            "monthly": {"price_per_month": 899.00, "total_price": 899.00, "months": 1, "label": "Aylık Paket"},
-            "semi_annual": {"price_per_month": 854.00, "total_price": 5124.00, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
-            "annual": {"price_per_month": 827.08, "total_price": 9924.96, "months": 12, "label": "Yıllık Peşin (%8 İndirimli)"}
+            "monthly": {"price_per_month": 2500.00, "total_price": 2500.00, "months": 1, "label": "Aylık Paket"},
+            "semi_annual": {"price_per_month": 2375.00, "total_price": 14250.00, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
+            "annual": {"price_per_month": 2300.00, "total_price": 27600.00, "months": 12, "label": "Yıllık Peşin (%8 İndirimli)"}
         }
     },
     "test": {
