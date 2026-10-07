@@ -366,9 +366,6 @@ async function submitPlanUpdate() {
     const userId = document.getElementById("plan-modal-user-id").value;
     const plan = document.getElementById("plan-modal-select").value;
     const days = parseInt(document.getElementById("plan-modal-days").value || "30");
-    const amountVal = document.getElementById("plan-modal-amount").value;
-    const amount = amountVal !== "" ? parseFloat(amountVal) : 0.0;
-    const source = document.getElementById("plan-modal-source").value;
 
     const headers = getAuthHeader();
     if (!headers) return;
@@ -377,67 +374,15 @@ async function submitPlanUpdate() {
         const res = await fetch(`/api/admin/users/${userId}/update-plan`, {
             method: "POST",
             headers,
-            body: JSON.stringify({ plan, days, amount, source })
+            body: JSON.stringify({ plan, days })
         });
         const data = await res.json();
         if (res.ok) {
             alert("✅ " + data.message);
             closeModal("modal-update-plan");
             loadAdminData();
-            loadAccountingData();
         } else {
             alert("⚠️ " + (data.error || "Güncelleme başarısız."));
-        }
-    } catch (err) {
-        alert("Hata oluştu.");
-    }
-}
-
-function openAddTransactionModal(userEmail = '') {
-    if (userEmail) {
-        document.getElementById("tx-modal-user").value = userEmail;
-    }
-    openModal("modal-add-transaction");
-}
-
-async function submitAddTransaction() {
-    const user = document.getElementById("tx-modal-user").value.trim();
-    const planName = document.getElementById("tx-modal-plan-name").value.trim();
-    const amount = parseFloat(document.getElementById("tx-modal-amount").value || "0");
-    const source = document.getElementById("tx-modal-source").value;
-    const invoiceNo = document.getElementById("tx-modal-invoice").value.trim();
-    const updateUserPlan = document.getElementById("tx-modal-update-plan-check").checked;
-
-    if (!user) {
-        alert("Lütfen müşteri e-posta adresini veya ID'sini girin.");
-        return;
-    }
-
-    const headers = getAuthHeader();
-    if (!headers) return;
-
-    try {
-        const res = await fetch("/api/admin/accounting/transactions/create", {
-            method: "POST",
-            headers,
-            body: JSON.stringify({
-                user,
-                plan_name: planName,
-                amount,
-                source,
-                invoice_no: invoiceNo,
-                update_user_plan: updateUserPlan,
-                plan_key: planName.toLowerCase().includes("business") ? "business" : (planName.toLowerCase().includes("starter") ? "starter" : "advanced")
-            })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            alert("✅ " + data.message);
-            closeModal("modal-add-transaction");
-            loadAccountingData();
-            loadAdminData();
-        } else {
-            alert("⚠️ " + (data.error || "İşlem eklenemedi."));
         }
     } catch (err) {
         alert("Hata oluştu.");

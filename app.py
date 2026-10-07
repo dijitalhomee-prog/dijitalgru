@@ -1976,8 +1976,21 @@ def api_admin_accounting_transactions():
         
         if plan_filter and plan_filter.lower() not in d["plan_name"].lower():
             continue
-        if source_filter and source_filter.lower() != d["source"].lower():
-            continue
+        if source_filter:
+            sf = source_filter.lower()
+            s_val = (d["source"] or "").lower()
+            if sf == "manual_admin" and s_val not in ["manual_admin", "manual", "admin"] and not s_val.startswith("tx_manual") and not s_val.startswith("iyzi_manual"):
+                continue
+            elif sf == "iyzico" and "iyzico" not in s_val:
+                continue
+            elif sf == "havale_eft" and s_val not in ["havale_eft", "havale", "eft"]:
+                continue
+            elif sf == "kredi_karti" and s_val not in ["kredi_karti", "pos", "card"]:
+                continue
+            elif sf == "nakit" and s_val not in ["nakit", "cash"]:
+                continue
+            elif sf not in ["manual_admin", "iyzico", "havale_eft", "kredi_karti", "nakit"] and sf != s_val:
+                continue
             
         amount = float(d["amount"])
         # KDV calculation: 20% VAT in Turkey (Gross amount = Matrah * 1.20)
