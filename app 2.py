@@ -1,5 +1,6 @@
 import datetime
 import csv
+import re
 from flask import Flask, render_template, request, jsonify, redirect, send_file, Response, make_response
 import time
 import json
@@ -176,8 +177,8 @@ def redirect_qr(short_code):
         SELECT q.id, q.type, q.target_url, q.status, q.user_id, u.plan, u.subscription_end, u.account_status
         FROM qr_codes q
         LEFT JOIN users u ON q.user_id = u.id
-        WHERE q.short_code = ?
-        """, (short_code,))
+        WHERE q.short_code = ? OR q.custom_slug = ?
+        """, (short_code, short_code))
         qr_row = cursor.fetchone()
         cursor.close()
     except Exception as ex:
@@ -600,6 +601,14 @@ def api_upload_image():
         "filename": file.filename
     })
 
+def sanitize_slug(slug):
+    if not slug:
+        return None
+    tr_map = str.maketrans("çğıöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
+    clean = str(slug).translate(tr_map).lower().strip().replace(' ', '-')
+    clean = re.sub(r'[^a-z0-9_-]', '', clean)
+    return clean[:50] if clean else None
+
 @app.route("/api/qr/create", methods=["POST"])
 def api_qr_create():
     user = get_current_user()
@@ -618,6 +627,8 @@ def api_qr_create():
     settings = data.get("settings", {})
     vcard_payload = data.get("vcard_payload")
     menu_payload = data.get("menu_payload")
+    raw_custom_slug = (data.get("custom_slug") or data.get("slug") or "").strip()
+    custom_slug = sanitize_slug(raw_custom_slug)
     
     # Generate unique short code
     short_code = uuid.uuid4().hex[:7]
@@ -625,6 +636,12 @@ def api_qr_create():
     
     conn = get_db()
     cursor = conn.cursor()
+
+    if custom_slug:
+        cursor.execute("SELECT id FROM qr_codes WHERE short_code = ? OR custom_slug = ?", (custom_slug, custom_slug))
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({"error": f"'{custom_slug}' özel link uzantısı zaten kullanılıyor. Lütfen farklı bir uzantı seçin."}), 400
     
     is_dynamic = 1 if qr_type in ["url", "vcard", "company_card", "menu", "pdf_catalog", "pdf_viewer", "restaurant_menu", "social", "dynamic_whatsapp", "instagram", "linkedin", "pinterest", "facebook"] else 0
 
@@ -640,9 +657,9 @@ def api_qr_create():
     folder_name = (data.get("folder_name") or "Genel").strip() or "Genel"
 
     cursor.execute("""
-    INSERT INTO qr_codes (user_id, short_code, title, type, target_url, is_dynamic, custom_settings, status, folder_name, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
-    """, (user["id"], short_code, title, qr_type, target_url, is_dynamic, json.dumps(settings), folder_name, now, now))
+    INSERT INTO qr_codes (user_id, short_code, custom_slug, title, type, target_url, is_dynamic, custom_settings, status, folder_name, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
+    """, (user["id"], short_code, custom_slug, title, qr_type, target_url, is_dynamic, json.dumps(settings), folder_name, now, now))
     
     qr_id = cursor.lastrowid
     
@@ -823,6 +840,16 @@ def api_qr_update(qr_id):
         cursor.execute("UPDATE qr_codes SET title = ?, updated_at = ? WHERE id = ?", (title, now, qr_id))
     if status:
         cursor.execute("UPDATE qr_codes SET status = ?, updated_at = ? WHERE id = ?", (status, now, qr_id))
+
+    if "custom_slug" in data or "slug" in data:
+        raw_slug = data.get("custom_slug") if "custom_slug" in data else data.get("slug")
+        clean_slug = sanitize_slug(raw_slug)
+        if clean_slug:
+            cursor.execute("SELECT id FROM qr_codes WHERE (short_code = ? OR custom_slug = ?) AND id != ?", (clean_slug, clean_slug, qr_id))
+            if cursor.fetchone():
+                conn.close()
+                return jsonify({"error": f"'{clean_slug}' özel link uzantısı başka bir QR kod tarafından kullanılıyor."}), 400
+        cursor.execute("UPDATE qr_codes SET custom_slug = ?, updated_at = ? WHERE id = ?", (clean_slug, now, qr_id))
 
     folder_name = data.get("folder_name")
     if folder_name:
@@ -1082,13 +1109,13 @@ def api_qr_list():
     try:
         cursor.execute("""
         SELECT 
-            q.id, q.short_code, q.title, q.type, q.target_url, q.is_dynamic, q.custom_settings, q.status, q.scans_count, 
+            q.id, q.short_code, q.custom_slug, q.title, q.type, q.target_url, q.is_dynamic, q.custom_settings, q.status, q.scans_count, 
             COALESCE(q.folder_name, 'Genel') as folder_name, q.created_at, q.updated_at,
             COUNT(DISTINCT sl.ip_address) as unique_scans
         FROM qr_codes q
         LEFT JOIN scan_logs sl ON q.id = sl.qr_id
         WHERE q.user_id = ?
-        GROUP BY q.id, q.short_code, q.title, q.type, q.target_url, q.is_dynamic, q.custom_settings, q.status, q.scans_count, q.folder_name, q.created_at, q.updated_at
+        GROUP BY q.id, q.short_code, q.custom_slug, q.title, q.type, q.target_url, q.is_dynamic, q.custom_settings, q.status, q.scans_count, q.folder_name, q.created_at, q.updated_at
         ORDER BY q.created_at DESC
         """, (user["id"],))
         rows = cursor.fetchall()
@@ -1102,8 +1129,9 @@ def api_qr_list():
     app_url = request.host_url.rstrip("/")
     for r in rows:
         item = dict(r)
-        short_code = item.get("short_code", "")
-        item["short_url"] = f"{app_url}/r/{short_code}"
+        active_code = item.get("custom_slug") or item.get("short_code", "")
+        item["short_url"] = f"{app_url}/r/{active_code}"
+        item["custom_slug"] = item.get("custom_slug") or ""
         item["scan_count"] = item.get("scans_count", 0)
         item["unique_scans"] = item.get("unique_scans", 0)
         item["folder_name"] = item.get("folder_name", "Genel")
@@ -1368,7 +1396,7 @@ def api_qr_analytics_export(qr_id):
     export_format = request.args.get("format", "csv").lower()
 
     raw_title = qr["title"] if (qr and qr.get("title")) else f"QR_{qr_id}"
-    tr_map = str.maketrans("çğıiöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
+    tr_map = str.maketrans("çğıöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
     ascii_title = str(raw_title).translate(tr_map)
     clean_title = "".join(c for c in ascii_title if c.isalnum() or c in (' ', '_', '-')).strip().replace(' ', '_') or f"QR_{qr_id}"
 

@@ -6,28 +6,37 @@ let uploadedPdfUrl = null;
 // Cycle Pricing Config (6-Month %5 OFF | Annual)
 const CYCLE_PRICES = {
     monthly: {
-        starter: '<span style="font-size: 38px; color: #ffffff; font-weight: 800;">₺246</span>',
-        advanced: '<span style="font-size: 38px; color: #ffffff; font-weight: 800;">₺615</span>',
-        business: '<span style="font-size: 38px; color: #ffffff; font-weight: 800;">₺1.869</span>',
-        subtextStarter: '💳 Aylık Ödeme: 246 ₺ / Ay',
-        subtextAdvanced: '💳 Aylık Ödeme: 615 ₺ / Ay',
-        subtextBusiness: '💳 Aylık Ödeme: 1.869 ₺ / Ay'
+        starter: '<span style="font-size: 44px; color: #ffffff; font-weight: 900; letter-spacing: -1px;">₺246</span>',
+        advanced: '<span style="font-size: 44px; color: #ffffff; font-weight: 900; letter-spacing: -1px;">₺615</span>',
+        business: '<span style="font-size: 44px; color: #ffffff; font-weight: 900; letter-spacing: -1px;">₺1.869</span>',
+        subtextStarter: '💳 Aylık Ödeme: <span style="font-size: 20px; font-weight: 900; color: #38bdf8;">246 ₺</span> <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">/ Ay</span>',
+        subtextAdvanced: '💳 Aylık Ödeme: <span style="font-size: 20px; font-weight: 900; color: #38bdf8;">615 ₺</span> <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">/ Ay</span>',
+        subtextBusiness: '💳 Aylık Ödeme: <span style="font-size: 20px; font-weight: 900; color: #38bdf8;">1.869 ₺</span> <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">/ Ay</span>',
+        badgeBg: 'rgba(56, 189, 248, 0.12)',
+        badgeBorder: 'rgba(56, 189, 248, 0.3)',
+        badgeColor: '#38bdf8'
     },
     semi_annual: {
-        starter: '<s style="font-size: 20px; color: #94a3b8; margin-right: 8px;">₺246</s> <span style="font-size: 38px; color: #10b981; font-weight: 800;">₺234</span>',
-        advanced: '<s style="font-size: 20px; color: #94a3b8; margin-right: 8px;">₺615</s> <span style="font-size: 38px; color: #10b981; font-weight: 800;">₺584</span>',
-        business: '<s style="font-size: 20px; color: #94a3b8; margin-right: 8px;">₺1.869</s> <span style="font-size: 38px; color: #10b981; font-weight: 800;">₺1.776</span>',
-        subtextStarter: '🔥 6 Aylık Peşin Toplam: 1.402 ₺ (Aylık 234 ₺)',
-        subtextAdvanced: '🔥 6 Aylık Peşin Toplam: 3.506 ₺ (Aylık 584 ₺)',
-        subtextBusiness: '🔥 6 Aylık Peşin Toplam: 10.653 ₺ (Aylık 1.776 ₺)'
+        starter: '<s style="font-size: 22px; color: #94a3b8; margin-right: 8px; font-weight: 600;">₺246</s> <span style="font-size: 44px; color: #10b981; font-weight: 900; letter-spacing: -1px;">₺234</span>',
+        advanced: '<s style="font-size: 22px; color: #94a3b8; margin-right: 8px; font-weight: 600;">₺615</s> <span style="font-size: 44px; color: #10b981; font-weight: 900; letter-spacing: -1px;">₺584</span>',
+        business: '<s style="font-size: 22px; color: #94a3b8; margin-right: 8px; font-weight: 600;">₺1.869</s> <span style="font-size: 44px; color: #10b981; font-weight: 900; letter-spacing: -1px;">₺1.776</span>',
+        subtextStarter: '🔥 6 Aylık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #34d399;">1.402 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(Aylık 234 ₺)</span>',
+        subtextAdvanced: '🔥 6 Aylık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #34d399;">3.506 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(Aylık 584 ₺)</span>',
+        subtextBusiness: '🔥 6 Aylık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #34d399;">10.653 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(Aylık 1.776 ₺)</span>',
+        badgeBg: 'rgba(16, 185, 129, 0.12)',
+        badgeBorder: 'rgba(16, 185, 129, 0.3)',
+        badgeColor: '#34d399'
     },
     annual: {
-        starter: '<span style="font-size: 38px; color: #818cf8; font-weight: 800;">₺246</span>',
-        advanced: '<span style="font-size: 38px; color: #818cf8; font-weight: 800;">₺615</span>',
-        business: '<span style="font-size: 38px; color: #818cf8; font-weight: 800;">₺1.870</span>',
-        subtextStarter: '⭐ Yıllık Peşin Toplam: 2.952 ₺ (12 Ay)',
-        subtextAdvanced: '⭐ Yıllık Peşin Toplam: 7.380 ₺ (12 Ay)',
-        subtextBusiness: '⭐ Yıllık Peşin Toplam: 22.435 ₺ (12 Ay)'
+        starter: '<span style="font-size: 44px; color: #a5b4fc; font-weight: 900; letter-spacing: -1px;">₺246</span>',
+        advanced: '<span style="font-size: 44px; color: #a5b4fc; font-weight: 900; letter-spacing: -1px;">₺615</span>',
+        business: '<span style="font-size: 44px; color: #a5b4fc; font-weight: 900; letter-spacing: -1px;">₺1.869</span>',
+        subtextStarter: '⭐ Yıllık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #818cf8;">2.952 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(12 Ay)</span>',
+        subtextAdvanced: '⭐ Yıllık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #818cf8;">7.380 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(12 Ay)</span>',
+        subtextBusiness: '⭐ Yıllık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #818cf8;">22.435 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(12 Ay)</span>',
+        badgeBg: 'rgba(99, 102, 241, 0.12)',
+        badgeBorder: 'rgba(99, 102, 241, 0.3)',
+        badgeColor: '#818cf8'
     }
 };
 
@@ -1993,16 +2002,31 @@ function closeModal(id) {
 function setBillingCycle(cycle) {
     currentCycle = cycle;
     document.querySelectorAll(".cycle-btn").forEach(btn => btn.classList.remove("active"));
-    document.querySelector(`[data-cycle="${cycle}"]`).classList.add("active");
+    const activeBtn = document.querySelector(`[data-cycle="${cycle}"]`);
+    if (activeBtn) activeBtn.classList.add("active");
 
     const p = CYCLE_PRICES[cycle];
-    document.getElementById("price-starter").innerHTML = `${p.starter} <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span>`;
-    document.getElementById("price-advanced").innerHTML = `${p.advanced} <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span>`;
-    document.getElementById("price-business").innerHTML = `${p.business} <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">/ ay</span>`;
+    if (!p) return;
 
-    document.getElementById("subtext-starter").innerText = p.subtextStarter;
-    document.getElementById("subtext-advanced").innerText = p.subtextAdvanced;
-    document.getElementById("subtext-business").innerText = p.subtextBusiness;
+    document.getElementById("price-starter").innerHTML = `${p.starter} <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">/ ay</span>`;
+    document.getElementById("price-advanced").innerHTML = `${p.advanced} <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">/ ay</span>`;
+    document.getElementById("price-business").innerHTML = `${p.business} <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">/ ay</span>`;
+
+    const starterSub = document.getElementById("subtext-starter");
+    const advancedSub = document.getElementById("subtext-advanced");
+    const businessSub = document.getElementById("subtext-business");
+
+    if (starterSub) starterSub.innerHTML = p.subtextStarter;
+    if (advancedSub) advancedSub.innerHTML = p.subtextAdvanced;
+    if (businessSub) businessSub.innerHTML = p.subtextBusiness;
+
+    [starterSub, advancedSub, businessSub].forEach(el => {
+        if (el) {
+            if (p.badgeBg) el.style.background = p.badgeBg;
+            if (p.badgeBorder) el.style.borderColor = p.badgeBorder;
+            if (p.badgeColor) el.style.color = p.badgeColor;
+        }
+    });
 }
 
 // Buy Plan with iyzico Checkout
