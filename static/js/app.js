@@ -2445,7 +2445,12 @@ function downloadQRAnalyticsDirect(qrId, format) {
         return;
     }
     const downloadUrl = `/api/qr/${qrId}/analytics/export?format=${format || 'csv'}&token=${encodeURIComponent(token)}`;
-    window.location.href = downloadUrl;
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
 // QR Code Edit Modal Handlers

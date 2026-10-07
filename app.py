@@ -1373,6 +1373,11 @@ def api_qr_analytics_export(qr_id):
 
     export_format = request.args.get("format", "csv").lower()
 
+    raw_title = qr["title"] if (qr and qr.get("title")) else f"QR_{qr_id}"
+    tr_map = str.maketrans("çğıiöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
+    ascii_title = str(raw_title).translate(tr_map)
+    clean_title = "".join(c for c in ascii_title if c.isalnum() or c in (' ', '_', '-')).strip().replace(' ', '_') or f"QR_{qr_id}"
+
     if export_format == "json":
         json_data = []
         for s in scans:
@@ -1382,12 +1387,22 @@ def api_qr_analytics_export(qr_id):
             except Exception:
                 row["scanned_at_formatted"] = ""
             json_data.append(row)
-        return jsonify({
+        
+        json_bytes = json.dumps({
             "qr_id": qr_id,
             "title": qr["title"],
             "total_logs": len(json_data),
             "scan_logs": json_data
-        })
+        }, ensure_ascii=False, indent=2).encode('utf-8')
+        
+        buffer = io.BytesIO(json_bytes)
+        buffer.seek(0)
+        return send_file(
+            buffer,
+            mimetype="application/json",
+            as_attachment=True,
+            download_name=f"Analitik_{clean_title}_QR{qr_id}.json"
+        )
 
     # Default CSV Export with UTF-8 BOM (\ufeff) for Excel compatibility
     output = io.StringIO()
@@ -1414,17 +1429,15 @@ def api_qr_analytics_export(qr_id):
             s["user_agent"] or "-"
         ])
 
-    csv_content = output.getvalue()
-    clean_title = "".join(c for c in qr["title"] if c.isalnum() or c in (' ', '_', '-')).strip().replace(' ', '_') or f"QR_{qr_id}"
-    filename = f"Analitik_{clean_title}_QR{qr_id}.csv"
+    csv_bytes = output.getvalue().encode('utf-8')
+    buffer = io.BytesIO(csv_bytes)
+    buffer.seek(0)
 
-    return Response(
-        csv_content,
+    return send_file(
+        buffer,
         mimetype="text/csv",
-        headers={
-            "Content-Disposition": f"attachment; filename={filename}",
-            "Content-Type": "text/csv; charset=utf-8"
-        }
+        as_attachment=True,
+        download_name=f"Analitik_{clean_title}_QR{qr_id}.csv"
     )
 
 @app.route("/api/subscriptions/plans", methods=["GET"])

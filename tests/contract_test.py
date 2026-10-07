@@ -457,6 +457,34 @@ class TestDijitalgruQRContract(unittest.TestCase):
         self.assertEqual(manual_tx["amount"], 1000.00)
         self.assertEqual(manual_tx["source"], "havale_eft")
 
+    def test_14_analytics_export_with_turkish_chars(self):
+        email = f"analytics_user_{int(time.time())}@dijitalgru.com"
+        reg_res = self.client.post("/api/auth/register", json={
+            "name": "Korto İstanbul Tester",
+            "email": email,
+            "password": "Password123!"
+        })
+        token = reg_res.get_json()["token"]
+
+        create_res = self.client.post("/api/qr/create", json={
+            "title": "Korto İstanbul — Tarama Analitiği",
+            "type": "url",
+            "target_url": "https://dijitalgru.com/korto",
+            "settings": {"fill_color": "#06B6D4"}
+        }, headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(create_res.status_code, 200)
+        qr_id = create_res.get_json()["id"]
+
+        # Test CSV export with token in query params & Turkish title
+        csv_res = self.client.get(f"/api/qr/{qr_id}/analytics/export?format=csv&token={token}")
+        self.assertEqual(csv_res.status_code, 200)
+        self.assertIn("Tarih / Saat", csv_res.get_data(as_text=True))
+
+        # Test JSON export with token in query params
+        json_res = self.client.get(f"/api/qr/{qr_id}/analytics/export?format=json&token={token}")
+        self.assertEqual(json_res.status_code, 200)
+        self.assertEqual(json_res.headers["Content-Type"], "application/json")
+
 if __name__ == "__main__":
     unittest.main()
 
