@@ -1211,6 +1211,17 @@ def api_export_qr(qr_id):
         app.logger.error(f"Error exporting QR #{qr_id}: {e}", exc_info=True)
         return jsonify({"error": f"QR aktarma hatası: {str(e)}"}), 500
 
+@app.route("/api/debug/qr/<int:qr_id>", methods=["GET"])
+def api_debug_qr(qr_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM qr_codes WHERE id = ?", (qr_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return jsonify({"error": "Not found"}), 404
+    return jsonify(dict(row))
+
 @app.route("/api/qr/<int:qr_id>/update_folder", methods=["POST"])
 def api_update_qr_folder(qr_id):
     user = get_current_user()
