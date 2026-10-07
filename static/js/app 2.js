@@ -1947,9 +1947,9 @@ function renderQRList(codes) {
                     <button onclick="downloadQRAnalyticsDirect(${qr.id}, 'csv')" class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); font-weight: 700; cursor: pointer;">
                         📊 Analiz İndir (CSV)
                     </button>
-                    <a href="/api/qr/export/${qr.id}?format=png" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;"> PNG İndir</a>
-                    <a href="/api/qr/export/${qr.id}?format=svg" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;"> SVG (Vektörel)</a>
-                    <a href="/api/qr/export/${qr.id}?format=eps" class="btn-primary" style="padding: 5px 10px; font-size: 11px;"> EPS (Vektörel Baskı)</a>
+                    <a href="/api/qr/${qr.id}/download?format=png" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;"> PNG İndir</a>
+                    <a href="/api/qr/${qr.id}/download?format=svg" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;"> SVG (Vektörel)</a>
+                    <a href="/api/qr/${qr.id}/download?format=eps" class="btn-primary" style="padding: 5px 10px; font-size: 11px;"> EPS (Vektörel Baskı)</a>
                 </div>
 
             </div>
