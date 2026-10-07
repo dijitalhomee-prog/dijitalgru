@@ -78,71 +78,71 @@ def generate_qr_image(data, settings=None, format="png"):
 
     # Frame Overlay
     if frame_style != "none":
-        w, h = img.size
-        frame_padding = 40
-        bottom_banner_h = 60
-        
-        new_w = w + (frame_padding * 2)
-        new_h = h + (frame_padding * 2) + bottom_banner_h
+        try:
+            w, h = img.size
+            frame_padding = 40
+            bottom_banner_h = 60
+            
+            new_w = w + (frame_padding * 2)
+            new_h = h + (frame_padding * 2) + bottom_banner_h
 
-        framed_img = Image.new("RGB", (new_w, new_h), back_rgb)
-        draw = ImageDraw.Draw(framed_img)
+            framed_img = Image.new("RGB", (new_w, new_h), back_rgb)
+            draw = ImageDraw.Draw(framed_img)
 
-        # Outer border
-        draw.rectangle([5, 5, new_w - 5, new_h - 5], outline=frame_rgb, width=4)
-        
-        # Paste QR code in center
-        framed_img.paste(img, (frame_padding, frame_padding))
+            # Outer border
+            draw.rectangle([5, 5, new_w - 5, new_h - 5], outline=frame_rgb, width=4)
+            
+            # Paste QR code in center
+            framed_img.paste(img, (frame_padding, frame_padding))
 
-        # Bottom banner with text
-        draw.rectangle([15, new_h - bottom_banner_h, new_w - 15, new_h - 15], fill=frame_rgb)
-        
-        # Robust TrueType Font loading with full Turkish character support (ç, ğ, ı, ö, ş, ü, İ, Ğ, Ü, Ş, Ö, Ç)
-        font = None
-        font_size = max(16, int(bottom_banner_h * 0.35))
-        
-        font_candidates = [
-            os.path.join(os.path.dirname(__file__), "static", "fonts", "CustomFont.ttf"),
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
-            "/System/Library/Fonts/Supplemental/Arial.ttf",
-            "/System/Library/Fonts/Helvetica.ttc",
-            "/Library/Fonts/Arial.ttf"
-        ]
-        
-        for fpath in font_candidates:
-            if os.path.exists(fpath):
+            # Bottom banner with text
+            draw.rectangle([15, new_h - bottom_banner_h, new_w - 15, new_h - 15], fill=frame_rgb)
+            
+            font = None
+            font_size = max(16, int(bottom_banner_h * 0.35))
+            
+            font_candidates = [
+                os.path.join(os.path.dirname(__file__), "static", "fonts", "CustomFont.ttf"),
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
+            ]
+            
+            for fpath in font_candidates:
+                if os.path.exists(fpath):
+                    try:
+                        font = ImageFont.truetype(fpath, size=font_size)
+                        break
+                    except Exception:
+                        pass
+                        
+            if font is None:
                 try:
-                    font = ImageFont.truetype(fpath, size=font_size)
-                    break
+                    font = ImageFont.load_default()
                 except Exception:
-                    pass
-                    
-        if font is None:
+                    font = None
+
+            if not frame_text:
+                frame_text = "Beni Tara!"
+            frame_text_str = str(frame_text)
+
             try:
-                font = ImageFont.load_default()
+                text_bbox = draw.textbbox((0, 0), frame_text_str, font=font)
+                text_w = text_bbox[2] - text_bbox[0]
+                text_h = text_bbox[3] - text_bbox[1]
             except Exception:
-                font = None
+                text_w, text_h = 100, 20
 
-        if not frame_text:
-            frame_text = "Beni Tara!"
-        frame_text_str = str(frame_text)
+            text_x = max(0, (new_w - text_w) // 2)
+            text_y = max(0, (new_h - bottom_banner_h) + (bottom_banner_h - 15 - text_h) // 2)
+            try:
+                draw.text((text_x, text_y), frame_text_str, fill=frame_text_rgb, font=font)
+            except Exception:
+                pass
 
-        try:
-            text_bbox = draw.textbbox((0, 0), frame_text_str, font=font)
-            text_w = text_bbox[2] - text_bbox[0]
-            text_h = text_bbox[3] - text_bbox[1]
+            img = framed_img
         except Exception:
-            text_w, text_h = 100, 20
-
-        text_x = max(0, (new_w - text_w) // 2)
-        text_y = max(0, (new_h - bottom_banner_h) + (bottom_banner_h - 15 - text_h) // 2)
-        try:
-            draw.text((text_x, text_y), frame_text_str, fill=frame_text_rgb, font=font)
-        except Exception:
+            # Fallback to plain QR code image if frame generation encounters any OS/font issue
             pass
-
-        img = framed_img
 
     buffer = io.BytesIO()
     
