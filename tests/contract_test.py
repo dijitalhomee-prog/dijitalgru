@@ -436,7 +436,7 @@ class TestDijitalgruQRContract(unittest.TestCase):
         res = self.client.post("/api/admin/accounting/transactions/create", json={
             "user": cust_email,
             "plan_name": "Banka Havalesi - Advanced Paket",
-            "amount": 1000.00,
+            "amount": 615.00,
             "source": "havale_eft",
             "update_user_plan": True,
             "plan_key": "advanced"
@@ -454,7 +454,7 @@ class TestDijitalgruQRContract(unittest.TestCase):
         txs = tx_res.get_json()["transactions"]
         manual_tx = next((t for t in txs if t["user_id"] == cust_id), None)
         self.assertIsNotNone(manual_tx)
-        self.assertEqual(manual_tx["amount"], 1000.00)
+        self.assertEqual(manual_tx["amount"], 615.00)
         self.assertEqual(manual_tx["source"], "havale_eft")
 
     def test_14_analytics_export_with_turkish_chars(self):
@@ -486,6 +486,47 @@ class TestDijitalgruQRContract(unittest.TestCase):
         json_res = self.client.get(f"/api/qr/{qr_id}/analytics/export?format=json&token={token}")
         self.assertEqual(json_res.status_code, 200)
         self.assertEqual(json_res.headers["Content-Type"], "application/json")
+
+    def test_15_custom_slug_functionality(self):
+        email = f"slug_user_{int(time.time())}@dijitalgru.com"
+        reg_res = self.client.post("/api/auth/register", json={
+            "name": "Slug Tester",
+            "email": email,
+            "password": "Password123!"
+        })
+        token = reg_res.get_json()["token"]
+
+        # 1. Create QR with custom slug "Korto İstanbul"
+        create_res = self.client.post("/api/qr/create", json={
+            "title": "Korto İstanbul Kafe",
+            "type": "url",
+            "target_url": "https://dijitalgru.com/korto-menu",
+            "custom_slug": "Korto İstanbul"  # Should sanitize to "korto-istanbul"
+        }, headers={"Authorization": f"Bearer {token}"})
+
+        self.assertEqual(create_res.status_code, 200)
+        qr_data = create_res.get_json()
+        short_code = qr_data.get("short_code")
+
+        # 2. Test redirect via custom slug /r/korto-istanbul
+        slug_redir = self.client.get("/r/korto-istanbul")
+        self.assertEqual(slug_redir.status_code, 302)
+        self.assertEqual(slug_redir.location, "https://dijitalgru.com/korto-menu")
+
+        # 3. Test backward compatibility: redirect via short_code still works 100%
+        code_redir = self.client.get(f"/r/{short_code}")
+        self.assertEqual(code_redir.status_code, 302)
+        self.assertEqual(code_redir.location, "https://dijitalgru.com/korto-menu")
+
+        # 4. Test duplicate slug rejection (400)
+        dup_res = self.client.post("/api/qr/create", json={
+            "title": "Duplicate Slug Test",
+            "type": "url",
+            "target_url": "https://dijitalgru.com",
+            "custom_slug": "korto-istanbul"
+        }, headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(dup_res.status_code, 400)
+        self.assertIn("zaten kullanılıyor", dup_res.get_json()["error"])
 
 if __name__ == "__main__":
     unittest.main()

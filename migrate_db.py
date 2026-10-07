@@ -245,6 +245,25 @@ def run_migrations():
         conn.rollback()
         print("⚠️ Card image migration note:", e)
 
+    # 8. Ensure custom_slug column in qr_codes table
+    try:
+        if is_postgres():
+            cursor.execute("ALTER TABLE qr_codes ADD COLUMN IF NOT EXISTS custom_slug VARCHAR(100) UNIQUE;")
+        else:
+            try:
+                cursor.execute("ALTER TABLE qr_codes ADD COLUMN custom_slug TEXT;")
+            except Exception:
+                pass
+            try:
+                cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_qr_codes_custom_slug ON qr_codes(custom_slug);")
+            except Exception:
+                pass
+        conn.commit()
+        print("✅ Custom slug column ensured.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ Custom slug migration note:", e)
+
     # 8. Auto-repair empty target_url in qr_codes for pdf/menu/vcard types
     try:
         if is_postgres():
@@ -360,9 +379,9 @@ def sync_missing_subscriptions():
     cursor = conn.cursor()
     
     plan_prices = {
-        "starter": 199.00,
-        "advanced": 1000.00,
-        "business": 2500.00
+        "starter": 246.00,
+        "advanced": 615.00,
+        "business": 1869.00
     }
     
     try:
