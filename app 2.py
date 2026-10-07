@@ -733,39 +733,62 @@ def api_qr_create():
 
 @app.route("/api/qr/<int:qr_id>/download", methods=["GET"])
 def api_qr_download(qr_id):
-    fmt = request.args.get("format", "png").lower()
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM qr_codes WHERE id = ?", (qr_id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    if not row:
-        return "QR kod bulunamadı", 404
-        
-    qr = dict(row)
-    app_url = request.host_url.rstrip("/")
-    redirect_url = f"{app_url}/r/{qr['short_code']}"
-    
     try:
-        settings = json.loads(qr["custom_settings"])
-    except Exception:
+        fmt = (request.args.get("format") or "png").lower()
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM qr_codes WHERE id = ?", (qr_id,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if not row:
+            return "QR kod bulunamadı", 404
+            
+        qr = dict(row)
+        app_url = request.host_url.rstrip("/")
+        redirect_url = f"{app_url}/r/{qr.get('short_code', '')}"
+        
         settings = {}
+        raw_settings = qr.get("custom_settings")
+        if raw_settings:
+            if isinstance(raw_settings, dict):
+                settings = raw_settings
+            elif isinstance(raw_settings, str):
+                try:
+                    settings = json.loads(raw_settings)
+                except Exception:
+                    settings = {}
+        if not isinstance(settings, dict):
+            settings = {}
+            
+        img_data = generate_qr_image(redirect_url, settings, format=fmt)
         
-    img_data = generate_qr_image(redirect_url, settings, format=fmt)
-    
-    mimetype = "image/png"
-    if fmt in ["jpg", "jpeg"]:
-        mimetype = "image/jpeg"
-    elif fmt == "svg":
-        mimetype = "image/svg+xml"
+        mimetype = "image/png"
+        if fmt in ["jpg", "jpeg"]:
+            mimetype = "image/jpeg"
+        elif fmt == "svg":
+            mimetype = "image/svg+xml"
+        elif fmt == "eps":
+            mimetype = "application/postscript"
+        elif fmt == "pdf":
+            mimetype = "application/pdf"
+            
+        raw_title = qr.get("title") or f"qr_code_{qr.get('short_code', '')}"
+        title = str(raw_title).strip().replace(" ", "_")
+        filename = f"{title}.{fmt}"
         
-    filename = f"qr_code_{qr['short_code']}.{fmt}"
-    buffer = io.BytesIO(img_data)
-    buffer.seek(0)
-    
-    return send_file(buffer, mimetype=mimetype, as_attachment=True, download_name=filename)
+        buffer = io.BytesIO(img_data)
+        buffer.seek(0)
+        return send_file(
+            buffer,
+            mimetype=mimetype,
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        app.logger.error(f"Error downloading QR #{qr_id}: {e}", exc_info=True)
+        return jsonify({"error": f"QR indirme hatası: {str(e)}"}), 500
 
 @app.route("/api/qr/<int:qr_id>/update", methods=["POST"])
 def api_qr_update(qr_id):

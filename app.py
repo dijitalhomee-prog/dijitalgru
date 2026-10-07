@@ -782,11 +782,16 @@ def api_qr_download(qr_id):
             
         raw_title = qr.get("title") or f"qr_code_{qr.get('short_code', '')}"
         title = str(raw_title).strip().replace(" ", "_")
-        encoded_filename = quote(f"{title}.{fmt}")
+        filename = f"{title}.{fmt}"
         
-        response = Response(img_data, mimetype=mimetype)
-        response.headers["Content-Disposition"] = f'attachment; filename="{title}.{fmt}"; filename*=UTF-8\'\'{encoded_filename}'
-        return response
+        buffer = io.BytesIO(img_data)
+        buffer.seek(0)
+        return send_file(
+            buffer,
+            mimetype=mimetype,
+            as_attachment=True,
+            download_name=filename
+        )
     except Exception as e:
         app.logger.error(f"Error downloading QR #{qr_id}: {e}", exc_info=True)
         return jsonify({"error": f"QR indirme hatası: {str(e)}"}), 500
