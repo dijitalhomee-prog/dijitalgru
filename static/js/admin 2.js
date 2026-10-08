@@ -224,10 +224,19 @@ function filterAdminUsers() {
     const plan = document.getElementById("admin-filter-plan").value;
     const status = document.getElementById("admin-filter-status").value;
 
+    const nowSec = Math.floor(Date.now() / 1000);
+
     const filtered = allUsersCache.filter(u => {
         const matchesQ = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
         const matchesPlan = !plan || u.plan === plan;
-        const matchesStatus = !status || u.account_status === status;
+
+        const isExpired = u.subscription_end && u.subscription_end > 0 && u.subscription_end < nowSec;
+        let effectiveStatus = u.account_status || 'active';
+        if (effectiveStatus !== 'suspended' && isExpired) {
+            effectiveStatus = 'expired';
+        }
+
+        const matchesStatus = !status || effectiveStatus === status || (status === 'active' && u.account_status === 'active' && !isExpired);
         return matchesQ && matchesPlan && matchesStatus;
     });
 
@@ -247,11 +256,27 @@ function renderAdminUsersTable(users) {
         return;
     }
 
+    const nowSec = Math.floor(Date.now() / 1000);
+
     tbody.innerHTML = users.map(u => {
         const planClass = `badge-${u.plan || 'free'}`;
-        const statusClass = u.account_status === 'suspended' ? 'badge-suspended' : 'badge-active';
-        const statusText = u.account_status === 'suspended' ? '🚫 ASKIDA' : '✅ AKTİF';
-        
+        const isExpired = u.subscription_end && u.subscription_end > 0 && u.subscription_end < nowSec;
+
+        let statusClass = 'badge-active';
+        let statusText = '✅ AKTİF';
+
+        if (u.account_status === 'suspended') {
+            statusClass = 'badge-suspended';
+            statusText = '🚫 ASKIDA';
+        } else if (isExpired) {
+            statusClass = 'badge-expired';
+            statusText = '⌛ SÜRESİ DOLDU';
+        }
+
+        const subEndText = isExpired 
+            ? `<span style="color: #f59e0b; font-weight: 700;">${formatDate(u.subscription_end)}</span>` 
+            : formatDate(u.subscription_end);
+
         let suspendBtn = u.account_status === 'suspended' 
             ? `<button class="btn-action btn-activate" onclick="activateUser(${u.id}, '${u.email}')">Aktif Et</button>`
             : `<button class="btn-action btn-suspend" onclick="suspendUser(${u.id}, '${u.email}')">Askıya Al</button>`;
@@ -264,7 +289,7 @@ function renderAdminUsersTable(users) {
                     <div style="font-size: 12px; color: #94a3b8;">${u.email}</div>
                 </td>
                 <td><span class="admin-badge ${planClass}">${(u.plan || 'free').toUpperCase()}</span></td>
-                <td style="font-size: 13px;">${formatDate(u.subscription_end)}</td>
+                <td style="font-size: 13px;">${subEndText}</td>
                 <td style="font-weight: 700; color: #facc15;">${u.total_qr_count || 0} QR</td>
                 <td><span class="admin-badge ${statusClass}">${statusText}</span></td>
                 <td style="font-size: 13px;">${formatDate(u.created_at)}</td>
