@@ -18,9 +18,18 @@ class SmartCursor:
     def execute(self, sql, params=()):
         if self.is_pg:
             sql_pg = sql.replace("?", "%s")
+            if not params:
+                sql_pg = sql_pg.replace("%", "%%")
+                exec_params = None
+            else:
+                exec_params = params
+
             if "INSERT INTO" in sql_pg.upper() and "RETURNING" not in sql_pg.upper():
                 sql_pg += " RETURNING id"
-                self.cursor.execute(sql_pg, params)
+                if exec_params is None:
+                    self.cursor.execute(sql_pg)
+                else:
+                    self.cursor.execute(sql_pg, exec_params)
                 try:
                     res = self.cursor.fetchone()
                     if res:
@@ -28,7 +37,11 @@ class SmartCursor:
                 except Exception:
                     pass
                 return self.cursor
-            return self.cursor.execute(sql_pg, params)
+
+            if exec_params is None:
+                return self.cursor.execute(sql_pg)
+            else:
+                return self.cursor.execute(sql_pg, exec_params)
         else:
             res = self.cursor.execute(sql, params)
             self.last_inserted_id = getattr(self.cursor, "lastrowid", None)
