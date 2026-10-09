@@ -71,6 +71,8 @@ async function loadAccountingData() {
             
             const b = acc.active_paid_subscriptions || {};
             document.getElementById("acc-breakdown").innerText = `Starter: ${b.starter || 0} | Advanced: ${b.advanced || 0} | Business: ${b.business || 0}`;
+
+            renderMonthlyBreakdownTable(acc.monthly_breakdown || []);
         }
 
         const resTx = await fetch("/api/admin/accounting/transactions", { headers });
@@ -87,17 +89,68 @@ async function loadAccountingData() {
     }
 }
 
+function renderMonthlyBreakdownTable(months) {
+    const tbody = document.getElementById("acc-monthly-tbody");
+    const monthSelect = document.getElementById("acc-filter-month");
+    
+    if (monthSelect) {
+        monthSelect.innerHTML = `<option value="">Tüm Aylar</option>` + months.map(m => `
+            <option value="${m.month_key}">${m.month_label} (${(m.total_revenue || 0).toLocaleString("tr-TR")} ₺)</option>
+        `).join("");
+    }
+
+    if (!tbody) return;
+
+    if (!months || months.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 15px;">Henüz kaydedilmiş ödeme kaydı yok.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = months.map(m => `
+        <tr>
+            <td style="font-weight: 800; color: white;">📅 ${m.month_label}</td>
+            <td style="font-weight: 800; color: #34d399;">${(m.total_revenue || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
+            <td style="font-size: 13px; color: #cbd5e1;">${(m.net_matrah || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
+            <td style="font-size: 13px; color: #60a5fa;">${(m.kdv_amount || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
+            <td style="font-weight: 700; color: #facc15;">${m.count} Ödeme</td>
+            <td>
+                <button class="btn-action btn-view" onclick="selectMonthFilter('${m.month_key}')">İncele</button>
+            </td>
+        </tr>
+    `).join("");
+}
+
+function selectMonthFilter(monthKey) {
+    const monthSelect = document.getElementById("acc-filter-month");
+    if (monthSelect) {
+        monthSelect.value = monthKey;
+        filterAccountingTransactions();
+        monthSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
 function filterAccountingTransactions() {
     const sourceEl = document.getElementById("acc-filter-source");
     const searchEl = document.getElementById("acc-filter-search");
+    const monthEl = document.getElementById("acc-filter-month");
     
     const source = sourceEl ? (sourceEl.value || "").trim().toLowerCase() : "";
     const query = searchEl ? (searchEl.value || "").trim().toLowerCase() : "";
+    const selectedMonth = monthEl ? (monthEl.value || "").trim() : "";
     
     const filtered = allTransactionsCache.filter(tx => {
         const txSource = (tx.source || "").trim().toLowerCase();
         
-        // 1. Source filter check
+        // 1. Month filter check
+        if (selectedMonth && tx.created_at) {
+            const dt = new Date(tx.created_at * 1000);
+            const yyyy = dt.getFullYear();
+            const mm = String(dt.getMonth() + 1).padStart(2, '0');
+            const txMonthKey = `${yyyy}-${mm}`;
+            if (txMonthKey !== selectedMonth) return false;
+        }
+
+        // 2. Source filter check
         let matchSource = true;
         if (source) {
             if (source === "manual_admin") {
@@ -117,7 +170,7 @@ function filterAccountingTransactions() {
         
         if (!matchSource) return false;
         
-        // 2. Text search query check
+        // 3. Text search query check
         if (query) {
             const userName = (tx.user_name || "").toLowerCase();
             const userEmail = (tx.user_email || "").toLowerCase();

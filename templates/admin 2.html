@@ -181,10 +181,37 @@
                 </div>
             </div>
 
+            <!-- 📅 AYLIK GELİR VE MUHASEBE KIRILIMI TABLOSU -->
+            <div id="acc-monthly-container" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; margin-bottom: 24px;">
+                <h3 style="font-size: 15px; font-weight: 800; margin-top: 0; margin-bottom: 12px; color: #60a5fa; display: flex; align-items: center; gap: 8px;">
+                    📅 Aylık Gelir ve Muhasebe Kırılımı (Her Aya Özel İnceleme)
+                </h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table" style="margin: 0;">
+                        <thead>
+                            <tr>
+                                <th>Ay / Yıl</th>
+                                <th>Toplam Ciro (Brüt)</th>
+                                <th>Matrah (KDV Hariç)</th>
+                                <th>KDV %20</th>
+                                <th>İşlem Adedi</th>
+                                <th>İncele</th>
+                            </tr>
+                        </thead>
+                        <tbody id="acc-monthly-tbody">
+                            <tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 15px;">Aylık muhasebe özeti yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Fatura ve İşlem Listesi Tablosu -->
             <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; justify-content: space-between; align-items: center;">
                 <h3 style="font-size: 16px; font-weight: 800; margin: 0; color: white;">💳 Tüm Ödeme ve Fatura Kayıtları</h3>
                 <div style="display: flex; gap: 10px;">
+                    <select id="acc-filter-month" onchange="filterAccountingTransactions()" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 8px 12px; border-radius: 10px; font-size: 13px; outline: none;">
+                        <option value="">Tüm Aylar</option>
+                    </select>
                     <select id="acc-filter-source" onchange="filterAccountingTransactions()" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 8px 12px; border-radius: 10px; font-size: 13px; outline: none;">
                         <option value="">Tüm Kaynaklar</option>
                         <option value="iyzico">İyzico Gerçek Ödeme</option>

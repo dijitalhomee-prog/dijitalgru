@@ -1840,61 +1840,109 @@ def api_admin_accounting_summary():
     conn = get_db()
     cursor = conn.cursor()
     
-    # 1. Total Revenue (ONLY source = 'iyzico' and refund_status != 'refunded')
+    # 1. Total Revenue (All valid paid subscriptions with amount > 0, excluding refunded)
     cursor.execute("""
     SELECT COALESCE(SUM(amount), 0.0) as total 
     FROM subscriptions 
-    WHERE source = 'iyzico' AND (refund_status IS NULL OR refund_status != 'refunded')
+    WHERE amount > 0 AND (refund_status IS NULL OR refund_status != 'refunded')
     """)
     total_revenue = float(cursor.fetchone()["total"])
     
-    # 2. Monthly Revenue
-    now = int(time.time())
-    month_start = now - (86400 * 30)
+    # 2. Monthly Revenue (Current Calendar Month)
+    now_dt = datetime.datetime.now()
+    first_of_this_month = datetime.datetime(now_dt.year, now_dt.month, 1)
+    month_start_ts = int(first_of_this_month.timestamp())
+    
     cursor.execute("""
     SELECT COALESCE(SUM(amount), 0.0) as month_total 
     FROM subscriptions 
-    WHERE source = 'iyzico' AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
-    """, (month_start,))
+    WHERE amount > 0 AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
+    """, (month_start_ts,))
     this_month_revenue = float(cursor.fetchone()["month_total"])
     
-    # 3. Yearly Revenue
-    year_start = now - (86400 * 365)
+    # 3. Yearly Revenue (Current Calendar Year)
+    first_of_this_year = datetime.datetime(now_dt.year, 1, 1)
+    year_start_ts = int(first_of_this_year.timestamp())
     cursor.execute("""
     SELECT COALESCE(SUM(amount), 0.0) as year_total 
     FROM subscriptions 
-    WHERE source = 'iyzico' AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
-    """, (year_start,))
+    WHERE amount > 0 AND (refund_status IS NULL OR refund_status != 'refunded') AND created_at >= ?
+    """, (year_start_ts,))
     this_year_revenue = float(cursor.fetchone()["year_total"])
     
-    # 4. Active Paid Users Breakdown & MRR
-    cursor.execute("SELECT plan, COUNT(*) as cnt FROM users WHERE plan != 'free' AND (account_status IS NULL OR account_status = 'active') GROUP BY plan")
-    plan_rows = cursor.fetchall()
+    # 4. Actual Paid Subscriptions, Normalized MRR & Monthly Breakdown
+    cursor.execute("""
+    SELECT plan_name, amount, created_at, user_id
+    FROM subscriptions
+    WHERE amount > 0 AND (refund_status IS NULL OR refund_status != 'refunded')
+    ORDER BY created_at DESC
+    """)
+    paid_subs = cursor.fetchall()
     
     breakdown = {"starter": 0, "advanced": 0, "business": 0}
     mrr = 0.0
     
-    # Extract current monthly prices dynamically from payments.py PLANS dictionary
-    plan_monthly_prices = {
-        plan: data.get("pricing", {}).get("monthly", {}).get("price_per_month", 0.0)
-        for plan, data in PLANS.items()
+    tr_months = {
+        1: "Ocak", 2: "Şubat", 3: "Mart", 4: "Nisan", 5: "Mayıs", 6: "Haziran",
+        7: "Temmuz", 8: "Ağustos", 9: "Eylul", 10: "Ekim", 11: "Kasım", 12: "Aralık"
     }
     
-    for r in plan_rows:
-        p = r["plan"]
-        cnt = r["cnt"]
-        if p in breakdown:
-            breakdown[p] = cnt
-        mrr += cnt * plan_monthly_prices.get(p, 0.0)
+    monthly_stats = {}
+    
+    for r in paid_subs:
+        p_name = (r["plan_name"] or "").lower()
+        amt = float(r["amount"] or 0.0)
+        ts = int(r["created_at"] or time.time())
+        
+        # Classification for breakdown
+        if "starter" in p_name:
+            breakdown["starter"] += 1
+        elif "advanced" in p_name:
+            breakdown["advanced"] += 1
+        elif "business" in p_name:
+            breakdown["business"] += 1
+
+        # Calculate normalized MRR contribution
+        if "yıllık" in p_name or "annual" in p_name or "12 ay" in p_name or amt >= 2000:
+            mrr += (amt / 12.0)
+        elif "6 aylık" in p_name or "semi" in p_name or "6 ay" in p_name:
+            mrr += (amt / 6.0)
+        else:
+            mrr += amt
             
+        # Group by month for month-by-month accounting list
+        dt = datetime.datetime.fromtimestamp(ts)
+        m_key = dt.strftime("%Y-%m")
+        m_label = f"{tr_months.get(dt.month, '')} {dt.year}"
+        
+        if m_key not in monthly_stats:
+            monthly_stats[m_key] = {
+                "month_key": m_key,
+                "month_label": m_label,
+                "total_revenue": 0.0,
+                "net_matrah": 0.0,
+                "kdv_amount": 0.0,
+                "count": 0
+            }
+            
+        st = monthly_stats[m_key]
+        st["total_revenue"] += amt
+        st["net_matrah"] += (amt / 1.20)
+        st["kdv_amount"] += (amt - (amt / 1.20))
+        st["count"] += 1
+        
     conn.close()
+    
+    # Sort monthly breakdown descending by month key (most recent first)
+    monthly_breakdown = sorted(list(monthly_stats.values()), key=lambda x: x["month_key"], reverse=True)
     
     return jsonify({
         "total_revenue": total_revenue,
         "this_month_revenue": this_month_revenue,
         "this_year_revenue": this_year_revenue,
         "mrr": mrr,
-        "active_paid_subscriptions": breakdown
+        "active_paid_subscriptions": breakdown,
+        "monthly_breakdown": monthly_breakdown
     })
 
 @app.route("/api/admin/accounting/transactions", methods=["GET"])
