@@ -219,24 +219,52 @@ async function downloadAccountingCSV() {
     window.location.href = `/api/admin/accounting/export?token=${encodeURIComponent(token)}`;
 }
 
+function isUserExpired(u) {
+    if (!u) return false;
+    // 1. Admin accounts NEVER expire
+    if (u.is_admin || (u.email && u.email.toLowerCase() === "dijitalgru@gmail.com")) {
+        return false;
+    }
+
+    const nowSec = Math.floor(Date.now() / 1000);
+    const subEnd = u.subscription_end || 0;
+
+    // 2. Free trial accounts created on website: expire if 7-day trial ended
+    if (u.plan === "free") {
+        return subEnd > 0 && subEnd < nowSec;
+    }
+
+    // 3. Business plan accounts assigned by admin (no paid web subscription) NEVER expire
+    const paidCount = u.paid_subscriptions_count || 0;
+    if (u.plan === "business" && paidCount === 0) {
+        return false;
+    }
+
+    // 4. Paid subscription accounts (Starter, Advanced, Business bought via web/iyzico): expire if period ended
+    if (paidCount > 0) {
+        return subEnd > 0 && subEnd < nowSec;
+    }
+
+    // 5. Admin-assigned paid plan with no web payment: does not expire
+    return false;
+}
+
 function filterAdminUsers() {
     const q = (document.getElementById("admin-search-input").value || "").toLowerCase().trim();
     const plan = document.getElementById("admin-filter-plan").value;
     const status = document.getElementById("admin-filter-status").value;
 
-    const nowSec = Math.floor(Date.now() / 1000);
-
     const filtered = allUsersCache.filter(u => {
         const matchesQ = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
         const matchesPlan = !plan || u.plan === plan;
 
-        const isExpired = u.subscription_end && u.subscription_end > 0 && u.subscription_end < nowSec;
-        let effectiveStatus = u.account_status || 'active';
-        if (effectiveStatus !== 'suspended' && isExpired) {
-            effectiveStatus = 'expired';
+        const expired = isUserExpired(u);
+        let effectiveStatus = u.account_status || "active";
+        if (effectiveStatus !== "suspended" && expired) {
+            effectiveStatus = "expired";
         }
 
-        const matchesStatus = !status || effectiveStatus === status || (status === 'active' && u.account_status === 'active' && !isExpired);
+        const matchesStatus = !status || effectiveStatus === status || (status === "active" && u.account_status === "active" && !expired);
         return matchesQ && matchesPlan && matchesStatus;
     });
 
@@ -256,11 +284,9 @@ function renderAdminUsersTable(users) {
         return;
     }
 
-    const nowSec = Math.floor(Date.now() / 1000);
-
     tbody.innerHTML = users.map(u => {
         const planClass = `badge-${u.plan || 'free'}`;
-        const isExpired = u.subscription_end && u.subscription_end > 0 && u.subscription_end < nowSec;
+        const expired = isUserExpired(u);
 
         let statusClass = 'badge-active';
         let statusText = '✅ AKTİF';
@@ -268,14 +294,17 @@ function renderAdminUsersTable(users) {
         if (u.account_status === 'suspended') {
             statusClass = 'badge-suspended';
             statusText = '🚫 ASKIDA';
-        } else if (isExpired) {
+        } else if (expired) {
             statusClass = 'badge-expired';
             statusText = '⌛ SÜRESİ DOLDU';
         }
 
-        const subEndText = isExpired 
-            ? `<span style="color: #f59e0b; font-weight: 700;">${formatDate(u.subscription_end)}</span>` 
-            : formatDate(u.subscription_end);
+        let subEndText = formatDate(u.subscription_end);
+        if (u.is_admin || (u.plan === 'business' && !(u.paid_subscriptions_count > 0))) {
+            subEndText = '<span style="color: #34d399; font-weight: 700;">Sınırsız</span>';
+        } else if (expired) {
+            subEndText = `<span style="color: #f59e0b; font-weight: 700;">${formatDate(u.subscription_end)}</span>`;
+        }
 
         let suspendBtn = u.account_status === 'suspended' 
             ? `<button class="btn-action btn-activate" onclick="activateUser(${u.id}, '${u.email}')">Aktif Et</button>`

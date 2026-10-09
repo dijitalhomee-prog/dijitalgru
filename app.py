@@ -1711,7 +1711,12 @@ def api_admin_users():
     SELECT 
         u.id, u.name, u.email, u.plan, u.subscription_end, u.dynamic_qr_limit, 
         COALESCE(u.is_admin, FALSE) as is_admin, COALESCE(u.account_status, 'active') as account_status, u.created_at,
-        COUNT(q.id) as total_qr_count
+        COUNT(DISTINCT q.id) as total_qr_count,
+        (
+            SELECT COUNT(*) 
+            FROM subscriptions s 
+            WHERE s.user_id = u.id AND (s.source IS NULL OR s.source = 'iyzico' OR s.source LIKE 'iyzi_%') AND (s.refund_status IS NULL OR s.refund_status != 'refunded')
+        ) as paid_subscriptions_count
     FROM users u
     LEFT JOIN qr_codes q ON u.id = q.user_id
     GROUP BY u.id, u.name, u.email, u.plan, u.subscription_end, u.dynamic_qr_limit, u.is_admin, u.account_status, u.created_at
@@ -1724,6 +1729,7 @@ def api_admin_users():
     for r in rows:
         d = dict(r)
         d["is_admin"] = bool(d["is_admin"])
+        d["paid_subscriptions_count"] = int(d.get("paid_subscriptions_count") or 0)
         
         # Apply filters
         if q and (q not in d["name"].lower() and q not in d["email"].lower()):
@@ -1788,7 +1794,12 @@ def api_admin_update_plan(user_id):
     qr_limit = int(data.get("dynamic_qr_limit")) if data.get("dynamic_qr_limit") is not None else limits.get(new_plan, 3)
     
     now = int(time.time())
-    sub_end = now + (86400 * days) if new_plan != "free" else 0
+    if new_plan == "business":
+        sub_end = now + (86400 * 365 * 10)
+    elif new_plan != "free":
+        sub_end = now + (86400 * days)
+    else:
+        sub_end = 0
     
     conn = get_db()
     cursor = conn.cursor()
