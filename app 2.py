@@ -1702,15 +1702,19 @@ def api_admin_users():
     cursor = conn.cursor()
     
     cursor.execute("""
+    SELECT user_id, COUNT(*) as cnt
+    FROM subscriptions
+    WHERE (source IS NULL OR source = 'iyzico' OR source LIKE 'iyzi_%')
+      AND (refund_status IS NULL OR refund_status != 'refunded')
+    GROUP BY user_id
+    """)
+    paid_counts = {r["user_id"]: int(r["cnt"]) for r in cursor.fetchall()}
+
+    cursor.execute("""
     SELECT 
         u.id, u.name, u.email, u.plan, u.subscription_end, u.dynamic_qr_limit, 
-        COALESCE(u.is_admin, FALSE) as is_admin, COALESCE(u.account_status, 'active') as account_status, u.created_at,
-        COUNT(DISTINCT q.id) as total_qr_count,
-        (
-            SELECT COUNT(*) 
-            FROM subscriptions s 
-            WHERE s.user_id = u.id AND (s.source IS NULL OR s.source = 'iyzico' OR s.source LIKE 'iyzi_%') AND (s.refund_status IS NULL OR s.refund_status != 'refunded')
-        ) as paid_subscriptions_count
+        u.is_admin, u.account_status, u.created_at,
+        COUNT(DISTINCT q.id) as total_qr_count
     FROM users u
     LEFT JOIN qr_codes q ON u.id = q.user_id
     GROUP BY u.id, u.name, u.email, u.plan, u.subscription_end, u.dynamic_qr_limit, u.is_admin, u.account_status, u.created_at
@@ -1722,13 +1726,17 @@ def api_admin_users():
     users = []
     for r in rows:
         d = dict(r)
-        d["is_admin"] = bool(d["is_admin"])
-        d["paid_subscriptions_count"] = int(d.get("paid_subscriptions_count") or 0)
+        d["is_admin"] = bool(d.get("is_admin"))
+        d["account_status"] = d.get("account_status") or "active"
+        d["paid_subscriptions_count"] = paid_counts.get(d["id"], 0)
+        
+        name_str = (d.get("name") or "").lower()
+        email_str = (d.get("email") or "").lower()
         
         # Apply filters
-        if q and (q not in d["name"].lower() and q not in d["email"].lower()):
+        if q and (q not in name_str and q not in email_str):
             continue
-        if plan_filter and d["plan"] != plan_filter:
+        if plan_filter and d.get("plan") != plan_filter:
             continue
         if status_filter and d["account_status"] != status_filter:
             continue
