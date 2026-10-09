@@ -327,7 +327,9 @@ function filterAdminUsers() {
 function formatDate(timestamp) {
     if (!timestamp || timestamp === 0) return "-";
     const dt = new Date(timestamp * 1000);
-    return dt.toLocaleDateString("tr-TR", { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const dateStr = dt.toLocaleDateString("tr-TR", { year: 'numeric', month: 'short', day: 'numeric' });
+    const timeStr = dt.toLocaleTimeString("tr-TR", { hour: '2-digit', minute: '2-digit' });
+    return `<span style="white-space: nowrap; font-weight: 600;">${dateStr} <span style="font-size: 11px; color: #94a3b8; font-weight: 400; margin-left: 3px;">${timeStr}</span></span>`;
 }
 
 function renderAdminUsersTable(users) {
@@ -354,7 +356,7 @@ function renderAdminUsersTable(users) {
 
         let subEndText = formatDate(u.subscription_end);
         if (u.is_admin || (u.plan === 'business' && !(u.paid_subscriptions_count > 0))) {
-            subEndText = '<span style="color: #34d399; font-weight: 700;">Sınırsız</span>';
+            subEndText = '<span style="color: #34d399; font-weight: 700; white-space: nowrap;">Sınırsız</span>';
         } else if (expired) {
             subEndText = `<span style="color: #f59e0b; font-weight: 700;">${formatDate(u.subscription_end)}</span>`;
         }
@@ -365,21 +367,23 @@ function renderAdminUsersTable(users) {
 
         return `
             <tr>
-                <td>#${u.id}</td>
-                <td>
-                    <div style="font-weight: 800; color: white;">${u.name} ${u.is_admin ? '<span style="color: #facc15; font-size: 11px;">[ADMIN]</span>' : ''}</div>
-                    <div style="font-size: 12px; color: #94a3b8;">${u.email}</div>
+                <td style="white-space: nowrap; font-weight: 800; color: #94a3b8;">#${u.id}</td>
+                <td style="min-width: 220px;">
+                    <div style="font-weight: 800; color: #ffffff; font-size: 14px; line-height: 1.3;">${u.name} ${u.is_admin ? '<span style="color: #facc15; font-size: 10px; font-weight: 800; background: rgba(250, 204, 21, 0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(250, 204, 21, 0.3); margin-left: 4px;">ADMIN</span>' : ''}</div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">${u.email}</div>
                 </td>
-                <td><span class="admin-badge ${planClass}">${(u.plan || 'free').toUpperCase()}</span></td>
-                <td style="font-size: 13px;">${subEndText}</td>
-                <td style="font-weight: 700; color: #facc15;">${u.total_qr_count || 0} QR</td>
-                <td><span class="admin-badge ${statusClass}">${statusText}</span></td>
-                <td style="font-size: 13px;">${formatDate(u.created_at)}</td>
-                <td>
-                    <button class="btn-action btn-view" onclick="openUserDetailModal(${u.id})">Detay</button>
-                    <button class="btn-action btn-plan" onclick="openPlanUpdateModal(${u.id}, '${u.email}', '${u.plan}')">Plan Değiştir</button>
-                    ${suspendBtn}
-                    <button class="btn-action btn-delete" onclick="openDeleteUserModal(${u.id}, '${u.email}')">Sil</button>
+                <td style="white-space: nowrap;"><span class="admin-badge ${planClass}">${(u.plan || 'free').toUpperCase()}</span></td>
+                <td style="white-space: nowrap; font-size: 13px;">${subEndText}</td>
+                <td style="white-space: nowrap; font-weight: 800; color: #facc15; font-size: 14px;">${u.total_qr_count || 0} QR</td>
+                <td style="white-space: nowrap;"><span class="admin-badge ${statusClass}">${statusText}</span></td>
+                <td style="white-space: nowrap; font-size: 13px;">${formatDate(u.created_at)}</td>
+                <td style="white-space: nowrap; text-align: right;">
+                    <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: nowrap;">
+                        <button class="btn-action btn-view" onclick="openUserDetailModal(${u.id})">Detay</button>
+                        <button class="btn-action btn-plan" onclick="openPlanUpdateModal(${u.id}, '${u.email}', '${u.plan}')">Plan Değiştir</button>
+                        ${suspendBtn}
+                        <button class="btn-action btn-delete" onclick="openDeleteUserModal(${u.id}, '${u.email}')">Sil</button>
+                    </div>
                 </td>
             </tr>
         `;
