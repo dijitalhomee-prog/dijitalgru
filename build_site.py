@@ -107,7 +107,7 @@ def breadcrumb(items):
 
 META = {
     "index.html": (
-        "Lüks Markalar İçin Web Tasarım & Marka Kimliği Stüdyosu | Dijital Gru İstanbul",
+        "Dijital Gru | Lüks Markalar İçin Web Tasarım & Marka Kimliği Stüdyosu",
         "Şişli merkezli tasarım stüdyosu: lüks restoran, beach club ve premium markalar için web tasarım, kurumsal kimlik ve özel yazılım. Ücretsiz teklif alın.",
         "/",
     ),
@@ -275,10 +275,44 @@ def ensure_honeypot(s):
     return s.replace('<button type="submit" class="btn btn-primary btn-submit" id="contact-submit-btn"', hp + '<button type="submit" class="btn btn-primary btn-submit" id="contact-submit-btn"', 1)
 
 
+ORG_ID = SITE + "/#brand"
+
+ORGANIZATION_LD = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": ORG_ID,
+    "name": "Dijital Gru",
+    "alternateName": ["DijitalGru", "dijitalgru", "Dijital Gru Tasarım Stüdyosu"],
+    "url": SITE + "/",
+    "logo": {"@type": "ImageObject", "url": OG_IMAGE},
+    "foundingDate": "2019",
+    "founder": {"@type": "Person", "name": "Furkan Egemen Güneş"},
+    "sameAs": [
+        "https://www.instagram.com/dijitalgru/",
+        "https://www.youtube.com/@DijitalGru",
+        # LINKEDIN_URL: şirket sayfası varsa buraya ekleyin
+    ],
+}
+
+WEBSITE_LD = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": SITE + "/#website",
+    "name": "Dijital Gru",
+    "alternateName": "DijitalGru",
+    "url": SITE + "/",
+    "inLanguage": "tr",
+    "publisher": {"@id": ORG_ID},
+}
+
 INDEX_JSONLD = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     "@id": SITE + "/#organization",
+    "parentOrganization": {"@id": ORG_ID},
+    "founder": {"@type": "Person", "name": "Furkan Egemen Güneş"},
+    "foundingDate": "2019",
+    "alternateName": ["DijitalGru", "Dijital Gru Tasarım Stüdyosu"],
     "name": "Dijital Gru",
     "url": SITE + "/",
     "logo": SITE + "/Logo/logo-dikey-krem.png",
@@ -309,11 +343,19 @@ INDEX_JSONLD = {
 }
 
 
+def brand_ld_block():
+    return ("<!-- BRAND-LD-START -->\n" + jsonld(INDEX_JSONLD) + jsonld(ORGANIZATION_LD) + jsonld(WEBSITE_LD)
+            + "    <!-- BRAND-LD-END -->")
+
+
 def transform_index(s):
-    s = re.sub(
-        r'<script type="application/ld\+json">\s*\{[^<]*?"AdvertisingAgency"[^<]*?</script>',
-        lambda m: jsonld(INDEX_JSONLD).strip(),
-        s, count=1, flags=re.S)
+    if "<!-- BRAND-LD-START -->" in s:
+        s = re.sub(r"<!-- BRAND-LD-START -->.*?<!-- BRAND-LD-END -->", lambda m: brand_ld_block(), s, count=1, flags=re.S)
+    else:
+        s = re.sub(
+            r'<script type="application/ld\+json">\s*\{[^<]*?"(?:AdvertisingAgency|ProfessionalService)"[^<]*?</script>',
+            lambda m: brand_ld_block(),
+            s, count=1, flags=re.S)
     s = s.replace("Dijital Gru Tasarım Stüdyosu</span>", "Web Tasarım &amp; Marka Stüdyosu</span>", 1) if "hero-badge" in s else s
     s = re.sub(
         r'(<h1 class="hero-title scroll-reveal">)\s*.*?(</h1>)',
@@ -349,6 +391,13 @@ def transform_hizmetler(s):
 
 
 def transform_kurumsal(s):
+    if "brand-intro" not in s:
+        s = re.sub(
+            r'(<h2 class="section-title" style="font-size: 32px; margin-bottom: 20px;">[^<]*</h2>)',
+            lambda m: m.group(1) + '\n                    <p class="section-desc brand-intro" style="font-size: 16px; line-height: 1.8; color: var(--theme-text-muted); margin-bottom: 16px;">\n'
+            '                        <strong>Dijital Gru (DijitalGru)</strong>, 2019 yılında İstanbul\'da kurulan bir web tasarım ve marka stüdyosudur.\n'
+            '                    </p>',
+            s, count=1)
     s = s.replace("— KREATİF KADROMUZ —", "— UZMAN ORTAKLARIMIZ —")
     s = s.replace("Geleceği Şekillendiren Ekibimiz", "Birlikte Çalıştığımız Uzmanlar")
     s = s.replace(
