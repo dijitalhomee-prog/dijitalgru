@@ -29,7 +29,33 @@ def read(name):
 def write(name, text):
     p = ROOT / name
     p.parent.mkdir(parents=True, exist_ok=True)
+    if name.endswith(".html"):
+        text = loc_fix(text)
     p.write_text(text, encoding="utf-8")
+
+
+LOC_RULES = [
+    # merkezli ifadeleri
+    (r"Şişli,? İstanbul merkezli", "İstanbul merkezli"),
+    (r"İstanbul Şişli merkezli", "İstanbul merkezli"),
+    (r"Şişli merkezli", "İstanbul merkezli"),
+    (r"Dijital Gru Şişli(?=<|\")", "Dijital Gru İstanbul"),
+    # LOKASYON karti -> HİZMET BÖLGESİ (küre ikonu)
+    (r'fa-location-dot("></i></div>\s*<div>\s*<span>)LOKASYON</span>\s*<(h[234])>Şişli, İstanbul / Türkiye</\2>',
+     r'fa-globe\1HİZMET BÖLGESİ</span>\n                                <\2>İstanbul &amp; Türkiye geneli</\2>'),
+    # footer konum satiri
+    (r'<i class="fa-solid fa-location-dot"></i> Şişli, İstanbul / Türkiye', '<i class="fa-solid fa-globe"></i> İstanbul &amp; Türkiye geneli'),
+    # JSON-LD adres: sokak/posta kodu yok, sadece İstanbul/TR
+    (r'\n\s*"streetAddress": "[^"]*",', ''),
+    (r'\n\s*"postalCode": "[^"]*",', ''),
+    (r'"addressLocality": "Şişli"', '"addressLocality": "İstanbul"'),
+]
+
+
+def loc_fix(s):
+    for pat, rep in LOC_RULES:
+        s = re.sub(pat, rep, s)
+    return s
 
 
 def attr(s):
@@ -194,7 +220,7 @@ def common_transform(name, s):
     s = re.sub(r"&copy; 2026 Dijital Gru[^<]*Tüm Hakları Saklıdır\.(?! <a href=\"/kariyer)", lambda m: FOOTER_BOTTOM_NEW, s)
 
     # surum
-    s = s.replace("style.css?v=5.0", "style.css?v=5.2").replace("app.js?v=5.1", "app.js?v=6.0")
+    s = s.replace("style.css?v=5.0", "style.css?v=5.2").replace("app.js?v=6.1", "app.js?v=6.1")
     return s
 
 
@@ -241,6 +267,14 @@ def swap_subject_field(s):
     return new, n
 
 
+def ensure_honeypot(s):
+    if 'name="website"' in s or 'id="contact-submit-btn"' not in s:
+        return s
+    hp = ('<div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">'
+          '<label>Web siteniz<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>\n                        ')
+    return s.replace('<button type="submit" class="btn btn-primary btn-submit" id="contact-submit-btn"', hp + '<button type="submit" class="btn btn-primary btn-submit" id="contact-submit-btn"', 1)
+
+
 INDEX_JSONLD = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -255,10 +289,8 @@ INDEX_JSONLD = {
     "priceRange": "$$",
     "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Şişli",
-        "addressLocality": "Şişli",
+        "addressLocality": "İstanbul",
         "addressRegion": "İstanbul",
-        "postalCode": "34360",
         "addressCountry": "TR",
     },
     "areaServed": [
@@ -565,7 +597,7 @@ def page_shell(title, desc, canonical, body, extra_head="", og_type="website", r
         '<!DOCTYPE html>\n<html lang="tr">\n<head>\n    %s\n\n    <meta charset="UTF-8">\n'
         '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
         "    <title>%s</title>\n    <meta name=\"description\" content=\"%s\">\n%s%s%s\n%s</head>\n<body>\n    %s\n\n%s\n%s\n\n%s\n\n"
-        '    <script src="app.js?v=6.0"></script>\n</body>\n</html>\n'
+        '    <script src="app.js?v=6.1"></script>\n</body>\n</html>\n'
     ) % (gtm, escape(title, quote=False), attr(desc), robots_tag,
          seo_block(title, desc, canonical, og_type), extra_head, head_assets,
          noscript, header, body, footer)
@@ -932,6 +964,7 @@ def main():
         if name in ("index.html", "iletisim.html"):
             s, n = swap_subject_field(s)
             report[name + " select"] = n
+            s = ensure_honeypot(s)
         write(name, fix_headings(name, s))
 
     for sv in SERVICES:

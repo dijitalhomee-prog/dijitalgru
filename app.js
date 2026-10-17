@@ -36,62 +36,78 @@ window.processContactForm = function(evt, el) {
 
     var waText = encodeURIComponent("Merhaba Dijital Gru, web siteniz üzerinden mesaj gönderdim:\n\n👤 Ad Soyad: " + nameVal + "\n📧 E-posta: " + emailVal + "\n📌 Konu: " + subjectVal + "\n\n💬 Mesaj:\n" + messageVal);
     var waUrl = "https://wa.me/905376274415?text=" + waText;
-    var mailtoUrl = "mailto:dijitalgru@gmail.com?subject=" + encodeURIComponent(subjectVal) + "&body=" + encodeURIComponent("Gönderen: " + nameVal + "\nE-posta: " + emailVal + "\n\nMesaj:\n" + messageVal);
+    var honeypotField = contactForm.querySelector('[name="website"]');
+    var originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
 
-    // Send email to dijitalgru@gmail.com in background via FormSubmit AJAX API
+    function showError() {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHtml;
+        }
+        var old = contactForm.querySelector('.form-error-box');
+        if (old) old.remove();
+        var err = document.createElement('div');
+        err.className = 'form-error-box';
+        err.style.cssText = 'margin-top: 14px; padding: 12px 16px; border-radius: 12px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); color: #ffffff; font-size: 14px; line-height: 1.6;';
+        err.innerHTML = 'Mesajınız şu an gönderilemedi. Lütfen tekrar deneyin veya <a href="' + waUrl + '" target="_blank" rel="noopener" style="color: var(--accent-gold); font-weight: 700;">WhatsApp\'tan yazın</a>.';
+        contactForm.appendChild(err);
+    }
+
+    function showSuccess() {
+        var container = contactForm.parentElement;
+        contactForm.style.display = 'none';
+
+        var successMsg = document.createElement('div');
+        successMsg.className = 'form-success-box';
+        successMsg.style.cssText = 'text-align: center; padding: 40px 20px; background: rgba(12, 19, 48, 0.95); border-radius: 20px; border: 1px solid rgba(220, 169, 99, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.5);';
+        successMsg.innerHTML = `
+            <div style="font-size: 54px; color: #10b981; margin-bottom: 16px;"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 style="font-family: var(--font-headings); font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">Mesajınız bize ulaştı.</h3>
+            <p style="color: rgba(255, 255, 255, 0.85); font-size: 15px; margin-bottom: 24px; line-height: 1.6;">Projenizi inceleyip en geç 24 saat içinde size döneceğiz. Daha hızlı konuşmak isterseniz WhatsApp'tan yazabilirsiniz.</p>
+
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+                <a href="${waUrl}" target="_blank" rel="noopener" class="btn" style="background: #25D366; color: #ffffff; padding: 14px 28px; font-weight: 700; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; font-size: 16px; box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);">
+                    <i class="fa-brands fa-whatsapp" style="font-size: 22px;"></i> WhatsApp ile Yazın
+                </a>
+            </div>
+            <button onclick="location.reload()" class="btn btn-secondary" style="padding: 8px 20px; font-size: 13px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7);">Yeni Mesaj Gönder</button>
+        `;
+        container.appendChild(successMsg);
+
+        try { contactForm.reset(); } catch(e) {}
+
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'generate_lead', form_subject: subjectVal });
+        if (typeof gtag_report_conversion === 'function') {
+            gtag_report_conversion();
+        }
+    }
+
+    // Kendi sunucumuz uzerinden gonderim (Railway server.py -> /api/contact)
     try {
-        fetch("https://formsubmit.co/ajax/dijitalgru@gmail.com", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
+        fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({
                 name: nameVal,
                 email: emailVal,
-                subject: subjectVal,
+                subject_title: subjectVal,
                 message: messageVal,
-                _subject: "Yeni İletişim Formu Mesajı: " + nameVal + " (" + subjectVal + ")"
+                website: honeypotField ? honeypotField.value : ''
             })
         }).then(function(res) {
-            if (res && res.ok) {
-                window.dataLayer = window.dataLayer || [];
-                window.dataLayer.push({ event: 'generate_lead', form_subject: subjectVal });
-            }
+            return res.json().catch(function() { return {}; }).then(function(d) {
+                return { ok: res.ok && d && d.success === true };
+            });
+        }).then(function(r) {
+            if (r.ok) { showSuccess(); } else { showError(); }
         }).catch(function(err) {
-            console.log("FormSubmit delivery log:", err);
+            console.log('Contact form error:', err);
+            showError();
         });
-    } catch(err) {
-        console.log("FormSubmit exception:", err);
-    }
-
-    var container = contactForm.parentElement;
-    contactForm.style.display = 'none';
-
-    var successMsg = document.createElement('div');
-    successMsg.className = 'form-success-box';
-    successMsg.style.cssText = 'text-align: center; padding: 40px 20px; background: rgba(12, 19, 48, 0.95); border-radius: 20px; border: 1px solid rgba(220, 169, 99, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.5);';
-    successMsg.innerHTML = `
-        <div style="font-size: 54px; color: #10b981; margin-bottom: 16px;"><i class="fa-solid fa-circle-check"></i></div>
-        <h3 style="font-family: var(--font-headings); font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">Mesajınız Ekibimize İletildi!</h3>
-        <p style="color: rgba(255, 255, 255, 0.85); font-size: 15px; margin-bottom: 24px; line-height: 1.6;">Talebiniz alınmış ve e-posta kutumuza yönlendirilmiştir. Dilerseniz <strong>WhatsApp</strong> üzerinden de anında iletişime geçebilirsiniz:</p>
-        
-        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
-            <a href="${waUrl}" target="_blank" rel="noopener" class="btn" style="background: #25D366; color: #ffffff; padding: 14px 28px; font-weight: 700; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; font-size: 16px; box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);">
-                <i class="fa-brands fa-whatsapp" style="font-size: 22px;"></i> WhatsApp ile Sohbet Başlat
-            </a>
-            <a href="${mailtoUrl}" class="btn" style="background: rgba(255,255,255,0.12); color: #ffffff; padding: 14px 24px; font-weight: 600; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; border: 1px solid rgba(255,255,255,0.2);">
-                <i class="fa-solid fa-envelope"></i> E-posta Gönder
-            </a>
-        </div>
-        <button onclick="location.reload()" class="btn btn-secondary" style="padding: 8px 20px; font-size: 13px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7);">Yeni Mesaj Gönder</button>
-    `;
-    container.appendChild(successMsg);
-
-    try { contactForm.reset(); } catch(e) {}
-
-    if (typeof gtag_report_conversion === 'function') {
-        gtag_report_conversion();
+    } catch (err) {
+        console.log('Contact form exception:', err);
+        showError();
     }
     return false;
 };
