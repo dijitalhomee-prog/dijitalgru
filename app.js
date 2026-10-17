@@ -53,6 +53,11 @@ window.processContactForm = function(evt, el) {
                 message: messageVal,
                 _subject: "Yeni İletişim Formu Mesajı: " + nameVal + " (" + subjectVal + ")"
             })
+        }).then(function(res) {
+            if (res && res.ok) {
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ event: 'generate_lead', form_subject: subjectVal });
+            }
         }).catch(function(err) {
             console.log("FormSubmit delivery log:", err);
         });
@@ -90,6 +95,25 @@ window.processContactForm = function(evt, el) {
     }
     return false;
 };
+
+// Konu "İş Başvurusu" ise kariyer notu goster
+document.addEventListener('change', function(e) {
+    var t = e.target;
+    if (!t || t.id !== 'subject-field') return;
+    var note = document.getElementById('career-note');
+    if (note) note.hidden = (t.value !== 'İş Başvurusu');
+});
+
+// Hemen Ara / WhatsApp tiklamalari icin dataLayer eventi
+document.addEventListener('click', function(e) {
+    var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    var type = href.indexOf('tel:') === 0 ? 'phone' : (href.indexOf('wa.me') !== -1 || href.indexOf('whatsapp') !== -1 ? 'whatsapp' : '');
+    if (!type) return;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'contact_click', contact_type: type, link_url: href, link_id: a.id || '' });
+}, true);
 
 // Floating WhatsApp quick-contact button (all pages, desktop + mobile)
 document.addEventListener('DOMContentLoaded', function() {

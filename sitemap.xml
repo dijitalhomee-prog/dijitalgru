@@ -13,16 +13,46 @@
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://dijitalgru.com/yazilimlarimiz.html</loc>
+    <loc>https://dijitalgru.com/restoran-web-sitesi-tasarimi.html</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://dijitalgru.com/iletisim.html</loc>
+    <loc>https://dijitalgru.com/luks-marka-kimligi-tasarimi.html</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/kurumsal-web-sitesi-tasarimi.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/ozel-yazilim-gelistirme.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/qr-menu.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/yazilimlarimiz.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/ozel-yazilim.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
   </url>
   <url>
     <loc>https://dijitalgru.com/kurumsal.html</loc>
@@ -43,27 +73,51 @@
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://dijitalgru.com/blog.html?post=9</loc>
-    <lastmod>2026-06-19</lastmod>
+    <loc>https://dijitalgru.com/blog/threads-nedir-markaniz-icin-neden-vazgecilmez-bir-platform.html</loc>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
-    <loc>https://dijitalgru.com/blog.html?post=8</loc>
-    <lastmod>2026-06-10</lastmod>
+    <loc>https://dijitalgru.com/blog/dijital-ajans-secerken-nelere-dikkat-edilmeli-pisman-olmadan-dogru-kar.html</loc>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
-    <loc>https://dijitalgru.com/blog.html?post=7</loc>
-    <lastmod>2026-06-08</lastmod>
+    <loc>https://dijitalgru.com/blog/renklerin-pazarlamadaki-psikolojik-etkileri-musterilerin-kararlarini-r.html</loc>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/blog/google-da-ust-siralara-cikmak-icin-10-temel-adim.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/blog/instagram-plus-donemi-basliyor-ucretli-abonelik-ve-yeni-ozellikler.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/blog/logo-tasariminda-yapilan-7-kritik-hata-ve-nasil-kacinilir.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/iletisim.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
   </url>
   <url>
     <loc>https://dijitalgru.com/takvim.html</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
+    <priority>0.50</priority>
   </url>
 </urlset>

@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (filtered.length === 0) {
                 designsGrid.innerHTML = '';
                 sidebarProjectList.innerHTML = '';
+                noResults.innerHTML = '<i class="fa-regular fa-folder-open" style="font-size: 40px; margin-bottom: 15px; color: var(--accent-gold); display: block;"></i> Seçilen kriterlere uygun yayın bulunamadı.';
                 noResults.style.display = 'block';
                 return;
             } else {
