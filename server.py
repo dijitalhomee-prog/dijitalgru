@@ -202,7 +202,33 @@ def send_mail(to, subject, html, text, reply_to=None):
 
 # --- HTTP sunucusu ---------------------------------------------------------------
 
+CANONICAL_HOST = "dijitalgru.com"
+# Yonlendirme disinda kalan host'lar: Railway healthcheck ve yerel gelistirme
+REDIRECT_EXEMPT_HOSTS = ("healthcheck.railway.app", "localhost", "127.0.0.1", "0.0.0.0")
+REDIRECT_EXEMPT_PREFIXES = ("/api/", "/health")
+
+
 class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
+    def _redirect_to_canonical(self):
+        """Host dijitalgru.com degilse (www dahil) ayni yola 301. True donerse yanit verildi."""
+        host = (self.headers.get('Host', '') or '').split(':', 1)[0].strip().lower()
+        if not host or host == CANONICAL_HOST or host in REDIRECT_EXEMPT_HOSTS:
+            return False
+        if self.path.startswith(REDIRECT_EXEMPT_PREFIXES):
+            return False
+        target = "https://%s%s" % (CANONICAL_HOST, self.path if self.path.startswith('/') else '/' + self.path)
+        self.send_response(301)
+        self.send_header('Location', target)
+        self.send_header('Cache-Control', 'public, max-age=3600')
+        self.send_header('Content-Length', '0')
+        http.server.SimpleHTTPRequestHandler.end_headers(self)
+        return True
+
+    def do_HEAD(self):
+        if self._redirect_to_canonical():
+            return
+        return super().do_HEAD()
+
     def end_headers(self):
         # HTML sayfalari kisa sure onbelleklensin; icerik guncellemeleri hizli yansisin
         p = self.path.split('?', 1)[0]
@@ -340,6 +366,8 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         return self._json(200, {"success": True})
 
     def do_GET(self):
+        if self._redirect_to_canonical():
+            return
         path = self.path.split('?', 1)[0]
         # Lead listesi yalnizca LEADS_TOKEN tanimliysa ve dogru anahtar verilirse acilir
         if path == '/api/leads':
