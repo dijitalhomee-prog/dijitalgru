@@ -91,6 +91,33 @@ window.processContactForm = function(evt, el) {
     return false;
 };
 
+// Floating WhatsApp quick-contact button (all pages, desktop + mobile)
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('dg-wa-fab')) return;
+
+    var style = document.createElement('style');
+    style.textContent =
+        '#dg-wa-fab{position:fixed;right:20px;bottom:20px;z-index:2500;display:flex;align-items:center;gap:10px;' +
+        'background:#25d366;color:#fff;text-decoration:none;font-family:inherit;font-weight:700;font-size:15px;' +
+        'padding:14px 20px;border-radius:50px;box-shadow:0 10px 30px rgba(37,211,102,.45);transition:transform .25s ease,box-shadow .25s ease}' +
+        '#dg-wa-fab:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 14px 36px rgba(37,211,102,.6)}' +
+        '#dg-wa-fab i{font-size:24px}' +
+        '@media (max-width:600px){#dg-wa-fab{right:14px;bottom:14px;padding:14px}#dg-wa-fab span{display:none}}';
+    document.head.appendChild(style);
+
+    var fab = document.createElement('a');
+    fab.id = 'dg-wa-fab';
+    fab.href = 'https://wa.me/905376274415?text=' + encodeURIComponent('Merhaba Dijital Gru, hizmetleriniz hakkında bilgi ve teklif almak istiyorum.');
+    fab.target = '_blank';
+    fab.rel = 'noopener noreferrer';
+    fab.setAttribute('aria-label', 'WhatsApp ile yazın');
+    fab.innerHTML = '<i class="fa-brands fa-whatsapp"></i><span>WhatsApp ile Yazın</span>';
+    fab.addEventListener('click', function() {
+        if (typeof gtag_report_conversion === 'function') { gtag_report_conversion(); }
+    });
+    document.body.appendChild(fab);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // --- 1. Dynamic Glow Orb Tracker ---
