@@ -194,7 +194,7 @@ def common_transform(name, s):
     s = re.sub(r"&copy; 2026 Dijital Gru[^<]*Tüm Hakları Saklıdır\.(?! <a href=\"/kariyer)", lambda m: FOOTER_BOTTOM_NEW, s)
 
     # surum
-    s = s.replace("style.css?v=5.0", "style.css?v=5.1").replace("app.js?v=5.1", "app.js?v=6.0")
+    s = s.replace("style.css?v=5.0", "style.css?v=5.2").replace("app.js?v=5.1", "app.js?v=6.0")
     return s
 
 
@@ -550,7 +550,7 @@ def shared_parts():
     header = re.search(r"    <!-- Dynamic Grid Background -->.*?(?=    <!-- Inner Page Banner -->)", h, re.S).group(0)
     footer = re.search(r"    <!-- Footer -->.*?</footer>", h, re.S).group(0)
     head_assets = re.search(r"    <!-- Favicon -->.*?(?=</head>)", h, re.S).group(0)
-    head_assets = head_assets.replace("style.css?v=5.0", "style.css?v=5.1")
+    head_assets = head_assets.replace("style.css?v=5.0", "style.css?v=5.2")
     return gtm, noscript, header, footer, head_assets
 
 
