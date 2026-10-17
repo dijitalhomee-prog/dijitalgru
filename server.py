@@ -12,6 +12,13 @@ from datetime import datetime
 PORT = int(os.environ.get("PORT", 8000))
 
 class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
+    def end_headers(self):
+        # HTML sayfalari kisa sure onbelleklensin; icerik guncellemeleri hizli yansisin
+        p = self.path.split('?', 1)[0]
+        if p == '/' or p.endswith('.html'):
+            self.send_header('Cache-Control', 'public, max-age=300')
+        super().end_headers()
+
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
