@@ -260,7 +260,7 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
             return self._json(200, {"success": True})
 
         if rate_limited(self._client_ip()):
-            return self._json(429, {"success": False, "error": "Çok fazla deneme. Lütfen biraz sonra tekrar deneyin."})
+            return self._json(429, {"success": False, "field": "rate_limit", "error": "Çok fazla deneme yaptınız, birkaç dakika sonra tekrar deneyin."})
 
         name = clean_line(data.get('name'), 100)
         email = clean_line(data.get('email'), 254)
@@ -268,11 +268,11 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         message = clean_text(data.get('message'), 5000)
 
         if len(name) < 2:
-            return self._json(400, {"success": False, "error": "Lütfen adınızı girin."})
+            return self._json(400, {"success": False, "field": "name", "error": "Lütfen adınızı ve soyadınızı girin."})
         if not EMAIL_RE.match(email):
-            return self._json(400, {"success": False, "error": "Lütfen geçerli bir e-posta adresi girin."})
-        if len(message) < 5:
-            return self._json(400, {"success": False, "error": "Lütfen mesajınızı yazın."})
+            return self._json(400, {"success": False, "field": "email", "error": "Lütfen geçerli bir e-posta adresi girin."})
+        if len(message) < 2:
+            return self._json(400, {"success": False, "field": "message", "error": "Lütfen mesajınızı yazın."})
         if subject not in ALLOWED_SUBJECTS:
             subject = "Diğer"
 
@@ -322,7 +322,7 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
                 print("Telegram bildirimi basarisiz:", e)
 
         if not (owner_sent or tg_sent):
-            return self._json(502, {"success": False, "error": "Mesaj şu an gönderilemedi."})
+            return self._json(502, {"success": False, "field": "server", "error": "Mesaj şu an gönderilemedi."})
 
         # 2) Gonderene otomatik yanit: Resend'de yalnizca CONTACT_FROM (dogrulanmis alan adi) tanimliysa denenir.
         #    Basarisiz olsa da kullaniciya hata gosterilmez, sadece loglanir.

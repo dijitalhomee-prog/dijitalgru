@@ -39,7 +39,7 @@ window.processContactForm = function(evt, el) {
     var honeypotField = contactForm.querySelector('[name="website"]');
     var originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
 
-    function showError() {
+    function showError(customMsg) {
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnHtml;
@@ -49,7 +49,11 @@ window.processContactForm = function(evt, el) {
         var err = document.createElement('div');
         err.className = 'form-error-box';
         err.style.cssText = 'margin-top: 14px; padding: 12px 16px; border-radius: 12px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); color: #ffffff; font-size: 14px; line-height: 1.6;';
-        err.innerHTML = 'Mesajınız şu an gönderilemedi. Lütfen tekrar deneyin veya <a href="' + waUrl + '" target="_blank" rel="noopener" style="color: var(--accent-gold); font-weight: 700;">WhatsApp\'tan yazın</a>.';
+        if (customMsg) {
+            err.textContent = customMsg;
+        } else {
+            err.innerHTML = 'Mesajınız şu an gönderilemedi. Lütfen tekrar deneyin veya <a href="' + waUrl + '" target="_blank" rel="noopener" style="color: var(--accent-gold); font-weight: 700;">WhatsApp\'tan yazın</a>.';
+        }
         contactForm.appendChild(err);
     }
 
@@ -97,10 +101,13 @@ window.processContactForm = function(evt, el) {
             })
         }).then(function(res) {
             return res.json().catch(function() { return {}; }).then(function(d) {
-                return { ok: res.ok && d && d.success === true };
+                var ok = res.ok && d && d.success === true;
+                // 400 (dogrulama) ve 429 (rate limit) mesajlari kullaniciya oldugu gibi gosterilir
+                var userMsg = (!ok && (res.status === 400 || res.status === 429) && d && d.error) ? d.error : '';
+                return { ok: ok, msg: userMsg };
             });
         }).then(function(r) {
-            if (r.ok) { showSuccess(); } else { showError(); }
+            if (r.ok) { showSuccess(); } else { showError(r.msg); }
         }).catch(function(err) {
             console.log('Contact form error:', err);
             showError();

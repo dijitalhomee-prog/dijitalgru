@@ -220,7 +220,7 @@ def common_transform(name, s):
     s = re.sub(r"&copy; 2026 Dijital Gru[^<]*Tüm Hakları Saklıdır\.(?! <a href=\"/kariyer)", lambda m: FOOTER_BOTTOM_NEW, s)
 
     # surum
-    s = s.replace("style.css?v=5.0", "style.css?v=5.2").replace("app.js?v=6.1", "app.js?v=6.1")
+    s = s.replace("style.css?v=5.0", "style.css?v=5.2").replace("app.js?v=6.2", "app.js?v=6.2")
     return s
 
 
@@ -597,7 +597,7 @@ def page_shell(title, desc, canonical, body, extra_head="", og_type="website", r
         '<!DOCTYPE html>\n<html lang="tr">\n<head>\n    %s\n\n    <meta charset="UTF-8">\n'
         '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
         "    <title>%s</title>\n    <meta name=\"description\" content=\"%s\">\n%s%s%s\n%s</head>\n<body>\n    %s\n\n%s\n%s\n\n%s\n\n"
-        '    <script src="app.js?v=6.1"></script>\n</body>\n</html>\n'
+        '    <script src="app.js?v=6.2"></script>\n</body>\n</html>\n'
     ) % (gtm, escape(title, quote=False), attr(desc), robots_tag,
          seo_block(title, desc, canonical, og_type), extra_head, head_assets,
          noscript, header, body, footer)
