@@ -142,12 +142,22 @@ def send_via_resend(api_key, sender, to, subject, html, text, reply_to=None):
         headers={
             "Authorization": "Bearer " + api_key,
             "Content-Type": "application/json",
-            "User-Agent": "dijitalgru-server/1.0",
+            "Accept": "application/json",
+            "User-Agent": "DijitalGru-Site/1.0",
         },
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=12) as resp:
-        resp.read()
+    try:
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+            print("[RESEND OK] status=%s to=%s body=%s" % (resp.status, to, body[:200]))
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        print("[RESEND ERROR] status=%s to=%s from=%s body=%s" % (e.code, to, sender, body[:500]))
+        raise RuntimeError("Resend HTTP %s" % e.code)
+    except Exception as e:
+        print("[RESEND ERROR] baglanti hatasi to=%s: %r" % (to, e))
+        raise
 
 
 def send_via_smtp(user, password, sender_name, to, subject, html, text, reply_to=None):
@@ -292,10 +302,8 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
             send_mail(to_addr, subj, html, text, reply_to=email)
             owner_sent = True
             print("[MAIL] Bildirim gonderildi:", name, "-", subject)
-        except urllib.error.HTTPError as e:
-            print("[MAIL ERROR] Bildirim gonderilemedi: HTTP", e.code, e.read()[:300])
         except Exception as e:
-            print("[MAIL ERROR] Bildirim gonderilemedi:", e)
+            print("[MAIL ERROR] Bildirim gonderilemedi:", repr(e))
 
         # Istege bagli Telegram bildirimi
         tg_token = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -316,15 +324,18 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         if not (owner_sent or tg_sent):
             return self._json(502, {"success": False, "error": "Mesaj şu an gönderilemedi."})
 
-        # 2) Gonderene otomatik yanit (basarisiz olsa da istek basarili sayilir)
-        if owner_sent:
+        # 2) Gonderene otomatik yanit: Resend'de yalnizca CONTACT_FROM (dogrulanmis alan adi) tanimliysa denenir.
+        #    Basarisiz olsa da kullaniciya hata gosterilmez, sadece loglanir.
+        kind, _cfg = mail_provider()
+        autoreply_ok = kind == "smtp" or bool(os.environ.get("CONTACT_FROM", "").strip())
+        if owner_sent and autoreply_ok:
             try:
                 subj, html, text = auto_reply_email(name, subject)
                 send_mail(email, subj, html, text, reply_to=to_addr)
-            except urllib.error.HTTPError as e:
-                print("[MAIL WARN] Otomatik yanit gonderilemedi: HTTP", e.code, e.read()[:300])
             except Exception as e:
-                print("[MAIL WARN] Otomatik yanit gonderilemedi:", e)
+                print("[MAIL WARN] Otomatik yanit gonderilemedi:", repr(e))
+        elif owner_sent:
+            print("[MAIL] CONTACT_FROM tanimli degil, otomatik yanit atlandi")
 
         return self._json(200, {"success": True})
 
