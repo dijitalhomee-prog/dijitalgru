@@ -948,5 +948,27 @@
             }
         ],
         "challenge": "Limoni Hotel bünyesindeki restoranın taze ve doğal lezzetlerini yansıtmak amacıyla; narenciye tonlarında pastel renk harmonisi, özel illüstrasyonlar ve okumayı kolaylaştıran minimalist grid yapısıyla bezenmiş, otelin samimi ve lüks ruhuna uygun bir menü tasarımı ve baskı kurgusu gerçekleştirmek."
+    },
+    {
+        "id": 47,
+        "title": "Troia Tavaklım Etiket Tasarımı",
+        "client": "Troia Tavaklım",
+        "category": "print",
+        "catLabel": "Etiket & Ambalaj Tasarımı",
+        "desc": "Troia Tavaklım Naturel Sızma Zeytinyağı için Kaz Dağları'nın doğal ruhunu yansıtan, premium etiket ve ambalaj tasarımı.",
+        "icon": "fa-leaf",
+        "gradient": "brand-gradient",
+        "pdfPath": "tum-markalar/basili-ve-editoryal/Troia-Tavaklim-Etiket-Sunumu.pdf",
+        "metrics": [
+            {
+                "val": "Naturel Sızma",
+                "lbl": "Ürün Grubu"
+            },
+            {
+                "val": "Etiket",
+                "lbl": "Ambalaj Tasarımı"
+            }
+        ],
+        "challenge": "Naturel sızma zeytinyağının doğal, saf ve yerel karakterini raf üzerinde premium bir etiket diliyle öne çıkarmak."
     }
 ]
