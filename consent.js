@@ -75,6 +75,38 @@
         });
     }
 
+    /* ---------- Meta Pikseli (yalnızca pazarlama izniyle) ---------- */
+    var PIXEL_ID = '876755502162549';
+    var pixelLoaded = false;
+
+    function loadMetaPixel() {
+        if (pixelLoaded) return;
+        pixelLoaded = true;
+        /* Standart Meta Pixel yükleyicisi: fbevents.js yalnızca bu fonksiyon çağrılınca eklenir */
+        (function (f, b, e, v, n, t, s) {
+            if (f.fbq) return;
+            n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+            if (!f._fbq) f._fbq = n;
+            n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+            t = b.createElement(e); t.async = true; t.src = v;
+            s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+        })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+        /* Otomatik eşleştirme ve otomatik olayları kapat: ad/telefon/e-posta Piksele gönderilmez */
+        window.fbq('set', 'autoConfig', false, PIXEL_ID);
+        window.fbq('init', PIXEL_ID);
+        window.fbq('track', 'PageView');
+    }
+
+    document.addEventListener('dg-consent-granted', loadMetaPixel);
+    document.addEventListener('dg-consent-revoked', function () {
+        if (window.fbq) window.fbq('consent', 'revoke');
+    });
+
+    /* İletişim/teklif formu gönderilince çağrılır. Hiçbir form verisi iletilmez. */
+    window.dgTrackLead = function () {
+        if (window.dgConsent.marketing && window.fbq) window.fbq('track', 'Lead');
+    };
+
     /* ---------- İzni uygula ---------- */
     function apply(c) {
         var wasMarketing = window.dgConsent.marketing;

@@ -82,6 +82,7 @@ window.processContactForm = function(evt, el) {
 
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: 'generate_lead', form_subject: subjectVal });
+        if (typeof window.dgTrackLead === 'function') { window.dgTrackLead(); }
         if (typeof gtag_report_conversion === 'function') {
             gtag_report_conversion();
         }
