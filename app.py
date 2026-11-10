@@ -467,6 +467,30 @@ def api_register():
 
     return jsonify(res)
 
+@app.route("/api/meta/event", methods=["POST"])
+def api_meta_event():
+    """Tarayıcı pikselinden gelen olayı aynı event_id ile Meta CAPI'ye iletir (tekilleştirme)."""
+    try:
+        data = request.get_json(silent=True) or {}
+        user = None
+        try:
+            user = get_current_user()
+        except Exception:
+            user = None
+        email = (user or {}).get("email")
+        sent = meta_capi.send_client_event(
+            request,
+            data.get("event_name"),
+            data.get("event_id"),
+            data.get("source_url"),
+            data.get("params"),
+            email=email,
+        )
+        return jsonify({"ok": bool(sent)})
+    except Exception as e:
+        print(f"[meta_capi] /api/meta/event error: {e}")
+        return jsonify({"ok": False}), 200
+
 @app.route("/api/auth/login", methods=["POST"])
 def api_login():
     data = request.json or {}

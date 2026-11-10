@@ -1537,7 +1537,7 @@ function setupForms() {
                     if (window.mcTrack && data.user && data.user.id) {
                         const regEventId = String(data.user.id);
                         window.mcTrack("CompleteRegistration", { content_name: "QR Studio Ücretsiz" }, { eventID: regEventId, once: "reg_" + regEventId, persist: true });
-                        window.mcTrack("StartTrial", { value: 0, currency: "TRY" }, { once: "trial_" + regEventId, persist: true });
+                        window.mcTrack("StartTrial", { value: 0, currency: "TRY" }, { eventID: "trial_" + regEventId, once: "trial_" + regEventId, persist: true });
                     }
                 } catch (_) {}
                 const savedPending = await processPendingQRPurchaseOrSave(data.token);

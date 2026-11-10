@@ -51,14 +51,27 @@
     var onceKey = opts.once ? "mc_once_" + opts.once : null;
     if (onceKey && store && store.getItem(onceKey)) return false;
     try {
-      if (opts.eventID) {
-        window.fbq("track", name, params || {}, { eventID: String(opts.eventID) });
-      } else {
-        window.fbq("track", name, params || {});
-      }
+      var eid = opts.eventID ? String(opts.eventID) : genEventId();
+      window.fbq("track", name, params || {}, { eventID: eid });
       if (onceKey && store) store.setItem(onceKey, "1");
+      relay(name, eid, params);
       return true;
     } catch (e) { return false; }
+  }
+  var RELAY = { ViewContent: 1, InitiateCheckout: 1, AddPaymentInfo: 1 };
+  function genEventId() {
+    return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
+  // Aynı event_id ile sunucu tarafı (CAPI) gönderimi — tekilleştirme için
+  function relay(name, eid, params) {
+    if (!RELAY[name]) return;
+    try {
+      fetch("/api/meta/event", {
+        method: "POST", keepalive: true, credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + (localStorage.getItem("jwt_token") || "") },
+        body: JSON.stringify({ event_name: name, event_id: eid, params: params || {}, source_url: location.href.split("#")[0] })
+      }).catch(function () {});
+    } catch (e) {}
   }
   window.mcTrack = track;
   window.mcConsentGranted = consentGranted;

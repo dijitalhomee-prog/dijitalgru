@@ -181,15 +181,48 @@ def send_registration(req, user):
             fbp=req.cookies.get("_fbp"),
             fbc=req.cookies.get("_fbc"),
         )
-        return send_event(
+        sent = send_event(
             "CompleteRegistration",
             str(user.get("id")),
             req.headers.get("Referer") or SITE_URL,
             ud,
             {"content_name": "QR Studio Ücretsiz"},
         )
+        # StartTrial: tarayıcıdaki eventID ("trial_<id>") ile aynı
+        send_event(
+            "StartTrial",
+            "trial_" + str(user.get("id")),
+            req.headers.get("Referer") or SITE_URL,
+            ud,
+            {"value": 0, "currency": "TRY"},
+        )
+        return sent
     except Exception as e:
         print(f"[meta_capi] registration error: {e}")
+        return False
+
+
+# Tarayıcıdan röle edilebilen olaylar (CompleteRegistration/StartTrial/Purchase sunucuda kendi akışında gönderilir)
+CLIENT_EVENTS = {"ViewContent", "InitiateCheckout", "AddPaymentInfo"}
+
+
+def send_client_event(req, event_name, event_id, source_url, params, email=None):
+    """Tarayıcı pikseliyle aynı event_id ile sunucu tarafı gönderim (tekilleştirme)."""
+    try:
+        if event_name not in CLIENT_EVENTS or not event_id or not capi_enabled() or not consent_ok(req):
+            return False
+        if not isinstance(params, dict):
+            params = {}
+        ud = build_user_data(
+            email=email,
+            ip=_client_ip(req),
+            user_agent=req.headers.get("User-Agent"),
+            fbp=req.cookies.get("_fbp"),
+            fbc=req.cookies.get("_fbc"),
+        )
+        return send_event(event_name, str(event_id)[:64], source_url or req.headers.get("Referer") or SITE_URL, ud, params)
+    except Exception as e:
+        print(f"[meta_capi] client event error: {e}")
         return False
 
 
