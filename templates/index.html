@@ -8,7 +8,7 @@
     <meta name="description" content="Basılı materyallerinizdeki QR kodları değiştirmeden hedef adresinizi anında güncelleyin. Dijital Kartvizit, Restoran Menüsü ve Gelişmiş Analizler.">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/style.css?v=20260812_v4">
+    <link rel="stylesheet" href="/static/css/style.css?v=20261110_modal">
     <!-- Meta Pixel (yalnızca çerez onayı verildiyse yüklenir; ID sunucudan META_PIXEL_ID env ile gelir) -->
     <script>window.META_PIXEL_ID = {{ (meta_pixel_id or '') | tojson }};</script>
     <script src="/static/js/meta-pixel.js?v=20261110_1"></script>
@@ -1826,6 +1826,20 @@
         </div>
     </div>
 
+    <!-- PAYMENT RESULT MODAL -->
+    <div class="modal-overlay" id="modal-payment-result">
+        <div class="modal-content" style="max-width: 440px; text-align: center;">
+            <div id="payment-result-icon" style="font-size: 44px; margin-bottom: 8px;">⚠️</div>
+            <h3 id="payment-result-title" style="font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 10px;"></h3>
+            <p id="payment-result-text" style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;"></p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button id="payment-result-retry" type="button" class="btn-primary" onclick="retryLastCheckout()" style="width: 100%; justify-content: center; padding: 12px;">Tekrar dene</button>
+                <button id="payment-result-panel" type="button" class="btn-primary" onclick="goToPanelAfterPayment()" style="width: 100%; justify-content: center; padding: 12px; display: none;">Panele git</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-payment-result')" style="width: 100%; justify-content: center; padding: 12px;">Kapat</button>
+            </div>
+        </div>
+    </div>
+
     <!-- BILLING & IDENTITY MODAL -->
     <div class="modal-overlay" id="billing-modal">
         <div class="modal-content" style="max-width: 500px; width: 92%;">
@@ -1836,6 +1850,8 @@
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
                 Bankalar ve iyzico 3D Secure kart doğrulaması ve e-Arşiv fatura oluşturulması için gerçek ad-soyad, T.C. Kimlik no ve telefon bilgileri gereklidir.
             </p>
+            <div id="billing-plan-summary" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:12px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4); color:#d1fae5; font-size:13px; font-weight:600;"></div>
+            <div id="billing-error" role="alert" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:12px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.45); color:#fecaca; font-size:13px;"></div>
             <form id="billing-form">
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label class="form-label" style="font-size: 12px;">Kart Sahibi Adı Soyadı</label>
@@ -2033,6 +2049,7 @@
                 <h3 style="font-size: 20px; font-weight: 700;">Hesap Girişi / Kayıt</h3>
                 <button onclick="closeModal('auth-modal')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
             </div>
+            <div id="auth-plan-note" role="status" style="display:none; margin-bottom:16px; padding:12px 14px; border-radius:12px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.45); color:#e0e7ff; font-size:13px; line-height:1.5;"></div>
 
             <!-- Login Form -->
             <form id="login-form">
@@ -2065,6 +2082,7 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=20261110_meta_pixel"></script>
+    <script src="/static/js/ui-dialogs.js?v=20261110_1"></script>
+    <script src="/static/js/app.js?v=20261110_flow"></script>
 </body>
 </html>

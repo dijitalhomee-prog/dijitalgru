@@ -135,7 +135,7 @@ async function handlePDFUpload(input) {
     const file = input.files[0];
     
     if (!file.name.toLowerCase().endsWith('.pdf')) {
-        alert('Lütfen geçerli bir PDF dosyası seçin.');
+        uiToast('Lütfen geçerli bir PDF dosyası seçin.');
         return;
     }
 
@@ -161,14 +161,14 @@ async function handlePDFUpload(input) {
             uploadedPdfUrl = data.pdf_url;
             statusText.innerText = `PDF Yüklendi: ${file.name}`;
             statusText.style.color = '#34d399';
-            alert('PDF Menünüz başarıyla yüklendi!');
+            uiToast('PDF Menünüz başarıyla yüklendi!');
             updateLivePreview();
         } else {
-            alert(data.error || 'PDF yükleme hatası oluştu.');
+            uiToast(data.error || 'PDF yükleme hatası oluştu.');
             statusText.innerText = 'Tıklayın ve PDF Menünüzü Seçin (.pdf)';
         }
     } catch (err) {
-        alert('Sunucu bağlantı hatası oluştu.');
+        uiToast('Sunucu bağlantı hatası oluştu.');
         statusText.innerText = 'Tıklayın ve PDF Menünüzü Seçin (.pdf)';
     }
 }
@@ -1393,7 +1393,7 @@ function setUserLoggedOut() {
 
 function logout() {
     setUserLoggedOut();
-    alert("Başarıyla çıkış yapıldı.");
+    uiToast("Başarıyla çıkış yapıldı.");
     window.location.reload();
 }
 
@@ -1417,7 +1417,7 @@ async function processPendingQRPurchaseOrSave(token) {
 
         const data = await res.json();
         if (res.ok) {
-            alert(" Hesabınız oluşturuldu ve hazırladığınız QR kod başarıyla hesabınıza kaydedildi!");
+            uiToast(" Hesabınız oluşturuldu ve hazırladığınız QR kod başarıyla hesabınıza kaydedildi!");
             loadDashboardData();
             
             // Switch active view to Dashboard Tab
@@ -1434,7 +1434,7 @@ async function processPendingQRPurchaseOrSave(token) {
             }
             return true;
         } else {
-            alert("QR Kod kaydedilirken hata oluştu: " + (data.error || "Bilinmeyen hata"));
+            uiToast("QR Kod kaydedilirken hata oluştu: " + (data.error || "Bilinmeyen hata"));
             return false;
         }
     } catch (err) {
@@ -1471,16 +1471,16 @@ function setupForms() {
                 localStorage.setItem("jwt_token", data.token);
                 const savedPending = await processPendingQRPurchaseOrSave(data.token);
                 closeModal("auth-modal");
-                checkAuthStatus();
-                if (!savedPending) {
-                    alert("✅ Giriş başarılı!");
+                await checkAuthStatus();
+                if (!(await continuePendingPlan()) && !savedPending) {
+                    uiToast("✅ Giriş başarılı!");
                 }
             } else {
-                alert("❌ " + (data.error || "Giriş hatası. Lütfen e-posta ve şifrenizi kontrol edin."));
+                uiToast("❌ " + (data.error || "Giriş hatası. Lütfen e-posta ve şifrenizi kontrol edin."));
             }
         } catch (err) {
             console.error("Login error:", err);
-            alert("Sunucuya bağlanırken bir hata oluştu.");
+            uiToast("Sunucuya bağlanırken bir hata oluştu.");
         } finally {
             if (submitBtn) {
                 submitBtn.disabled = false;
@@ -1523,16 +1523,16 @@ function setupForms() {
                 } catch (_) {}
                 const savedPending = await processPendingQRPurchaseOrSave(data.token);
                 closeModal("auth-modal");
-                checkAuthStatus();
-                if (!savedPending) {
-                    alert("✅ Kayıt başarılı! Hesabınız oluşturuldu.");
+                await checkAuthStatus();
+                if (!(await continuePendingPlan()) && !savedPending) {
+                    uiToast("✅ Kayıt başarılı! Hesabınız oluşturuldu.");
                 }
             } else {
-                alert("❌ " + (data.error || "Kayıt hatası oluştu."));
+                uiToast("❌ " + (data.error || "Kayıt hatası oluştu."));
             }
         } catch (err) {
             console.error("Register error:", err);
-            alert("Sunucuya bağlanırken bir hata oluştu.");
+            uiToast("Sunucuya bağlanırken bir hata oluştu.");
         } finally {
             if (submitBtn) {
                 submitBtn.disabled = false;
@@ -1547,7 +1547,7 @@ function setupForms() {
 
         if (!token) {
             pendingQRPayload = payload; // Temporarily store draft in memory
-            alert("QR Kodunuzu hesabınıza kaydetmek için lütfen ücretsiz üye olun veya giriş yapın.");
+            uiToast("QR Kodunuzu hesabınıza kaydetmek için lütfen ücretsiz üye olun veya giriş yapın.");
             openModal("auth-modal");
             return;
         }
@@ -1563,11 +1563,11 @@ function setupForms() {
 
         const data = await res.json();
         if (res.ok) {
-            alert(" QR Kodunuz başarıyla hesabınıza kaydedildi!");
+            uiToast(" QR Kodunuz başarıyla hesabınıza kaydedildi!");
             loadDashboardData();
             document.getElementById("nav-dash-link").click();
         } else {
-            alert(data.error || "Hata oluştu.");
+            uiToast(data.error || "Hata oluştu.");
         }
     });
 }
@@ -1673,7 +1673,7 @@ async function updateQRFolder(qrId, folderName) {
 
     let targetFolder = folderName;
     if (folderName === "__new__") {
-        const customName = prompt("Lütfen yeni klasör adını girin:");
+        const customName = await uiPrompt("Lütfen yeni klasör adını girin:", {title: "Yeni klasör", placeholder: "Klasör adı", okText: "Oluştur"});
         if (!customName || !customName.trim()) {
             loadDashboardData();
             return;
@@ -1774,7 +1774,7 @@ async function toggleQRStatus(qrId, isChecked) {
 }
 
 async function deleteQRCode(qrId) {
-    if (!confirm("Bu QR kodu arşive kaldırmak istediğinize emin misiniz?")) return;
+    if (!(await uiConfirm("Bu QR kodu arşive kaldırmak istediğinize emin misiniz?", {danger: true}))) return;
     const token = localStorage.getItem("jwt_token");
     if (!token) return;
     try {
@@ -1803,7 +1803,7 @@ async function restoreQRCode(qrId) {
 }
 
 async function permanentDeleteQRCode(qrId) {
-    if (!confirm("Bu QR kodu kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz!")) return;
+    if (!(await uiConfirm("Bu QR kodu kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz!", {danger: true}))) return;
     const token = localStorage.getItem("jwt_token");
     if (!token) return;
     try {
@@ -1818,7 +1818,7 @@ async function permanentDeleteQRCode(qrId) {
 }
 
 function openQRAnalytics(qrId, title) {
-    alert(` "${title}" Analitik Bilgileri:\nEşsiz Ziyaretçiler ve Tüm Cihaz Taramaları başarıyla kaydedilmiştir.`);
+    uiToast(` "${title}" Analitik Bilgileri:\nEşsiz Ziyaretçiler ve Tüm Cihaz Taramaları başarıyla kaydedilmiştir.`);
 }
 
 // Render User QR Codes matching exact specification
@@ -1988,10 +1988,10 @@ function copyShareLink(url, btn) {
                 btn.style.color = "";
             }, 2000);
         }).catch(() => {
-            prompt("Paylaşım Linkiniz:", url);
+            uiShowText("Paylaşım Linkiniz", url);
         });
     } else {
-        prompt("Paylaşım Linkiniz:", url);
+        uiShowText("Paylaşım Linkiniz", url);
     }
 }
 
@@ -2003,6 +2003,11 @@ function closeModal(id) {
     document.getElementById(id).classList.remove("active");
     if (id === "auth-modal") {
         pendingQRPayload = null; // Clear pending draft if user closes auth modal
+        if (typeof hideAuthPlanNote === "function") hideAuthPlanNote();
+    }
+    if (id === "modal-iyzico-checkout" && typeof checkoutInProgress !== "undefined" && checkoutInProgress) {
+        checkoutInProgress = false;
+        if (typeof showPaymentResult === "function") showPaymentResult("cancelled");
     }
 }
 
@@ -2037,46 +2042,156 @@ function setBillingCycle(cycle) {
     });
 }
 
-// Buy Plan with iyzico Checkout
+// ===== Paket satın alma akışı =====
+// Akış: paket butonu -> (girişsiz: kayıt/giriş modalı + seçimi sessionStorage'a yaz) -> fatura adımı -> iyzico -> sonuç modalı
+const PENDING_PLAN_KEY = "pending_plan";
+const LAST_CHECKOUT_KEY = "last_checkout";
+const PLAN_LABELS = { starter: "Başlangıç", advanced: "Profesyonel", business: "Kurumsal" };
+const CYCLE_LABELS = { monthly: "Aylık", semi_annual: "6 Aylık", annual: "Yıllık" };
 let pendingCheckoutPlan = null;
+let checkoutInProgress = false;
 
-async function buyPlan(planName, skipTracking) {
-    // Meta Pixel: paket seçme butonuna tıklama (plan+dönem başına oturumda tek sefer)
-    if (!skipTracking) {
-        try {
-            const info = window.mcPlanInfo && window.mcPlanInfo(planName, currentCycle);
-            if (info && window.mcTrack) {
-                window.mcTrack("InitiateCheckout", { value: info.value, currency: "TRY", content_name: info.name }, { once: "ic_" + planName + "_" + info.cycle });
-            }
-        } catch (_) {}
-    }
+function ssSet(key, obj) { try { sessionStorage.setItem(key, JSON.stringify(obj)); } catch (_) {} }
+function ssGet(key, maxAgeMs) {
+    try {
+        const raw = sessionStorage.getItem(key);
+        if (!raw) return null;
+        const o = JSON.parse(raw);
+        if (!o || !PLAN_LABELS[o.plan]) return null;
+        if (maxAgeMs && o.ts && (Date.now() - o.ts) > maxAgeMs) return null;
+        return o;
+    } catch (_) { return null; }
+}
+
+function savePendingPlan(plan, cycle) { ssSet(PENDING_PLAN_KEY, { plan, cycle, ts: Date.now() }); }
+function readPendingPlan() { return ssGet(PENDING_PLAN_KEY, 2 * 60 * 60 * 1000); }
+function clearPendingPlan() { try { sessionStorage.removeItem(PENDING_PLAN_KEY); } catch (_) {} }
+
+function showAuthPlanNote(plan) {
+    const el = document.getElementById("auth-plan-note");
+    if (!el) return;
+    el.textContent = `${PLAN_LABELS[plan] || "Seçtiğiniz"} paketi seçtiniz — devam etmek için ücretsiz hesap açın veya giriş yapın.`;
+    el.style.display = "block";
+}
+function hideAuthPlanNote() {
+    const el = document.getElementById("auth-plan-note");
+    if (el) el.style.display = "none";
+}
+
+function formatTRY(v) {
+    return Number(v).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺";
+}
+
+function fillBillingSummary(plan, cycle) {
+    const el = document.getElementById("billing-plan-summary");
+    if (!el) return;
+    const info = window.mcPlanInfo && window.mcPlanInfo(plan, cycle);
+    if (!info) { el.style.display = "none"; return; }
+    el.textContent = `Seçilen paket: ${info.name} — ${CYCLE_LABELS[info.cycle] || ""} ödeme, toplam ${formatTRY(info.value)}`;
+    el.style.display = "block";
+}
+
+function showBillingError(msg) {
+    const el = document.getElementById("billing-error");
+    if (!el) return;
+    if (msg) { el.textContent = msg; el.style.display = "block"; }
+    else { el.textContent = ""; el.style.display = "none"; }
+}
+
+function trackOnce(name, plan, withName) {
+    try {
+        const info = window.mcPlanInfo && window.mcPlanInfo(plan, currentCycle);
+        if (!info || !window.mcTrack) return;
+        const params = { value: info.value, currency: "TRY" };
+        if (withName) params.content_name = info.name;
+        const prefix = name === "InitiateCheckout" ? "ic_" : "api_";
+        window.mcTrack(name, params, { once: prefix + plan + "_" + info.cycle });
+    } catch (_) {}
+}
+
+// 1) Paket butonu: giriş yapmış olsun olmasın InitiateCheckout (plan+dönem başına oturumda bir kez)
+function buyPlan(planName) {
+    trackOnce("InitiateCheckout", planName, true);
     const token = localStorage.getItem("jwt_token");
     if (!token) {
-        alert("Satın alma işlemi yapmak için lütfen giriş yapın veya ücretsiz hesap oluşturun.");
+        savePendingPlan(planName, currentCycle);
+        showAuthPlanNote(planName);
         openModal("auth-modal");
         return;
     }
+    openBillingStep(planName, currentCycle);
+}
 
-    const clickedBtn = (typeof event !== "undefined" && event && event.target) ? event.target : null;
-    const origText = clickedBtn ? clickedBtn.innerHTML : "";
-    if (clickedBtn) {
-        clickedBtn.disabled = true;
-        clickedBtn.innerHTML = "Ödeme Başlatılıyor...";
+// Giriş/kayıt başarılı olunca: kaydedilmiş paket varsa doğrudan fatura adımına geç
+async function continuePendingPlan() {
+    const pp = readPendingPlan();
+    if (!pp) return false;
+    clearPendingPlan();
+    hideAuthPlanNote();
+    await openBillingStep(pp.plan, pp.cycle);
+    return true;
+}
+
+// 2) Fatura ve Güvenlik Bilgileri adımı
+async function openBillingStep(planName, cycle) {
+    if (cycle && cycle !== currentCycle) setBillingCycle(cycle);
+    pendingCheckoutPlan = planName;
+    fillBillingSummary(planName, currentCycle);
+    showBillingError("");
+
+    const fill = (id, val, onlyIfEmpty) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (onlyIfEmpty && el.value) return;
+        el.value = val || "";
+    };
+    const fillFrom = (u, onlyIfEmpty) => {
+        if (!u) return;
+        fill("billing-name", u.name, onlyIfEmpty);
+        fill("billing-identity", u.identity_number, onlyIfEmpty);
+        fill("billing-gsm", u.gsm_number, onlyIfEmpty);
+        fill("billing-city", u.city, onlyIfEmpty);
+        fill("billing-address", u.address, onlyIfEmpty);
+    };
+    fillFrom(currentUser, false);
+    openModal("billing-modal");
+
+    try {
+        const token = localStorage.getItem("jwt_token");
+        const res = await fetch("/api/auth/me", { headers: { "Authorization": `Bearer ${token}` } });
+        if (res.ok) {
+            const data = await res.json();
+            currentUser = data.user;
+            fillFrom(currentUser, true);
+        }
+    } catch (_) {}
+}
+
+// 3) iyzico ödeme formunu başlat
+async function startCheckout(planName) {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) {
+        closeModal("billing-modal");
+        savePendingPlan(planName, currentCycle);
+        showAuthPlanNote(planName);
+        openModal("auth-modal");
+        return;
     }
+    ssSet(LAST_CHECKOUT_KEY, { plan: planName, cycle: currentCycle, ts: Date.now() });
 
     try {
         const res = await fetch("/api/payment/checkout", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify({ plan_key: planName, plan: planName, cycle: currentCycle })
         });
 
         if (res.status === 401) {
-            alert("Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.");
             localStorage.removeItem("jwt_token");
+            closeModal("billing-modal");
+            savePendingPlan(planName, currentCycle);
+            showAuthPlanNote(planName);
+            uiToast("Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın; seçtiğiniz paket korunacak.");
             openModal("auth-modal");
             return;
         }
@@ -2085,13 +2200,15 @@ async function buyPlan(planName, skipTracking) {
         if (data.status === "requires_billing_info") {
             pendingCheckoutPlan = planName;
             if (data.user) {
-                if (document.getElementById("billing-name")) document.getElementById("billing-name").value = data.user.name || "";
-                if (document.getElementById("billing-identity")) document.getElementById("billing-identity").value = data.user.identity_number || "";
-                if (document.getElementById("billing-gsm")) document.getElementById("billing-gsm").value = data.user.gsm_number || "";
-                if (document.getElementById("billing-city")) document.getElementById("billing-city").value = data.user.city || "";
-                if (document.getElementById("billing-address")) document.getElementById("billing-address").value = data.user.address || "";
+                const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ""; };
+                set("billing-name", data.user.name);
+                set("billing-identity", data.user.identity_number);
+                set("billing-gsm", data.user.gsm_number);
+                set("billing-city", data.user.city);
+                set("billing-address", data.user.address);
             }
-            alert(data.error || "Lütfen faturanız ve iyzico kart doğrulaması için bilgilerinizi tamamlayın.");
+            fillBillingSummary(planName, currentCycle);
+            showBillingError(data.error || "Lütfen faturanız ve iyzico kart doğrulaması için bilgilerinizi tamamlayın.");
             openModal("billing-modal");
             return;
         }
@@ -2101,45 +2218,112 @@ async function buyPlan(planName, skipTracking) {
                 const container = document.getElementById("iyzico-checkout-container");
                 if (container) {
                     container.innerHTML = data.checkout_form_content;
-                    // Execute dynamic script tags returned inside iyzico checkoutFormContent
+                    // iyzico checkoutFormContent içindeki script etiketlerini çalıştır
                     const scripts = container.getElementsByTagName("script");
                     for (let i = 0; i < scripts.length; i++) {
                         const newScript = document.createElement("script");
                         newScript.type = "text/javascript";
-                        if (scripts[i].src) {
-                            newScript.src = scripts[i].src;
-                        } else {
-                            newScript.text = scripts[i].text;
-                        }
+                        if (scripts[i].src) newScript.src = scripts[i].src;
+                        else newScript.text = scripts[i].text;
                         document.head.appendChild(newScript);
                     }
                 }
+                closeModal("billing-modal");
+                checkoutInProgress = true;
                 openModal("modal-iyzico-checkout");
             } else if (data.payment_page_url) {
                 window.location.href = data.payment_page_url;
             } else {
-                alert("Ödeme formu yüklenemedi. Lütfen tekrar deneyin.");
+                closeModal("billing-modal");
+                showPaymentResult("error", "Ödeme formu yüklenemedi. Lütfen tekrar deneyin.");
             }
         } else {
-            alert(data.error || "Ödeme başlatılamadı.");
+            closeModal("billing-modal");
+            showPaymentResult("error", data.error || "Ödeme başlatılamadı.");
         }
     } catch (err) {
-        alert("Sunucu bağlantı hatası oluştu. Lütfen tekrar deneyin.");
-    } finally {
-        if (clickedBtn) {
-            clickedBtn.disabled = false;
-            clickedBtn.innerHTML = origText;
-        }
+        closeModal("billing-modal");
+        showPaymentResult("error", "Sunucu bağlantı hatası oluştu. Lütfen tekrar deneyin.");
     }
 }
 
-// Billing Form Submission Listener
+// 4) Ödeme sonucu modalı (alert yerine): success | failed | cancelled | error
+function showPaymentResult(kind, message) {
+    const modal = document.getElementById("modal-payment-result");
+    if (!modal) { uiToast(message || "İşlem tamamlanamadı.", kind === "success" ? "success" : "error"); return; }
+    const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    const retryBtn = document.getElementById("payment-result-retry");
+    const panelBtn = document.getElementById("payment-result-panel");
+    const defaults = {
+        success: ["🎉", "Ödemeniz alındı", "Paketiniz aktif edildi. Panelinizden kullanmaya başlayabilirsiniz."],
+        failed: ["⚠️", "Ödeme tamamlanamadı", "Ödemeniz onaylanmadı. Kartınızdan çekim yapılmadı. Tekrar deneyebilirsiniz."],
+        cancelled: ["ℹ️", "Ödeme tamamlanmadı", "Ödeme penceresini kapattınız. Seçtiğiniz paket sizi bekliyor; istediğiniz zaman kaldığınız yerden devam edebilirsiniz."],
+        error: ["⚠️", "Bir sorun oluştu", "İşlem şu anda tamamlanamadı. Lütfen tekrar deneyin."]
+    };
+    const d = defaults[kind] || defaults.error;
+    set("payment-result-icon", d[0]);
+    set("payment-result-title", d[1]);
+    set("payment-result-text", message || d[2]);
+    if (retryBtn) retryBtn.style.display = kind === "success" ? "none" : "inline-flex";
+    if (panelBtn) panelBtn.style.display = kind === "success" ? "inline-flex" : "none";
+    openModal("modal-payment-result");
+}
+
+function retryLastCheckout() {
+    closeModal("modal-payment-result");
+    const last = ssGet(LAST_CHECKOUT_KEY, 24 * 60 * 60 * 1000);
+    const token = localStorage.getItem("jwt_token");
+    if (last && token) {
+        if (last.cycle && last.cycle !== currentCycle) setBillingCycle(last.cycle);
+        pendingCheckoutPlan = last.plan;
+        startCheckout(last.plan);
+        return;
+    }
+    if (last && !token) {
+        savePendingPlan(last.plan, last.cycle);
+        showAuthPlanNote(last.plan);
+        openModal("auth-modal");
+        return;
+    }
+    const pricingLink = document.querySelector('.nav-link[data-target="pricing-tab"]');
+    if (pricingLink) pricingLink.click();
+}
+
+function goToPanelAfterPayment() {
+    closeModal("modal-payment-result");
+    const dash = document.getElementById("nav-dash-link");
+    if (dash) dash.click();
+}
+
+// Ödeme sayfasından dönüş (?payment=success|failed&reason=...)
+function handlePaymentReturn() {
+    let params;
+    try { params = new URLSearchParams(window.location.search); } catch (_) { return; }
+    const status = params.get("payment");
+    if (!status) return;
+    const reason = (params.get("reason") || "").slice(0, 300);
+    try { window.history.replaceState({}, "", window.location.pathname.replace(/^\/panel\/?$/, "/")); } catch (_) {}
+    if (status === "success") {
+        checkAuthStatus();
+        showPaymentResult("success");
+    } else {
+        showPaymentResult("failed", reason ? `Ödemeniz onaylanmadı: ${reason} Kartınızdan çekim yapılmadı.` : undefined);
+    }
+}
+document.addEventListener("DOMContentLoaded", handlePaymentReturn);
+
+// 5) Fatura formu: kaydet -> AddPaymentInfo -> ödemeye geç
 const billingForm = document.getElementById("billing-form");
 if (billingForm) {
     billingForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         const token = localStorage.getItem("jwt_token");
         if (!token) return;
+
+        const submitBtn = billingForm.querySelector('button[type="submit"]');
+        const origLabel = submitBtn ? submitBtn.innerText : "";
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "Kaydediliyor..."; }
+        showBillingError("");
 
         const payload = {
             name: document.getElementById("billing-name").value.trim(),
@@ -2152,33 +2336,29 @@ if (billingForm) {
         try {
             const res = await fetch("/api/user/update-billing", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
 
             if (res.ok && data.status === "success") {
-                closeModal("billing-modal");
-                if (pendingCheckoutPlan) {
-                    const planToBuy = pendingCheckoutPlan;
-                    pendingCheckoutPlan = null;
-                    // Meta Pixel: fatura bilgileri başarıyla kaydedildi (kişisel veri GÖNDERİLMEZ)
-                    try {
-                        const info = window.mcPlanInfo && window.mcPlanInfo(planToBuy, currentCycle);
-                        if (info && window.mcTrack) {
-                            window.mcTrack("AddPaymentInfo", { value: info.value, currency: "TRY" }, { once: "api_" + planToBuy + "_" + info.cycle });
-                        }
-                    } catch (_) {}
-                    buyPlan(planToBuy, true);
+                const planToBuy = pendingCheckoutPlan;
+                if (planToBuy) {
+                    // Meta Pixel: fatura bilgileri kaydedildi (kişisel veri GÖNDERİLMEZ)
+                    trackOnce("AddPaymentInfo", planToBuy, false);
+                    if (submitBtn) submitBtn.innerText = "Ödeme hazırlanıyor...";
+                    await startCheckout(planToBuy);
+                } else {
+                    closeModal("billing-modal");
+                    uiToast("Fatura bilgileriniz kaydedildi.", "success");
                 }
             } else {
-                alert(data.error || "Bilgiler kaydedilemedi.");
+                showBillingError(data.error || "Bilgiler kaydedilemedi.");
             }
         } catch (err) {
-            alert("Sunucu bağlantı hatası oluştu.");
+            showBillingError("Sunucu bağlantı hatası oluştu. Lütfen tekrar deneyin.");
+        } finally {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = origLabel; }
         }
     });
 }
@@ -2471,12 +2651,12 @@ async function openQRAnalyticsModal(qrId, title) {
             }
 
         } else {
-            alert(data.error || "Analiz verileri alınamadı.");
+            uiToast(data.error || "Analiz verileri alınamadı.");
             closeModal("modal-qr-analytics");
         }
     } catch (err) {
         console.error("Analytics fetch error:", err);
-        alert("Sunucuya bağlanırken bir hata oluştu.");
+        uiToast("Sunucuya bağlanırken bir hata oluştu.");
         closeModal("modal-qr-analytics");
     }
 }
@@ -2489,7 +2669,7 @@ function downloadAnalyticsFile(format) {
 function downloadQRAnalyticsDirect(qrId, format) {
     const token = localStorage.getItem("jwt_token");
     if (!token) {
-        alert("Lütfen önce oturum açın.");
+        uiToast("Lütfen önce oturum açın.");
         return;
     }
     const downloadUrl = `/api/qr/${qrId}/analytics/export?format=${format || 'csv'}&token=${encodeURIComponent(token)}`;
@@ -2507,7 +2687,7 @@ let currentEditQRType = "url";
 async function openEditQRModal(qrId) {
     const token = localStorage.getItem("jwt_token");
     if (!token) {
-        alert("QR kodunu düzenlemek için lütfen önce giriş yapın.");
+        uiToast("QR kodunu düzenlemek için lütfen önce giriş yapın.");
         openModal("auth-modal");
         return;
     }
@@ -2794,12 +2974,12 @@ async function openEditQRModal(qrId) {
                 `;
             }
         } else {
-            alert(data.error || "QR detayları alınamadı.");
+            uiToast(data.error || "QR detayları alınamadı.");
             closeModal("modal-edit-qr");
         }
     } catch (err) {
         console.error("QR details error:", err);
-        alert("Bağlantı hatası oluştu.");
+        uiToast("Bağlantı hatası oluştu.");
         closeModal("modal-edit-qr");
     }
 }
@@ -2912,14 +3092,14 @@ async function saveQREdit(event) {
 
         if (res.ok && data.status === "success") {
             closeModal("modal-edit-qr");
-            alert("✅ QR Kodu başarıyla güncellendi!");
+            uiToast("✅ QR Kodu başarıyla güncellendi!");
             loadDashboardData();
         } else {
-            alert(data.error || "Güncelleme kaydedilemedi.");
+            uiToast(data.error || "Güncelleme kaydedilemedi.");
         }
     } catch (err) {
         console.error("Save edit error:", err);
-        alert("Sunucuya bağlanırken bir hata oluştu.");
+        uiToast("Sunucuya bağlanırken bir hata oluştu.");
     } finally {
         if (saveBtn) {
             saveBtn.disabled = false;

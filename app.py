@@ -1587,6 +1587,10 @@ def api_iyzico_callback():
     if err or not res or res.get("status") != "success":
         error_msg = err or (res.get("error") if res else "Ödeme doğrulanamadı.")
         print(f"[/api/iyzico/callback] Payment verification failed:", error_msg)
+        import html as _html
+        from urllib.parse import quote as _quote
+        _reason_q = _quote(str(error_msg)[:200])
+        error_msg = _html.escape(str(error_msg))
         return f"""
         <html>
             <head><title>Ödeme Başarısız</title></head>
@@ -1594,11 +1598,11 @@ def api_iyzico_callback():
                 <div style="max-width: 500px; margin: 0 auto; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
                     <h2 style="color: #ef4444;">⚠️ Ödeme Tamamlanamadı</h2>
                     <p>{error_msg}</p>
-                    <a href="/panel" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #6366f1; color: white; border-radius: 8px; text-decoration: none;">Panele Dön</a>
+                    <a href="/?payment=failed&reason={_reason_q}" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #6366f1; color: white; border-radius: 8px; text-decoration: none;">Panele Dön</a>
                 </div>
                 <script>
                     setTimeout(function() {{
-                        window.location.href = "/panel?payment=failed";
+                        window.location.href = "/?payment=failed&reason={_reason_q}";
                     }}, 4000);
                 </script>
             </body>
@@ -1641,12 +1645,12 @@ def api_iyzico_callback():
                 <h2 style="color: #10b981;">🎉 Ödemeniz Başarıyla Alındı!</h2>
                 <p>Paketiniz <strong>{res.get('plan', '').upper()}</strong> başarıyla aktif edildi.</p>
                 <p style="font-size: 13px; color: #94a3b8;">Fatura No: {res.get('invoice_no')}</p>
-                <a href="/panel?payment=success" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #10b981; color: white; border-radius: 8px; text-decoration: none;">Panele Git</a>
+                <a href="/?payment=success&plan={plan}" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #10b981; color: white; border-radius: 8px; text-decoration: none;">Panele Git</a>
             </div>
             <script>
                 {pixel_script}
                 setTimeout(function() {{
-                    window.location.href = "/panel?payment=success&plan={plan}";
+                    window.location.href = "/?payment=success&plan={plan}";
                 }}, 3500);
             </script>
         </body>

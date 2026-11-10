@@ -22,7 +22,7 @@ async function loadAdminData() {
         // Load System Stats
         const resStats = await fetch("/api/admin/stats", { headers });
         if (resStats.status === 403) {
-            alert("⚠️ Erişim engellendi. Yönetici yetkiniz bulunmamaktadır.");
+            uiToast("⚠️ Erişim engellendi. Yönetici yetkiniz bulunmamaktadır.");
             window.location.href = "/panel";
             return;
         }
@@ -247,7 +247,7 @@ function renderAccountingTransactionsTable(txs) {
 }
 
 async function markRefundRecord(subscriptionId, email, amount) {
-    if (!confirm(`📌 DİKKAT:\n\nAbonelik #${subscriptionId} (${email}, ${amount} ₺) kaydını sistemde 'İADE EDİLDİ' olarak işaretlemek istediğinize emin misiniz?\n\n* Bu işlem toplam muhasebe cirosundan ${amount} ₺ düşecektir.\n* İyzico panelinden gerçek iade işlemini ayrıca yapmayı unutmayın.`)) return;
+    if (!(await uiConfirm(`📌 DİKKAT:\n\nAbonelik #${subscriptionId} (${email}, ${amount} ₺) kaydını sistemde 'İADE EDİLDİ' olarak işaretlemek istediğinize emin misiniz?\n\n* Bu işlem toplam muhasebe cirosundan ${amount} ₺ düşecektir.\n* İyzico panelinden gerçek iade işlemini ayrıca yapmayı unutmayın.`, {danger: true}))) return;
 
     const headers = getAuthHeader();
     if (!headers) return;
@@ -256,13 +256,13 @@ async function markRefundRecord(subscriptionId, email, amount) {
         const res = await fetch(`/api/admin/accounting/refund/${subscriptionId}`, { method: "POST", headers });
         const data = await res.json();
         if (res.ok) {
-            alert("✅ " + data.message);
+            uiToast("✅ " + data.message);
             loadAccountingData();
         } else {
-            alert("⚠️ " + (data.error || "İade kaydı oluşturulamadı."));
+            uiToast("⚠️ " + (data.error || "İade kaydı oluşturulamadı."));
         }
     } catch (err) {
-        alert("Hata oluştu.");
+        uiToast("Hata oluştu.");
     }
 }
 
@@ -492,15 +492,15 @@ async function submitPlanUpdate() {
         });
         const data = await res.json();
         if (res.ok) {
-            alert("✅ " + data.message);
+            uiToast("✅ " + data.message);
             closeModal("modal-update-plan");
             loadAdminData();
             loadAccountingData();
         } else {
-            alert("⚠️ " + (data.error || "Güncelleme başarısız."));
+            uiToast("⚠️ " + (data.error || "Güncelleme başarısız."));
         }
     } catch (err) {
-        alert("Hata oluştu.");
+        uiToast("Hata oluştu.");
     }
 }
 
@@ -520,7 +520,7 @@ async function submitAddTransaction() {
     const updateUserPlan = document.getElementById("tx-modal-update-plan-check").checked;
 
     if (!user) {
-        alert("Lütfen müşteri e-posta adresini veya ID'sini girin.");
+        uiToast("Lütfen müşteri e-posta adresini veya ID'sini girin.");
         return;
     }
 
@@ -543,20 +543,20 @@ async function submitAddTransaction() {
         });
         const data = await res.json();
         if (res.ok) {
-            alert("✅ " + data.message);
+            uiToast("✅ " + data.message);
             closeModal("modal-add-transaction");
             loadAccountingData();
             loadAdminData();
         } else {
-            alert("⚠️ " + (data.error || "İşlem eklenemedi."));
+            uiToast("⚠️ " + (data.error || "İşlem eklenemedi."));
         }
     } catch (err) {
-        alert("Hata oluştu.");
+        uiToast("Hata oluştu.");
     }
 }
 
 async function suspendUser(userId, email) {
-    if (!confirm(`"${email}" kullanıcısını askıya almak istediğinize emin misiniz?\nKullanıcı giriş yapamayacaktır.`)) return;
+    if (!(await uiConfirm(`"${email}" kullanıcısını askıya almak istediğinize emin misiniz?\nKullanıcı giriş yapamayacaktır.`, {danger: true}))) return;
     const headers = getAuthHeader();
     if (!headers) return;
 
@@ -564,18 +564,18 @@ async function suspendUser(userId, email) {
         const res = await fetch(`/api/admin/users/${userId}/suspend`, { method: "POST", headers });
         const data = await res.json();
         if (res.ok) {
-            alert("✅ " + data.message);
+            uiToast("✅ " + data.message);
             loadAdminData();
         } else {
-            alert("⚠️ " + (data.error || "İşlem başarısız."));
+            uiToast("⚠️ " + (data.error || "İşlem başarısız."));
         }
     } catch (err) {
-        alert("Hata oluştu.");
+        uiToast("Hata oluştu.");
     }
 }
 
 async function activateUser(userId, email) {
-    if (!confirm(`"${email}" kullanıcısının hesabını tekrar aktif etmek istediğinize emin misiniz?`)) return;
+    if (!(await uiConfirm(`"${email}" kullanıcısının hesabını tekrar aktif etmek istediğinize emin misiniz?`, {okText: "Aktif et"}))) return;
     const headers = getAuthHeader();
     if (!headers) return;
 
@@ -583,13 +583,13 @@ async function activateUser(userId, email) {
         const res = await fetch(`/api/admin/users/${userId}/activate`, { method: "POST", headers });
         const data = await res.json();
         if (res.ok) {
-            alert("✅ " + data.message);
+            uiToast("✅ " + data.message);
             loadAdminData();
         } else {
-            alert("⚠️ " + (data.error || "İşlem başarısız."));
+            uiToast("⚠️ " + (data.error || "İşlem başarısız."));
         }
     } catch (err) {
-        alert("Hata oluştu.");
+        uiToast("Hata oluştu.");
     }
 }
 
@@ -607,7 +607,7 @@ async function submitUserDelete() {
     const typed = document.getElementById("delete-modal-confirm-input").value.trim().toLowerCase();
 
     if (typed !== expected) {
-        alert("⚠️ E-posta adresi uyuşmuyor! Lütfen onaylamak için tam e-posta adresini yazın.");
+        uiToast("⚠️ E-posta adresi uyuşmuyor! Lütfen onaylamak için tam e-posta adresini yazın.");
         return;
     }
 
@@ -618,14 +618,14 @@ async function submitUserDelete() {
         const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE", headers });
         const data = await res.json();
         if (res.ok) {
-            alert("✅ " + data.message);
+            uiToast("✅ " + data.message);
             closeModal("modal-delete-user");
             loadAdminData();
         } else {
-            alert("⚠️ " + (data.error || "Silme işlemi başarısız."));
+            uiToast("⚠️ " + (data.error || "Silme işlemi başarısız."));
         }
     } catch (err) {
-        alert("Hata oluştu.");
+        uiToast("Hata oluştu.");
     }
 }
 
