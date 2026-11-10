@@ -8,6 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css?v=20260812_v4">
+    <!-- Meta Pixel (yalnızca çerez onayı verildiyse yüklenir; ID sunucudan META_PIXEL_ID env ile gelir) -->
+    <script>window.META_PIXEL_ID = {{ (meta_pixel_id or '') | tojson }};</script>
+    <script src="/static/js/meta-pixel.js?v=20261110_1"></script>
     <style>
         /* Color Swatches & Preset Palette */
         .color-palette {
@@ -1536,6 +1539,7 @@
                     <a href="javascript:void(0)" onclick="openModal('modal-privacy')" style="color: var(--text-muted); text-decoration: none;">Gizlilik Politikası</a>
                     <a href="javascript:void(0)" onclick="openModal('modal-sales')" style="color: var(--text-muted); text-decoration: none;">Mesafeli Satış Sözleşmesi</a>
                     <a href="javascript:void(0)" onclick="openModal('modal-delivery')" style="color: var(--text-muted); text-decoration: none;">Teslimat ve İade Şartları</a>
+                    <a href="javascript:void(0)" onclick="window.mcResetConsent && window.mcResetConsent()" style="color: var(--text-muted); text-decoration: none;">Çerez Tercihleri</a>
                 </div>
             </div>
 
@@ -1654,6 +1658,9 @@
 
                 <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">Oturum Bilgileri ve Çerezler</h4>
                 <p>SİTE, oturumunuzu açık tutabilmek için tarayıcınızda bir kimlik doğrulama bilgisi (token) saklar. Ayrıca, SİTE'yi ziyaret eden kullanıcılar hakkında bilgi toplamak amacıyla çerez (cookie) kullanılabilir. Bunlar, sitede gezinmenizi kolaylaştırmak ve tercihlerinizi saklamak amacıyla kullanılır.</p>
+
+                <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">Reklam Ölçümü (Meta Pixel)</h4>
+                <p>SİTE'de, reklam performansını ölçmek ve reklamlarımızı iyileştirmek amacıyla Meta Platforms (Facebook/Instagram) tarafından sunulan Meta Pixel ve Dönüşümler API'si kullanılmaktadır. Meta Pixel yalnızca sayfanın altında görüntülenen çerez bandında "Kabul et" seçeneğini işaretlemeniz halinde yüklenir; "Reddet" seçmeniz halinde reklam çerezi yüklenmez. Bu kapsamda sayfa görüntüleme, üyelik ve satın alma gibi olaylar ile (yalnızca şifrelenmiş/hash'lenmiş) e-posta ve telefon bilgisi Meta ile paylaşılabilir; T.C. kimlik numarası, kart bilgisi ve adres bilgisi hiçbir koşulda Meta ile paylaşılmaz. Tercihinizi sayfa altındaki "Çerez Tercihleri" bağlantısından dilediğiniz zaman değiştirebilirsiniz.</p>
                 <p>Firmamız işbu Gizlilik Politikası hükümlerini dilediği zaman değiştirebilir. Politikadaki değişiklikler, sitede yayınlandığı anda yürürlüğe girer.</p>
 
                 <h4 style="color: #fff; margin-top: 14px; margin-bottom: 6px;">İletişim Bilgileri</h4>
@@ -2057,6 +2064,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=20260924_vcard_image_upload_fix"></script>
+    <script src="/static/js/app.js?v=20261110_meta_pixel"></script>
 </body>
 </html>

@@ -19,6 +19,7 @@ from auth import register_user, login_user, decode_token, get_user_by_id
 from qr_engine import generate_qr_image
 from payments import create_checkout_form, verify_and_process_iyzico_callback, PLANS
 from cloud_storage import upload_file_to_cloud
+import meta_capi
 from migrate_db import run_migrations
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
@@ -71,7 +72,7 @@ def index():
         "frame_color": "#4F46E5",
         "frame_text_color": "#FFFFFF"
     }, format="base64")
-    resp = make_response(render_template("index.html", initial_qr_image=initial_qr))
+    resp = make_response(render_template("index.html", initial_qr_image=initial_qr, meta_pixel_id=meta_capi.pixel_id()))
     resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     resp.headers["Pragma"] = "no-cache"
     resp.headers["Expires"] = "0"
@@ -457,7 +458,13 @@ def api_register():
     res, err = register_user(name, email, password)
     if err:
         return jsonify({"error": err}), 400
-        
+
+    # Meta CAPI: CompleteRegistration (event_id = yeni kullanıcı id'si; tarayıcıdaki eventID ile aynı)
+    try:
+        meta_capi.send_registration(request, res.get("user") or {})
+    except Exception as e:
+        print(f"[meta_capi] register hook error: {e}")
+
     return jsonify(res)
 
 @app.route("/api/auth/login", methods=["POST"])
@@ -1551,6 +1558,12 @@ def api_iyzico_checkout():
         error_msg = res_json.get("errorMessage") if res_json else "iyzico ödeme formu oluşturulamadı."
         return jsonify({"error": error_msg, "status": "failure"}), 400
         
+    # Meta CAPI: callback farklı site üzerinden döneceği için fbp/fbc/IP/UA/onay bağlamını şimdi sakla
+    try:
+        meta_capi.save_checkout_ctx(request, res_json.get("token"))
+    except Exception as e:
+        print(f"[meta_capi] checkout ctx error: {e}")
+
     return jsonify({
         "status": "success",
         "checkout_form_content": res_json.get("checkoutFormContent"),
@@ -1593,9 +1606,36 @@ def api_iyzico_callback():
         """, 400
         
     plan = res.get("plan", "starter")
+
+    # Meta: ödeme iyzico'dan sunucuda DOĞRULANDI -> CAPI Purchase (event_id = iyzico paymentId).
+    # Callback tekrar çağrılırsa (already_processed) hiçbir şey gönderilmez.
+    purchase = meta_capi.send_purchase(request, token, res)
+    browser_purchase = bool(meta_capi.pixel_id()) and not res.get("already_processed") and bool(purchase.get("event_id"))
+
+    def _js(v):
+        return json.dumps(v, ensure_ascii=False).replace("<", "\\u003c")
+
+    pixel_head = ""
+    pixel_script = ""
+    if meta_capi.pixel_id():
+        pixel_head = (
+            f'<script>window.META_PIXEL_ID = {_js(meta_capi.pixel_id())};</script>'
+            '<script src="/static/js/meta-pixel.js?v=20261110_1"></script>'
+        )
+    if browser_purchase:
+        _params = _js({
+            "value": float(purchase["value"]),
+            "currency": "TRY",
+            "content_name": purchase["content_name"],
+        })
+        _opts = _js({"eventID": purchase["event_id"], "once": "purchase_" + purchase["event_id"], "persist": True})
+        pixel_script = (
+            "try { if (window.mcTrack) window.mcTrack('Purchase', " + _params + ", " + _opts + "); } catch (e) {}"
+        )
+
     return f"""
     <html>
-        <head><title>Ödeme Başarılı!</title></head>
+        <head><title>Ödeme Başarılı!</title>{pixel_head}</head>
         <body style="font-family: sans-serif; text-align: center; padding: 40px; background: #0f172a; color: white;">
             <div style="max-width: 500px; margin: 0 auto; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
                 <h2 style="color: #10b981;">🎉 Ödemeniz Başarıyla Alındı!</h2>
@@ -1604,13 +1644,15 @@ def api_iyzico_callback():
                 <a href="/panel?payment=success" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #10b981; color: white; border-radius: 8px; text-decoration: none;">Panele Git</a>
             </div>
             <script>
+                {pixel_script}
                 setTimeout(function() {{
                     window.location.href = "/panel?payment=success&plan={plan}";
-                }}, 2500);
+                }}, 3500);
             </script>
         </body>
     </html>
     """, 200
+
 
 # --- Admin System Helpers & Audit Logger ---
 

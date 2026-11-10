@@ -1513,6 +1513,14 @@ function setupForms() {
             const data = await res.json();
             if (res.ok) {
                 localStorage.setItem("jwt_token", data.token);
+                // Meta Pixel: API yanıtı başarılı -> tek seferlik; eventID = yeni kullanıcı id'si (sunucu CAPI ile eşleşir)
+                try {
+                    if (window.mcTrack && data.user && data.user.id) {
+                        const regEventId = String(data.user.id);
+                        window.mcTrack("CompleteRegistration", { content_name: "QR Studio Ücretsiz" }, { eventID: regEventId, once: "reg_" + regEventId, persist: true });
+                        window.mcTrack("StartTrial", { value: 0, currency: "TRY" }, { once: "trial_" + regEventId, persist: true });
+                    }
+                } catch (_) {}
                 const savedPending = await processPendingQRPurchaseOrSave(data.token);
                 closeModal("auth-modal");
                 checkAuthStatus();
@@ -2032,7 +2040,16 @@ function setBillingCycle(cycle) {
 // Buy Plan with iyzico Checkout
 let pendingCheckoutPlan = null;
 
-async function buyPlan(planName) {
+async function buyPlan(planName, skipTracking) {
+    // Meta Pixel: paket seçme butonuna tıklama (plan+dönem başına oturumda tek sefer)
+    if (!skipTracking) {
+        try {
+            const info = window.mcPlanInfo && window.mcPlanInfo(planName, currentCycle);
+            if (info && window.mcTrack) {
+                window.mcTrack("InitiateCheckout", { value: info.value, currency: "TRY", content_name: info.name }, { once: "ic_" + planName + "_" + info.cycle });
+            }
+        } catch (_) {}
+    }
     const token = localStorage.getItem("jwt_token");
     if (!token) {
         alert("Satın alma işlemi yapmak için lütfen giriş yapın veya ücretsiz hesap oluşturun.");
@@ -2148,7 +2165,14 @@ if (billingForm) {
                 if (pendingCheckoutPlan) {
                     const planToBuy = pendingCheckoutPlan;
                     pendingCheckoutPlan = null;
-                    buyPlan(planToBuy);
+                    // Meta Pixel: fatura bilgileri başarıyla kaydedildi (kişisel veri GÖNDERİLMEZ)
+                    try {
+                        const info = window.mcPlanInfo && window.mcPlanInfo(planToBuy, currentCycle);
+                        if (info && window.mcTrack) {
+                            window.mcTrack("AddPaymentInfo", { value: info.value, currency: "TRY" }, { once: "api_" + planToBuy + "_" + info.cycle });
+                        }
+                    } catch (_) {}
+                    buyPlan(planToBuy, true);
                 }
             } else {
                 alert(data.error || "Bilgiler kaydedilemedi.");

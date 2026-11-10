@@ -245,6 +245,30 @@ def verify_and_process_iyzico_callback(token):
     conn = get_db()
     cursor = conn.cursor()
 
+    # Idempotency: aynı paymentId daha önce işlendiyse (sayfa yenileme / çift callback)
+    # abonelik tekrar kaydedilmez ve Purchase olayı tekrar gönderilmez.
+    try:
+        cursor.execute(
+            "SELECT invoice_no, amount FROM subscriptions WHERE iyzico_sub_id = ? AND user_id = ?",
+            (str(iyzico_payment_id), user_id),
+        )
+        existing = cursor.fetchone()
+    except Exception:
+        existing = None
+    if existing:
+        conn.close()
+        return {
+            "status": "success",
+            "message": f"{plan_info['name']} ({cycle_info['label']}) paketiniz zaten aktif edildi.",
+            "plan": plan_key,
+            "cycle": cycle,
+            "user_id": user_id,
+            "invoice_no": existing["invoice_no"],
+            "amount": float(existing["amount"]),
+            "payment_id": str(iyzico_payment_id),
+            "already_processed": True
+        }, None
+
     try:
         # 1. Update user plan, limits and subscription end date
         cursor.execute("""
