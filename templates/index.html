@@ -1251,6 +1251,19 @@
         <section id="dashboard-tab" class="page-section">
             <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px;">Yönetim Paneli</h2>
 
+            <!-- Fatura Bildirimi (ödeme yapmış kullanıcılar) -->
+            <div id="invoice-notice" role="status" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); padding: 16px 20px; border-radius: 16px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                    <div style="font-size: 14px; line-height: 1.6; color: #d1fae5;">
+                        <strong style="color: #fff;">🧾 Faturanız için bizimle iletişime geçin</strong><br>
+                        Ödemeniz alındı. Faturanızı düzenleyebilmemiz için lütfen <a href="mailto:dijitalgru@gmail.com?subject=Fatura%20Bilgileri" style="color: #6ee7b7; font-weight: 700;">dijitalgru@gmail.com</a> adresine e-posta göndererek fatura bilgilerinizi iletin:
+                        ad-soyad / unvan, T.C. kimlik veya vergi numarası, vergi dairesi (kurumsalsa) ve fatura adresi.
+                        <span id="invoice-notice-ref" style="display:block; font-size: 12px; color: #a7f3d0; margin-top: 4px;"></span>
+                    </div>
+                    <button type="button" onclick="dismissInvoiceNotice()" aria-label="Kapat" style="background: none; border: none; color: #fff; font-size: 18px; cursor: pointer;">✕</button>
+                </div>
+            </div>
+
             <!-- Trial Expired Warning Banner -->
             <div id="trial-expired-alert" style="display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); padding: 18px 24px; border-radius: 16px; margin-bottom: 24px; backdrop-filter: blur(10px);">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
@@ -2083,6 +2096,6 @@
     </div>
 
     <script src="/static/js/ui-dialogs.js?v=20261110_1"></script>
-    <script src="/static/js/app.js?v=20261110_flow"></script>
+    <script src="/static/js/app.js?v=20261110_invoice"></script>
 </body>
 </html>

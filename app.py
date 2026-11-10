@@ -487,6 +487,25 @@ def api_me():
     user = get_current_user()
     if not user:
         return jsonify({"error": "Yetkisiz erişim"}), 401
+    # Ödeme yapmış (iyzico, iade edilmemiş) kullanıcıya fatura bildirimi göstermek için
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT invoice_no, plan_name, amount, created_at FROM subscriptions "
+            "WHERE user_id = ? AND source = 'iyzico' AND status = 'active' "
+            "AND (refund_status IS NULL OR refund_status = 'none') "
+            "ORDER BY created_at DESC LIMIT 1", (user["id"],))
+        row = cur.fetchone()
+        conn.close()
+        user = dict(user)
+        user["paid_invoice"] = (
+            {"invoice_no": row["invoice_no"], "plan_name": row["plan_name"],
+             "amount": float(row["amount"]), "created_at": row["created_at"]}
+            if row else None
+        )
+    except Exception as ex:
+        print("[api_me] paid_invoice error:", ex)
     return jsonify({"user": user})
 
 @app.route("/api/qr/preview", methods=["POST"])

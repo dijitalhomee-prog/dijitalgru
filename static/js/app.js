@@ -1355,6 +1355,24 @@ function getQRFormPayload() {
 }
 
 // Auth Status Check
+function renderInvoiceNotice() {
+    const box = document.getElementById("invoice-notice");
+    if (!box) return;
+    const inv = currentUser && currentUser.paid_invoice;
+    let dismissed = false;
+    try { dismissed = inv && localStorage.getItem("invoice_notice_dismissed") === inv.invoice_no; } catch (_) {}
+    if (!inv || dismissed) { box.style.display = "none"; return; }
+    const ref = document.getElementById("invoice-notice-ref");
+    if (ref) ref.textContent = `Referans: ${inv.invoice_no} — ${inv.plan_name}`;
+    box.style.display = "block";
+}
+function dismissInvoiceNotice() {
+    const inv = currentUser && currentUser.paid_invoice;
+    try { if (inv) localStorage.setItem("invoice_notice_dismissed", inv.invoice_no); } catch (_) {}
+    const box = document.getElementById("invoice-notice");
+    if (box) box.style.display = "none";
+}
+
 async function checkAuthStatus() {
     const token = localStorage.getItem("jwt_token");
     if (!token) {
@@ -1370,6 +1388,7 @@ async function checkAuthStatus() {
             const data = await res.json();
             currentUser = data.user;
             setUserLoggedIn();
+            renderInvoiceNotice();
             loadDashboardData();
         } else {
             setUserLoggedOut();
@@ -2255,7 +2274,7 @@ function showPaymentResult(kind, message) {
     const retryBtn = document.getElementById("payment-result-retry");
     const panelBtn = document.getElementById("payment-result-panel");
     const defaults = {
-        success: ["🎉", "Ödemeniz alındı", "Paketiniz aktif edildi. Panelinizden kullanmaya başlayabilirsiniz."],
+        success: ["🎉", "Ödemeniz alındı", "Paketiniz aktif edildi. Faturanız için lütfen dijitalgru@gmail.com adresine e-posta ile fatura bilgilerinizi (ad-soyad/unvan, T.C. veya vergi no, adres) iletin."],
         failed: ["⚠️", "Ödeme tamamlanamadı", "Ödemeniz onaylanmadı. Kartınızdan çekim yapılmadı. Tekrar deneyebilirsiniz."],
         cancelled: ["ℹ️", "Ödeme tamamlanmadı", "Ödeme penceresini kapattınız. Seçtiğiniz paket sizi bekliyor; istediğiniz zaman kaldığınız yerden devam edebilirsiniz."],
         error: ["⚠️", "Bir sorun oluştu", "İşlem şu anda tamamlanamadı. Lütfen tekrar deneyin."]
