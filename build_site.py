@@ -170,11 +170,13 @@ NEW_FOOTER_SERVICES = (
 )
 
 GIZLILIK_LINK = '<a href="/gizlilik.html" style="font-size:12px;opacity:.55;margin-left:10px;">Gizlilik</a>'
+COOKIE_LINK = '<a href="#" data-cookie-prefs style="font-size:12px;opacity:.55;margin-left:10px;">Çerez tercihleri</a>'
 KARIYER_LINK = '<a href="/kariyer.html" style="font-size:12px;opacity:.55;margin-left:10px;">Kariyer</a>'
 
 FOOTER_BOTTOM_NEW = (
     '&copy; 2026 Dijital Gru Tasarım Stüdyosu. Tüm Hakları Saklıdır. '
     '<a href="/gizlilik.html" style="font-size:12px;opacity:.55;margin-left:10px;">Gizlilik</a> '
+    '<a href="#" data-cookie-prefs style="font-size:12px;opacity:.55;margin-left:10px;">Çerez tercihleri</a> '
     '<a href="/kariyer.html" style="font-size:12px;opacity:.55;margin-left:10px;">Kariyer</a>'
 )
 
@@ -226,6 +228,9 @@ def common_transform(name, s):
     # gizlilik linki (mevcut footer'lara idempotent ekleme)
     if "/gizlilik.html" not in s:
         s = s.replace(KARIYER_LINK, GIZLILIK_LINK + " " + KARIYER_LINK)
+
+    if "data-cookie-prefs" not in s:
+        s = s.replace(GIZLILIK_LINK, GIZLILIK_LINK + " " + COOKIE_LINK)
 
     # surum
     s = s.replace("style.css?v=5.0", "style.css?v=5.2").replace("app.js?v=6.2", "app.js?v=6.2")
@@ -635,7 +640,7 @@ def absolutize(html):
 def shared_parts():
     h = read("hizmetler.html")
     gtm = re.search(r"<!-- Google Tag Manager -->.*?<!-- End Google Tag Manager -->", h, re.S).group(0)
-    noscript = re.search(r"<!-- Google Tag Manager \(noscript\) -->.*?</noscript>", h, re.S).group(0)
+    noscript = ""  # GTM noscript kaldirildi: izinsiz izleme yapmamak icin (consent.js)
     header = re.search(r"    <!-- Dynamic Grid Background -->.*?(?=    <!-- Inner Page Banner -->)", h, re.S).group(0)
     footer = re.search(r"    <!-- Footer -->.*?</footer>", h, re.S).group(0)
     head_assets = re.search(r"    <!-- Favicon -->.*?(?=</head>)", h, re.S).group(0)
@@ -966,9 +971,14 @@ def build_gizlilik():
                 <h2>7. Başvuru Yolu</h2>
                 <p>Haklarınızı kullanmak için talebinizi <a href="mailto:dijitalgru@gmail.com">dijitalgru@gmail.com</a> adresine e-posta ile iletebilirsiniz. Başvurunuzu en geç 30 gün içinde yanıtlarız. Yanıtımızdan memnun kalmazsanız Kişisel Verileri Koruma Kurumu'na şikâyette bulunma hakkınız saklıdır.</p>
 
-                <h2>8. Çerezler ve Meta Pikseli</h2>
-                <p>Sitemiz, ziyaretçi davranışını ölçmek ve reklam performansını değerlendirmek için Google Tag Manager üzerinden çalışan analiz araçları ve Meta Pikseli kullanabilir. Bu araçlar çerez ve benzeri teknolojilerle sayfa görüntüleme ile form gönderimi gibi etkileşimleri toplar. Bu veriler sizi doğrudan tanımlamaz ve reklam ölçümü ile site iyileştirme amacıyla kullanılır.</p>
-                <p>Çerezleri tarayıcı ayarlarınızdan silebilir veya engelleyebilirsiniz. Meta reklam tercihlerinizi Facebook/Instagram hesabınızın reklam ayarlarından yönetebilirsiniz. Çerezleri engellemeniz sitenin bazı işlevlerini etkileyebilir.</p>
+                <h2 id="cerezler">8. Çerezler ve Meta Pikseli</h2>
+                <p>Sitemizi ilk ziyaretinizde bir çerez bildirimi görürsünüz. <strong>Siz izin vermeden zorunlu olmayan hiçbir çerez veya izleme aracı çalışmaz.</strong> "Kabul et" ve "Reddet" seçenekleri eşit düzeyde sunulur. Üç kategori vardır:</p>
+                <ul>
+                    <li><strong>Zorunlu:</strong> Sitenin çalışması ve çerez tercihinizin hatırlanması için gereklidir. Her zaman açıktır, kapatılamaz. Tercihiniz tarayıcınızda (localStorage) saklanır.</li>
+                    <li><strong>Analitik:</strong> Sayfa görüntüleme ve tıklama gibi etkileşimleri istatistik olarak ölçmemizi sağlar. Google Tag Manager ve Google Analytics bu kategoridedir ve yalnızca analitik izniyle yüklenir.</li>
+                    <li><strong>Pazarlama:</strong> Reklam performansını ölçmek ve reklamları ilgi alanlarınıza göre göstermek için kullanılır. Google Ads etiketi bu kategoridedir. <strong>Meta Pikseli kullanılırsa yalnızca pazarlama izniyle çalışır</strong>; bu izin verilmediyse Meta'ya veri gönderilmez.</li>
+                </ul>
+                <p>Tercihiniz <strong>6 ay</strong> geçerlidir, sonra yeniden sorulur. Dilediğiniz zaman izninizi değiştirebilir veya geri çekebilirsiniz: <a href="#" data-cookie-prefs>Çerez tercihlerini aç</a>. Sayfanın altındaki "Çerez tercihleri" bağlantısıyla da aynı ekrana ulaşırsınız. İzni geri çektiğinizde ilgili çerezler silinir. Ayrıca çerezleri tarayıcı ayarlarınızdan da silebilir veya engelleyebilirsiniz. Meta reklam tercihlerinizi Facebook/Instagram hesabınızın reklam ayarlarından yönetebilirsiniz.</p>
 
                 <h2>9. Değişiklikler</h2>
                 <p>Bu metni gerektiğinde güncelleyebiliriz. Güncel sürüm her zaman bu sayfada yayımlanır.</p>
