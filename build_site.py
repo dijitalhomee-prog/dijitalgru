@@ -169,8 +169,12 @@ NEW_FOOTER_SERVICES = (
     '                        <li><a href="/hizmetler.html">Tüm Hizmetler</a></li>\n'
 )
 
+GIZLILIK_LINK = '<a href="/gizlilik.html" style="font-size:12px;opacity:.55;margin-left:10px;">Gizlilik</a>'
+KARIYER_LINK = '<a href="/kariyer.html" style="font-size:12px;opacity:.55;margin-left:10px;">Kariyer</a>'
+
 FOOTER_BOTTOM_NEW = (
     '&copy; 2026 Dijital Gru Tasarım Stüdyosu. Tüm Hakları Saklıdır. '
+    '<a href="/gizlilik.html" style="font-size:12px;opacity:.55;margin-left:10px;">Gizlilik</a> '
     '<a href="/kariyer.html" style="font-size:12px;opacity:.55;margin-left:10px;">Kariyer</a>'
 )
 
@@ -218,6 +222,10 @@ def common_transform(name, s):
         s, count=1, flags=re.S)
     # footer alt satir + kariyer linki
     s = re.sub(r"&copy; 2026 Dijital Gru[^<]*Tüm Hakları Saklıdır\.(?! <a href=\"/kariyer)", lambda m: FOOTER_BOTTOM_NEW, s)
+
+    # gizlilik linki (mevcut footer'lara idempotent ekleme)
+    if "/gizlilik.html" not in s:
+        s = s.replace(KARIYER_LINK, GIZLILIK_LINK + " " + KARIYER_LINK)
 
     # surum
     s = s.replace("style.css?v=5.0", "style.css?v=5.2").replace("app.js?v=6.2", "app.js?v=6.2")
@@ -901,6 +909,78 @@ def build_kariyer():
     return page_shell("Kariyer | Dijital Gru", "Dijital Gru kariyer sayfası.", SITE + "/kariyer.html", body, robots="noindex, follow")
 
 
+def build_gizlilik():
+    body = '''    <section class="page-banner section-padding" style="padding-top: 140px; padding-bottom: 80px;">
+        <div class="container svc-article-wrap">
+            <span class="hero-badge"><i class="fa-solid fa-shield-halved"></i> KVKK Aydınlatma Metni</span>
+            <h1 class="page-title" style="margin-top: 18px;">Gizlilik ve Kişisel Verilerin Korunması</h1>
+            <p class="page-subtitle">6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında verilerinizi nasıl işlediğimizi açıklıyoruz.</p>
+            <div class="svc-intro glass-card svc-article" style="margin-top: 32px;">
+                <p><em>Son güncelleme: 10 Kasım 2026</em></p>
+
+                <h2>1. Veri Sorumlusu</h2>
+                <p><strong>Furkan Egemen Güneş — DijitalGru</strong><br>
+                E-posta: <a href="mailto:dijitalgru@gmail.com">dijitalgru@gmail.com</a><br>
+                Telefon: <a href="tel:+905376274415">+90 537 627 44 15</a></p>
+
+                <h2>2. İşlenen Kişisel Veriler</h2>
+                <p>Meta/Instagram reklam formları, web sitemizdeki iletişim formu ve WhatsApp üzerinden bize ilettiğiniz şu bilgileri işleriz:</p>
+                <ul>
+                    <li>Ad soyad</li>
+                    <li>Telefon numarası</li>
+                    <li>E-posta adresi</li>
+                    <li>İşletme adı ve sektör</li>
+                    <li>İhtiyacınız ve bütçe aralığı</li>
+                </ul>
+
+                <h2>3. İşleme Amacı ve Hukuki Sebep</h2>
+                <p>Verilerinizi; talebinizi değerlendirmek, size teklif hazırlamak ve sizinle iletişime geçmek amacıyla işleriz. Hukuki sebebimiz, KVKK m.5/2 uyarınca bir sözleşmenin kurulması için gerekli olması ve meşru menfaatimizdir.</p>
+                <p>Pazarlama ve tanıtım iletileri göndermek için <strong>ayrıca ve açıkça izninizi</strong> alırız. Bu izin vermediğiniz sürece teklif sürecinin dışında size tanıtım iletisi göndermeyiz.</p>
+
+                <h2>4. Verilerin Paylaşılması</h2>
+                <p>Verileriniz satılmaz ve pazarlama amacıyla üçüncü kişilere devredilmez. Yalnızca hizmetin sunulması için gerekli olan hizmet sağlayıcılarla paylaşılır:</p>
+                <ul>
+                    <li>Meta (Facebook / Instagram reklam formları)</li>
+                    <li>Web sitesi barındırma (hosting) sağlayıcısı</li>
+                    <li>E-posta gönderim hizmeti sağlayıcısı</li>
+                </ul>
+                <p>Bu sağlayıcıların bir kısmı yurt dışında bulunabilir. Aktarım, KVKK m.9 hükümlerine uygun olarak yapılır. Yasal bir zorunluluk doğarsa yetkili kurumlarla da paylaşım yapılabilir.</p>
+
+                <h2>5. Saklama Süresi</h2>
+                <p>Kişisel verileriniz son iletişimden itibaren <strong>2 yıl</strong> süreyle saklanır. Süre sonunda silinir, yok edilir veya anonim hale getirilir.</p>
+
+                <h2>6. KVKK Madde 11 Kapsamındaki Haklarınız</h2>
+                <p>Veri sahibi olarak şu haklara sahipsiniz:</p>
+                <ul>
+                    <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+                    <li>İşlenmişse buna ilişkin bilgi talep etme</li>
+                    <li>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme</li>
+                    <li>Yurt içinde veya yurt dışında verilerin aktarıldığı üçüncü kişileri bilme</li>
+                    <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme</li>
+                    <li>KVKK m.7 kapsamında silinmesini veya yok edilmesini isteme</li>
+                    <li>Düzeltme, silme ve yok etme işlemlerinin verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme</li>
+                    <li>İşlenen verilerin otomatik sistemlerle analiz edilmesi sonucu aleyhinize bir sonuç çıkmasına itiraz etme</li>
+                    <li>Kanuna aykırı işleme nedeniyle zarara uğramanız halinde zararın giderilmesini talep etme</li>
+                </ul>
+
+                <h2>7. Başvuru Yolu</h2>
+                <p>Haklarınızı kullanmak için talebinizi <a href="mailto:dijitalgru@gmail.com">dijitalgru@gmail.com</a> adresine e-posta ile iletebilirsiniz. Başvurunuzu en geç 30 gün içinde yanıtlarız. Yanıtımızdan memnun kalmazsanız Kişisel Verileri Koruma Kurumu'na şikâyette bulunma hakkınız saklıdır.</p>
+
+                <h2>8. Çerezler ve Meta Pikseli</h2>
+                <p>Sitemiz, ziyaretçi davranışını ölçmek ve reklam performansını değerlendirmek için Google Tag Manager üzerinden çalışan analiz araçları ve Meta Pikseli kullanabilir. Bu araçlar çerez ve benzeri teknolojilerle sayfa görüntüleme ile form gönderimi gibi etkileşimleri toplar. Bu veriler sizi doğrudan tanımlamaz ve reklam ölçümü ile site iyileştirme amacıyla kullanılır.</p>
+                <p>Çerezleri tarayıcı ayarlarınızdan silebilir veya engelleyebilirsiniz. Meta reklam tercihlerinizi Facebook/Instagram hesabınızın reklam ayarlarından yönetebilirsiniz. Çerezleri engellemeniz sitenin bazı işlevlerini etkileyebilir.</p>
+
+                <h2>9. Değişiklikler</h2>
+                <p>Bu metni gerektiğinde güncelleyebiliriz. Güncel sürüm her zaman bu sayfada yayımlanır.</p>
+            </div>
+        </div>
+    </section>
+'''
+    return page_shell("Gizlilik ve Kişisel Verilerin Korunması (KVKK) | Dijital Gru",
+                      "Dijital Gru gizlilik politikası ve KVKK aydınlatma metni: işlenen veriler, amaçlar, saklama süresi, haklarınız ve çerezler.",
+                      SITE + "/gizlilik.html", body)
+
+
 # --------------------------------------------------------------------------
 # 5) CSS
 # --------------------------------------------------------------------------
@@ -981,7 +1061,8 @@ def build_sitemap(posts):
              ("/kurumsal.html", "monthly", "0.70"), ("/designs.html", "weekly", "0.80"),
              ("/blog.html", "weekly", "0.80")]
     urls += [("/blog/%s.html" % p["slug"], "monthly", "0.70") for p in posts]
-    urls += [("/iletisim.html", "monthly", "0.80"), ("/takvim.html", "monthly", "0.50")]
+    urls += [("/iletisim.html", "monthly", "0.80"), ("/takvim.html", "monthly", "0.50"),
+             ("/gizlilik.html", "yearly", "0.30")]
     out = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for u, cf, pr in urls:
         out.append("  <url>\n    <loc>%s%s</loc>\n    <lastmod>%s</lastmod>\n    <changefreq>%s</changefreq>\n    <priority>%s</priority>\n  </url>" % (SITE, u, LASTMOD, cf, pr))
@@ -1019,6 +1100,7 @@ def main():
     for sv in SERVICES:
         write(sv["slug"] + ".html", build_service_page(sv))
     write("kariyer.html", build_kariyer())
+    write("gizlilik.html", build_gizlilik())
 
     posts = load_posts()
     for p in posts:
