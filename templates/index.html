@@ -8,10 +8,10 @@
     <meta name="description" content="Basılı materyallerinizdeki QR kodları değiştirmeden hedef adresinizi anında güncelleyin. Dijital Kartvizit, Restoran Menüsü ve Gelişmiş Analizler.">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/style.css?v=20261110_modal">
+    <link rel="stylesheet" href="/static/css/style.css?v=20261113_reg">
     <!-- Meta Pixel (yalnızca çerez onayı verildiyse yüklenir; ID sunucudan META_PIXEL_ID env ile gelir) -->
     <script>window.META_PIXEL_ID = {{ (meta_pixel_id or '') | tojson }};</script>
-    <script src="/static/js/meta-pixel.js?v=20261110_1"></script>
+    <script src="/static/js/meta-pixel.js?v=20261113_reg"></script>
     <style>
         /* Color Swatches & Preset Palette */
         .color-palette {
@@ -1342,7 +1342,7 @@
         <!-- 4. PRICING & SUBSCRIPTIONS TAB -->
         <section id="pricing-tab" class="page-section">
             <div style="text-align: center; margin-bottom: 30px;">
-                <div class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800; font-size: 13px; padding: 8px 16px;">⚡ PEŞİN ÖDEMELERDE %10'A VARAN İNDİRİM FIRSATI!</div>
+                <div class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800; font-size: 13px; padding: 8px 16px;">⚡ PEŞİN ÖDEMELERDE %8'E KADAR İNDİRİM FIRSATI!</div>
                 <h2 style="font-size: 36px; font-weight: 800; margin-top: 12px;">Abonelik Paketleri</h2>
                 <p style="color: var(--text-muted); margin-top: 8px;">İhtiyacınıza uygun paketi seçin, iyzico güvencesiyle 7/24 kesintisiz dinamik QR hizmeti alın.</p>
 
@@ -2057,45 +2057,43 @@
 
     <!-- AUTH MODAL -->
     <div class="modal-overlay" id="auth-modal">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="font-size: 20px; font-weight: 700;">Hesap Girişi / Kayıt</h3>
-                <button onclick="closeModal('auth-modal')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+        <div class="modal-content auth-compact" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+            <div class="auth-head">
+                <h3 id="auth-title">Ücretsiz Hesap Aç</h3>
+                <button type="button" class="auth-close" aria-label="Kapat" onclick="closeModal('auth-modal')">✕</button>
             </div>
-            <div id="auth-plan-note" role="status" style="display:none; margin-bottom:16px; padding:12px 14px; border-radius:12px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.45); color:#e0e7ff; font-size:13px; line-height:1.5;"></div>
+            <div id="auth-plan-note" role="status" class="auth-plan-note" style="display:none;"></div>
 
-            <!-- Login Form -->
-            <form id="login-form">
-                <h4 style="font-size: 14px; color: var(--accent); margin-bottom: 12px;">Mevcut Hesaba Giriş Yap</h4>
+            <!-- Register Form (varsayılan) -->
+            <form id="register-form">
                 <div class="form-group">
-                    <input type="email" id="login-email" class="form-input" placeholder="E-posta Adresiniz" required>
+                    <input type="text" id="reg-name" class="form-input" placeholder="Adınız Soyadınız" autocomplete="name" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" id="login-password" class="form-input" placeholder="Şifreniz" required>
+                    <input type="email" id="reg-email" class="form-input" placeholder="E-posta Adresiniz" autocomplete="email" required>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">Giriş Yap</button>
+                <div class="form-group">
+                    <input type="password" id="reg-password" class="form-input" placeholder="Şifre Oluşturun" autocomplete="new-password" required>
+                </div>
+                <button type="submit" class="btn-primary auth-submit">Ücretsiz Üye Ol</button>
+                <p class="auth-switch">Zaten hesabım var → <a href="#" id="auth-to-login" onclick="setAuthMode('login'); return false;">Giriş yap</a></p>
             </form>
 
-            <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 24px 0;">
-
-            <!-- Register Form -->
-            <form id="register-form">
-                <h4 style="font-size: 14px; color: var(--success); margin-bottom: 12px;">Yeni Ücretsiz Hesap Aç</h4>
+            <!-- Login Form -->
+            <form id="login-form" style="display:none;">
                 <div class="form-group">
-                    <input type="text" id="reg-name" class="form-input" placeholder="Adınız Soyadınız" required>
+                    <input type="email" id="login-email" class="form-input" placeholder="E-posta Adresiniz" autocomplete="email" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" id="reg-email" class="form-input" placeholder="E-posta Adresiniz" required>
+                    <input type="password" id="login-password" class="form-input" placeholder="Şifreniz" autocomplete="current-password" required>
                 </div>
-                <div class="form-group">
-                    <input type="password" id="reg-password" class="form-input" placeholder="Şifre Oluşturun" required>
-                </div>
-                <button type="submit" class="btn-secondary" style="width: 100%; justify-content: center; padding: 12px;">Ücretsiz Üye Ol</button>
+                <button type="submit" class="btn-primary auth-submit">Giriş Yap</button>
+                <p class="auth-switch">Hesabın yok mu? → <a href="#" id="auth-to-register" onclick="setAuthMode('register'); return false;">Ücretsiz üye ol</a></p>
             </form>
         </div>
     </div>
 
     <script src="/static/js/ui-dialogs.js?v=20261110_1"></script>
-    <script src="/static/js/app.js?v=20261110_invoice"></script>
+    <script src="/static/js/app.js?v=20261113_reg"></script>
 </body>
 </html>

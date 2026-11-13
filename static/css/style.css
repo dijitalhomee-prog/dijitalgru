@@ -820,3 +820,36 @@ html, body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* ===== Kayıt / Giriş modalı (kayıt öncelikli, kompakt) ===== */
+#auth-modal .modal-content.auth-compact { max-width: 420px; padding: 24px 22px; }
+#auth-modal .auth-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+#auth-modal .auth-head h3 { font-size: 20px; font-weight: 800; margin: 0; }
+#auth-modal .auth-close { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 4px 8px; line-height: 1; }
+#auth-modal .auth-plan-note {
+    margin-bottom: 14px; padding: 10px 14px; border-radius: 12px;
+    background: rgba(99,102,241,0.16); border: 1px solid rgba(99,102,241,0.5);
+    color: #e0e7ff; font-size: 13px; line-height: 1.45;
+}
+#auth-modal .auth-plan-note strong { display: block; font-size: 15px; color: #fff; }
+#auth-modal .auth-plan-note span { opacity: .85; }
+#auth-modal .auth-submit { width: 100%; justify-content: center; padding: 13px; font-size: 15px; font-weight: 700; margin-top: 2px; }
+#auth-modal .auth-switch { text-align: center; margin: 12px 0 0; font-size: 12.5px; color: var(--text-muted); }
+#auth-modal .auth-switch a { color: #a5b4fc; text-decoration: underline; font-weight: 600; }
+
+@media (max-width: 640px) {
+    #auth-modal.modal-overlay { padding: 0 !important; align-items: stretch; overflow-y: auto; }
+    #auth-modal .modal-content.auth-compact {
+        width: 100% !important; max-width: none !important; max-height: none !important;
+        min-height: 100dvh; border-radius: 0 !important; border: 0;
+        padding: 14px 16px 18px !important;
+        display: flex; flex-direction: column; justify-content: flex-start;
+    }
+    #auth-modal .auth-head { margin-bottom: 10px; }
+    #auth-modal .auth-head h3 { font-size: 18px; }
+    #auth-modal .auth-plan-note { margin-bottom: 10px; padding: 8px 12px; }
+    #auth-modal .form-group { margin-bottom: 8px; }
+    #auth-modal .form-input { padding: 11px 14px; font-size: 16px; }
+    #auth-modal .auth-submit { padding: 12px; }
+    #auth-modal .auth-switch { margin-top: 10px; }
+}

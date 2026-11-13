@@ -28,12 +28,12 @@ const CYCLE_PRICES = {
         badgeColor: '#34d399'
     },
     annual: {
-        starter: '<span style="font-size: 44px; color: #a5b4fc; font-weight: 900; letter-spacing: -1px;">₺246</span>',
-        advanced: '<span style="font-size: 44px; color: #a5b4fc; font-weight: 900; letter-spacing: -1px;">₺615</span>',
-        business: '<span style="font-size: 44px; color: #a5b4fc; font-weight: 900; letter-spacing: -1px;">₺1.869</span>',
-        subtextStarter: '⭐ Yıllık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #818cf8;">2.952 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(12 Ay)</span>',
-        subtextAdvanced: '⭐ Yıllık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #818cf8;">7.380 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(12 Ay)</span>',
-        subtextBusiness: '⭐ Yıllık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #818cf8;">22.435 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(12 Ay)</span>',
+        starter: '<s style="font-size: 22px; color: #94a3b8; margin-right: 8px; font-weight: 600;">₺246</s> <span style="font-size: 44px; color: #a5b4fc; font-weight: 900; letter-spacing: -1px;">₺226</span>',
+        advanced: '<s style="font-size: 22px; color: #94a3b8; margin-right: 8px; font-weight: 600;">₺615</s> <span style="font-size: 44px; color: #a5b4fc; font-weight: 900; letter-spacing: -1px;">₺566</span>',
+        business: '<s style="font-size: 22px; color: #94a3b8; margin-right: 8px; font-weight: 600;">₺1.869</s> <span style="font-size: 44px; color: #a5b4fc; font-weight: 900; letter-spacing: -1px;">₺1.720</span>',
+        subtextStarter: '⭐ Yıllık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #818cf8;">2.715,84 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(12 Ay, %8 indirimli)</span>',
+        subtextAdvanced: '⭐ Yıllık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #818cf8;">6.789,60 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(12 Ay, %8 indirimli)</span>',
+        subtextBusiness: '⭐ Yıllık Peşin Toplam: <span style="font-size: 20px; font-weight: 900; color: #818cf8;">20.640,20 ₺</span> <span style="font-size: 13px; font-weight: 600; opacity: 0.9;">(12 Ay, %8 indirimli)</span>',
         badgeBg: 'rgba(99, 102, 241, 0.12)',
         badgeBorder: 'rgba(99, 102, 241, 0.3)',
         badgeColor: '#818cf8'
@@ -47,7 +47,23 @@ document.addEventListener("DOMContentLoaded", () => {
     checkAuthStatus();
     setupForms();
     updateLivePreview();
+    initUtmLanding();
 });
+
+// Reklam linki: ?utm_content=paketler -> açılışta Paketler bölümüne kaydır
+function initUtmLanding() {
+    try {
+        const uc = (new URLSearchParams(window.location.search).get("utm_content") || "").trim().toLowerCase();
+        if (uc !== "paketler") return;
+        const go = () => {
+            const link = document.querySelector('.nav-link[data-target="pricing-tab"]');
+            if (link) link.click();
+            const sec = document.getElementById("pricing-tab");
+            if (sec) setTimeout(() => sec.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+        };
+        go();
+    } catch (_) {}
+}
 
 // Color swatch & Hex selector logic
 function isColorMatch(c1, c2) {
@@ -2023,6 +2039,7 @@ function closeModal(id) {
     if (id === "auth-modal") {
         pendingQRPayload = null; // Clear pending draft if user closes auth modal
         if (typeof hideAuthPlanNote === "function") hideAuthPlanNote();
+        if (typeof setAuthMode === "function") setAuthMode("register");
     }
     if (id === "modal-iyzico-checkout" && typeof checkoutInProgress !== "undefined" && checkoutInProgress) {
         checkoutInProgress = false;
@@ -2086,10 +2103,37 @@ function savePendingPlan(plan, cycle) { ssSet(PENDING_PLAN_KEY, { plan, cycle, t
 function readPendingPlan() { return ssGet(PENDING_PLAN_KEY, 2 * 60 * 60 * 1000); }
 function clearPendingPlan() { try { sessionStorage.removeItem(PENDING_PLAN_KEY); } catch (_) {} }
 
+// Modal modu: "register" (varsayılan, öne alınır) | "login" (alttaki küçük bağlantı)
+function setAuthMode(mode) {
+    const reg = document.getElementById("register-form");
+    const log = document.getElementById("login-form");
+    const title = document.getElementById("auth-title");
+    const isLogin = mode === "login";
+    if (reg) reg.style.display = isLogin ? "none" : "";
+    if (log) log.style.display = isLogin ? "" : "none";
+    if (title) title.textContent = isLogin ? "Giriş Yap" : "Ücretsiz Hesap Aç";
+}
+window.setAuthMode = setAuthMode;
+
 function showAuthPlanNote(plan) {
     const el = document.getElementById("auth-plan-note");
     if (!el) return;
-    el.textContent = `${PLAN_LABELS[plan] || "Seçtiğiniz"} paketi seçtiniz — devam etmek için ücretsiz hesap açın veya giriş yapın.`;
+    const info = window.mcPlanInfo && window.mcPlanInfo(plan, currentCycle);
+    const name = PLAN_LABELS[plan] || "Seçtiğiniz";
+    let priceTxt = "";
+    if (info) {
+        const fmt = (v) => Number(v).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+        priceTxt = info.cycle === "monthly"
+            ? `${fmt(info.value)} ₺/ay`
+            : `${CYCLE_LABELS[info.cycle]} peşin ${fmt(info.value)} ₺`;
+    }
+    el.innerHTML = "";
+    const strong = document.createElement("strong");
+    strong.textContent = priceTxt ? `${name} — ${priceTxt}` : `${name} paketi`;
+    const sub = document.createElement("span");
+    sub.textContent = "Ücretsiz hesap açın, hemen ödeme adımına geçin.";
+    el.appendChild(strong);
+    el.appendChild(sub);
     el.style.display = "block";
 }
 function hideAuthPlanNote() {
@@ -2210,6 +2254,7 @@ async function startCheckout(planName) {
             closeModal("billing-modal");
             savePendingPlan(planName, currentCycle);
             showAuthPlanNote(planName);
+            setAuthMode("login");
             uiToast("Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın; seçtiğiniz paket korunacak.");
             openModal("auth-modal");
             return;

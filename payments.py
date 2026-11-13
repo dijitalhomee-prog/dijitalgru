@@ -17,7 +17,7 @@ PLANS = {
         "pricing": {
             "monthly": {"price_per_month": 246.00, "total_price": 246.00, "months": 1, "label": "Aylık Paket"},
             "semi_annual": {"price_per_month": 233.70, "total_price": 1402.20, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
-            "annual": {"price_per_month": 246.00, "total_price": 2952.00, "months": 12, "label": "Yıllık Peşin"}
+            "annual": {"price_per_month": 226.32, "total_price": 2715.84, "months": 12, "label": "Yıllık Peşin (%8 İndirimli)"}
         }
     },
     "advanced": {
@@ -26,7 +26,7 @@ PLANS = {
         "pricing": {
             "monthly": {"price_per_month": 615.00, "total_price": 615.00, "months": 1, "label": "Aylık Paket"},
             "semi_annual": {"price_per_month": 584.25, "total_price": 3505.50, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
-            "annual": {"price_per_month": 615.00, "total_price": 7380.00, "months": 12, "label": "Yıllık Peşin"}
+            "annual": {"price_per_month": 565.80, "total_price": 6789.60, "months": 12, "label": "Yıllık Peşin (%8 İndirimli)"}
         }
     },
     "business": {
@@ -35,7 +35,7 @@ PLANS = {
         "pricing": {
             "monthly": {"price_per_month": 1869.00, "total_price": 1869.00, "months": 1, "label": "Aylık Paket"},
             "semi_annual": {"price_per_month": 1775.55, "total_price": 10653.30, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
-            "annual": {"price_per_month": 1869.58, "total_price": 22435.00, "months": 12, "label": "Yıllık Peşin"}
+            "annual": {"price_per_month": 1720.02, "total_price": 20640.20, "months": 12, "label": "Yıllık Peşin (%8 İndirimli)"}
         }
     },
     "test": {

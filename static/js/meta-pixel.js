@@ -78,9 +78,9 @@
 
   // --- Paket fiyatları (payments.py PLANS ile birebir aynı; toplam tutar) ---
   var PLAN_TABLE = {
-    starter:  { name: "Başlangıç",   monthly: 246,  semi_annual: 1402.20,  annual: 2952 },
-    advanced: { name: "Profesyonel", monthly: 615,  semi_annual: 3505.50,  annual: 7380 },
-    business: { name: "Kurumsal",    monthly: 1869, semi_annual: 10653.30, annual: 22435 }
+    starter:  { name: "Başlangıç",   monthly: 246,  semi_annual: 1402.20,  annual: 2715.84 },
+    advanced: { name: "Profesyonel", monthly: 615,  semi_annual: 3505.50,  annual: 6789.60 },
+    business: { name: "Kurumsal",    monthly: 1869, semi_annual: 10653.30, annual: 20640.20 }
   };
   window.mcPlanInfo = function (planKey, cycle) {
     var p = PLAN_TABLE[planKey];
@@ -93,7 +93,7 @@
   function injectBannerStyles() {
     if (document.getElementById("mc-consent-style")) return;
     var css =
-      "#mc-consent-banner{position:fixed;left:16px;right:16px;bottom:16px;z-index:99999;max-width:760px;margin:0 auto;" +
+      "#mc-consent-banner{position:fixed;left:16px;right:16px;bottom:16px;z-index:900;max-width:760px;margin:0 auto;" +
       "background:rgba(15,23,42,.97);color:#e2e8f0;border:1px solid rgba(255,255,255,.12);border-radius:16px;" +
       "padding:16px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;box-shadow:0 18px 50px rgba(0,0,0,.5);" +
       "font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:13px;line-height:1.5;backdrop-filter:blur(10px)}" +
