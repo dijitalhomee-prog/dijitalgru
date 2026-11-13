@@ -706,10 +706,10 @@
         "thumbW": 1200,
         "thumbH": 675,
         "home": {
-            "src": "thumbs/home-sinopia.jpg",
-            "w": 605,
-            "h": 454,
-            "alt": "Sinopia Mantı el yapımı mantı fotoğrafı, marka çalışması"
+            "src": "thumbs/home-sinopia-menu.jpg",
+            "w": 700,
+            "h": 675,
+            "alt": "Sinopia Mantı Evi basılı menü tasarımı"
         }
     },
     {
@@ -1099,11 +1099,11 @@
         "thumbW": 1200,
         "thumbH": 675,
         "home": {
-            "src": "thumbs/home-troia.jpg",
+            "src": "thumbs/home-troia-43.jpg",
             "w": 1200,
-            "h": 675,
+            "h": 899,
             "alt": "Troia Tavaklım zeytinyağı teneke etiket tasarımı",
-            "fit": "contain",
+            "fit": "cover",
             "bg": "#0b0c0a"
         }
     }

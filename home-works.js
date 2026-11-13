@@ -26,7 +26,7 @@
 
     function link(item) { return 'designs.html#proje-' + item.id; }
 
-    fetch('portfolio.json?v=10').then(function (r) {
+    fetch('portfolio.json?v=11').then(function (r) {
         if (!r.ok) throw new Error('portfolio.json');
         return r.json();
     }).then(function (data) {

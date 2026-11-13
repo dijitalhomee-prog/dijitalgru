@@ -47,13 +47,17 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css?v=7.3">
+    <link rel="stylesheet" href="style.css?v=7.8">
+<!-- AG-SHELL-CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/agency-inner.css?v=1.2">
+    <!-- /AG-SHELL-CSS -->
 </head>
-<body>
+<body class="ag-inner">
 
 
 
@@ -62,46 +66,31 @@
     <div class="glow-orb" id="glow-orb"></div>
 
     <!-- Header / Navigation -->
-    <header class="main-header" id="main-header">
-        <div class="container header-container">
-            <a href="/" class="logo-link" aria-label="Dijital Gru Ana Sayfa">
-                <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru logo" class="dijitalgru-logo horizontal">
-            </a>
-
-            <!-- Desktop Navigation -->
-            <nav class="desktop-nav" aria-label="Ana menü">
-                <ul>
-                    <li><a href="/designs.html" class="nav-link">İşler</a></li>
-                    <li><a href="/hizmetler.html" class="nav-link">Hizmetler</a></li>
-                    <li><a href="/kurumsal.html" class="nav-link">Hakkında</a></li>
-                    <li><a href="/blog.html" class="nav-link">Blog</a></li>
-                    <li><a href="/iletisim.html" class="nav-link">İletişim</a></li>
-                </ul>
-            </nav>
-
-            <!-- Call to Action -->
-            <div class="header-cta">
-                <a href="/#contact" class="btn btn-primary btn-nav" id="header-start-btn">Proje Başlat</a>
-                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menüyü Aç/Kapat">
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Mobile Navigation Drawer -->
-    <div class="mobile-nav-drawer" id="mobile-nav-drawer">
-        <nav class="mobile-nav-links">
-            <a href="/designs.html" class="mobile-nav-link">İşler</a>
-            <a href="/hizmetler.html" class="mobile-nav-link">Hizmetler</a>
-            <a href="/kurumsal.html" class="mobile-nav-link">Hakkında</a>
-            <a href="/blog.html" class="mobile-nav-link">Blog</a>
-            <a href="/iletisim.html" class="mobile-nav-link">İletişim</a>
-            <a href="/#contact" class="btn btn-primary btn-mobile-cta">Proje Başlat</a>
-        </nav>
+    <!-- AG-SHELL-HEADER -->
+<div class="ag-top" aria-hidden="true">
+    <div class="ag-top-track">
+        <span>Web Sitesi Tasarımı</span><span>Sosyal Medya Yönetimi</span><span>Restoran Web Sitesi</span><span>Kurumsal Web Sitesi</span><span>Marka Kimliği</span>
+        <span>Web Sitesi Tasarımı</span><span>Sosyal Medya Yönetimi</span><span>Restoran Web Sitesi</span><span>Kurumsal Web Sitesi</span><span>Marka Kimliği</span>
+        <span>Web Sitesi Tasarımı</span><span>Sosyal Medya Yönetimi</span><span>Restoran Web Sitesi</span><span>Kurumsal Web Sitesi</span><span>Marka Kimliği</span>
+        <span>Web Sitesi Tasarımı</span><span>Sosyal Medya Yönetimi</span><span>Restoran Web Sitesi</span><span>Kurumsal Web Sitesi</span><span>Marka Kimliği</span>
     </div>
+</div>
+
+<header class="ag-header" id="main-header">
+    <div class="ag-wrap ag-bar">
+        <a href="/" class="ag-logo" aria-label="Dijital Gru Ana Sayfa"><img src="/Logo/logo-yatay-lacivert.png" alt="Dijital Gru logo"></a>
+        <nav class="ag-nav" aria-label="Ana menü"><ul><li><a href="/hizmetler.html" class="nav-link">Hizmetler</a></li><li><a href="/#web" class="nav-link">Web Tasarım</a></li><li><a href="/designs.html" class="nav-link">İşler</a></li><li><a href="/kurumsal.html" class="nav-link">Hakkında</a></li><li><a href="/blog.html" class="nav-link">Blog</a></li><li><a href="/iletisim.html" class="nav-link">İletişim</a></li></ul></nav>
+        <div class="ag-cta-row">
+            <a href="/#contact" class="bt bt-dark bt-sm" id="header-start-btn">Teklif Al <i class="fa-solid fa-arrow-right"></i></a>
+            <button class="ag-burger" id="mobile-menu-toggle" aria-label="Menüyü Aç/Kapat"><span class="bar"></span><span class="bar"></span></button>
+        </div>
+    </div>
+</header>
+
+<div class="ag-drawer" id="mobile-nav-drawer">
+    <nav class="ag-drawer-links"><a href="/hizmetler.html" class="mobile-nav-link">Hizmetler</a><a href="/#web" class="mobile-nav-link">Web Tasarım</a><a href="/designs.html" class="mobile-nav-link">İşler</a><a href="/kurumsal.html" class="mobile-nav-link">Hakkında</a><a href="/blog.html" class="mobile-nav-link">Blog</a><a href="/iletisim.html" class="mobile-nav-link">İletişim</a><a href="/#contact" class="bt bt-gold mobile-nav-link ag-drawer-cta">Teklif Al</a></nav>
+</div>
+<!-- /AG-SHELL-HEADER -->
 
     <!-- 1. Section: Yazılım Ekosistemi & Banner -->
     <section class="custom-software-section section-padding" style="padding-top: 140px;">
@@ -594,64 +583,33 @@
     </section>
 
     <!-- Footer -->
-    <footer class="main-footer">
-        <div class="container footer-container">
-            <div class="footer-brand">
-                <a href="/" class="footer-logo-link">
-                    <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru logo" class="footer-logo">
-                </a>
-                <p class="footer-desc">
-                    Fikirleri dijitalleştirir, markaları geleceğe taşırız. İstanbul merkezli web tasarım, marka kimliği ve yazılım stüdyosu.
-                </p>
-                <div class="footer-socials">
+    <!-- AG-SHELL-FOOTER -->
+<footer class="ag-footer">
+    <div class="wrap">
+        <div class="ag-fgrid">
+            <div>
+                <img src="/Logo/logo-yatay-krem.png" alt="Dijital Gru logo">
+                <p>İstanbul merkezli web tasarım, sosyal medya ve marka ajansı.</p>
+                <div class="ag-soc">
                     <a href="https://www.instagram.com/dijitalgru/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                     <a href="https://www.youtube.com/@DijitalGru" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
                     <a href="https://wa.me/905376274415" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
                 </div>
             </div>
-
-            <div class="footer-links-group">
-                <div class="footer-col">
-                    <h2 class="footer-col-title">Hızlı Menü</h2>
-                    <ul>
-                        <li><a href="/">Ana Sayfa</a></li>
-                        <li><a href="/designs.html">İşler</a></li>
-                        <li><a href="/hizmetler.html">Hizmetler</a></li>
-                        <li><a href="/kurumsal.html">Hakkında</a></li>
-                        <li><a href="/blog.html">Blog</a></li>
-                        <li><a href="/iletisim.html">İletişim</a></li>
-                        <li><a href="/yazilimlarimiz.html">Yazılımlarımız</a></li>
-                        <li><a href="/takvim.html">2026 Takvim</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-col">
-                    <h2 class="footer-col-title">Hizmetlerimiz</h2>
-                    <ul>
-                        <li><a href="/restoran-web-sitesi-tasarimi.html">Restoran Web Sitesi Tasarımı</a></li>
-                        <li><a href="/luks-marka-kimligi-tasarimi.html">Lüks Marka Kimliği Tasarımı</a></li>
-                        <li><a href="/kurumsal-web-sitesi-tasarimi.html">Kurumsal Web Sitesi Tasarımı</a></li>
-                        <li><a href="/ozel-yazilim-gelistirme.html">Özel Yazılım Geliştirme</a></li>
-                        <li><a href="/qr-menu.html">QR Menü</a></li>
-                        <li><a href="/hizmetler.html">Tüm Hizmetler</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-col">
-                    <h2 class="footer-col-title">İletişim</h2>
-                    <p><i class="fa-solid fa-globe"></i> İstanbul &amp; Türkiye geneli</p>
-                    <p><i class="fa-solid fa-phone"></i> <a href="tel:+905376274415">+90 537 627 44 15</a></p>
-                    <p><i class="fa-solid fa-envelope"></i> <a href="mailto:dijitalgru@gmail.com" data-dg-email>dijitalgru@gmail.com</a></p>
-                </div>
-            </div>
+            <div><h2>Menü</h2><ul>
+                <li><a href="/designs.html">İşler</a></li><li><a href="/hizmetler.html">Hizmetler</a></li><li><a href="/kurumsal.html">Hakkında</a></li><li><a href="/blog.html">Blog</a></li><li><a href="/iletisim.html">İletişim</a></li><li><a href="/yazilimlarimiz.html">Yazılımlarımız</a></li><li><a href="/takvim.html">2026 Takvim</a></li></ul></div>
+            <div><h2>Hizmetler</h2><ul>
+                <li><a href="/hizmetler.html">Sosyal Medya Yönetimi</a></li><li><a href="/restoran-web-sitesi-tasarimi.html">Restoran Web Sitesi</a></li><li><a href="/luks-marka-kimligi-tasarimi.html">Marka Kimliği</a></li><li><a href="/kurumsal-web-sitesi-tasarimi.html">Kurumsal Web Sitesi</a></li><li><a href="/ozel-yazilim-gelistirme.html">Özel Yazılım</a></li><li><a href="/qr-menu.html">QR Menü</a></li></ul></div>
+            <div><h2>İletişim</h2>
+                <ul><li>İstanbul &amp; Türkiye geneli</li><li><a href="tel:+905376274415">+90 537 627 44 15</a></li><li><a href="mailto:dijitalgru@gmail.com" data-dg-email>dijitalgru@gmail.com</a></li></ul></div>
         </div>
-
-        <div class="footer-bottom">
-            <div class="container">
-                <p>&copy; 2026 Dijital Gru. Tüm hakları saklıdır.<span style="font-size:12px;opacity:.4;margin:0 8px;" aria-hidden="true">&middot;</span><a href="/gizlilik.html" style="font-size:12px;opacity:.55;">Gizlilik</a><span style="font-size:12px;opacity:.4;margin:0 8px;" aria-hidden="true">&middot;</span><a href="#" data-cookie-prefs style="font-size:12px;opacity:.55;">Çerez Tercihleri</a><span style="font-size:12px;opacity:.4;margin:0 8px;" aria-hidden="true">&middot;</span><a href="/kariyer.html" style="font-size:12px;opacity:.55;">Kariyer</a></p>
-            </div>
+        <div class="ag-fbot">
+            <span>&copy; 2026 Dijital Gru. Tüm hakları saklıdır.</span>
+            <span><a href="/gizlilik.html">Gizlilik</a> &nbsp;·&nbsp; <a href="#" data-cookie-prefs>Çerez Tercihleri</a> &nbsp;·&nbsp; <a href="/kariyer.html">Kariyer</a></span>
         </div>
-    </footer>
+    </div>
+</footer>
+<!-- /AG-SHELL-FOOTER -->
 
     <!-- App Scripts -->
     <script src="site-config.js?v=1.0"></script>

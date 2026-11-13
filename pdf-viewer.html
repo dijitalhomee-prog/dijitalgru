@@ -15,17 +15,17 @@
     <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-dark: #060a1a;
-            --card-dark: #0c1330;
-            --accent-gold: #d4af37;
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --bg-dark: #fbf8f3;
+            --card-dark: #f0e9dc;
+            --accent-gold: #dca963;
+            --text-light: #0c1330;
+            --text-muted: rgba(12,19,48,.64);
+            --glass-border: rgba(12, 19, 48, 0.12);
         }
 
         * {
@@ -38,7 +38,7 @@
         body {
             background-color: var(--bg-dark);
             color: var(--text-light);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             overflow-x: hidden;
             min-height: 100vh;
         }
@@ -48,7 +48,7 @@
             position: sticky;
             top: 0;
             height: 70px;
-            background: rgba(6, 10, 26, 0.85);
+            background: rgba(251, 248, 243, 0.92);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--glass-border);
@@ -66,9 +66,9 @@
         }
 
         .back-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--text-light);
+            background: #0c1330;
+            border: 1px solid #0c1330;
+            color: #fbf8f3;
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -82,7 +82,7 @@
 
         .back-btn:hover {
             background: var(--accent-gold);
-            color: var(--bg-dark);
+            color: #0c1330;
             border-color: var(--accent-gold);
             transform: scale(1.05);
         }
@@ -98,7 +98,7 @@
         }
 
         .project-title {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Bricolage Grotesque', 'Outfit', sans-serif;
             font-size: 16px;
             font-weight: 700;
             letter-spacing: 0.5px;
@@ -110,7 +110,7 @@
 
         .project-subtitle {
             font-size: 11px;
-            color: var(--accent-gold);
+            color: #8a6420;
             text-transform: uppercase;
             font-weight: 600;
             letter-spacing: 1px;
@@ -141,7 +141,8 @@
             display: block;
             background: #ffffff;
             border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 24px 50px -20px rgba(12, 19, 48, 0.45);
+            border: 1px solid var(--glass-border);
             transition: transform 0.4s ease;
         }
 
@@ -162,7 +163,7 @@
         .spinner {
             width: 50px;
             height: 50px;
-            border: 3px solid rgba(212, 175, 55, 0.1);
+            border: 3px solid rgba(220, 169, 99, 0.25);
             border-radius: 50%;
             border-top-color: var(--accent-gold);
             animation: spin 1s linear infinite;
@@ -220,7 +221,7 @@
 
             .pdf-page-canvas {
                 border-radius: 8px;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+                box-shadow: 0 10px 20px -10px rgba(12, 19, 48, 0.4);
             }
     <script>
     function gtag_report_conversion(url) {
@@ -238,6 +239,7 @@
       return false;
     }
     </script>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -248,7 +250,7 @@
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
             <div class="logo-wrapper">
-                <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru Logo">
+                <img src="Logo/logo-yatay-lacivert.png" alt="Dijital Gru Logo">
             </div>
         </div>
         <div class="header-right">

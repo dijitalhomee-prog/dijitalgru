@@ -1,0 +1,141 @@
+/* ==========================================================================
+   DIJITAL GRU — İÇ SAYFALAR (reklam ajansı tasarımıyla uyumlu kabuk + içerik)
+   style.css'ten SONRA yüklenir.
+   ========================================================================== */
+:root{
+  --navy:#0c1330; --navy-2:#162252; --navy-3:#223275;
+  --cream:#fbf8f3; --cream-2:#f0e9dc; --cream-3:#e3d7c2;
+  --gold:#dca963; --gold-deep:#8a6420; --blue:#3d60e0;
+  --ink-12:rgba(12,19,48,.12); --ink-60:rgba(12,19,48,.64);
+  --f-display:'Bricolage Grotesque','Outfit',sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ag-pad:clamp(20px,4vw,48px);
+}
+body.ag-inner{
+  --font-serif:'Bricolage Grotesque','Outfit',sans-serif;
+  --font-headings:'Bricolage Grotesque','Outfit',sans-serif;
+  background:var(--navy);color:var(--cream);overflow-x:hidden;
+}
+body.ag-inner .interactive-grid,body.ag-inner .glow-orb{display:none!important}
+body.ag-inner.overflow-hidden{overflow:hidden}
+.ag-wrap{max-width:1280px;margin:0 auto;padding:0 var(--ag-pad)}
+
+/* ---------- Üst şerit ---------- */
+.ag-top{background:var(--gold);color:var(--navy);overflow:hidden;font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-family:'Plus Jakarta Sans',sans-serif}
+.ag-top-track{display:flex;width:max-content;animation:agslide 40s linear infinite;padding:9px 0}
+.ag-top-track span{padding:0 22px;white-space:nowrap}
+.ag-top-track span::after{content:"✦";margin-left:44px;opacity:.55}
+@keyframes agslide{to{transform:translateX(-50%)}}
+
+/* ---------- Header ---------- */
+.ag-header{position:sticky;top:0;z-index:1000;background:rgba(251,248,243,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--ink-12);transition:box-shadow .3s;font-family:'Plus Jakarta Sans',sans-serif}
+.ag-header.scrolled{box-shadow:0 10px 30px -18px rgba(12,19,48,.45)}
+.ag-bar{display:flex;align-items:center;justify-content:space-between;height:78px;gap:24px}
+.ag-logo{display:block}
+.ag-logo img{height:38px;width:auto;display:block}
+.ag-nav ul{display:flex;gap:4px;background:var(--cream-2);padding:5px;border-radius:999px;list-style:none;margin:0}
+.ag-nav a{display:block;padding:9px 18px;border-radius:999px;font-size:14px;font-weight:600;color:var(--navy);text-decoration:none;transition:.3s var(--ease)}
+.ag-nav a:hover,.ag-nav a.is-current{background:var(--navy);color:var(--cream)}
+.ag-cta-row{display:flex;align-items:center;gap:12px}
+.ag-burger{display:none;background:var(--navy);border:0;width:46px;height:46px;border-radius:50%;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;position:relative;z-index:1002}
+.ag-burger .bar{display:block;width:18px;height:2px;background:var(--cream);transition:.3s}
+.ag-burger.active .bar:nth-child(1){transform:translateY(3.5px) rotate(45deg)}
+.ag-burger.active .bar:nth-child(2){transform:translateY(-3.5px) rotate(-45deg)}
+
+/* Butonlar (kabuk) */
+.bt{display:inline-flex;align-items:center;gap:10px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;padding:16px 28px;border-radius:999px;border:2px solid var(--navy);cursor:pointer;transition:.4s var(--ease);text-decoration:none;line-height:1.2}
+.bt-dark{background:var(--navy);color:var(--cream)!important}
+.bt-dark:hover{background:var(--gold);color:var(--navy)!important;border-color:var(--gold);transform:translateY(-3px)}
+.bt-gold{background:var(--gold);color:var(--navy)!important;border-color:var(--gold)}
+.bt-gold:hover{background:var(--cream);transform:translateY(-3px)}
+.bt-sm{padding:11px 22px;font-size:14px}
+.bt i{transition:transform .4s var(--ease)}
+.bt:hover i{transform:translateX(4px)}
+
+/* Mobil menü */
+.ag-drawer{position:fixed;inset:0;z-index:1001;background:var(--navy);display:flex;align-items:center;justify-content:center;transform:translateY(-100%);transition:transform .6s var(--ease);visibility:hidden}
+.ag-drawer.active{transform:none;visibility:visible}
+.ag-drawer-links{display:flex;flex-direction:column;gap:4px;text-align:center}
+.ag-drawer .mobile-nav-link{font-family:var(--f-display);font-size:38px;font-weight:700;color:var(--cream)!important;padding:5px;text-decoration:none;background:none;border:0}
+.ag-drawer .mobile-nav-link:hover{color:var(--gold)!important}
+.ag-drawer .ag-drawer-cta{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px!important;font-weight:700;color:var(--navy)!important;margin-top:18px;justify-content:center;padding:16px 28px}
+.ag-drawer .ag-drawer-cta:hover{color:var(--navy)!important}
+
+/* ---------- Footer ---------- */
+.ag-footer{background:var(--navy);color:var(--cream);padding:clamp(60px,8vw,100px) 0 30px;border-top:1px solid rgba(251,248,243,.1);font-family:'Plus Jakarta Sans',sans-serif}
+.ag-footer .wrap{max-width:1280px;margin:0 auto;padding:0 var(--ag-pad)}
+.ag-footer a{color:inherit;text-decoration:none}
+.ag-footer ul{list-style:none;margin:0;padding:0}
+.ag-big{font-family:var(--f-display);font-weight:800;font-size:clamp(60px,15vw,230px);line-height:.85;letter-spacing:-.04em;color:var(--navy-2);margin-bottom:50px;user-select:none;white-space:nowrap;overflow:hidden}
+.ag-fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}
+.ag-fgrid img{height:40px;width:auto;margin-bottom:18px;display:block}
+.ag-fgrid p,.ag-fgrid li{font-size:14.5px;color:rgba(251,248,243,.65);margin-top:0}
+.ag-fgrid h2{font-family:var(--f-display);font-size:16px;letter-spacing:.02em;margin:0 0 18px;color:var(--gold)}
+.ag-fgrid li{margin-bottom:10px}
+.ag-fgrid a:hover{color:var(--gold)}
+.ag-soc{display:flex;gap:10px;margin-top:20px}
+.ag-soc a{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(251,248,243,.25);transition:.4s var(--ease)}
+.ag-soc a:hover{background:var(--gold);color:var(--navy)!important;border-color:var(--gold);transform:translateY(-4px)}
+.ag-fbot{margin-top:60px;padding-top:24px;border-top:1px solid rgba(251,248,243,.12);font-size:13px;color:rgba(251,248,243,.5);display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between}
+.ag-fbot a:hover{color:var(--gold)}
+
+/* ==========================================================================
+   İÇERİK: eski bileşenleri yeni tasarım diline yaklaştır
+   ========================================================================== */
+body.ag-inner h1,body.ag-inner h2,body.ag-inner h3{font-family:var(--f-display)}
+body.ag-inner .page-banner{padding-top:72px!important}
+body.ag-inner .page-title,body.ag-inner h1.page-title{font-family:var(--f-display);font-weight:800;font-size:clamp(38px,6vw,84px);line-height:1.02;letter-spacing:-.025em;max-width:1000px;margin-bottom:26px}
+body.ag-inner .page-subtitle{font-size:clamp(16px,1.4vw,19px);color:rgba(251,248,243,.68);max-width:680px}
+body.ag-inner .section-title,body.ag-inner .service-title{font-family:var(--f-display);font-weight:800;letter-spacing:-.015em}
+body.ag-inner .hero-badge,body.ag-inner .section-tag{display:inline-flex;align-items:center;gap:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);background:rgba(220,169,99,.12);border:1px solid rgba(220,169,99,.4);padding:8px 16px;border-radius:999px}
+
+/* Butonlar (içerik) */
+body.ag-inner .btn{border-radius:999px;font-weight:700;transition:.4s var(--ease)}
+body.ag-inner .btn-primary{background:var(--gold);color:var(--navy)!important;border:2px solid var(--gold);box-shadow:none}
+body.ag-inner .btn-primary:hover{background:var(--cream);border-color:var(--cream);color:var(--navy)!important;transform:translateY(-3px)}
+body.ag-inner .btn-secondary{background:transparent;color:var(--cream)!important;border:2px solid rgba(251,248,243,.4)}
+body.ag-inner .btn-secondary:hover{background:var(--cream);color:var(--navy)!important;border-color:var(--cream);transform:translateY(-3px)}
+
+/* Kartlar */
+body.ag-inner .glass-card,body.ag-inner .svc-hub-card,body.ag-inner .service-row-card{background:var(--navy-2);border:1px solid rgba(251,248,243,.12);border-radius:28px;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;transition:transform .6s var(--ease),border-color .4s,background .4s}
+body.ag-inner .svc-hub-card:hover,body.ag-inner .service-row-card:hover{transform:translateY(-6px);border-color:rgba(220,169,99,.55)}
+body.ag-inner .svc-hub-icon,body.ag-inner .service-icon{background:var(--blue)!important;color:var(--cream)!important;border-radius:50%}
+body.ag-inner .service-num{font-family:var(--f-display);font-weight:800;color:var(--gold)}
+body.ag-inner .svc-hub-price{color:var(--gold);font-weight:800}
+
+/* Form alanları */
+body.ag-inner input,body.ag-inner textarea,body.ag-inner select{font-family:'Plus Jakarta Sans',sans-serif}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1024px){
+  .ag-nav{display:none}
+  .ag-burger{display:flex}
+  .ag-fgrid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  .ag-header .bt-sm{display:none}
+  .ag-fgrid{grid-template-columns:1fr}
+}
+
+/* ---------- İletişim formu (ana sayfadaki forma uyumlu) ---------- */
+body.ag-inner .contact-form.glass-card{background:var(--cream);color:var(--navy);padding:clamp(26px,4vw,46px);border-radius:34px;border:0;box-shadow:0 50px 80px -40px rgba(0,0,0,.65)}
+body.ag-inner .contact-form .form-group-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0}
+body.ag-inner .contact-form .form-group{position:relative;margin:0 0 16px}
+body.ag-inner .contact-form input,body.ag-inner .contact-form textarea,body.ag-inner .contact-form select{width:100%;font-size:15.5px;padding:24px 18px 10px;border:2px solid var(--ink-12);border-radius:16px;background:#fff;color:var(--navy);outline:0;box-shadow:none;transition:border-color .3s}
+body.ag-inner .contact-form textarea{min-height:130px;resize:vertical}
+body.ag-inner .contact-form input:focus,body.ag-inner .contact-form textarea:focus,body.ag-inner .contact-form select:focus{border-color:var(--navy)}
+body.ag-inner .contact-form label{position:absolute;left:18px;top:17px;font-size:15px;color:var(--ink-60);pointer-events:none;transition:.25s var(--ease);transform-origin:left;background:none}
+body.ag-inner .contact-form input:focus+label,body.ag-inner .contact-form input:not(:placeholder-shown)+label,body.ag-inner .contact-form textarea:focus+label,body.ag-inner .contact-form textarea:not(:placeholder-shown)+label,body.ag-inner .contact-form .form-group-select label{top:17px;transform:translateY(-11px) scale(.76);color:var(--gold-deep);font-weight:700}
+body.ag-inner .contact-form select option{color:var(--navy)}
+body.ag-inner .contact-form .btn-submit{width:100%;justify-content:center;background:var(--navy);color:var(--cream)!important;border:2px solid var(--navy);padding:16px 28px;font-size:15px}
+body.ag-inner .contact-form .btn-submit:hover{background:var(--gold);border-color:var(--gold);color:var(--navy)!important}
+body.ag-inner .contact-form .form-privacy-note{color:var(--ink-60)!important;margin-top:16px!important}
+body.ag-inner .contact-form .form-privacy-note a{color:var(--gold-deep)!important}
+body.ag-inner .contact-form .form-career-line{color:var(--ink-60);text-align:center;font-size:13px;margin-top:8px}
+body.ag-inner .contact-form .form-career-line a{color:var(--gold-deep);text-decoration:underline}
+body.ag-inner .contact-form .form-error-box{background:#fde8e6;color:#9b1c1c;padding:12px 16px;border-radius:12px;margin-bottom:14px;font-size:14px}
+body.ag-inner .info-icon,body.ag-inner .social-icon{background:var(--blue)!important;color:var(--cream)!important;border-radius:50%;border:0}
+body.ag-inner .social-icon:hover{background:var(--gold)!important;color:var(--navy)!important}
+@media (max-width:640px){body.ag-inner .contact-form .form-group-row{grid-template-columns:1fr}}
+
+.ag-big{display:none!important}

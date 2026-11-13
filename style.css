@@ -39,8 +39,8 @@
     --gutter: 24px;
     
     /* Fonts */
-    --font-serif: 'Fraunces', Georgia, serif;
-    --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-serif: 'Outfit', sans-serif;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
     --font-headings: var(--font-serif);
     --font-body: var(--font-sans);
     
@@ -5068,3 +5068,19 @@ h1, h2, h3, h4,
 /* Hizmet merkezi: 5 kart tek satirda (yetim kart kalmasin) */
 .svc-hub-grid { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 @media (min-width: 1100px) { .svc-hub-grid { grid-template-columns: repeat(5, 1fr); gap: 16px; } }
+
+/* Hero: satis odakli, sade */
+.hx-hero .hero-title { font-size: clamp(36px, 4.4vw, 62px); font-weight: 500; line-height: 1.1; letter-spacing: -0.02em; }
+.hx-hero .hero-actions { gap: 28px; margin-bottom: 40px; }
+.hx-proof { list-style: none; margin: 0; padding: 28px 0 0; display: flex; gap: 44px; border-top: 1px solid var(--line); max-width: 520px; }
+.hx-proof li { display: flex; flex-direction: column; gap: 4px; }
+.hx-proof strong { font-family: var(--font-headings); font-size: 30px; font-weight: 600; color: var(--accent); line-height: 1; }
+.hx-proof span { font-size: 13px; color: var(--muted); }
+.hx-hero .hero-visual.hx-mosaic { width: 100%; max-width: 460px; margin-left: auto; }
+.hx-stage { aspect-ratio: 4 / 5; }
+@media (max-width: 720px) { .hx-proof { gap: 24px; } .hx-proof strong { font-size: 24px; } }
+
+/* Hizmet kartlarinda fiyat satiri */
+.svc-hub-price { display: flex; align-items: baseline; gap: 8px; margin-top: auto; padding: 14px 0 10px; border-top: 1px solid var(--line); }
+.svc-hub-price em { font-style: normal; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.svc-hub-price strong { font-family: var(--font-headings); font-size: 18px; font-weight: 600; color: var(--text); }

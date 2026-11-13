@@ -2,3 +2,5 @@ leads.json
 .chrome_temp/
 .DS_Store
 __pycache__/
+.shots/
+.scratch/
