@@ -8,7 +8,7 @@
     <meta name="description" content="Basılı materyallerinizdeki QR kodları değiştirmeden hedef adresinizi anında güncelleyin. Dijital Kartvizit, Restoran Menüsü ve Gelişmiş Analizler.">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/style.css?v=20261113_reg">
+    <link rel="stylesheet" href="/static/css/style.css?v=20261113_bill">
     <!-- Meta Pixel (yalnızca çerez onayı verildiyse yüklenir; ID sunucudan META_PIXEL_ID env ile gelir) -->
     <script>window.META_PIXEL_ID = {{ (meta_pixel_id or '') | tojson }};</script>
     <script src="/static/js/meta-pixel.js?v=20261113_reg"></script>
@@ -1855,38 +1855,38 @@
 
     <!-- BILLING & IDENTITY MODAL -->
     <div class="modal-overlay" id="billing-modal">
-        <div class="modal-content" style="max-width: 500px; width: 92%;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
-                <h3 style="font-size: 18px; font-weight: 700; color: #fff;">Fatura ve Güvenlik Bilgileri</h3>
-                <button onclick="closeModal('billing-modal')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+        <div class="modal-content billing-compact" role="dialog" aria-modal="true" aria-labelledby="billing-title">
+            <div class="auth-head">
+                <h3 id="billing-title">Son adım: Ödeme bilgileri</h3>
+                <button type="button" class="auth-close" aria-label="Kapat" onclick="closeModal('billing-modal')">✕</button>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-                Bankalar ve iyzico 3D Secure kart doğrulaması için gerçek ad-soyad, T.C. Kimlik no ve telefon bilgileri gereklidir.
-            </p>
-            <div id="billing-plan-summary" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:12px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4); color:#d1fae5; font-size:13px; font-weight:600;"></div>
-            <div id="billing-error" role="alert" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:12px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.45); color:#fecaca; font-size:13px;"></div>
-            <form id="billing-form">
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label class="form-label" style="font-size: 12px;">Kart Sahibi Adı Soyadı</label>
-                    <input type="text" id="billing-name" class="form-input" placeholder="Örn: Furkan Egemen Güneş" required>
+            <div id="billing-plan-summary" style="display:none; margin-bottom:10px; padding:9px 14px; border-radius:12px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4); color:#d1fae5; font-size:13px; font-weight:600;"></div>
+            <div id="billing-error" role="alert" style="display:none; margin-bottom:10px; padding:9px 14px; border-radius:12px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.45); color:#fecaca; font-size:13px;"></div>
+            <form id="billing-form" novalidate>
+                <div class="form-group" id="billing-name-group">
+                    <label class="form-label" for="billing-name">Ad Soyad</label>
+                    <input type="text" id="billing-name" class="form-input" placeholder="Ad Soyad" autocomplete="name" required>
                 </div>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label class="form-label" style="font-size: 12px;">T.C. Kimlik / Vergi Numarası (11 Hane)</label>
-                    <input type="text" id="billing-identity" class="form-input" maxlength="11" placeholder="Örn: 43306654001" required>
+                <div class="form-group">
+                    <label class="form-label" for="billing-identity">T.C. Kimlik / Vergi No</label>
+                    <input type="text" id="billing-identity" class="form-input" maxlength="11" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="11 haneli numara" required>
                 </div>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label class="form-label" style="font-size: 12px;">Cep Telefonu Numarası (3D SMS İçin)</label>
-                    <input type="tel" id="billing-gsm" class="form-input" placeholder="Örn: 05376274415" required>
+                <div class="billing-row">
+                    <div class="form-group">
+                        <label class="form-label" for="billing-gsm">Cep Telefonu</label>
+                        <input type="tel" id="billing-gsm" class="form-input" inputmode="tel" autocomplete="tel" placeholder="05XX XXX XX XX" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="billing-city">Şehir</label>
+                        <input type="text" id="billing-city" class="form-input" autocomplete="address-level1" placeholder="İstanbul" required>
+                    </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label class="form-label" style="font-size: 12px;">Şehir</label>
-                    <input type="text" id="billing-city" class="form-input" placeholder="Örn: İstanbul" required>
+                <div class="form-group">
+                    <label class="form-label" for="billing-address">Fatura Adresi</label>
+                    <textarea id="billing-address" class="form-input" rows="2" autocomplete="street-address" placeholder="Mahalle, sokak, no, ilçe" required></textarea>
                 </div>
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label" style="font-size: 12px;">Açık Fatura Adresi</label>
-                    <textarea id="billing-address" class="form-input" style="height: 60px; resize: none;" placeholder="Örn: Gülbahar mah no 34 kat 3 daire 11 Şişli" required></textarea>
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">Bilgileri Kaydet ve Ödemeye Geç</button>
+                <button type="submit" class="btn-primary auth-submit">Ödemeye Geç</button>
+                <p class="billing-note">🔒 Bilgiler yalnızca iyzico 3D Secure doğrulaması ve fatura için kullanılır. Kart bilgisi bizde tutulmaz.</p>
             </form>
         </div>
     </div>
@@ -2094,6 +2094,6 @@
     </div>
 
     <script src="/static/js/ui-dialogs.js?v=20261110_1"></script>
-    <script src="/static/js/app.js?v=20261113_reg"></script>
+    <script src="/static/js/app.js?v=20261113_bill"></script>
 </body>
 </html>

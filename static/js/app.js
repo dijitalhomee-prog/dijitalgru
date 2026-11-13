@@ -2217,6 +2217,7 @@ async function openBillingStep(planName, cycle) {
         fill("billing-address", u.address, onlyIfEmpty);
     };
     fillFrom(currentUser, false);
+    updateBillingNameVisibility();
     openModal("billing-modal");
 
     try {
@@ -2226,6 +2227,7 @@ async function openBillingStep(planName, cycle) {
             const data = await res.json();
             currentUser = data.user;
             fillFrom(currentUser, true);
+            updateBillingNameVisibility();
         }
     } catch (_) {}
 }
@@ -2377,7 +2379,17 @@ function handlePaymentReturn() {
 document.addEventListener("DOMContentLoaded", handlePaymentReturn);
 
 // 5) Fatura formu: kaydet -> AddPaymentInfo -> ödemeye geç
+// Kayıtta girilen ad+soyad doluysa Ad Soyad alanını gizle (daha az alan)
+function updateBillingNameVisibility() {
+    const g = document.getElementById("billing-name-group");
+    const n = document.getElementById("billing-name");
+    if (!g || !n) return;
+    g.style.display = (n.value.trim().split(/\s+/).filter(Boolean).length >= 2) ? "none" : "";
+}
+
 const billingForm = document.getElementById("billing-form");
+const billingIdentityInput = document.getElementById("billing-identity");
+if (billingIdentityInput) billingIdentityInput.addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 11); });
 if (billingForm) {
     billingForm.addEventListener("submit", async function (e) {
         e.preventDefault();
@@ -2391,11 +2403,27 @@ if (billingForm) {
 
         const payload = {
             name: document.getElementById("billing-name").value.trim(),
-            identity_number: document.getElementById("billing-identity").value.trim(),
+            identity_number: document.getElementById("billing-identity").value.replace(/\D/g, ""),
             gsm_number: document.getElementById("billing-gsm").value.trim(),
             city: document.getElementById("billing-city").value.trim(),
             address: document.getElementById("billing-address").value.trim()
         };
+
+        // İstemci tarafı doğrulama (sunucu ile aynı kurallar)
+        const gsmDigits = payload.gsm_number.replace(/\D/g, "");
+        let vErr = "";
+        if (!payload.name || payload.name.split(/\s+/).length < 2) vErr = "Lütfen ad ve soyadınızı girin.";
+        else if (![10, 11].includes(payload.identity_number.length)) vErr = "T.C. Kimlik / Vergi numarası 10 veya 11 haneli olmalı.";
+        else if (gsmDigits.length < 10) vErr = "Geçerli bir cep telefonu girin (örn. 05XX XXX XX XX).";
+        else if (!payload.city) vErr = "Lütfen şehir girin.";
+        else if (payload.address.length < 5) vErr = "Lütfen fatura adresinizi girin.";
+        if (vErr) {
+            showBillingError(vErr);
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = origLabel; }
+            const nameGroup = document.getElementById("billing-name-group");
+            if (nameGroup) nameGroup.style.display = "";
+            return;
+        }
 
         try {
             const res = await fetch("/api/user/update-billing", {

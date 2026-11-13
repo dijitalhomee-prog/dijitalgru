@@ -853,3 +853,29 @@ html, body {
     #auth-modal .auth-submit { padding: 12px; }
     #auth-modal .auth-switch { margin-top: 10px; }
 }
+
+/* ===== Fatura / ödeme bilgileri modalı (kompakt) ===== */
+#billing-modal .modal-content.billing-compact { max-width: 440px; padding: 22px 20px; }
+#billing-modal .auth-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+#billing-modal .auth-head h3 { font-size: 18px; font-weight: 800; margin: 0; }
+#billing-modal .auth-close { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 4px 8px; line-height: 1; }
+#billing-modal .form-group { margin-bottom: 10px; }
+#billing-modal .form-label { font-size: 12px; margin-bottom: 4px; display: block; }
+#billing-modal .billing-row { display: grid; grid-template-columns: 1.3fr 1fr; gap: 10px; }
+#billing-modal textarea.form-input { resize: none; min-height: 56px; }
+#billing-modal .auth-submit { width: 100%; justify-content: center; padding: 13px; font-size: 15px; font-weight: 700; margin-top: 4px; }
+#billing-modal .billing-note { margin: 10px 0 0; font-size: 11.5px; line-height: 1.4; color: var(--text-muted); text-align: center; }
+
+@media (max-width: 640px) {
+    #billing-modal.modal-overlay { padding: 0 !important; align-items: stretch; overflow-y: auto; }
+    #billing-modal .modal-content.billing-compact {
+        width: 100% !important; max-width: none !important; max-height: none !important;
+        min-height: 100dvh; border-radius: 0 !important; border: 0;
+        padding: 12px 16px 16px !important;
+    }
+    #billing-modal .auth-head { margin-bottom: 8px; }
+    #billing-modal .form-group { margin-bottom: 8px; }
+    #billing-modal .form-input { padding: 10px 12px; font-size: 16px; }
+    #billing-modal textarea.form-input { min-height: 48px; }
+    #billing-modal .auth-submit { padding: 12px; }
+}
