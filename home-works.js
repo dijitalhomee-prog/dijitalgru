@@ -33,41 +33,76 @@
         var byId = {};
         data.forEach(function (it) { byId[it.id] = it; });
 
-        // --- Hero mozaiği: "28,8|16,26" => iki sütun ---
+        // --- Hero vitrin: tek büyük görsel, otomatik geçiş (data-ids sırasıyla) ---
         if (mosaic) {
-            var cols = (mosaic.getAttribute('data-ids') || '').split('|');
-            var first = true;
-            var html = cols.map(function (col, ci) {
-                var tiles = idList(col).map(function (id, ti) {
-                    var it = byId[id];
-                    if (!it || !it.home) return '';
-                    var cls = 'hx-tile ' + ((ci + ti) % 2 === 0 ? 'hx-tile--tall' : 'hx-tile--square');
-                    var eager = ti === 0;
-                    var priority = first ? 'high' : 'auto';
-                    first = false;
-                    return '<a class="' + cls + '" href="' + link(it) + '" aria-label="' + esc(it.title) + ' projesini incele">' +
-                        img(it, eager, priority) + '<span class="hx-tile-label">' + esc(it.title) + '</span></a>';
-                }).join('');
-                return '<div class="hx-mosaic-col' + (ci % 2 ? ' hx-mosaic-col--offset' : '') + '" data-parallax="' + (ci % 2 ? '-0.03' : '0.04') + '">' + tiles + '</div>';
-            }).join('');
-            mosaic.innerHTML = html;
-            initParallax(mosaic);
+            var items = idList((mosaic.getAttribute('data-ids') || '').replace(/\|/g, ',')).map(function (id) { return byId[id]; }).filter(function (it) { return it && it.home; });
+            var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+            mosaic.innerHTML =
+                '<div class="hx-stage">' + items.map(function (it, i) {
+                    return '<a class="hx-slide' + (i === 0 ? ' is-active' : '') + '" href="' + link(it) + '" aria-label="' + esc(it.title) + ' projesini incele"' + (i === 0 ? '' : ' tabindex="-1" aria-hidden="true"') + '>' +
+                        img(it, i === 0, 'high') + '</a>';
+                }).join('') + '</div>' +
+                '<div class="hx-stage-meta"><div class="hx-stage-cap"><strong></strong><span></span></div>' +
+                '<div class="hx-stage-nav" role="tablist" aria-label="Proje seç">' + items.map(function (it, i) {
+                    return '<button type="button" class="hx-dot' + (i === 0 ? ' is-active' : '') + '" aria-label="' + esc(it.title) + '" data-i="' + i + '"></button>';
+                }).join('') + '<span class="hx-count"></span></div></div>';
+            initStage(mosaic, items, pad);
         }
 
         // --- Seçilmiş işler ---
         if (works) {
+            var n = 0;
             works.innerHTML = idList(works.getAttribute('data-ids')).map(function (id) {
                 var it = byId[id];
                 if (!it || !it.home) return '';
+                n++;
                 return '<a href="' + link(it) + '" class="hx-work scroll-reveal revealed" aria-label="' + esc(it.title) + ' — projeyi incele">' +
                     '<figure class="hx-work-media">' + img(it, false) + '</figure>' +
-                    '<div class="hx-work-meta"><h3>' + esc(it.title) + '</h3><p>' + esc(it.catLabel) + '</p>' +
+                    '<div class="hx-work-meta"><span class="hx-work-no" aria-hidden="true">' + (n < 10 ? '0' + n : n) + '</span><h3>' + esc(it.title) + '</h3><p>' + esc(it.catLabel) + '</p>' +
                     '<span class="hx-work-more">Projeyi incele <span aria-hidden="true">→</span></span></div></a>';
             }).join('');
         }
     }).catch(function (e) {
         console.warn('Ana sayfa işleri yüklenemedi:', e);
     });
+
+    // Hero vitrin geçişi (reduced-motion'da otomatik geçiş yok)
+    function initStage(root, items, pad) {
+        var slides = root.querySelectorAll('.hx-slide');
+        var dots = root.querySelectorAll('.hx-dot');
+        var cap = root.querySelector('.hx-stage-cap');
+        var count = root.querySelector('.hx-count');
+        if (!slides.length) return;
+        var cur = 0, timer = null;
+        function show(i) {
+            cur = (i + slides.length) % slides.length;
+            slides.forEach(function (s, k) {
+                var on = k === cur;
+                s.classList.toggle('is-active', on);
+                if (on) { s.removeAttribute('aria-hidden'); s.removeAttribute('tabindex'); }
+                else { s.setAttribute('aria-hidden', 'true'); s.setAttribute('tabindex', '-1'); }
+            });
+            dots.forEach(function (d, k) { d.classList.toggle('is-active', k === cur); });
+            cap.querySelector('strong').textContent = items[cur].title;
+            cap.querySelector('span').textContent = items[cur].catLabel;
+            count.textContent = pad(cur + 1) + ' / ' + pad(slides.length);
+        }
+        function play() {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            stop();
+            timer = setInterval(function () { show(cur + 1); }, 5000);
+        }
+        function stop() { if (timer) { clearInterval(timer); timer = null; } }
+        dots.forEach(function (d) {
+            d.addEventListener('click', function () { show(parseInt(d.getAttribute('data-i'), 10)); play(); });
+        });
+        root.addEventListener('mouseenter', stop);
+        root.addEventListener('mouseleave', play);
+        root.addEventListener('focusin', stop);
+        root.addEventListener('focusout', play);
+        show(0);
+        play();
+    }
 
     // Hafif, yavaş parallax (reduced-motion'da kapalı)
     function initParallax(root) {
