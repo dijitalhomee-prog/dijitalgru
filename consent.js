@@ -142,40 +142,40 @@
     /* ---------- Arayüz ---------- */
     var CSS = '' +
         '.dgc-banner,.dgc-banner *{box-sizing:border-box}' +
-        '.dgc-banner{position:fixed;left:16px;right:16px;bottom:16px;z-index:100000;max-width:980px;margin:0 auto;' +
-        'background:rgba(12,19,48,.96);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);' +
-        'border:1px solid rgba(255,255,255,.14);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.45);' +
-        'padding:20px 22px;color:#fff;font-family:"Plus Jakarta Sans",system-ui,sans-serif;font-size:14px;line-height:1.6;' +
-        'animation:dgcIn .35s ease both}' +
-        '@keyframes dgcIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}' +
-        '.dgc-title{font-family:"Outfit",system-ui,sans-serif;font-weight:700;font-size:16px;margin:0 0 6px;color:#fff}' +
-        '.dgc-text{margin:0;color:rgba(255,255,255,.78)}' +
-        '.dgc-text a{color:#dca963;font-weight:600}' +
-        '.dgc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}' +
-        '.dgc-btn{flex:1 1 130px;min-height:44px;padding:11px 18px;border-radius:12px;font:700 14px "Plus Jakarta Sans",system-ui,sans-serif;' +
-        'cursor:pointer;border:1px solid #dca963;transition:transform .2s ease,background .2s ease,color .2s ease}' +
-        '.dgc-btn:hover{transform:translateY(-2px)}' +
-        '.dgc-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}' +
-        '.dgc-accept,.dgc-reject{background:#dca963;color:#0c1330}' +
-        '.dgc-accept:hover,.dgc-reject:hover{background:#e8bd80}' +
-        '.dgc-prefs{background:transparent;color:#fff;border-color:rgba(255,255,255,.35)}' +
-        '.dgc-prefs:hover{border-color:#dca963;color:#dca963}' +
-        '.dgc-panel{margin-top:16px;border-top:1px solid rgba(255,255,255,.12);padding-top:6px}' +
+        '.dgc-banner{position:fixed;left:20px;bottom:20px;z-index:100000;width:calc(100% - 40px);max-width:380px;' +
+        'background:rgba(14,20,44,.97);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);' +
+        'border:1px solid rgba(242,238,230,.12);border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,.45);' +
+        'padding:16px 18px;color:#F2EEE6;font-family:\"Inter\",Inter,system-ui,sans-serif;font-size:13px;line-height:1.55;' +
+        'animation:dgcIn .35s ease both;outline:0}' +
+        '@keyframes dgcIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}' +
+        '.dgc-text{margin:0;color:rgba(242,238,230,.75)}' +
+        '.dgc-text a{color:#dca963;font-weight:600;text-decoration:underline;text-underline-offset:2px}' +
+        '.dgc-actions{display:flex;align-items:center;gap:8px;margin-top:12px}' +
+        '.dgc-btn{min-height:36px;padding:8px 16px;border-radius:999px;font:600 13px \"Inter\",Inter,system-ui,sans-serif;' +
+        'cursor:pointer;border:1px solid transparent;transition:background .2s ease,color .2s ease,border-color .2s ease}' +
+        '.dgc-btn:focus-visible{outline:2px solid #F2EEE6;outline-offset:2px}' +
+        '.dgc-accept{background:#dca963;color:#0c1330;border-color:#dca963}' +
+        '.dgc-accept:hover{background:#e8bd80}' +
+        '.dgc-reject{background:transparent;color:#F2EEE6;border-color:rgba(242,238,230,.35)}' +
+        '.dgc-reject:hover{border-color:#F2EEE6}' +
+        '.dgc-prefs{background:transparent;color:rgba(242,238,230,.75);padding-left:8px;padding-right:8px;margin-left:auto;text-decoration:underline;text-underline-offset:3px}' +
+        '.dgc-prefs:hover{color:#dca963}' +
+        '.dgc-panel{margin-top:14px;border-top:1px solid rgba(242,238,230,.12);padding-top:4px;max-height:50vh;overflow:auto}' +
         '.dgc-panel[hidden]{display:none}' +
-        '.dgc-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)}' +
-        '.dgc-row h3{margin:0 0 2px;font-size:15px;font-family:"Outfit",system-ui,sans-serif;color:#fff}' +
-        '.dgc-row p{margin:0;color:rgba(255,255,255,.7);font-size:13px}' +
-        '.dgc-switch{position:relative;flex:0 0 auto;width:46px;height:26px;margin-top:2px}' +
+        '.dgc-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid rgba(242,238,230,.08)}' +
+        '.dgc-row h3{margin:0 0 2px;font-size:14px;font-family:\"Inter\",Inter,system-ui,sans-serif;font-weight:600;color:#F2EEE6}' +
+        '.dgc-row p{margin:0;color:rgba(242,238,230,.7);font-size:12px}' +
+        '.dgc-switch{position:relative;flex:0 0 auto;width:42px;height:24px;margin-top:2px}' +
         '.dgc-switch input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:2}' +
         '.dgc-switch input:disabled{cursor:not-allowed}' +
-        '.dgc-slider{position:absolute;inset:0;background:rgba(255,255,255,.2);border-radius:26px;transition:background .25s}' +
-        '.dgc-slider:before{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .25s}' +
+        '.dgc-slider{position:absolute;inset:0;background:rgba(242,238,230,.2);border-radius:24px;transition:background .25s}' +
+        '.dgc-slider:before{content:\"\";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#F2EEE6;transition:transform .25s}' +
         '.dgc-switch input:checked+.dgc-slider{background:#dca963}' +
-        '.dgc-switch input:checked+.dgc-slider:before{transform:translateX(20px)}' +
+        '.dgc-switch input:checked+.dgc-slider:before{transform:translateX(18px)}' +
         '.dgc-switch input:disabled+.dgc-slider{opacity:.6}' +
-        '.dgc-switch input:focus-visible+.dgc-slider{outline:2px solid #fff;outline-offset:2px}' +
-        '.dgc-save{margin-top:14px;width:100%}' +
-        '@media(max-width:600px){.dgc-banner{left:10px;right:10px;bottom:10px;padding:16px;max-height:88vh;overflow:auto}.dgc-btn{flex:1 1 100%}}' +
+        '.dgc-switch input:focus-visible+.dgc-slider{outline:2px solid #F2EEE6;outline-offset:2px}' +
+        '.dgc-save{margin-top:12px;width:100%}' +
+        '@media(max-width:600px){.dgc-banner{left:0;right:0;bottom:0;width:100%;max-width:none;border-radius:12px 12px 0 0;border-width:1px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));font-size:12.5px;box-shadow:0 -8px 32px rgba(0,0,0,.4)}.dgc-actions{margin-top:10px}.dgc-btn{min-height:34px;padding:7px 14px}}' +
         '@media(prefers-reduced-motion:reduce){.dgc-banner{animation:none}.dgc-btn{transition:none}}';
 
     var banner = null;
@@ -193,13 +193,12 @@
         banner.setAttribute('role', 'dialog');
         banner.setAttribute('aria-label', 'Çerez tercihleri');
         banner.hidden = true;
+        banner.setAttribute('tabindex', '-1');
         banner.innerHTML =
-            '<p class="dgc-title">Çerez Tercihleriniz</p>' +
-            '<p class="dgc-text">Sitemiz zorunlu çerezlerle çalışır. İzin verirseniz ziyaret istatistiği (analitik) ve reklam ölçümü (pazarlama) için ek çerezler de kullanırız. ' +
-            'Seçiminizi istediğiniz zaman değiştirebilirsiniz. Ayrıntılar için <a href="/gizlilik.html#cerezler">Gizlilik ve Çerez Bilgilendirmesi</a>.</p>' +
+            '<p class="dgc-text">Analitik ve pazarlama çerezleri için onayınızı isteriz. Ayrıntılar: <a href="/gizlilik.html#cerezler">Gizlilik ve Çerez Bilgilendirmesi</a>.</p>' +
             '<div class="dgc-actions">' +
-            '<button type="button" class="dgc-btn dgc-reject" id="dgc-reject">Reddet</button>' +
             '<button type="button" class="dgc-btn dgc-accept" id="dgc-accept">Kabul et</button>' +
+            '<button type="button" class="dgc-btn dgc-reject" id="dgc-reject">Reddet</button>' +
             '<button type="button" class="dgc-btn dgc-prefs" id="dgc-prefs" aria-expanded="false" aria-controls="dgc-panel">Tercihler</button>' +
             '</div>' +
             '<div class="dgc-panel" id="dgc-panel" hidden>' +
@@ -249,7 +248,7 @@
         banner.querySelector('#dgc-mkt').checked = window.dgConsent.marketing;
         togglePanel(!!openPanel);
         banner.hidden = false;
-        var target = openPanel ? banner.querySelector('#dgc-ana') : banner.querySelector('#dgc-accept');
+        var target = openPanel ? banner.querySelector('#dgc-ana') : banner;
         if (target) target.focus({ preventScroll: true });
     }
 

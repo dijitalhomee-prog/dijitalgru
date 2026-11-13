@@ -120,13 +120,6 @@ window.processContactForm = function(evt, el) {
     return false;
 };
 
-// Konu "İş Başvurusu" ise kariyer notu goster
-document.addEventListener('change', function(e) {
-    var t = e.target;
-    if (!t || t.id !== 'subject-field') return;
-    var note = document.getElementById('career-note');
-    if (note) note.hidden = (t.value !== 'İş Başvurusu');
-});
 
 // Hemen Ara / WhatsApp tiklamalari icin dataLayer eventi
 document.addEventListener('click', function(e) {
@@ -145,12 +138,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var style = document.createElement('style');
     style.textContent =
-        '#dg-wa-fab{position:fixed;right:20px;bottom:20px;z-index:2500;display:flex;align-items:center;gap:10px;' +
-        'background:#25d366;color:#fff;text-decoration:none;font-family:inherit;font-weight:700;font-size:15px;' +
-        'padding:14px 20px;border-radius:50px;box-shadow:0 10px 30px rgba(37,211,102,.45);transition:transform .25s ease,box-shadow .25s ease}' +
-        '#dg-wa-fab:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 14px 36px rgba(37,211,102,.6)}' +
-        '#dg-wa-fab i{font-size:24px}' +
-        '@media (max-width:600px){#dg-wa-fab{right:14px;bottom:14px;padding:14px}#dg-wa-fab span{display:none}}';
+        '#dg-wa-fab{position:fixed;right:20px;bottom:20px;z-index:2500;display:flex;align-items:center;justify-content:flex-end;height:52px;min-width:52px;width:52px;overflow:hidden;' +
+        'background:#10201c;color:#dca963;border:1px solid rgba(220,169,99,.35);text-decoration:none;font-family:inherit;font-weight:600;font-size:14px;white-space:nowrap;' +
+        'border-radius:26px;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:width .3s ease,opacity .3s ease,transform .3s ease,background .3s ease}' +
+        '#dg-wa-fab i{flex:0 0 50px;text-align:center;font-size:24px;line-height:50px;order:2}' +
+        '#dg-wa-fab span{order:1;padding-left:18px;opacity:0;transition:opacity .2s ease}' +
+        '#dg-wa-fab:hover,#dg-wa-fab:focus-visible{width:150px;background:#14291f}' +
+        '#dg-wa-fab:hover span,#dg-wa-fab:focus-visible span{opacity:1}' +
+        '@media (max-width:768px){#dg-wa-fab{right:16px;bottom:16px}#dg-wa-fab.dg-wa-hidden{opacity:0;pointer-events:none;transform:translateY(10px)}}';
     document.head.appendChild(style);
 
     var fab = document.createElement('a');
@@ -159,7 +154,19 @@ document.addEventListener('DOMContentLoaded', function() {
     fab.target = '_blank';
     fab.rel = 'noopener noreferrer';
     fab.setAttribute('aria-label', 'WhatsApp ile yazın');
-    fab.innerHTML = '<i class="fa-brands fa-whatsapp"></i><span>WhatsApp ile Yazın</span>';
+    fab.innerHTML = '<i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span>';
+    // Mobilde ana sayfa hero'sunda butonların üstüne binmesin: hero bitene kadar gizle
+    var heroEl = document.getElementById('hero');
+    if (heroEl) {
+        var syncFab = function () {
+            var past = heroEl.getBoundingClientRect().bottom < window.innerHeight * 0.6;
+            fab.classList.toggle('dg-wa-hidden', !past);
+        };
+        fab.classList.add('dg-wa-hidden');
+        window.addEventListener('scroll', syncFab, { passive: true });
+        window.addEventListener('resize', syncFab);
+        syncFab();
+    }
     fab.addEventListener('click', function() {
         if (typeof gtag_report_conversion === 'function') { gtag_report_conversion(); }
     });
@@ -287,6 +294,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. Portfolio Dataset (20 Real-World Prestige Brand Case Studies) ---
     // --- 1. Fetch Databases dynamically with Cache-busting and Local Fallback ---
     const loadData = () => {
+        // İşler / Blog / Takvim sayfaları kendi betikleriyle (designs.js, blog.js, takvim.js) çalışır
+        if (document.body && document.body.dataset.page === 'listing') {
+            return new Promise(() => {});
+        }
         if (window.location.protocol === 'file:') {
             console.log("Local file protocol detected. Using embedded dataset.");
             return Promise.resolve([window.PORTFOLIO_DATA_BACKUP, window.BLOG_DATA_BACKUP]);
@@ -308,13 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadData().then(([portfolioData, blogData]) => {
         window.BLOG_DATA = blogData;
-        // --- 4.5 Dynamic Notice Injection for Brands without PDFs ---
-        portfolioData.forEach(item => {
-            if (!item.pdfPath) {
-                item.desc = "Marka bilgisi eklenecektir. " + item.desc;
-                item.challenge = "Marka bilgisi eklenecektir. " + item.challenge;
-            }
-        });
 
         // --- 5. Static Portfolio Filter Tabs & Modal Binding Engine ---
         let currentCategory = 'all';
@@ -363,11 +367,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 // - print: ID 31 (Vela Ship), 33 (Galleria), 46 (Limoni Hotel Menü), 47 (Bi Nefes Cafe), 48 (Sinopia Mantı Menü)
                 // - social: ID 44 (Nuba İstanbul), 45 (Dolce Far Niente)
                 // - poster: ID 40 (Cahide Palazzo)
-                const curatedIds = [1, 2, 34, 8, 12, 25, 26, 31, 33, 37, 38, 40, 43, 44, 45, 46, 47, 48];
+                // Güncel ID'ler (birleşen kartlar: Galleria=28, Sinopia=8, Cahide Palazzo=16, Dolce=21, Limoni=20)
+                const curatedIds = [1, 8, 12, 25, 26, 31, 28, 37, 38, 16, 43, 44, 21, 20, 47];
                 filtered = portfolioData.filter(item => curatedIds.includes(item.id));
             } else {
                 // Show all items of this category
-                filtered = portfolioData.filter(item => item.category === currentCategory);
+                filtered = portfolioData.filter(item => (item.categories || [item.category]).includes(currentCategory));
             }
 
             // Render cards
@@ -477,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Set list of active slider projects based on the current filtered list
             loadedModalItems = portfolioData.filter(p => {
-                return currentCategory === 'all' || p.category === currentCategory;
+                return currentCategory === 'all' || (p.categories || [p.category]).includes(currentCategory);
             });
 
             // Find index of current item in the slider list
@@ -496,21 +501,20 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('modal-client').textContent = `Müşteri: ${item.client}`;
         
             // Detailed Case study content paragraphs (Consolidated for a single screen view without scrollbar)
+            const metricsHtml = (item.metrics && item.metrics.length) ? `
+                <h4 class="modal-section-title">Kazanımlar &amp; Sonuç</h4>
+                <div class="modal-metrics-grid">
+                    ${item.metrics.map(m => `
+                    <div class="modal-metric-card">
+                        <div class="modal-metric-val">${m.val}</div>
+                        <div class="modal-metric-lbl">${m.lbl}</div>
+                    </div>`).join('')}
+                </div>
+            ` : '';
             const bodyContent = `
                 <h4 class="modal-section-title">Proje Detayları</h4>
                 <p class="modal-desc">${item.challenge}</p>
-            
-                <h4 class="modal-section-title">Kazanımlar & Sonuç</h4>
-                <div class="modal-metrics-grid">
-                    <div class="modal-metric-card">
-                        <div class="modal-metric-val">${item.metrics[0].val}</div>
-                        <div class="modal-metric-lbl">${item.metrics[0].lbl}</div>
-                    </div>
-                    <div class="modal-metric-card">
-                        <div class="modal-metric-val">${item.metrics[1].val}</div>
-                        <div class="modal-metric-lbl">${item.metrics[1].lbl}</div>
-                    </div>
-                </div>
+                ${metricsHtml}
             `;
 
             document.querySelector('.modal-body').innerHTML = bodyContent;

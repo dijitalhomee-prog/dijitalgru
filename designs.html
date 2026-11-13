@@ -3,7 +3,7 @@
 <head>
     <!-- Google Tag Manager -->
     <!-- Çerez onayı: GTM/GA/Ads yalnızca izinle consent.js tarafından yüklenir -->
-    <script src="/consent.js?v=2"></script>
+    <script src="/consent.js?v=3"></script>
     <!-- End Google Tag Manager -->
     <!-- Redirect www to non-www -->
     <script>
@@ -41,256 +41,18 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Primary Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=5.2">
+    <link rel="stylesheet" href="style.css?v=7.3">
+    <link rel="preload" href="portfolio.json?v=10" as="fetch" crossorigin="anonymous">
     
     <!-- Custom Split-Screen Layout Stylesheet -->
     <style>
-        body {
-            background-color: var(--navy-primary);
-            color: var(--text-light);
-            overflow-x: hidden;
-            margin: 0;
-            padding: 0;
-        }
-
-        .split-portfolio-layout {
-            display: flex;
-            min-height: 100vh;
-            width: 100vw;
-        }
-
-        /* Left Sidebar Styling (Fixed on Desktop) */
-        .portfolio-sidebar {
-            width: 320px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: #060a1a;
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 40px;
-            z-index: 100;
-        }
-
-        .sidebar-top {
-            text-align: center;
-        }
-
-        .logo-img-dikey {
-            max-width: 130px;
-            height: auto;
-            margin: 0 auto;
-            display: block;
-        }
-
-        .sidebar-projects-nav {
-            margin: 40px 0;
-            flex-grow: 1;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        /* Custom Scrollbar for Sidebar */
-        .sidebar-projects-nav::-webkit-scrollbar {
-            width: 4px;
-        }
-        .sidebar-projects-nav::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .sidebar-projects-nav::-webkit-scrollbar-thumb {
-            background: rgba(220, 169, 99, 0.15);
-            border-radius: 2px;
-        }
-
-        .sidebar-nav-title {
-            font-family: var(--font-headings);
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent-gold);
-            display: block;
-            margin-bottom: 20px;
-            border-bottom: 1px solid rgba(220, 169, 99, 0.15);
-            padding-bottom: 8px;
-        }
-
-        .sidebar-project-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .sidebar-project-item {
-            transition: var(--transition-smooth);
-        }
-
-        .sidebar-project-item a {
-            color: var(--text-light-muted);
-            text-decoration: none;
-            font-size: 13.5px;
-            font-weight: 500;
-            transition: var(--transition-smooth);
-            display: block;
-            line-height: 1.4;
-            cursor: pointer;
-            border-left: 2px solid transparent;
-            padding-left: 0;
-        }
-
-        .sidebar-project-item a:hover {
-            color: var(--text-light);
-            padding-left: 8px;
-        }
-        
-        .sidebar-project-item.active a {
-            color: var(--accent-gold);
-            font-weight: 700;
-            padding-left: 10px;
-            border-left-color: var(--accent-gold);
-        }
-
-        .sidebar-bottom {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 20px;
-        }
-
-        .sidebar-back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-light-muted);
-            text-decoration: none;
-            font-family: var(--font-headings);
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: var(--transition-smooth);
-        }
-
-        .sidebar-back-link:hover {
-            color: var(--accent-gold);
-            transform: translateX(-4px);
-        }
-
-        .sidebar-socials {
-            display: flex;
-            gap: 16px;
-        }
-
-        .sidebar-socials a {
-            color: var(--text-light-muted);
-            font-size: 18px;
-            transition: var(--transition-smooth);
-        }
-
-        .sidebar-socials a:hover {
-            color: var(--accent-gold);
-            transform: translateY(-2px);
-        }
-
-        .sidebar-copyright {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Right Content Area Styling (Scrollable on Desktop) */
-        .portfolio-main-content {
-            flex-grow: 1;
-            margin-left: 320px; /* sidebar spacing */
-            padding: 60px 80px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .mobile-portfolio-header {
-            display: none;
-        }
-
-        .portfolio-content-wrapper {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .content-header {
-            margin-bottom: 40px;
-        }
-
-        .content-tag {
-            font-family: var(--font-headings);
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent-gold);
-            display: inline-block;
-            margin-bottom: 8px;
-        }
-
-        .content-title {
-            font-size: 38px;
-            font-weight: 900;
-            margin-bottom: 12px;
-            color: var(--text-light);
-        }
-
-        .content-subtitle {
-            color: var(--text-light-muted);
-            font-size: 15px;
-            line-height: 1.6;
-            max-width: 600px;
-        }
-
-        /* Filter Tabs */
-        .portfolio-tabs {
-            justify-content: flex-start;
-            margin-bottom: 40px;
-            background: rgba(255, 255, 255, 0.02);
-            padding: 6px;
-            border-radius: 30px;
-            display: inline-flex;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-        }
-
-        /* Custom Project Card Styling for Clean Look */
-        .portfolio-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: var(--transition-smooth);
-            cursor: pointer;
-        }
-
-        .portfolio-item:hover {
-            transform: translateY(-5px);
-            border-color: rgba(220, 169, 99, 0.2);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .no-results {
+.no-results {
             grid-column: span 2;
             text-align: center;
             padding: 80px 0;
@@ -299,51 +61,12 @@
             font-size: 16px;
             display: none;
         }
-
-        /* Responsive Layout Overrides */
-        @media (max-width: 1200px) {
-            .portfolio-sidebar {
-                width: 260px;
-                padding: 30px 20px;
-            }
-            .portfolio-main-content {
-                margin-left: 260px;
-                padding: 40px;
-            }
-            .content-title {
-                font-size: 32px;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .split-portfolio-layout {
-                flex-direction: column;
-            }
-
-            .portfolio-sidebar {
-                display: none; /* Hide sidebar completely on tablets/mobiles */
-            }
-
-            .portfolio-main-content {
-                margin-left: 0;
-                padding: 30px 20px;
-            }
-
-            .mobile-portfolio-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                padding-bottom: 20px;
-                margin-bottom: 30px;
-            }
-
-            .logo-img-yatay {
+@media (max-width: 1024px) {
+.logo-img-yatay {
                 height: 32px;
                 width: auto;
             }
-
-            .mobile-back-btn {
+.mobile-back-btn {
                 color: var(--accent-gold);
                 text-decoration: none;
                 font-family: var(--font-headings);
@@ -354,48 +77,22 @@
                 gap: 6px;
                 transition: var(--transition-smooth);
             }
-
-            .mobile-back-btn:hover {
+.mobile-back-btn:hover {
                 transform: translateX(-2px);
             }
-
-            .portfolio-grid {
-                grid-template-columns: 1fr; /* Single column grid */
-                gap: 20px;
-            }
-
-            .portfolio-tabs {
-                display: flex !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                overflow-x: auto !important;
-                flex-wrap: nowrap !important;
-                -webkit-overflow-scrolling: touch;
-                scroll-behavior: smooth;
-                border-radius: 16px !important;
-                padding: 8px 12px !important;
-                gap: 8px !important;
-                box-sizing: border-box !important;
-            }
-            
-            .portfolio-tabs::-webkit-scrollbar {
-                display: none !important;
-            }
-
-            .tab-btn {
+.tab-btn {
                 flex-shrink: 0 !important;
                 white-space: nowrap !important;
                 font-size: 13px !important;
                 padding: 8px 16px !important;
             }
-
-            .no-results {
+.no-results {
                 grid-column: 1;
             }
-        }
+}
     </style>
 </head>
-<body>
+<body data-page="listing">
 
     <!-- Event snippet for Sayfa görüntüleme conversion page
     In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
@@ -420,55 +117,62 @@
 
     <!-- Dynamic Glow Orb Background Tracker -->
     <div class="glow-orb" id="glow-orb"></div>
-    <div class="grid-background"></div>
 
     <!-- Main Split Layout Container -->
-    <div class="split-portfolio-layout">
-        
-        <!-- Left Sidebar (Fixed on Desktop) -->
-        <aside class="portfolio-sidebar">
-            <div class="sidebar-top">
-                <a href="/" class="sidebar-logo">
-                    <img src="Logo/logo-dikey-krem.png" alt="Dijital Gru logo" class="logo-img-dikey">
-                </a>
-            </div>
-            
-            <nav class="sidebar-projects-nav">
-                <span class="sidebar-nav-title">Tüm Markalar</span>
-                <ul class="sidebar-project-list" id="sidebar-project-list">
-                    <!-- Dynamically populated vertical brand name list by designs.js -->
+    <header class="main-header" id="main-header">
+        <div class="container header-container">
+            <a href="/" class="logo-link" aria-label="Dijital Gru Ana Sayfa">
+                <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru logo" class="dijitalgru-logo horizontal">
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav" aria-label="Ana menü">
+                <ul>
+                    <li><a href="/designs.html" class="nav-link active">İşler</a></li>
+                    <li><a href="/hizmetler.html" class="nav-link">Hizmetler</a></li>
+                    <li><a href="/kurumsal.html" class="nav-link">Hakkında</a></li>
+                    <li><a href="/blog.html" class="nav-link">Blog</a></li>
+                    <li><a href="/iletisim.html" class="nav-link">İletişim</a></li>
                 </ul>
             </nav>
-            
-            <div class="sidebar-bottom">
-                <a href="/" class="sidebar-back-link"><i class="fa-solid fa-arrow-left"></i> Ana Sayfaya Dön</a>
-                <div class="sidebar-socials">
-                    <a href="https://www.instagram.com/dijitalgru/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://www.youtube.com/@DijitalGru" target="_blank" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                </div>
-                <div class="sidebar-copyright">&copy; 2026 Dijital Gru. <a href="/gizlilik.html" style="opacity:.7;">Gizlilik</a> <a href="#" data-cookie-prefs style="opacity:.7;">Çerez tercihleri</a></div>
-            </div>
-        </aside>
 
-        <!-- Right Content Column (Scrolls on Desktop) -->
-        <main class="portfolio-main-content">
+            <!-- Call to Action -->
+            <div class="header-cta">
+                <a href="/#contact" class="btn btn-primary btn-nav" id="header-start-btn">Proje Başlat</a>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menüyü Aç/Kapat">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer" id="mobile-nav-drawer">
+        <nav class="mobile-nav-links">
+            <a href="/designs.html" class="mobile-nav-link active">İşler</a>
+            <a href="/hizmetler.html" class="mobile-nav-link">Hizmetler</a>
+            <a href="/kurumsal.html" class="mobile-nav-link">Hakkında</a>
+            <a href="/blog.html" class="mobile-nav-link">Blog</a>
+            <a href="/iletisim.html" class="mobile-nav-link">İletişim</a>
+            <a href="/#contact" class="btn btn-primary btn-mobile-cta">Proje Başlat</a>
+        </nav>
+    </div>
+
+    <main id="main" class="dx-main">
             
             <!-- Mobile Header (Visible only on mobile/tablet) -->
-            <header class="mobile-portfolio-header">
-                <a href="/" class="mobile-logo">
-                    <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru logo" class="logo-img-yatay">
-                </a>
-                <a href="/" class="mobile-back-btn"><i class="fa-solid fa-arrow-left"></i> Ana Sayfa</a>
-            </header>
+            
 
-            <div class="portfolio-content-wrapper">
+            <div class="container dx-wrap">
                 
                 <!-- Header content -->
                 <div class="content-header scroll-reveal revealed">
-                    <span class="content-tag">Tasarım Portfolyosu</span>
-                    <h1 class="content-title">Tüm Tasarımlarımız</h1>
+                    <span class="content-tag">Portfolyo</span>
+                    <h1 class="content-title">İşler</h1>
                     <p class="content-subtitle">
-                        Bugüne kadar hayata geçirdiğimiz 90'dan fazla yaratıcı iş, ambalaj, sosyal medya yönetimi ve yazılım geliştirme çalışması.
+                        Seçilmiş işlerimiz: kurumsal kimlik, ambalaj, basılı tasarım, sosyal medya ve web çalışmaları.
                     </p>
                 </div>
 
@@ -496,7 +200,65 @@
             </div>
         </main>
 
-    </div>
+    <footer class="main-footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <a href="/" class="footer-logo-link">
+                    <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru logo" class="footer-logo">
+                </a>
+                <p class="footer-desc">
+                    Fikirleri dijitalleştirir, markaları geleceğe taşırız. İstanbul merkezli web tasarım, marka kimliği ve yazılım stüdyosu.
+                </p>
+                <div class="footer-socials">
+                    <a href="https://www.instagram.com/dijitalgru/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.youtube.com/@DijitalGru" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="https://wa.me/905376274415" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links-group">
+                <div class="footer-col">
+                    <h2 class="footer-col-title">Hızlı Menü</h2>
+                    <ul>
+                        <li><a href="/">Ana Sayfa</a></li>
+                        <li><a href="/designs.html">İşler</a></li>
+                        <li><a href="/hizmetler.html">Hizmetler</a></li>
+                        <li><a href="/kurumsal.html">Hakkında</a></li>
+                        <li><a href="/blog.html">Blog</a></li>
+                        <li><a href="/iletisim.html">İletişim</a></li>
+                        <li><a href="/yazilimlarimiz.html">Yazılımlarımız</a></li>
+                        <li><a href="/takvim.html">2026 Takvim</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h2 class="footer-col-title">Hizmetlerimiz</h2>
+                    <ul>
+                        <li><a href="/restoran-web-sitesi-tasarimi.html">Restoran Web Sitesi Tasarımı</a></li>
+                        <li><a href="/luks-marka-kimligi-tasarimi.html">Lüks Marka Kimliği Tasarımı</a></li>
+                        <li><a href="/kurumsal-web-sitesi-tasarimi.html">Kurumsal Web Sitesi Tasarımı</a></li>
+                        <li><a href="/ozel-yazilim-gelistirme.html">Özel Yazılım Geliştirme</a></li>
+                        <li><a href="/qr-menu.html">QR Menü</a></li>
+                        <li><a href="/hizmetler.html">Tüm Hizmetler</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h2 class="footer-col-title">İletişim</h2>
+                    <p><i class="fa-solid fa-globe"></i> İstanbul &amp; Türkiye geneli</p>
+                    <p><i class="fa-solid fa-phone"></i> <a href="tel:+905376274415">+90 537 627 44 15</a></p>
+                    <p><i class="fa-solid fa-envelope"></i> <a href="mailto:dijitalgru@gmail.com" data-dg-email>dijitalgru@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 Dijital Gru. Tüm hakları saklıdır.<span style="font-size:12px;opacity:.4;margin:0 8px;" aria-hidden="true">&middot;</span><a href="/gizlilik.html" style="font-size:12px;opacity:.55;">Gizlilik</a><span style="font-size:12px;opacity:.4;margin:0 8px;" aria-hidden="true">&middot;</span><a href="#" data-cookie-prefs style="font-size:12px;opacity:.55;">Çerez Tercihleri</a><span style="font-size:12px;opacity:.4;margin:0 8px;" aria-hidden="true">&middot;</span><a href="/kariyer.html" style="font-size:12px;opacity:.55;">Kariyer</a></p>
+            </div>
+        </div>
+    </footer>
+
 
     <!-- Premium Case-Study Lightbox Modal -->
     <div class="case-study-modal" id="case-study-modal">
@@ -656,10 +418,14 @@
         </div>
     </div>
 
-    <!-- Dedicated Split-Portfolio Page Engine -->
-    <!-- PDF.js library for high-quality mobile previews -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <script src="data-backup.js?v=3.0"></script>
-    <script src="designs.js?v=3.0"></script>
+
+    <script src="site-config.js?v=1.0"></script>
+
+
+    <script src="app.js?v=6.7"></script>
+
+
+    <script src="data-backup.js?v=3.1" defer></script>
+    <script src="designs.js?v=3.3" defer></script>
 </body>
 </html>

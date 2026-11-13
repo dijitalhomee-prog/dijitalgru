@@ -3,7 +3,7 @@
 <head>
     <!-- Google Tag Manager -->
     <!-- Çerez onayı: GTM/GA/Ads yalnızca izinle consent.js tarafından yüklenir -->
-    <script src="/consent.js?v=2"></script>
+    <script src="/consent.js?v=3"></script>
     <!-- End Google Tag Manager -->
     <!-- Redirect www to non-www -->
     <script>
@@ -42,7 +42,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -52,53 +52,11 @@
     
     <!-- Custom Split-Screen Layout & Premium Accordion Styling -->
     <style>
-        body {
-            background-color: var(--navy-primary);
-            color: var(--text-light);
-            overflow-x: hidden;
-            margin: 0;
-            padding: 0;
-        }
-
-        .split-portfolio-layout {
-            display: flex;
-            min-height: 100vh;
-            width: 100vw;
-        }
-
-        /* Sidebar Styling */
-        .portfolio-sidebar {
-            width: 320px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: #060a1a;
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 40px;
-            z-index: 100;
-        }
-
-        .sidebar-top {
-            text-align: center;
-        }
-
-        .logo-img-dikey {
-            max-width: 130px;
-            height: auto;
-            margin: 0 auto;
-            display: block;
-        }
-
-        .sidebar-search-wrapper {
+.sidebar-search-wrapper {
             margin-top: 30px;
             position: relative;
         }
-
-        .sidebar-search-input {
+.sidebar-search-input {
             width: 100%;
             padding: 12px 16px 12px 40px;
             border-radius: 30px;
@@ -109,14 +67,12 @@
             transition: var(--transition-quick);
             font-family: var(--font-body);
         }
-
-        .sidebar-search-input:focus {
+.sidebar-search-input:focus {
             border-color: var(--accent-gold);
             background: rgba(255, 255, 255, 0.05);
             box-shadow: 0 0 15px rgba(220, 169, 99, 0.15);
         }
-
-        .sidebar-search-icon {
+.sidebar-search-icon {
             position: absolute;
             left: 15px;
             top: 50%;
@@ -126,30 +82,10 @@
             pointer-events: none;
             transition: var(--transition-quick);
         }
-
-        .sidebar-search-input:focus + .sidebar-search-icon {
+.sidebar-search-input:focus + .sidebar-search-icon {
             color: var(--accent-gold);
         }
-
-        .sidebar-quick-filters {
-            margin-top: 40px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .quick-filter-title {
-            font-family: var(--font-headings);
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent-gold);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .filter-chip {
+.filter-chip {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -164,21 +100,18 @@
             font-family: var(--font-headings);
             font-weight: 600;
         }
-
-        .filter-chip:hover {
+.filter-chip:hover {
             color: var(--text-light);
             border-color: rgba(220, 169, 99, 0.3);
             background: rgba(220, 169, 99, 0.04);
         }
-
-        .filter-chip.active {
+.filter-chip.active {
             background: var(--accent-gold);
             color: var(--navy-primary);
             border-color: var(--accent-gold);
             box-shadow: 0 4px 15px rgba(220, 169, 99, 0.25);
         }
-
-        .filter-chip-count {
+.filter-chip-count {
             font-size: 10.5px;
             font-weight: 700;
             background: rgba(255, 255, 255, 0.1);
@@ -186,115 +119,16 @@
             padding: 2px 8px;
             border-radius: 10px;
         }
-
-        .filter-chip.active .filter-chip-count {
+.filter-chip.active .filter-chip-count {
             background: rgba(0, 0, 0, 0.12);
         }
-
-        .sidebar-bottom {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 20px;
-        }
-
-        .sidebar-back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-light-muted);
-            text-decoration: none;
-            font-family: var(--font-headings);
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: var(--transition-smooth);
-        }
-
-        .sidebar-back-link:hover {
-            color: var(--accent-gold);
-            transform: translateX(-4px);
-        }
-
-        .sidebar-socials {
-            display: flex;
-            gap: 16px;
-        }
-
-        .sidebar-socials a {
-            color: var(--text-light-muted);
-            font-size: 18px;
-            transition: var(--transition-smooth);
-        }
-
-        .sidebar-socials a:hover {
-            color: var(--accent-gold);
-            transform: translateY(-2px);
-        }
-
-        .sidebar-copyright {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Right Content Column */
-        .portfolio-main-content {
-            flex-grow: 1;
-            margin-left: 320px;
-            padding: 60px 80px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .mobile-portfolio-header {
-            display: none;
-        }
-
-        .portfolio-content-wrapper {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .content-header {
-            margin-bottom: 50px;
-        }
-
-        .content-tag {
-            font-family: var(--font-headings);
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent-gold);
-            display: inline-block;
-            margin-bottom: 8px;
-        }
-
-        .content-title {
-            font-size: 38px;
-            font-weight: 900;
-            margin-bottom: 12px;
-            color: var(--text-light);
-        }
-
-        .content-subtitle {
-            color: var(--text-light-muted);
-            font-size: 15px;
-            line-height: 1.6;
-            max-width: 700px;
-        }
-
-        /* Premium Glassmorphic Accordion Styling */
-        .accordion-wrapper {
+.accordion-wrapper {
             display: flex;
             flex-direction: column;
             gap: 16px;
             margin-bottom: 60px;
         }
-
-        .accordion-item {
+.accordion-item {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 16px;
@@ -303,20 +137,17 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
-
-        .accordion-item:hover {
+.accordion-item:hover {
             border-color: rgba(220, 169, 99, 0.2);
             background: rgba(255, 255, 255, 0.03);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-
-        .accordion-item.active {
+.accordion-item.active {
             border-color: rgba(220, 169, 99, 0.35);
             background: rgba(220, 169, 99, 0.02);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
         }
-
-        .accordion-header {
+.accordion-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -324,22 +155,19 @@
             cursor: pointer;
             user-select: none;
         }
-
-        .accordion-header-left {
+.accordion-header-left {
             display: flex;
             align-items: center;
             gap: 18px;
         }
-
-        .accordion-month-title {
+.accordion-month-title {
             font-family: var(--font-headings);
             font-size: 19px;
             font-weight: 700;
             color: var(--text-light);
             letter-spacing: -0.2px;
         }
-
-        .accordion-badge {
+.accordion-badge {
             font-family: var(--font-headings);
             font-size: 11px;
             font-weight: 700;
@@ -351,8 +179,7 @@
             padding: 3px 12px;
             border-radius: 20px;
         }
-
-        .accordion-icon-box {
+.accordion-icon-box {
             width: 38px;
             height: 38px;
             border-radius: 50%;
@@ -364,43 +191,35 @@
             color: var(--accent-gold);
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
-        .accordion-item.active .accordion-icon-box {
+.accordion-item.active .accordion-icon-box {
             background: var(--accent-gold);
             color: var(--navy-primary);
             transform: rotate(45deg);
             box-shadow: 0 0 15px rgba(220, 169, 99, 0.3);
             border-color: var(--accent-gold);
         }
-
-        .accordion-icon-box i {
+.accordion-icon-box i {
             font-size: 14px;
             transition: transform 0.4s;
         }
-
-        /* Content Area */
-        .accordion-content {
+.accordion-content {
             max-height: 0;
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             opacity: 0;
         }
-
-        .accordion-item.active .accordion-content {
-            max-height: 2000px; /* high value to fit contents */
+.accordion-item.active .accordion-content {
+            max-height: 2000px; 
             opacity: 1;
             border-top: 1px solid rgba(255, 255, 255, 0.04);
         }
-
-        .accordion-body-inner {
+.accordion-body-inner {
             padding: 30px;
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
-
-        /* Calendar Row Item */
-        .takvim-row-item {
+.takvim-row-item {
             display: flex;
             align-items: center;
             gap: 20px;
@@ -410,14 +229,12 @@
             background: rgba(255, 255, 255, 0.01);
             transition: all 0.3s;
         }
-
-        .takvim-row-item:hover {
+.takvim-row-item:hover {
             background: rgba(255, 255, 255, 0.03);
             border-color: rgba(255, 255, 255, 0.06);
             transform: translateX(4px);
         }
-
-        .row-date-badge {
+.row-date-badge {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -430,15 +247,13 @@
             font-family: var(--font-headings);
             flex-shrink: 0;
         }
-
-        .row-day-num {
+.row-day-num {
             font-size: 20px;
             font-weight: 800;
             color: #fff;
             line-height: 1;
         }
-
-        .row-month-lbl {
+.row-month-lbl {
             font-size: 8px;
             font-weight: 700;
             letter-spacing: 1px;
@@ -446,29 +261,25 @@
             color: var(--text-light-muted);
             margin-top: 2px;
         }
-
-        .row-details {
+.row-details {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
-
-        .row-title {
+.row-title {
             font-family: var(--font-headings);
             font-size: 15px;
             font-weight: 700;
             color: var(--text-light);
             line-height: 1.3;
         }
-
-        .row-meta-wrapper {
+.row-meta-wrapper {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-
-        .row-tag {
+.row-tag {
             font-family: var(--font-headings);
             font-size: 9px;
             font-weight: 700;
@@ -480,8 +291,7 @@
             color: var(--text-light-muted);
             background: rgba(255, 255, 255, 0.02);
         }
-
-        .row-icon-cell {
+.row-icon-cell {
             font-size: 14px;
             color: var(--text-light-muted);
             display: flex;
@@ -494,53 +304,43 @@
             background: rgba(255, 255, 255, 0.02);
             flex-shrink: 0;
         }
-
-        /* Row Color Theme Modifiers */
-        .theme-gold .row-date-badge {
+.theme-gold .row-date-badge {
             background: linear-gradient(135deg, rgba(220, 169, 99, 0.15) 0%, rgba(220, 169, 99, 0.05) 100%);
             border-color: rgba(220, 169, 99, 0.3);
         }
-        .theme-gold .row-day-num { color: var(--accent-gold); }
-        .theme-gold .row-icon-cell { color: var(--accent-gold); background: rgba(220, 169, 99, 0.05); }
-
-        .theme-red .row-date-badge {
+.theme-gold .row-day-num { color: var(--accent-gold); }
+.theme-gold .row-icon-cell { color: var(--accent-gold); background: rgba(220, 169, 99, 0.05); }
+.theme-red .row-date-badge {
             background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
             border-color: rgba(239, 68, 68, 0.3);
         }
-        .theme-red .row-day-num { color: #ef4444; }
-        .theme-red .row-icon-cell { color: #ef4444; background: rgba(239, 68, 68, 0.05); }
-
-        .theme-blue .row-date-badge {
+.theme-red .row-day-num { color: #ef4444; }
+.theme-red .row-icon-cell { color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+.theme-blue .row-date-badge {
             background: linear-gradient(135deg, rgba(61, 96, 224, 0.15) 0%, rgba(61, 96, 224, 0.05) 100%);
             border-color: rgba(61, 96, 224, 0.3);
         }
-        .theme-blue .row-day-num { color: var(--accent-blue); }
-        .theme-blue .row-icon-cell { color: var(--accent-blue); background: rgba(61, 96, 224, 0.05); }
-
-        .theme-teal .row-date-badge {
+.theme-blue .row-day-num { color: var(--accent-blue); }
+.theme-blue .row-icon-cell { color: var(--accent-blue); background: rgba(61, 96, 224, 0.05); }
+.theme-teal .row-date-badge {
             background: linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(20, 184, 166, 0.05) 100%);
             border-color: rgba(20, 184, 166, 0.3);
         }
-        .theme-teal .row-day-num { color: #14b8a6; }
-        .theme-teal .row-icon-cell { color: #14b8a6; background: rgba(20, 184, 166, 0.05); }
-
-        .theme-purple .row-date-badge {
+.theme-teal .row-day-num { color: #14b8a6; }
+.theme-teal .row-icon-cell { color: #14b8a6; background: rgba(20, 184, 166, 0.05); }
+.theme-purple .row-date-badge {
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%);
             border-color: rgba(139, 92, 246, 0.3);
         }
-        .theme-purple .row-day-num { color: #8b5cf6; }
-        .theme-purple .row-icon-cell { color: #8b5cf6; background: rgba(139, 92, 246, 0.05); }
-
-        /* Empty state styling */
-        .search-empty-state {
+.theme-purple .row-day-num { color: #8b5cf6; }
+.theme-purple .row-icon-cell { color: #8b5cf6; background: rgba(139, 92, 246, 0.05); }
+.search-empty-state {
             text-align: center;
             padding: 80px 0;
             color: var(--text-light-muted);
             display: none;
         }
-
-        /* Download Section */
-        .takvim-cta-box {
+.takvim-cta-box {
             margin-top: 40px;
             padding: 40px;
             border-radius: 16px;
@@ -551,66 +351,25 @@
             justify-content: space-between;
             gap: 30px;
         }
-
-        .cta-details h3 {
+.cta-details h3 {
             font-family: var(--font-headings);
             font-size: 20px;
             font-weight: 800;
             color: #fff;
             margin-bottom: 8px;
         }
-
-        .cta-details p {
+.cta-details p {
             color: var(--text-light-muted);
             font-size: 13.5px;
             line-height: 1.5;
             max-width: 600px;
         }
-
-        /* Responsive Layout */
-        @media (max-width: 1200px) {
-            .portfolio-sidebar {
-                width: 260px;
-                padding: 30px 20px;
-            }
-            .portfolio-main-content {
-                margin-left: 260px;
-                padding: 40px;
-            }
-            .content-title {
-                font-size: 32px;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .split-portfolio-layout {
-                flex-direction: column;
-            }
-
-            .portfolio-sidebar {
-                display: none; /* Hide sidebar on mobile */
-            }
-
-            .portfolio-main-content {
-                margin-left: 0;
-                padding: 30px 20px;
-            }
-
-            .mobile-portfolio-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                padding-bottom: 20px;
-                margin-bottom: 30px;
-            }
-
-            .logo-img-yatay {
+@media (max-width: 1024px) {
+.logo-img-yatay {
                 height: 32px;
                 width: auto;
             }
-
-            .mobile-back-btn {
+.mobile-back-btn {
                 color: var(--accent-gold);
                 text-decoration: none;
                 font-family: var(--font-headings);
@@ -620,44 +379,85 @@
                 align-items: center;
                 gap: 6px;
             }
-
-            .mobile-search-wrapper {
-                margin-bottom: 30px;
-            }
-
-            .takvim-cta-box {
+.takvim-cta-box {
                 flex-direction: column;
                 align-items: flex-start;
                 padding: 30px 24px;
                 gap: 20px;
             }
-        }
+}
     </style>
 </head>
-<body>
+<body data-page="listing">
 
 
     <!-- Background glow -->
     <div class="glow-orb" id="glow-orb"></div>
-    <div class="grid-background"></div>
 
-    <div class="split-portfolio-layout">
-        <!-- Sidebar -->
-        <aside class="portfolio-sidebar">
-            <div class="sidebar-top">
-                <a href="/" class="sidebar-logo">
-                    <img src="Logo/logo-dikey-krem.png" alt="Dijital Gru logo" class="logo-img-dikey">
-                </a>
-                
-                <!-- Search -->
-                <div class="sidebar-search-wrapper">
+    <header class="main-header" id="main-header">
+        <div class="container header-container">
+            <a href="/" class="logo-link" aria-label="Dijital Gru Ana Sayfa">
+                <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru logo" class="dijitalgru-logo horizontal">
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav" aria-label="Ana menü">
+                <ul>
+                    <li><a href="/designs.html" class="nav-link">İşler</a></li>
+                    <li><a href="/hizmetler.html" class="nav-link">Hizmetler</a></li>
+                    <li><a href="/kurumsal.html" class="nav-link">Hakkında</a></li>
+                    <li><a href="/blog.html" class="nav-link">Blog</a></li>
+                    <li><a href="/iletisim.html" class="nav-link">İletişim</a></li>
+                </ul>
+            </nav>
+
+            <!-- Call to Action -->
+            <div class="header-cta">
+                <a href="/#contact" class="btn btn-primary btn-nav" id="header-start-btn">Proje Başlat</a>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menüyü Aç/Kapat">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer" id="mobile-nav-drawer">
+        <nav class="mobile-nav-links">
+            <a href="/designs.html" class="mobile-nav-link">İşler</a>
+            <a href="/hizmetler.html" class="mobile-nav-link">Hizmetler</a>
+            <a href="/kurumsal.html" class="mobile-nav-link">Hakkında</a>
+            <a href="/blog.html" class="mobile-nav-link">Blog</a>
+            <a href="/iletisim.html" class="mobile-nav-link">İletişim</a>
+            <a href="/#contact" class="btn btn-primary btn-mobile-cta">Proje Başlat</a>
+        </nav>
+    </div>
+
+    <main id="main" class="dx-main">
+            <!-- Mobile Header -->
+            
+
+            <!-- Mobile Search -->
+            
+
+            <div class="container dx-wrap">
+                <!-- Header -->
+                <div class="content-header scroll-reveal revealed">
+                    <span class="content-tag">2026 Dijital Planlama</span>
+                    <h1 class="content-title">2026 Özel Günler Takvimi</h1>
+                    <p class="content-subtitle">
+                        Sosyal medya kampanyalarınızı, blog içeriklerinizi ve pazarlama stratejilerinizi planlamanıza yardımcı olacak, 2026 yılına ait tüm milli bayramlar, resmi tatiller, dini günler ve sektörel özel günler listesi.
+                    </p>
+                </div>
+                <div class="dx-toolbar">
+<div class="sidebar-search-wrapper">
                     <input type="text" id="takvim-search" class="sidebar-search-input" placeholder="Özel gün veya ay ara...">
                     <i class="fa-solid fa-magnifying-glass sidebar-search-icon"></i>
                 </div>
-
-                <!-- Quick Filters -->
-                <div class="sidebar-quick-filters">
-                    <span class="quick-filter-title">Hızlı Filtrele</span>
+<div class="sidebar-quick-filters">
+                    
                     <button class="filter-chip active" data-filter="all">
                         <span>Tümü</span>
                         <span class="filter-chip-count" id="count-all">0</span>
@@ -679,45 +479,8 @@
                         <span class="filter-chip-count" id="count-saglik">0</span>
                     </button>
                 </div>
-            </div>
-
-            <div class="sidebar-bottom">
-                <a href="/" class="sidebar-back-link"><i class="fa-solid fa-arrow-left"></i> Ana Sayfaya Dön</a>
-                <div class="sidebar-socials">
-                    <a href="https://www.instagram.com/dijitalgru/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://www.youtube.com/@DijitalGru" target="_blank" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
                 </div>
-                <div class="sidebar-copyright">&copy; 2026 Dijital Gru. <a href="/gizlilik.html" style="opacity:.7;">Gizlilik</a> <a href="#" data-cookie-prefs style="opacity:.7;">Çerez tercihleri</a></div>
-            </div>
-        </aside>
 
-        <!-- Main Content -->
-        <main class="portfolio-main-content">
-            <!-- Mobile Header -->
-            <header class="mobile-portfolio-header">
-                <a href="/" class="mobile-logo">
-                    <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru logo" class="logo-img-yatay">
-                </a>
-                <a href="/" class="mobile-back-btn"><i class="fa-solid fa-arrow-left"></i> Ana Sayfa</a>
-            </header>
-
-            <!-- Mobile Search -->
-            <div class="mobile-search-wrapper mobile-only" style="display: none;">
-                <div class="sidebar-search-wrapper">
-                    <input type="text" id="takvim-search-mobile" class="sidebar-search-input" placeholder="Özel gün veya ay ara...">
-                    <i class="fa-solid fa-magnifying-glass sidebar-search-icon"></i>
-                </div>
-            </div>
-
-            <div class="portfolio-content-wrapper">
-                <!-- Header -->
-                <div class="content-header scroll-reveal revealed">
-                    <span class="content-tag">2026 Dijital Planlama</span>
-                    <h1 class="content-title">2026 Özel Günler Takvimi</h1>
-                    <p class="content-subtitle">
-                        Sosyal medya kampanyalarınızı, blog içeriklerinizi ve pazarlama stratejilerinizi planlamanıza yardımcı olacak, 2026 yılına ait tüm milli bayramlar, resmi tatiller, dini günler ve sektörel özel günler listesi.
-                    </p>
-                </div>
 
                 <!-- Accordion Wrapper -->
                 <div class="accordion-wrapper" id="accordion-root">
@@ -744,9 +507,70 @@
                 </div>
             </div>
         </main>
-    </div>
+
+    <footer class="main-footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <a href="/" class="footer-logo-link">
+                    <img src="Logo/logo-yatay-krem.png" alt="Dijital Gru logo" class="footer-logo">
+                </a>
+                <p class="footer-desc">
+                    Fikirleri dijitalleştirir, markaları geleceğe taşırız. İstanbul merkezli web tasarım, marka kimliği ve yazılım stüdyosu.
+                </p>
+                <div class="footer-socials">
+                    <a href="https://www.instagram.com/dijitalgru/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.youtube.com/@DijitalGru" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="https://wa.me/905376274415" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links-group">
+                <div class="footer-col">
+                    <h2 class="footer-col-title">Hızlı Menü</h2>
+                    <ul>
+                        <li><a href="/">Ana Sayfa</a></li>
+                        <li><a href="/designs.html">İşler</a></li>
+                        <li><a href="/hizmetler.html">Hizmetler</a></li>
+                        <li><a href="/kurumsal.html">Hakkında</a></li>
+                        <li><a href="/blog.html">Blog</a></li>
+                        <li><a href="/iletisim.html">İletişim</a></li>
+                        <li><a href="/yazilimlarimiz.html">Yazılımlarımız</a></li>
+                        <li><a href="/takvim.html">2026 Takvim</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h2 class="footer-col-title">Hizmetlerimiz</h2>
+                    <ul>
+                        <li><a href="/restoran-web-sitesi-tasarimi.html">Restoran Web Sitesi Tasarımı</a></li>
+                        <li><a href="/luks-marka-kimligi-tasarimi.html">Lüks Marka Kimliği Tasarımı</a></li>
+                        <li><a href="/kurumsal-web-sitesi-tasarimi.html">Kurumsal Web Sitesi Tasarımı</a></li>
+                        <li><a href="/ozel-yazilim-gelistirme.html">Özel Yazılım Geliştirme</a></li>
+                        <li><a href="/qr-menu.html">QR Menü</a></li>
+                        <li><a href="/hizmetler.html">Tüm Hizmetler</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h2 class="footer-col-title">İletişim</h2>
+                    <p><i class="fa-solid fa-globe"></i> İstanbul &amp; Türkiye geneli</p>
+                    <p><i class="fa-solid fa-phone"></i> <a href="tel:+905376274415">+90 537 627 44 15</a></p>
+                    <p><i class="fa-solid fa-envelope"></i> <a href="mailto:dijitalgru@gmail.com" data-dg-email>dijitalgru@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 Dijital Gru. Tüm hakları saklıdır.<span style="font-size:12px;opacity:.4;margin:0 8px;" aria-hidden="true">&middot;</span><a href="/gizlilik.html" style="font-size:12px;opacity:.55;">Gizlilik</a><span style="font-size:12px;opacity:.4;margin:0 8px;" aria-hidden="true">&middot;</span><a href="#" data-cookie-prefs style="font-size:12px;opacity:.55;">Çerez Tercihleri</a><span style="font-size:12px;opacity:.4;margin:0 8px;" aria-hidden="true">&middot;</span><a href="/kariyer.html" style="font-size:12px;opacity:.55;">Kariyer</a></p>
+            </div>
+        </div>
+    </footer>
+
 
     <!-- Scripts -->
+    <script src="site-config.js?v=1.0"></script>
+    <script src="app.js?v=6.7"></script>
     <script src="takvim.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

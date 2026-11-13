@@ -1,199 +1,716 @@
 [
     {
+        "id": 48,
+        "title": "Arslan Coin Center",
+        "client": "Arslan Coin Center",
+        "category": "social",
+        "catLabel": "Sosyal Medya Tasarımı",
+        "desc": "Kıbrıs merkezli bir kripto ve döviz ofisi için güven veren, kurumsal bir sosyal medya dili.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "Kıbrıs merkezli bir kripto ve döviz ofisi için güven veren, kurumsal bir sosyal medya dili.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/ArslanCoinCenter-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-arslancoincenter-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Sosyal Medya Tasarımı",
+                "section": null,
+                "desc": "Kıbrıs merkezli bir kripto ve döviz ofisi için güven veren, kurumsal bir sosyal medya dili.",
+                "challenge": "Kıbrıs merkezli bir kripto ve döviz ofisi için güven veren, kurumsal bir sosyal medya dili.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/ArslanCoinCenter-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-arslancoincenter-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 49,
+        "title": "Cafe Baygün",
+        "client": "Cafe Baygün",
+        "category": "social",
+        "catLabel": "Sosyal Medya Tasarımı",
+        "desc": "Kıbrıs'ta bir sandviç ve tost kafesi için ürün odaklı Instagram serisi.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "Kıbrıs'ta bir sandviç ve tost kafesi için ürün odaklı Instagram serisi.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/CafeBaygun-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-cafebaygun-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Sosyal Medya Tasarımı",
+                "section": null,
+                "desc": "Kıbrıs'ta bir sandviç ve tost kafesi için ürün odaklı Instagram serisi.",
+                "challenge": "Kıbrıs'ta bir sandviç ve tost kafesi için ürün odaklı Instagram serisi.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/CafeBaygun-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-cafebaygun-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 50,
+        "title": "Cafe Darling",
+        "client": "Cafe Darling",
+        "category": "print",
+        "catLabel": "Dijital Menü Tasarımı",
+        "desc": "Gelirinin bir kısmını sokak hayvanlarına bağışlayan bir kafe için QR menü.",
+        "icon": "fa-utensils",
+        "gradient": "brand-gradient",
+        "metrics": [],
+        "challenge": "Gelirinin bir kısmını sokak hayvanlarına bağışlayan bir kafe için QR menü.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/CafeDarling-Menu-DijitalGru.pdf",
+        "thumb": "thumbs/new-cafedarling-menu.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "print"
+        ],
+        "works": [
+            {
+                "label": "Dijital Menü Tasarımı",
+                "section": null,
+                "desc": "Gelirinin bir kısmını sokak hayvanlarına bağışlayan bir kafe için QR menü.",
+                "challenge": "Gelirinin bir kısmını sokak hayvanlarına bağışlayan bir kafe için QR menü.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/CafeDarling-Menu-DijitalGru.pdf",
+                "thumb": "thumbs/new-cafedarling-menu.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 51,
+        "title": "D'Home",
+        "client": "D'Home",
+        "category": "social",
+        "catLabel": "Sosyal Medya Tasarımı",
+        "desc": "Bir mobilya markasının Quarry ve Coco koleksiyonları için Instagram görselleri.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "Bir mobilya markasının Quarry ve Coco koleksiyonları için Instagram görselleri.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/DHome-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-dhome-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Sosyal Medya Tasarımı",
+                "section": null,
+                "desc": "Bir mobilya markasının Quarry ve Coco koleksiyonları için Instagram görselleri.",
+                "challenge": "Bir mobilya markasının Quarry ve Coco koleksiyonları için Instagram görselleri.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/DHome-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-dhome-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 52,
+        "title": "Döner Point",
+        "client": "Döner Point",
+        "category": "social",
+        "catLabel": "Sosyal Medya Tasarımı",
+        "desc": "Lefkoşa'da bir dönerci için koyu zeminli, sarı vurgulu Instagram serisi.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "Lefkoşa'da bir dönerci için koyu zeminli, sarı vurgulu Instagram serisi.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/DonerPoint-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-donerpoint-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Sosyal Medya Tasarımı",
+                "section": null,
+                "desc": "Lefkoşa'da bir dönerci için koyu zeminli, sarı vurgulu Instagram serisi.",
+                "challenge": "Lefkoşa'da bir dönerci için koyu zeminli, sarı vurgulu Instagram serisi.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/DonerPoint-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-donerpoint-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 53,
+        "title": "E'ler Zeytinyağı",
+        "client": "E'ler Zeytinyağı",
+        "category": "print",
+        "catLabel": "Etiket Tasarımı",
+        "desc": "Elye ve Pendaya köylerinden erken hasat zeytinyağı için dört alternatifli şişe etiketi.",
+        "icon": "fa-utensils",
+        "gradient": "brand-gradient",
+        "metrics": [],
+        "challenge": "Elye ve Pendaya köylerinden erken hasat zeytinyağı için dört alternatifli şişe etiketi.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Eler-Zeytinyagi-Etiket-DijitalGru.pdf",
+        "thumb": "thumbs/new-eler-zeytinyagi-etiket.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "print"
+        ],
+        "works": [
+            {
+                "label": "Etiket Tasarımı",
+                "section": null,
+                "desc": "Elye ve Pendaya köylerinden erken hasat zeytinyağı için dört alternatifli şişe etiketi.",
+                "challenge": "Elye ve Pendaya köylerinden erken hasat zeytinyağı için dört alternatifli şişe etiketi.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Eler-Zeytinyagi-Etiket-DijitalGru.pdf",
+                "thumb": "thumbs/new-eler-zeytinyagi-etiket.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 54,
+        "title": "Express Dry Clean",
+        "client": "Express Dry Clean",
+        "category": "social",
+        "catLabel": "Sosyal Medya Tasarımı",
+        "desc": "Lefkoşa'da evden alım ve ücretsiz teslimat yapan bir kuru temizleme markası için Instagram serisi.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "Lefkoşa'da evden alım ve ücretsiz teslimat yapan bir kuru temizleme markası için Instagram serisi.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/ExpressDryClean-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-expressdryclean-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Sosyal Medya Tasarımı",
+                "section": null,
+                "desc": "Lefkoşa'da evden alım ve ücretsiz teslimat yapan bir kuru temizleme markası için Instagram serisi.",
+                "challenge": "Lefkoşa'da evden alım ve ücretsiz teslimat yapan bir kuru temizleme markası için Instagram serisi.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/ExpressDryClean-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-expressdryclean-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 55,
+        "title": "Farmina",
+        "client": "Farmina",
+        "category": "social",
+        "catLabel": "Sosyal Medya Tasarımı",
+        "desc": "İtalyan evcil hayvan maması markasının Kuzey Kıbrıs distribütörü için ürün ve kampanya postları.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "İtalyan evcil hayvan maması markasının Kuzey Kıbrıs distribütörü için ürün ve kampanya postları.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Farmina-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-farmina-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Sosyal Medya Tasarımı",
+                "section": null,
+                "desc": "İtalyan evcil hayvan maması markasının Kuzey Kıbrıs distribütörü için ürün ve kampanya postları.",
+                "challenge": "İtalyan evcil hayvan maması markasının Kuzey Kıbrıs distribütörü için ürün ve kampanya postları.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Farmina-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-farmina-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 56,
+        "title": "G2 Concept",
+        "client": "G2 Concept",
+        "category": "social",
+        "catLabel": "Yapay Zekâ Destekli Ürün Görselleri",
+        "desc": "Bir taş kolye için stüdyo çekimi olmadan üretilen editoryal kampanya serisi.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "Bir taş kolye için stüdyo çekimi olmadan üretilen editoryal kampanya serisi.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/G2Concept-AIUrunGorselleri-DijitalGru.pdf",
+        "thumb": "thumbs/new-g2concept-aiurungorselleri.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Yapay Zekâ Destekli Ürün Görselleri",
+                "section": null,
+                "desc": "Bir taş kolye için stüdyo çekimi olmadan üretilen editoryal kampanya serisi.",
+                "challenge": "Bir taş kolye için stüdyo çekimi olmadan üretilen editoryal kampanya serisi.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/G2Concept-AIUrunGorselleri-DijitalGru.pdf",
+                "thumb": "thumbs/new-g2concept-aiurungorselleri.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ],
+        "home": {
+            "src": "thumbs/home-g2.jpg",
+            "w": 900,
+            "h": 1125,
+            "alt": "G2 Concept taş kolye editoryal kampanya görseli",
+            "pos": "50% 22%"
+        }
+    },
+    {
+        "id": 57,
+        "title": "Gigant Cyprus",
+        "client": "Gigant Cyprus",
+        "category": "print",
+        "catLabel": "Kartvizit Tasarımı",
+        "desc": "Lefkoşa'da baca, şömine ve endüstriyel mutfak hizmeti veren bir firma için üç alternatifli kartvizit.",
+        "icon": "fa-utensils",
+        "gradient": "brand-gradient",
+        "metrics": [],
+        "challenge": "Lefkoşa'da baca, şömine ve endüstriyel mutfak hizmeti veren bir firma için üç alternatifli kartvizit.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/GigantCyprus-Kartvizit-DijitalGru.pdf",
+        "thumb": "thumbs/new-gigantcyprus-kartvizit.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "print"
+        ],
+        "works": [
+            {
+                "label": "Kartvizit Tasarımı",
+                "section": null,
+                "desc": "Lefkoşa'da baca, şömine ve endüstriyel mutfak hizmeti veren bir firma için üç alternatifli kartvizit.",
+                "challenge": "Lefkoşa'da baca, şömine ve endüstriyel mutfak hizmeti veren bir firma için üç alternatifli kartvizit.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/GigantCyprus-Kartvizit-DijitalGru.pdf",
+                "thumb": "thumbs/new-gigantcyprus-kartvizit.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 58,
+        "title": "GIG Bakehouse",
+        "client": "GIG Bakehouse",
+        "category": "print",
+        "catLabel": "Roll-up Tasarımı",
+        "desc": "El yapımı craquelin choux pastaları için mağaza içi roll-up serisi.",
+        "icon": "fa-utensils",
+        "gradient": "brand-gradient",
+        "metrics": [],
+        "challenge": "El yapımı craquelin choux pastaları için mağaza içi roll-up serisi.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/GIGBakehouse-Rollup-DijitalGru.pdf",
+        "thumb": "thumbs/new-gigbakehouse-rollup.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "print"
+        ],
+        "works": [
+            {
+                "label": "Roll-up Tasarımı",
+                "section": null,
+                "desc": "El yapımı craquelin choux pastaları için mağaza içi roll-up serisi.",
+                "challenge": "El yapımı craquelin choux pastaları için mağaza içi roll-up serisi.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/GIGBakehouse-Rollup-DijitalGru.pdf",
+                "thumb": "thumbs/new-gigbakehouse-rollup.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 59,
+        "title": "Güzel Kuruçeşme",
+        "client": "Güzel Kuruçeşme",
+        "category": "print",
+        "catLabel": "Menü Tasarımı",
+        "desc": "Bir ocakbaşı için yemek, içecek ve yılbaşı menülerinden oluşan basılı menü ailesi.",
+        "icon": "fa-utensils",
+        "gradient": "brand-gradient",
+        "metrics": [],
+        "challenge": "Bir ocakbaşı için yemek, içecek ve yılbaşı menülerinden oluşan basılı menü ailesi.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/GuzelKurucesme-Menu-DijitalGru.pdf",
+        "thumb": "thumbs/new-guzelkurucesme-menu.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "print"
+        ],
+        "works": [
+            {
+                "label": "Menü Tasarımı",
+                "section": null,
+                "desc": "Bir ocakbaşı için yemek, içecek ve yılbaşı menülerinden oluşan basılı menü ailesi.",
+                "challenge": "Bir ocakbaşı için yemek, içecek ve yılbaşı menülerinden oluşan basılı menü ailesi.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/GuzelKurucesme-Menu-DijitalGru.pdf",
+                "thumb": "thumbs/new-guzelkurucesme-menu.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 60,
+        "title": "Hasata",
+        "client": "Hasata",
+        "category": "social",
+        "catLabel": "Sosyal Medya Tasarımı",
+        "desc": "Bakliyat ve tahıl ürünleri için Kıbrıs pazarına yönelik ürün ve tarif postları.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "Bakliyat ve tahıl ürünleri için Kıbrıs pazarına yönelik ürün ve tarif postları.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Hasata-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-hasata-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Sosyal Medya Tasarımı",
+                "section": null,
+                "desc": "Bakliyat ve tahıl ürünleri için Kıbrıs pazarına yönelik ürün ve tarif postları.",
+                "challenge": "Bakliyat ve tahıl ürünleri için Kıbrıs pazarına yönelik ürün ve tarif postları.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Hasata-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-hasata-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 61,
+        "title": "Marlowe",
+        "client": "Marlowe",
+        "category": "poster",
+        "catLabel": "Etkinlik Afişleri",
+        "desc": "Canlı müzik, DJ ve stand-up geceleri olan bir kokteyl bar için haftalık program ve sanatçı afişleri.",
+        "icon": "fa-compact-disc",
+        "gradient": "creative-gradient",
+        "metrics": [],
+        "challenge": "Canlı müzik, DJ ve stand-up geceleri olan bir kokteyl bar için haftalık program ve sanatçı afişleri.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Marlowe-Afis-DijitalGru.pdf",
+        "thumb": "thumbs/new-marlowe-afis.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "poster"
+        ],
+        "works": [
+            {
+                "label": "Etkinlik Afişleri",
+                "section": null,
+                "desc": "Canlı müzik, DJ ve stand-up geceleri olan bir kokteyl bar için haftalık program ve sanatçı afişleri.",
+                "challenge": "Canlı müzik, DJ ve stand-up geceleri olan bir kokteyl bar için haftalık program ve sanatçı afişleri.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Marlowe-Afis-DijitalGru.pdf",
+                "thumb": "thumbs/new-marlowe-afis.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 62,
+        "title": "Mood Brew",
+        "client": "Mood Brew",
+        "category": "branding",
+        "catLabel": "Konsept Marka Kimliği",
+        "desc": "Kahveyi bir ruh hali olarak ele alan bir kahve markası için konsept kimlik çalışması.",
+        "icon": "fa-leaf",
+        "gradient": "brand-gradient",
+        "metrics": [],
+        "challenge": "Kahveyi bir ruh hali olarak ele alan bir kahve markası için konsept kimlik çalışması.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/MoodBrew-Konsept-DijitalGru.pdf",
+        "thumb": "thumbs/new-moodbrew-konsept.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "branding"
+        ],
+        "works": [
+            {
+                "label": "Konsept Marka Kimliği",
+                "section": null,
+                "desc": "Kahveyi bir ruh hali olarak ele alan bir kahve markası için konsept kimlik çalışması.",
+                "challenge": "Kahveyi bir ruh hali olarak ele alan bir kahve markası için konsept kimlik çalışması.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/MoodBrew-Konsept-DijitalGru.pdf",
+                "thumb": "thumbs/new-moodbrew-konsept.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 63,
+        "title": "Moonwalk",
+        "client": "Moonwalk",
+        "category": "poster",
+        "catLabel": "Etkinlik Afişleri",
+        "desc": "Moonwalk için kırmızı ve siyahın hâkim olduğu, beş afişlik bir Halloween gecesi serisi.",
+        "icon": "fa-compact-disc",
+        "gradient": "creative-gradient",
+        "metrics": [],
+        "challenge": "Moonwalk için kırmızı ve siyahın hâkim olduğu, beş afişlik bir Halloween gecesi serisi.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Moonwalk-Halloween-DijitalGru.pdf",
+        "thumb": "thumbs/new-moonwalk-halloween.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "poster"
+        ],
+        "works": [
+            {
+                "label": "Etkinlik Afişleri",
+                "section": null,
+                "desc": "Moonwalk için kırmızı ve siyahın hâkim olduğu, beş afişlik bir Halloween gecesi serisi.",
+                "challenge": "Moonwalk için kırmızı ve siyahın hâkim olduğu, beş afişlik bir Halloween gecesi serisi.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Moonwalk-Halloween-DijitalGru.pdf",
+                "thumb": "thumbs/new-moonwalk-halloween.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 64,
+        "title": "Suat Usta Şarküteri",
+        "client": "Suat Usta Şarküteri",
+        "category": "social",
+        "catLabel": "Sosyal Medya Tasarımı",
+        "desc": "Günlük meze ve ev yemekleri üreten bir şarküteri için Instagram serisi.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "Günlük meze ve ev yemekleri üreten bir şarküteri için Instagram serisi.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/SuatUsta-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-suatusta-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Sosyal Medya Tasarımı",
+                "section": null,
+                "desc": "Günlük meze ve ev yemekleri üreten bir şarküteri için Instagram serisi.",
+                "challenge": "Günlük meze ve ev yemekleri üreten bir şarküteri için Instagram serisi.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/SuatUsta-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-suatusta-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
+        "id": 65,
+        "title": "Veli Kardeşler",
+        "client": "Veli Kardeşler",
+        "category": "social",
+        "catLabel": "Sosyal Medya Tasarımı",
+        "desc": "Üç şubeli bir lastik ve akü bayisi için Pirelli, Anlas ve Varta ürün postları.",
+        "icon": "fa-umbrella-beach",
+        "gradient": "social-gradient",
+        "metrics": [],
+        "challenge": "Üç şubeli bir lastik ve akü bayisi için Pirelli, Anlas ve Varta ürün postları.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/VeliKardesler-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-velikardesler-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "categories": [
+            "social"
+        ],
+        "works": [
+            {
+                "label": "Sosyal Medya Tasarımı",
+                "section": null,
+                "desc": "Üç şubeli bir lastik ve akü bayisi için Pirelli, Anlas ve Varta ürün postları.",
+                "challenge": "Üç şubeli bir lastik ve akü bayisi için Pirelli, Anlas ve Varta ürün postları.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/VeliKardesler-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-velikardesler-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
+            }
+        ]
+    },
+    {
         "id": 36,
-        "title": "Shiso Menü Tasarımı",
+        "title": "Shiso Garden",
         "client": "Shiso Garden",
         "category": "print",
         "catLabel": "Menü & Basılı Grafik",
-        "desc": "Shiso’nun Uzak Doğu mutfağındaki dingin ve estetik duruşunu, müşterileriyle buluştuğu ilk nokta olan menü tasarımına entegre ettik. ",
+        "desc": "Shiso’nun Uzak Doğu mutfağındaki dingin ve estetik duruşunu, müşterileriyle buluştuğu ilk nokta olan menü tasarımına entegre ettik.",
         "icon": "fa-utensils",
         "gradient": "brand-gradient",
-        "metrics": [
+        "metrics": [],
+        "challenge": "Japon minimalizminin temiz çizgilerini temel alarak hazırladığımız bu bütünsel sunum çalışmasında, özel kağıt dokusu ve sade yazı karakterleriyle premium bir deneyim kurguladık. Shiso Sushi & More’un seçkin menüsünü görsel bir şölene dönüştürürken, okunabilirliği ve estetiği en üst seviyede birleştirmeyi başardık.",
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Shiso-Menu-DijitalGru.pdf",
+        "categories": [
+            "print"
+        ],
+        "works": [
             {
-                "val": "Minimalist",
-                "lbl": "Japon Estetiği"
-            },
-            {
-                "val": "Premium",
-                "lbl": "Özel Dokulu Baskı"
+                "label": "Menü & Basılı Grafik",
+                "section": null,
+                "desc": "Shiso’nun Uzak Doğu mutfağındaki dingin ve estetik duruşunu, müşterileriyle buluştuğu ilk nokta olan menü tasarımına entegre ettik.",
+                "challenge": "Japon minimalizminin temiz çizgilerini temel alarak hazırladığımız bu bütünsel sunum çalışmasında, özel kağıt dokusu ve sade yazı karakterleriyle premium bir deneyim kurguladık. Shiso Sushi & More’un seçkin menüsünü görsel bir şölene dönüştürürken, okunabilirliği ve estetiği en üst seviyede birleştirmeyi başardık.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Shiso-Menu-DijitalGru.pdf",
+                "thumb": "thumbs/new-shiso-menu.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": " Japon minimalizminin temiz çizgilerini temel alarak hazırladığımız bu bütünsel sunum çalışmasında, özel kağıt dokusu ve sade yazı karakterleriyle premium bir deneyim kurguladık. Shiso Sushi & More’un seçkin menüsünü görsel bir şölene dönüştürürken, okunabilirliği ve estetiği en üst seviyede birleştirmeyi başardık.",
-        "pdfPath": "tum-markalar/basili-ve-editoryal/shiso-menu-tasarimi.pdf"
-    },
-    {
-        "id": 1,
-        "title": "Grid Planner Web Sitesi",
-        "client": "Dijital Gru Labs",
-        "category": "tech",
-        "catLabel": "Yazılım & UX/UI",
-        "desc": "Ajanslar ve içerik üreticileri için tasarlanmış yeni nesil görsel sosyal medya içerik planlama ve otomasyon platformu arayüz ve altyapı tasarımı.",
-        "icon": "fa-calendar-days",
-        "gradient": "tech-gradient",
-        "pdfPath": "tum-markalar/yazilim-ve-web/grid-planner.pdf",
-        "metrics": [
-            {
-                "val": "99.8%",
-                "lbl": "Uptime Süresi"
-            },
-            {
-                "val": "+312%",
-                "lbl": "İş Akışı Verimliliği"
-            }
-        ],
-        "challenge": "Ajansların ve sosyal medya yöneticilerinin içerik planlama süreçlerindeki dağınıklığı gidermek, tamamen görsel ve sürükle-bırak mantığına dayanan estetik bir araç yaratmaktı. Dijital Gru olarak kullanıcı deneyimini en üst seviyeye taşıyacak akıcı bir arayüz ve robust bir backend mimarisi geliştirdik."
-    },
-    {
-        "id": 2,
-        "title": "Dijital Gru Web Sitesi",
-        "client": "Dijital Gru",
-        "category": "tech",
-        "catLabel": "Yazılım & Web Geliştirme",
-        "desc": "Kreatif ajansımızın modern brütalist ve glassmorphic estetik anlayışını yansıtan, yüksek performanslı etkileşimli kurumsal web sitesi.",
-        "icon": "fa-rocket",
-        "gradient": "creative-gradient",
-        "pdfPath": "tum-markalar/yazilim-ve-web/dijitalgru-yazilim.pdf",
-        "metrics": [
-            {
-                "val": "< 0.8s",
-                "lbl": "Yüklenme Hızı"
-            },
-            {
-                "val": "100%",
-                "lbl": "Mobil Uyumlu"
-            }
-        ],
-        "challenge": "Kendi dijital vitrinimizi tasarlarken; Awwwards standartlarında akışkan animasyonlar, magnetic hover mikro etkileşimleri ve sol dizin tabanlı split-screen portfolyo yapısıyla ajansımızın teknik ve kreatif sınırlarını en üst seviyede sergiledik."
-    },
-    {
-        "id": 34,
-        "title": "Sinopia Mantı Web Sitesi",
-        "client": "Sinopia Gurme",
-        "category": "tech",
-        "catLabel": "Yazılım & Web Geliştirme",
-        "desc": "Geleneksel lezzetleri dijital dünyaya taşıyan; minimalist tasarım dili, interaktif menü kurgusu ve yüksek performanslı mobil öncelikli altyapıya sahip kurumsal web sitesi.",
-        "icon": "fa-globe",
-        "gradient": "tech-gradient",
-        "pdfPath": "tum-markalar/yazilim-ve-web/sinopiamantıweb.pdf",
-        "metrics": [
-            {
-                "val": "< 1.0s",
-                "lbl": "Yüklenme Süresi"
-            },
-            {
-                "val": "100%",
-                "lbl": "Mobil & SEO Uyumu"
-            }
-        ],
-        "challenge": "Fenerbahçe Bağdat Caddesi'ndeki geleneksel Sinop mantısı restoranı Sinopia Mantı Evi için; modern lezzet estetiğini yansıtan, kullanıcıların menü detaylarına, alerjen bilgilerine ve kalori değerlerine saniyeler içinde erişebildiği, Yemeksepeti, Getir ve Trendyol Go entegrasyonlarına sahip, yüksek SEO performanslı ve akıcı bir tek sayfa (Single Page) web sitesi tasarlayıp geliştirmek."
+        "thumb": "thumbs/new-shiso-menu.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 6,
-        "title": "Korto Alaçatı",
+        "title": "Korto",
         "client": "Korto Group",
         "category": "social",
         "catLabel": "Sosyal Medya Yönetimi",
         "desc": "Ege'nin kalbindeki popüler mekanın yaz sezonu odaklı enerjik sosyal medya stratejisi ve PR kurguları.",
         "icon": "fa-umbrella-beach",
         "gradient": "social-gradient",
-        "pdfPath": "tum-markalar/Sosyal Medya Yönetimi/KortoAlaçatı_Sm.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/KortoAlacati-SosyalMedya-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Yazlık mekanın samimi, sıcak ve eğlenceli ruhunu yansıtan, anlık hikaye akışları ve trend müziklerle harmanlanmış Reels serileri hazırlamak.",
+        "categories": [
+            "social"
+        ],
+        "works": [
             {
-                "val": "+310%",
-                "lbl": "Erişim Büyümesi"
+                "label": "Sosyal Medya Yönetimi",
+                "section": "Alaçatı",
+                "desc": "Ege'nin kalbindeki popüler mekanın yaz sezonu odaklı enerjik sosyal medya stratejisi ve PR kurguları.",
+                "challenge": "Yazlık mekanın samimi, sıcak ve eğlenceli ruhunu yansıtan, anlık hikaye akışları ve trend müziklerle harmanlanmış Reels serileri hazırlamak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/KortoAlacati-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-kortoalacati-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             },
             {
-                "val": "Yazlık",
-                "lbl": "Konsept Yönetimi"
+                "label": "Menü Tasarımı",
+                "section": "İstanbul",
+                "desc": "Kış kokteyl menüsü ve 2027 yılbaşı menüsü.",
+                "challenge": "Kış kokteyl menüsü ve 2027 yılbaşı menüsü.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/KortoIstanbul-Menu-DijitalGru.pdf",
+                "thumb": "thumbs/new-kortoistanbul-menu.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Yazlık mekanın samimi, sıcak ve eğlenceli ruhunu yansıtan, anlık hikaye akışları ve trend müziklerle harmanlanmış Reels serileri hazırlamak."
-    },
-    {
-        "id": 5,
-        "title": "Korto İstanbul",
-        "client": "Korto Group",
-        "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
-        "desc": "İstanbul'un en prestijli çatı katı/teras konseptinin kreatif sosyal medya yönetimi ve Reels video çekimleri.",
-        "icon": "fa-city",
-        "gradient": "creative-gradient",
-        "metrics": [
-            {
-                "val": "4K Canlı",
-                "lbl": "Kreatif Çekimler"
-            },
-            {
-                "val": "+195%",
-                "lbl": "Aylık Etkileşim"
-            }
-        ],
-        "challenge": "Boğaz manzarasının ve canlı müzik performanslarının yarattığı seçkin atmosferi sinematik 4K gece çekimleri ve dinamik kurgularla dijitalde parlatmak."
-    },
-    {
-        "id": 7,
-        "title": "Korto İzmir",
-        "client": "Korto Group",
-        "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
-        "desc": "Korto grubunun İzmir şubesi için kurgulanan kurumsal sosyal medya kimliği ve lokal hedef kitle odaklı reklam yönetimi.",
-        "icon": "fa-guitar",
-        "gradient": "brand-gradient",
-        "metrics": [
-            {
-                "val": "Lokal",
-                "lbl": "Hedefli Reklamlar"
-            },
-            {
-                "val": "+140%",
-                "lbl": "Rezervasyon Oranı"
-            }
-        ],
-        "challenge": "İzmir'in seçkin dinleyici kitlesine hitap edecek, sahne alan sanatçıların enerjisini ve mekan konforunu ön plana çıkaran estetik paylaşımlar üretmek."
+        "thumb": "thumbs/new-kortoalacati-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "home": {
+            "src": "thumbs/home-korto.jpg",
+            "w": 1200,
+            "h": 900,
+            "alt": "Korto Alaçatı logosu ve kokteyl görseli"
+        }
     },
     {
         "id": 17,
         "title": "İsla Alaçatı",
         "client": "Isla Group",
-        "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
+        "category": "branding",
+        "catLabel": "Kurumsal Kimlik & Menü",
         "desc": "Bohem ve egzotik lezzet duraklarından İsla Alaçatı için tasarlanan kurumsal kimlik, menü ve basılı grafik setleri.",
         "icon": "fa-leaf",
         "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/Sosyal Medya Yönetimi/isla-alacati-sm.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/IslaAlacati-SosyalMedya-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Mekanın botanik ve ahşap ağırlıklı doğallığını yansıtacak, kalın dokulu kraft kağıtlar, organik baskılar ve minimalist logotip tasarımı hazırlamak.",
+        "categories": [
+            "branding",
+            "print"
+        ],
+        "works": [
             {
-                "val": "Bohem",
-                "lbl": "Tasarım Dili"
-            },
-            {
-                "val": "Doğa Dostu",
-                "lbl": "Karton Baskılar"
+                "label": "Kurumsal Kimlik & Menü",
+                "section": null,
+                "desc": "Bohem ve egzotik lezzet duraklarından İsla Alaçatı için tasarlanan kurumsal kimlik, menü ve basılı grafik setleri.",
+                "challenge": "Mekanın botanik ve ahşap ağırlıklı doğallığını yansıtacak, kalın dokulu kraft kağıtlar, organik baskılar ve minimalist logotip tasarımı hazırlamak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/IslaAlacati-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-islaalacati-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Mekanın botanik ve ahşap ağırlıklı doğallığını yansıtacak, kalın dokulu kraft kağıtlar, organik baskılar ve minimalist logotip tasarımı hazırlamak."
+        "thumb": "thumbs/new-islaalacati-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 8,
         "title": "Sinopia Mantı",
         "client": "Sinopia Gurme",
-        "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
+        "category": "branding",
+        "catLabel": "Menü · Web · Sosyal Medya",
         "desc": "Geleneksel Türk mantısını modern, sürdürülebilir bir gastronomi markası haline getiren minimalist logo, özel el yapımı ambalaj serileri ve modern menü tasarımları.",
         "icon": "fa-bowl-food",
         "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/sinopia-manti-kurumsal-kimlik.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/SinopiaManti-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Sinopia Mantı'nın geleneksel unlu mamul ve mantı lezzetlerini çağdaş bir gurme restoran zinciri algısıyla buluşturarak; sürdürülebilir kraft paketleme alternatifleri, el çizimi zeytin dalı/başak illüstrasyonları ve modern Akdeniz tipografisi içeren bütünsel bir kurumsal kimlik ve sunum konsepti kurgulamak.",
+        "categories": [
+            "branding",
+            "tech"
+        ],
+        "works": [
             {
-                "val": "Gurme",
-                "lbl": "Gastronomi Kimliği"
-            },
-            {
-                "val": "Sürdürülebilir",
-                "lbl": "Kraft Ambalaj Seti"
+                "label": "Menü · Web · Sosyal Medya",
+                "section": null,
+                "desc": "Geleneksel Türk mantısını modern, sürdürülebilir bir gastronomi markası haline getiren minimalist logo, özel el yapımı ambalaj serileri ve modern menü tasarımları.",
+                "challenge": "Sinopia Mantı'nın geleneksel unlu mamul ve mantı lezzetlerini çağdaş bir gurme restoran zinciri algısıyla buluşturarak; sürdürülebilir kraft paketleme alternatifleri, el çizimi zeytin dalı/başak illüstrasyonları ve modern Akdeniz tipografisi içeren bütünsel bir kurumsal kimlik ve sunum konsepti kurgulamak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/SinopiaManti-DijitalGru.pdf",
+                "thumb": "thumbs/new-sinopiamanti.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Sinopia Mantı'nın geleneksel unlu mamul ve mantı lezzetlerini çağdaş bir gurme restoran zinciri algısıyla buluşturarak; sürdürülebilir kraft paketleme alternatifleri, el çizimi zeytin dalı/başak illüstrasyonları ve modern Akdeniz tipografisi içeren bütünsel bir kurumsal kimlik ve sunum konsepti kurgulamak."
+        "thumb": "thumbs/new-sinopiamanti.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "home": {
+            "src": "thumbs/home-sinopia.jpg",
+            "w": 605,
+            "h": 454,
+            "alt": "Sinopia Mantı el yapımı mantı fotoğrafı, marka çalışması"
+        }
     },
     {
         "id": 12,
@@ -204,81 +721,27 @@
         "desc": "Murat Karcıoğlu imzalı kişisel gelişim ve motivasyon odaklı kurumsal sosyal medya kimliği ve Reels serileri üretimi.",
         "icon": "fa-brain",
         "gradient": "creative-gradient",
-        "pdfPath": "tum-markalar/Sosyal Medya Yönetimi/Pozitif Başarı - Sosyal Medya yönetimi.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/PozitifBasari-SosyalMedya-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Kullanıcıların günlük motivasyon kartlarını, sesli meditasyonları ve yazıları saniyeler içinde okuyup dinleyebileceği, sakinleştirici renklerde minimalist sosyal medya şablonları kurgulamak.",
+        "categories": [
+            "social"
+        ],
+        "works": [
             {
-                "val": "Motivasyon",
-                "lbl": "Görsel Kart Tasarımları"
-            },
-            {
-                "val": "+190%",
-                "lbl": "Organik Etkileşim"
+                "label": "Sosyal Medya Yönetimi",
+                "section": null,
+                "desc": "Murat Karcıoğlu imzalı kişisel gelişim ve motivasyon odaklı kurumsal sosyal medya kimliği ve Reels serileri üretimi.",
+                "challenge": "Kullanıcıların günlük motivasyon kartlarını, sesli meditasyonları ve yazıları saniyeler içinde okuyup dinleyebileceği, sakinleştirici renklerde minimalist sosyal medya şablonları kurgulamak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/PozitifBasari-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-pozitifbasari-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Kullanıcıların günlük motivasyon kartlarını, sesli meditasyonları ve yazıları saniyeler içinde okuyup dinleyebileceği, sakinleştirici renklerde minimalist sosyal medya şablonları kurgulamak."
-    },
-    {
-        "id": 21,
-        "title": "Dolce Far Niente",
-        "client": "Dolce Far Niente Co.",
-        "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
-        "desc": "İtalyan 'tatlı boş oturma' felsefesini yansıtan premium lezzet ve kokteyl konseptinin kreatif sosyal medya yönetimi ve estetik Reels serileri.",
-        "icon": "fa-utensils",
-        "gradient": "social-gradient",
-        "metrics": [
-            {
-                "val": "+175%",
-                "lbl": "Etkileşim Büyümesi"
-            },
-            {
-                "val": "Sinematik",
-                "lbl": "İtalyan Konsept"
-            }
-        ],
-        "challenge": "Dolce Far Niente felsefesinin (tatlı boş durma / keyif yapma) İtalyan trattoria sıcaklığı ve seçkinliğini yansıtan, ağır ritimli pürüzsüz Reels çekimleri, makro yemek videoları ve sıcak pastel renklerde stüdyo paylaşımları kurgulamak."
-    },
-    {
-        "id": 9,
-        "title": "Gusto Ephesus",
-        "client": "Gusto Ephesus",
-        "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
-        "desc": "Efes'in tarihi ve kültürel mirasından ilham alan premium gastronomi markasının kreatif sosyal medya yönetimi.",
-        "icon": "fa-wine-glass",
-        "gradient": "brand-gradient",
-        "metrics": [
-            {
-                "val": "Kültürel",
-                "lbl": "Antik Çizgiler"
-            },
-            {
-                "val": "Premium",
-                "lbl": "Görsel Standart"
-            }
-        ],
-        "challenge": "Antik Efes tarihini modern gastronomi çizgileriyle birleştirerek markaya köklü ama çağdaş bir lüks algısı kazandıran özel sosyal medya tasarımları yaratmak."
-    },
-    {
-        "id": 11,
-        "title": "Restart İzmir",
-        "client": "Restart A.Ş.",
-        "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
-        "desc": "İzmir merkezli inovasyon ve gelişim markası için hazırlanan kurumsal sosyal medya kimliği ve LinkedIn B2B içerik planlaması.",
-        "icon": "fa-rocket",
-        "gradient": "tech-gradient",
-        "metrics": [
-            {
-                "val": "B2B",
-                "lbl": "LinkedIn İçerikleri"
-            },
-            {
-                "val": "SEO",
-                "lbl": "Uyumlu Altyapı"
-            }
-        ],
-        "challenge": "Restart'ın kurumsal gelişim ve danışmanlık kimliğini B2B kitleye yansıtacak, prestijli infografikler ve sade teknik özetler halinde kreatif içerikler hazırlamak."
+        "thumb": "thumbs/new-pozitifbasari-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 4,
@@ -289,191 +752,127 @@
         "desc": "Tarihi ve doğayla iç içe otel ve restoran konseptinin prestijli kurumsal sosyal medya kimliği ve PR kurguları.",
         "icon": "fa-key",
         "gradient": "brand-gradient",
-        "metrics": [
+        "metrics": [],
+        "challenge": "Urla'nın tarihi dokusunu ve 1890 yılından kalan mimari zarafeti yansıtacak, premium görsel standartlar ve lokal gastronomi turizmi odaklı sosyal medya içerikleri kurgulamak.",
+        "categories": [
+            "social"
+        ],
+        "works": [
             {
-                "val": "Premium",
-                "lbl": "İçerik Dili"
-            },
-            {
-                "val": "+160%",
-                "lbl": "Erişim Artışı"
+                "label": "Sosyal Medya Yönetimi",
+                "section": null,
+                "desc": "Tarihi ve doğayla iç içe otel ve restoran konseptinin prestijli kurumsal sosyal medya kimliği ve PR kurguları.",
+                "challenge": "Urla'nın tarihi dokusunu ve 1890 yılından kalan mimari zarafeti yansıtacak, premium görsel standartlar ve lokal gastronomi turizmi odaklı sosyal medya içerikleri kurgulamak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/1890Urla-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-1890urla-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Urla'nın tarihi dokusunu ve 1890 yılından kalan mimari zarafeti yansıtacak, premium görsel standartlar ve lokal gastronomi turizmi odaklı sosyal medya içerikleri kurgulamak."
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/1890Urla-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-1890urla-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 3,
         "title": "Mathilda’s",
         "client": "Mathilda Bar",
         "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
+        "catLabel": "Sosyal Medya & Menü",
         "desc": "Gastronomi ve niş kokteyl konseptinin estetik Instagram kimliği, basılı/dijital menü tasarımı ve viral Reels kampanyaları yönetimi.",
         "icon": "fa-martini-glass-citrus",
         "gradient": "social-gradient",
-        "metrics": [
+        "metrics": [],
+        "challenge": "Barın loş, mistik ve çekici kokteyl atmosferini, özel stüdyo ışıklandırmalarıyla çekilen karanlık ve estetik kokteyl hazırlık videolarıyla Instagram akışına yansıtmak.",
+        "categories": [
+            "social",
+            "print"
+        ],
+        "works": [
             {
-                "val": "1.2M+",
-                "lbl": "Organik Reels"
-            },
-            {
-                "val": "+190%",
-                "lbl": "Rezervasyon Artışı"
+                "label": "Sosyal Medya & Menü",
+                "section": null,
+                "desc": "Gastronomi ve niş kokteyl konseptinin estetik Instagram kimliği, basılı/dijital menü tasarımı ve viral Reels kampanyaları yönetimi.",
+                "challenge": "Barın loş, mistik ve çekici kokteyl atmosferini, özel stüdyo ışıklandırmalarıyla çekilen karanlık ve estetik kokteyl hazırlık videolarıyla Instagram akışına yansıtmak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Mathildas-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-mathildas-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Barın loş, mistik ve çekici kokteyl atmosferini, özel stüdyo ışıklandırmalarıyla çekilen karanlık ve estetik kokteyl hazırlık videolarıyla Instagram akışına yansıtmak."
-    },
-    {
-        "id": 10,
-        "title": "Snap İzmir",
-        "client": "Snap Burger",
-        "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
-        "desc": "Snap İzmir'in dinamik kentsel enerjisini ve lezzetli menüsünü tanıtan genç ve trend Reels odaklı sosyal medya yönetimi.",
-        "icon": "fa-camera",
-        "gradient": "social-gradient",
-        "metrics": [
-            {
-                "val": "+220%",
-                "lbl": "Etkileşim Artışı"
-            },
-            {
-                "val": "Dinamik",
-                "lbl": "Hızlı Video Kurgusu"
-            }
-        ],
-        "challenge": "Özellikle üniversiteli genç kitleyi çekmek için hızlı kurgulanmış, samimi, eğlenceli ve yemeğin çıtırlığını/lezzetini hissettiren dinamik ses geçişli videolar tasarlamak."
-    },
-    {
-        "id": 25,
-        "title": "Pizza Dino",
-        "client": "Pizza Dino Co.",
-        "category": "branding",
-        "catLabel": "Kurumsal Kimlik & Ambalaj",
-        "desc": "Taş fırından yeni çıkmış çıtır pizzaları, dinamik ve eğlenceli dinozor temalı ambalajlarla buluşturan yüksek kaliteli kurumsal kimlik, dinamik menü tasarımı ve marka konsepti.",
-        "icon": "fa-pizza-slice",
-        "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/pizza-dino-kurumsal-kimlik.pdf",
-        "metrics": [
-            {
-                "val": "Dinamik",
-                "lbl": "Eğlenceli Karakter"
-            },
-            {
-                "val": "%100 Geri Dönüşüm",
-                "lbl": "Kutu & Ambalaj Seti"
-            }
-        ],
-        "challenge": "Geleneksel pizza restoran algısını, dinamik, genç ve eğlenceli bir dinozor temasıyla yeniden tanımlayarak; canlı renk paleti, özel pizza kutusu tasarımları, eğlenceli illüstrasyonlar ve bütünsel bir kurumsal kimlik kurgulamak."
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Mathildas-SosyalMedya-DijitalGru.pdf",
+        "thumb": "thumbs/new-mathildas-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 26,
         "title": "Letafia",
         "client": "Letafia Shoes",
         "category": "branding",
-        "catLabel": "Kurumsal Kimlik & Marka Kimliği",
+        "catLabel": "Kurumsal Kimlik & Ambalaj",
         "desc": "El yapımı premium kadın ayakkabısı ve gelin koleksiyonlarının zarafetini modern estetikle buluşturan seçkin kurumsal kimlik, özel tipografi ve lüks ambalaj tasarımı.",
         "icon": "fa-gem",
         "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/letafia-kurumsal-kimlik.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Letafia-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Modern ve bağımsız kadının stilini yansıtan Letafia kadın ayakkabı markası için, özellikle gelin ve abiye koleksiyonlarının el yapımı zarafetini ön plana çıkaran; sofistike bir logo, pastel tonlarda seçkin bir renk paleti, yaldız folyo baskılı premium ayakkabı kutuları ve bütünsel bir lüks kurumsal kimlik kurgulamak.",
+        "categories": [
+            "branding"
+        ],
+        "works": [
             {
-                "val": "Premium",
-                "lbl": "Zarafet & El İşçiliği"
-            },
-            {
-                "val": "Lüks Ambalaj",
-                "lbl": "Kutu & Karton Tasarımı"
+                "label": "Kurumsal Kimlik & Ambalaj",
+                "section": null,
+                "desc": "El yapımı premium kadın ayakkabısı ve gelin koleksiyonlarının zarafetini modern estetikle buluşturan seçkin kurumsal kimlik, özel tipografi ve lüks ambalaj tasarımı.",
+                "challenge": "Modern ve bağımsız kadının stilini yansıtan Letafia kadın ayakkabı markası için, özellikle gelin ve abiye koleksiyonlarının el yapımı zarafetini ön plana çıkaran; sofistike bir logo, pastel tonlarda seçkin bir renk paleti, yaldız folyo baskılı premium ayakkabı kutuları ve bütünsel bir lüks kurumsal kimlik kurgulamak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Letafia-DijitalGru.pdf",
+                "thumb": "thumbs/new-letafia.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Modern ve bağımsız kadının stilini yansıtan Letafia kadın ayakkabı markası için, özellikle gelin ve abiye koleksiyonlarının el yapımı zarafetini ön plana çıkaran; sofistike bir logo, pastel tonlarda seçkin bir renk paleti, yaldız folyo baskılı premium ayakkabı kutuları ve bütünsel bir lüks kurumsal kimlik kurgulamak."
-    },
-    {
-        "id": 27,
-        "title": "Aybüke Tosun",
-        "client": "Aybüke Tosun Photography",
-        "category": "branding",
-        "catLabel": "Kurumsal Kimlik & Konsept",
-        "desc": "Doğum, aile ve düğün fotoğrafçılığının duyusal hikayelerini yansıtan pastel ve minimalist kurumsal kimlik, el yapımı monogram logo ve marka tasarımı.",
-        "icon": "fa-camera-retro",
-        "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/aybuke-tosun-kurumsal-kimlik.pdf",
-        "metrics": [
-            {
-                "val": "Sanatsal",
-                "lbl": "Fotoğraf Konsepti"
-            },
-            {
-                "val": "Minimalist",
-                "lbl": "Kurumsal Çizgi"
-            }
-        ],
-        "challenge": "İstanbul merkezli profesyonel fotoğraf sanatçısı Aybüke Tosun için; doğum, yenidoğan, aile ve düğün fotoğrafçılığının sıcak, duygusal ve güven veren doğasını yansıtan; minimalist pastel renk paleti, zarif bir monogram logo, el yapımı teşekkür kartları ve prestijli fotoğraf albümü ambalaj tasarımlarını kapsayan seçkin bir kurumsal kimlik kurgulamak."
-    },
-    {
-        "id": 28,
-        "title": "Galleria",
-        "client": "Galleria AVM",
-        "category": "branding",
-        "catLabel": "Kurumsal Kimlik & Konsept",
-        "desc": "Türkiye'nin ilk ve öncü alışveriş merkezi Galleria için tasarlanan, modern mimari çizgiler ile lüks perakende deneyimini birleştiren kurumsal kimlik, logo ve yönlendirme tasarımları.",
-        "icon": "fa-store",
-        "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/galleria-kurumsal-kimlik.pdf",
-        "metrics": [
-            {
-                "val": "Öncü",
-                "lbl": "AVM Konsepti"
-            },
-            {
-                "val": "Lüks",
-                "lbl": "Yönlendirme Tasarımı"
-            }
-        ],
-        "challenge": "Alışveriş merkezinin çağdaş ve lüks atmosferini, ziyaretçilere rehberlik edecek zarif iç yönlendirme panoları, modern tipografi, estetik logo varyasyonları ve premium marka kimlik kılavuzu ile bütünleştirmek."
-    },
-    {
-        "id": 24,
-        "title": "Cacao",
-        "client": "Cacao Chocolatier",
-        "category": "branding",
-        "catLabel": "Kurumsal Kimlik & Ambalaj",
-        "desc": "Kakao çekirdeğinin ham ve saf zarafetini lüks el yapımı çikolata ambalajlarıyla buluşturan özel kurumsal kimlik, premium folyo baskı detayları ve marka konsepti.",
-        "icon": "fa-cookie-bite",
-        "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/coca-kurumsal-kimlik.pdf",
-        "metrics": [
-            {
-                "val": "Artizan",
-                "lbl": "Lüks Çikolata Serisi"
-            },
-            {
-                "val": "Premium",
-                "lbl": "Yaldız Folyo Baskı"
-            }
-        ],
-        "challenge": "Kakao meyvesinin doğal ve ham kökenlerini, lüks artizan çikolata ambalajı çizgileriyle yeniden yorumlayarak; altın varaklı/folyo detaylar, yüksek kaliteli sürdürülebilir kutu tasarımları ve markaya özel çikolata kalıbı illüstrasyonları içeren seçkin bir kurumsal kimlik kurgulamak."
+        "thumb": "thumbs/new-letafia.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "home": {
+            "src": "thumbs/home-letafia.jpg",
+            "w": 1200,
+            "h": 900,
+            "alt": "Letafia ayakkabı kutusu ambalaj tasarımı"
+        }
     },
     {
         "id": 23,
         "title": "Bohemiam",
         "client": "Bohemiam Concept",
         "category": "branding",
-        "catLabel": "Kurumsal Kimlik & Konsept",
+        "catLabel": "Kurumsal Kimlik & Ambalaj",
         "desc": "Ege ve Akdeniz esintilerini bohem şıklığıyla birleştiren premium yaşam ve gastronomi konsepti için hazırlanan el yapımı kurumsal kimlik, sürdürülebilir ahşap/kraft ambalaj serileri ve bütünsel marka tasarımı.",
         "icon": "fa-feather",
         "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/bohemiam-kurumsal-kimlik.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Bohemiam-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Bohem ve özgür ruhlu Akdeniz yaşam tarzını, lüks and seçkin bir gastronomi/konsept marka algısıyla harmanlayarak; el yapımı organik kağıt dokuları, toprak tonlarındaki renk paleti, el çizimi floral detaylar ve sürdürülebilir doğal ambalaj çözümleri sunan premium bir kurumsal kimlik kurgulamak.",
+        "categories": [
+            "branding"
+        ],
+        "works": [
             {
-                "val": "Boho-Chic",
-                "lbl": "Gastronomi & Yaşam"
-            },
-            {
-                "val": "%100 Doğal",
-                "lbl": "Ahşap & Kraft Doku"
+                "label": "Kurumsal Kimlik & Ambalaj",
+                "section": null,
+                "desc": "Ege ve Akdeniz esintilerini bohem şıklığıyla birleştiren premium yaşam ve gastronomi konsepti için hazırlanan el yapımı kurumsal kimlik, sürdürülebilir ahşap/kraft ambalaj serileri ve bütünsel marka tasarımı.",
+                "challenge": "Bohem ve özgür ruhlu Akdeniz yaşam tarzını, lüks and seçkin bir gastronomi/konsept marka algısıyla harmanlayarak; el yapımı organik kağıt dokuları, toprak tonlarındaki renk paleti, el çizimi floral detaylar ve sürdürülebilir doğal ambalaj çözümleri sunan premium bir kurumsal kimlik kurgulamak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Bohemiam-DijitalGru.pdf",
+                "thumb": "thumbs/new-bohemiam.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Bohem ve özgür ruhlu Akdeniz yaşam tarzını, lüks and seçkin bir gastronomi/konsept marka algısıyla harmanlayarak; el yapımı organik kağıt dokuları, toprak tonlarındaki renk paleti, el çizimi floral detaylar ve sürdürülebilir doğal ambalaj çözümleri sunan premium bir kurumsal kimlik kurgulamak."
+        "thumb": "thumbs/new-bohemiam.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 22,
@@ -484,187 +883,97 @@
         "desc": "Geleneksel sokak lezzetlerini modern bir fast-food zinciri kimliğiyle buluşturan minimalist logo, dinamik ambalaj setleri ve kurumsal kimlik tasarımı.",
         "icon": "fa-bread-slice",
         "gradient": "creative-gradient",
-        "pdfPath": "tum-markalar/ekmek-arasi-kurumsal-kimlik.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/EkmekArasi-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Geleneksel 'ekmek arası' sokak lezzetleri kültürünü, genç ve dinamik şehirli kitleye hitap edecek şekilde sadeleştirerek; yüksek enerjili renk paleti, brütalist yazı tipleri ve doğa dostu ambalaj tasarımlarıyla modern bir restoran zinciri kurumsal kimliğine dönüştürmek.",
+        "categories": [
+            "branding"
+        ],
+        "works": [
             {
-                "val": "Modern",
-                "lbl": "Sokak Kültürü"
-            },
-            {
-                "val": "BRANDING",
-                "lbl": "Kurumsal Kimlik Seti"
+                "label": "Kurumsal Kimlik & Ambalaj",
+                "section": null,
+                "desc": "Geleneksel sokak lezzetlerini modern bir fast-food zinciri kimliğiyle buluşturan minimalist logo, dinamik ambalaj setleri ve kurumsal kimlik tasarımı.",
+                "challenge": "Geleneksel 'ekmek arası' sokak lezzetleri kültürünü, genç ve dinamik şehirli kitleye hitap edecek şekilde sadeleştirerek; yüksek enerjili renk paleti, brütalist yazı tipleri ve doğa dostu ambalaj tasarımlarıyla modern bir restoran zinciri kurumsal kimliğine dönüştürmek.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/EkmekArasi-DijitalGru.pdf",
+                "thumb": "thumbs/new-ekmekarasi.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Geleneksel 'ekmek arası' sokak lezzetleri kültürünü, genç ve dinamik şehirli kitleye hitap edecek şekilde sadeleştirerek; yüksek enerjili renk paleti, brütalist yazı tipleri ve doğa dostu ambalaj tasarımlarıyla modern bir restoran zinciri kurumsal kimliğine dönüştürmek."
-    },
-    {
-        "id": 13,
-        "title": "Cahide Müzikhol",
-        "client": "Cahide Group",
-        "category": "other",
-        "catLabel": "Kurumsal Kimlik & Konsept",
-        "desc": "Türkiye'nin en ikonik eğlence markasının lüks basılı ve dijital ambalaj kurumsal kimlik setleri.",
-        "icon": "fa-music",
-        "gradient": "creative-gradient",
-        "metrics": [
-            {
-                "val": "Custom",
-                "lbl": "Logo & Yazı Tipleri"
-            },
-            {
-                "val": "Lüks",
-                "lbl": "Konsept Tasarımı"
-            }
-        ],
-        "challenge": "Cahide'nin dünyaca ünlü eşsiz sahne şovlarını, karnaval havasını ve seçkin atmosferini yansıtacak kalın dokulu lüks karton kutular, gold yaldızlı davetiyeler ve brütalist basılı setler tasarlamak."
-    },
-    {
-        "id": 14,
-        "title": "Arabesque",
-        "client": "Cahide Group",
-        "category": "other",
-        "catLabel": "Kurumsal Kimlik",
-        "desc": "Mistik ve oryantal gastronomi konseptinin lüks basılı menü tasarımları, logo detayları ve kurumsal kimlik malzemeleri.",
-        "icon": "fa-drum",
-        "gradient": "social-gradient",
-        "metrics": [
-            {
-                "val": "El Yapımı",
-                "lbl": "Özel Menü Kabartması"
-            },
-            {
-                "val": "Özgün",
-                "lbl": "Vurgu Renkleri"
-            }
-        ],
-        "challenge": "Mekanın mistik oryantal atmosferini lüks dokularla birleştirerek, ziyaretçilerin masaya oturduğu andan itibaren hissedeceği birinci sınıf kabartmalı deri menüler ve marka çizgileri tasarlamak."
-    },
-    {
-        "id": 15,
-        "title": "Beerhall",
-        "client": "Beerhall Group",
-        "category": "other",
-        "catLabel": "Kurumsal Kimlik & Ambalaj",
-        "desc": "Sokak kültürünü yansıtan pub konsepti için hazırlanan dinamik ambalaj setleri, Amerikan servisleri ve logolar.",
-        "icon": "fa-beer-mug-empty",
-        "gradient": "tech-gradient",
-        "metrics": [
-            {
-                "val": "32 Çeşit",
-                "lbl": "Özel Ambalaj"
-            },
-            {
-                "val": "Genç",
-                "lbl": "Brütalist Çizgi"
-            }
-        ],
-        "challenge": "Beerhall'un samimi, renkli ve sokak lezzetleri odaklı konseptini, genç jenerasyonun ilgisini çekecek neon renk kodlu grafik ambalajlar ve logolar ile buluşturmak."
-    },
-    {
-        "id": 16,
-        "title": "Cahide Palazzo",
-        "client": "Cahide Palazzo",
-        "category": "other",
-        "catLabel": "Premium Kurumsal Kimlik",
-        "desc": "Cahide Palazzo'nun görkemli sahne prodüksiyonlarını ve lüks saray konseptini yansıtan kabartmalı gold kurumsal kimlik setleri.",
-        "icon": "fa-landmark",
-        "gradient": "creative-gradient",
-        "metrics": [
-            {
-                "val": "Palazzo Gold",
-                "lbl": "Yaldız Baskı"
-            },
-            {
-                "val": "Monogram",
-                "lbl": "Özel Arma Tasarımı"
-            }
-        ],
-        "challenge": "Dev Palazzo sahnesinin şaşaasını ve saray ihtişamını, kalın kadife davetiyeler, kabartma monogramlar ve lüks peçete/servis detaylarıyla somutlaştırmak."
-    },
-    {
-        "id": 18,
-        "title": "Moretenders Bar Service",
-        "client": "Moretenders Co.",
-        "category": "other",
-        "catLabel": "Kurumsal Kimlik & Kreatif",
-        "desc": "Premium kokteyl catering ve bar hizmetleri markası için oluşturulan logo, özel üniforma tasarımları ve basılı tanıtım katalogları.",
-        "icon": "fa-champagne-glasses",
-        "gradient": "brand-gradient",
-        "metrics": [
-            {
-                "val": "Kurumsal",
-                "lbl": "B2B Katalog Seti"
-            },
-            {
-                "val": "Özgün",
-                "lbl": "Tipografi & Çizim"
-            }
-        ],
-        "challenge": "Markanın niş ve seçkin partilere/etkinliklere hizmet veren üst segment çizgisini, monokrom minimalist detaylar ve altın yaldızlı kartvizitler ile taçlandırmak."
-    },
-    {
-        "id": 19,
-        "title": "Club 33",
-        "client": "Club 33 VIP",
-        "category": "other",
-        "catLabel": "VIP Kurumsal Kimlik",
-        "desc": "Seçkin kulübün VIP davetiyeleri, premium mat siyah broşürleri ve şık üyelik kartı tasarımları.",
-        "icon": "fa-dice",
-        "gradient": "creative-gradient",
-        "metrics": [
-            {
-                "val": "VIP Kart",
-                "lbl": "Tasarımı"
-            },
-            {
-                "val": "Seçkin",
-                "lbl": "Renk Paleti"
-            }
-        ],
-        "challenge": "Kulübün gizemli ve elit havasını yansıtacak, monokrom minimalist detaylar ve metal dokulu VIP üyelik kartı tasarımları hazırlamak."
+        "thumb": "thumbs/new-ekmekarasi.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 20,
         "title": "Limoni Hotel",
         "client": "Limoni Urla",
-        "category": "other",
-        "catLabel": "Kurumsal Kimlik & Otel Konsepti",
-        "desc": "Urla'nın en şirin butik otellerinden Limoni Hotel için tasarlanan narenciye kokulu logo, broşür ve oda anahtarlığı tasarımları.",
+        "category": "branding",
+        "catLabel": "Menü Tasarımı",
+        "desc": "Urla'daki butik otel Limoni Hotel için tasarlanan narenciye kokulu logo, broşür ve oda anahtarlığı tasarımları.",
         "icon": "fa-hotel",
         "gradient": "tech-gradient",
-        "metrics": [
+        "metrics": [],
+        "challenge": "Oteldeki huzuru, yeşil bahçeleri ve limon ağaçlarını yansıtacak sarı-yeşil pastel tonlarında, doğa dostu ambalajlar, oda kartvizitleri ve tabela tasarımları yaratmak.",
+        "categories": [
+            "branding",
+            "print"
+        ],
+        "works": [
             {
-                "val": "Pastel",
-                "lbl": "Otel Konsepti"
-            },
-            {
-                "val": "Geri Dönüşümlü",
-                "lbl": "Kraft Anahtarlık"
+                "label": "Menü Tasarımı",
+                "section": null,
+                "desc": "Urla'nın huzurlu atmosferini ve Limoni Hotel'in narenciye kokulu konseptini sofralara taşıyan, Akdeniz esintili premium menü tasarımı.",
+                "challenge": "Limoni Hotel bünyesindeki restoranın taze ve doğal lezzetlerini yansıtmak amacıyla; narenciye tonlarında pastel renk harmonisi, özel illüstrasyonlar ve okumayı kolaylaştıran minimalist grid yapısıyla bezenmiş, otelin samimi ve lüks ruhuna uygun bir menü tasarımı ve baskı kurgusu gerçekleştirmek.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/LimoniOtel-Menu-DijitalGru.pdf",
+                "thumb": "thumbs/new-limoniotel-menu.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Oteldeki huzuru, yeşil bahçeleri ve limon ağaçlarını yansıtacak sarı-yeşil pastel tonlarında, doğa dostu ambalajlar, oda kartvizitleri ve tabela tasarımları yaratmak."
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/LimoniOtel-Menu-DijitalGru.pdf",
+        "thumb": "thumbs/new-limoniotel-menu.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "home": {
+            "src": "thumbs/home-limoni.jpg",
+            "w": 1250,
+            "h": 1125,
+            "alt": "Limoni Otel limon desenli havuz ve snack bar menüsü"
+        }
     },
     {
         "id": 29,
-        "title": "Dijital Gru Tanıtım Kataloğu",
+        "title": "Dijital Gru",
         "client": "Dijital Gru",
         "category": "print",
         "catLabel": "Editöryal & Katalog Tasarımı",
-        "desc": "Ajansımızın kreatif vizyonunu, ödüllü projelerini ve özgün tasarım felsefesini yansıtan, minimalist ve brütalist tarzda tasarlanmış premium tanıtım kataloğu.",
+        "desc": "Ajansımızın kreatif vizyonunu, seçkin projelerini ve özgün tasarım felsefesini yansıtan, minimalist ve brütalist tarzda tasarlanmış premium tanıtım kataloğu.",
         "icon": "fa-book-open",
         "gradient": "creative-gradient",
-        "pdfPath": "tum-markalar/basili-ve-editoryal/dijital gru tasarım kataloğu.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/DijitalGru-Kurumsal-Kimlik.pdf",
+        "metrics": [],
+        "challenge": "Ajansın dinamik ve kurumsal duruşunu basılı mecrada en yüksek kalitede yansıtabilmek amacıyla; özel seçilmiş mat dokulu kağıt konsepti, cesur tipografik düzenler ve minimal grid sistemleri üzerine kurulu prestijli bir ajans kataloğu tasarlamak.",
+        "categories": [
+            "print",
+            "branding"
+        ],
+        "works": [
             {
-                "val": "Mat Kuşe",
-                "lbl": "Kağıt Seçimi"
-            },
-            {
-                "val": "120 Sayfa",
-                "lbl": "Özgün Tasarım"
+                "label": "Kurumsal Kimlik",
+                "section": null,
+                "desc": "Stüdyonun kendi kimliği: logotipten kırtasiyeye, sosyal medyadan web sitesine tek bir sistem.",
+                "challenge": "Stüdyonun kendi kimliği: logotipten kırtasiyeye, sosyal medyadan web sitesine tek bir sistem.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/DijitalGru-Kurumsal-Kimlik.pdf",
+                "thumb": "thumbs/new-dijitalgru-kurumsal-kimlik.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Ajansın dinamik ve kurumsal duruşunu basılı mecrada en yüksek kalitede yansıtabilmek amacıyla; özel seçilmiş mat dokulu kağıt konsepti, cesur tipografik düzenler ve minimal grid sistemleri üzerine kurulu prestijli bir ajans kataloğu tasarlamak."
+        "thumb": "thumbs/new-dijitalgru-kurumsal-kimlik.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 31,
@@ -675,40 +984,27 @@
         "desc": "Uluslararası deniz taşımacılığı ve denizcilik sektörü için hazırlanan, markanın kurumsal gücünü ve global vizyonunu modern minimalizmle birleştiren seçkin basılı kurumsal katalog tasarımı.",
         "icon": "fa-ship",
         "gradient": "tech-gradient",
-        "pdfPath": "tum-markalar/basili-ve-editoryal/vela-ship-dergi.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/VelaShip-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Denizcilik sektörünün köklü ve güvenilir yapısını, modern deniz taşımacılığı dinamikleriyle harmanlayarak; yüksek kaliteli basılı malzemeler, mat kuşe kağıt seçimi, derin lacivert tonlarda premium renk paleti ve bütünsel bir prestijli kurumsal tanıtım kataloğu tasarlamak.",
+        "categories": [
+            "print"
+        ],
+        "works": [
             {
-                "val": "Global",
-                "lbl": "Kurumsal Yayın"
-            },
-            {
-                "val": "Premium",
-                "lbl": "Basılı Katalog"
+                "label": "Basılı Katalog Tasarımı",
+                "section": null,
+                "desc": "Uluslararası deniz taşımacılığı ve denizcilik sektörü için hazırlanan, markanın kurumsal gücünü ve global vizyonunu modern minimalizmle birleştiren seçkin basılı kurumsal katalog tasarımı.",
+                "challenge": "Denizcilik sektörünün köklü ve güvenilir yapısını, modern deniz taşımacılığı dinamikleriyle harmanlayarak; yüksek kaliteli basılı malzemeler, mat kuşe kağıt seçimi, derin lacivert tonlarda premium renk paleti ve bütünsel bir prestijli kurumsal tanıtım kataloğu tasarlamak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/VelaShip-DijitalGru.pdf",
+                "thumb": "thumbs/new-velaship.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Denizcilik sektörünün köklü ve güvenilir yapısını, modern deniz taşımacılığı dinamikleriyle harmanlayarak; yüksek kaliteli basılı malzemeler, mat kuşe kağıt seçimi, derin lacivert tonlarda premium renk paleti ve bütünsel bir prestijli kurumsal tanıtım kataloğu tasarlamak."
-    },
-    {
-        "id": 33,
-        "title": "Galleria",
-        "client": "Galleria AVM",
-        "category": "print",
-        "catLabel": "Basılı Katalog Tasarımı",
-        "desc": "Türkiye'nin ilk ve öncü alışveriş merkezi Galleria için tasarlanan, lüks perakende dünyasını ve prestijli mimarisini yansıtan özel basılı tanıtım kataloğu.",
-        "icon": "fa-store",
-        "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/basili-ve-editoryal/galleria-basili.pdf",
-        "metrics": [
-            {
-                "val": "Mat Baskı",
-                "lbl": "Kuşe Kağıt"
-            },
-            {
-                "val": "Seçkin",
-                "lbl": "Marka Vitrini"
-            }
-        ],
-        "challenge": "Türkiye'nin öncü alışveriş merkezi Galleria için, lüks perakende deneyimini ve modern mimari yapısını fiziksel mecraya taşıyacak, özel baskı teknikleri ve şık tipografi ile donatılmış prestijli bir basılı katalog tasarlamak."
+        "thumb": "thumbs/new-velaship.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 32,
@@ -719,256 +1015,96 @@
         "desc": "Çevre güvenliği, yüksek mukavemetli panel çit ve dekoratif tel örgü sistemleri üreten Jidar Fence için hazırlanan, endüstriyel gücü ve estetiği bir araya getiren premium ürün kataloğu tasarımı.",
         "icon": "fa-shield-halved",
         "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/basili-ve-editoryal/jidar-fence-basili.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/JidarFence-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Çevre güvenliği ve panel çit sistemleri gibi endüstriyel ve teknik bir sektörü, sıkıcı olmaktan uzaklaştırarak; modern grid yapıları, yüksek kaliteli ürün fotoğrafları, teknik çizim şablonları ve premium mat kuşe kâğıt detaylarıyla donatılmış prestijli bir basılı ürün kataloğu haline getirmek.",
+        "categories": [
+            "print"
+        ],
+        "works": [
             {
-                "val": "Endüstriyel",
-                "lbl": "Ürün Sunumu"
-            },
-            {
-                "val": "Premium",
-                "lbl": "Mat Baskı"
+                "label": "Basılı Ürün Kataloğu",
+                "section": null,
+                "desc": "Çevre güvenliği, yüksek mukavemetli panel çit ve dekoratif tel örgü sistemleri üreten Jidar Fence için hazırlanan, endüstriyel gücü ve estetiği bir araya getiren premium ürün kataloğu tasarımı.",
+                "challenge": "Çevre güvenliği ve panel çit sistemleri gibi endüstriyel ve teknik bir sektörü, sıkıcı olmaktan uzaklaştırarak; modern grid yapıları, yüksek kaliteli ürün fotoğrafları, teknik çizim şablonları ve premium mat kuşe kâğıt detaylarıyla donatılmış prestijli bir basılı ürün kataloğu haline getirmek.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/JidarFence-DijitalGru.pdf",
+                "thumb": "thumbs/new-jidarfence.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Çevre güvenliği ve panel çit sistemleri gibi endüstriyel ve teknik bir sektörü, sıkıcı olmaktan uzaklaştırarak; modern grid yapıları, yüksek kaliteli ürün fotoğrafları, teknik çizim şablonları ve premium mat kuşe kâğıt detaylarıyla donatılmış prestijli bir basılı ürün kataloğu haline getirmek."
-    },
-    {
-        "id": 37,
-        "title": "Kastel Etkinlik Afişleri",
-        "client": "Kastel İstanbul",
-        "category": "poster",
-        "catLabel": "Afiş & Flyer",
-        "desc": "Kastel'in mistik ve elektronik müzik odaklı gece hayatı ruhunu yansıtan, yaratıcı ve tipografik etkinlik afişi tasarımları. Bu çalışma <a href=\"https://athinkstudio.myportfolio.com/\" target=\"_blank\" style=\"color: var(--accent-gold); text-decoration: underline;\">A Think Studio</a> ortaklığıyla hazırlanmıştır.",
-        "icon": "fa-compact-disc",
-        "gradient": "creative-gradient",
-        "pdfPath": "tum-markalar/afis-ve-flyer/Kastel_Afiş.pdf",
-        "metrics": [
-            {
-                "val": "Fütüristik",
-                "lbl": "Tasarım Dili"
-            },
-            {
-                "val": "Neon Kontrast",
-                "lbl": "Renk Harmonisi"
-            }
-        ],
-        "challenge": "Kastel'in yerli ve yabancı DJ etkinlikleri için; karanlık kulüp atmosferini, neon renk kontrastları ve fütüristik grafik ögelerle birleştirerek sosyal medya ve sokak afişlerine uyarlamak. Bu çalışma <a href=\"https://athinkstudio.myportfolio.com/\" target=\"_blank\" style=\"color: var(--accent-gold); text-decoration: underline;\">A Think Studio</a> ortaklığıyla hazırlanmıştır."
-    },
-    {
-        "id": 38,
-        "title": "Kalt İzmir Etkinlik Afişleri",
-        "client": "Kalt İzmir",
-        "category": "poster",
-        "catLabel": "Afiş & Flyer",
-        "desc": "Kalt İzmir'in endüstriyel elektronik müzik kimliğine uygun, minimal ve brütalist tarzda etkinlik afişi ve flyer tasarımları. Bu çalışma <a href=\"https://athinkstudio.myportfolio.com/\" target=\"_blank\" style=\"color: var(--accent-gold); text-decoration: underline;\">A Think Studio</a> ortaklığıyla hazırlanmıştır.",
-        "icon": "fa-sliders",
-        "gradient": "tech-gradient",
-        "pdfPath": "tum-markalar/afis-ve-flyer/Kalt_Poster.pdf",
-        "metrics": [
-            {
-                "val": "Brütalist",
-                "lbl": "Tasarım Dili"
-            },
-            {
-                "val": "Minimalist",
-                "lbl": "Grid Düzeni"
-            }
-        ],
-        "challenge": "İzmir'in en prestijli elektronik müzik kulüplerinden Kalt İzmir için; her etkinliğin konseptine uygun, özgün görsel sanat ögeleri ve güçlü tipografik yeronlar barındıran dijital ve basılı posterler üretmek. Bu çalışma <a href=\"https://athinkstudio.myportfolio.com/\" target=\"_blank\" style=\"color: var(--accent-gold); text-decoration: underline;\">A Think Studio</a> ortaklığıyla hazırlanmıştır."
-    },
-    {
-        "id": 39,
-        "title": "Ev Harbiye Etkinlik Afişleri",
-        "client": "Ev Harbiye",
-        "category": "poster",
-        "catLabel": "Afiş & Flyer",
-        "desc": "Harbiye'nin nezih ve eğlenceli canlı müzik atmosferini yansıtan, şık ve retro tarzda etkinlik duyuru afişleri.",
-        "icon": "fa-microphone",
-        "gradient": "brand-gradient",
-        "metrics": [
-            {
-                "val": "Retro-Şık",
-                "lbl": "Görsel Çizgi"
-            },
-            {
-                "val": "Premium",
-                "lbl": "Renk Harmonisi"
-            }
-        ],
-        "challenge": "Ev Harbiye sahnesinde yer alan sanatçıların ve özel etkinliklerin ruhunu yansıtan; sıcak, samimi ama bir o kadar da seçkin ve dikkat çekici görsel tasarımlar hazırlayarak sosyal medya paylaşımlarına ve basılı mecralara uyarlamak."
-    },
-    {
-        "id": 40,
-        "title": "Cahide Palazzo Şov Afişleri",
-        "client": "Cahide Palazzo",
-        "category": "poster",
-        "catLabel": "Afiş & Flyer",
-        "desc": "Cahide Palazzo'nun ihtişamlı ve görkemli şov dünyasını yansıtan, avangart ve gold detaylı etkinlik afişleri. <br><br><span style='font-size: 0.85em; opacity: 0.85;'>Bu çalışma, kurucumuz F. Egemen Güneş'in Cahide Palazzo ve Çapa Marka bünyesinde çalıştığı 4 yıllık dönemde gerçekleştirdiği tasarımlardan oluşmaktadır.</span>",
-        "icon": "fa-masks-theater",
-        "gradient": "creative-gradient",
-        "pdfPath": "tum-markalar/afis-ve-flyer/CahidePalazzo.pdf",
-        "metrics": [
-            {
-                "val": "Maksimalist",
-                "lbl": "Görsel Dil"
-            },
-            {
-                "val": "Palazzo Gold",
-                "lbl": "Yaldız Baskı"
-            }
-        ],
-        "challenge": "Cahide Palazzo'nun benzersiz kabare şovları, özel gala geceleri ve ünlü sanatçı konserleri için; markanın gösterişli saray konseptini yansıtan maksimalist afiş tasarımları üretmek. <br><br><span style='font-size: 0.9em; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.1); display: block; padding-top: 12px; margin-top: 12px;'>Bu çalışma, kurucumuz <b>F. Egemen Güneş</b>'in Cahide Palazzo ve Çapa Marka bünyesinde çalıştığı 4 yıllık dönemde gerçekleştirdiği tasarımlardan oluşmaktadır.</span>"
-    },
-    {
-        "id": 41,
-        "title": "Restart İzmir Parti Afişleri",
-        "client": "Restart İzmir",
-        "category": "poster",
-        "catLabel": "Afiş & Flyer",
-        "desc": "Restart İzmir'in elektronik müzik festivalleri ve konsept partileri için hazırlanan enerjik, fütüristik afiş tasarımları.",
-        "icon": "fa-bolt",
-        "gradient": "social-gradient",
-        "metrics": [
-            {
-                "val": "Fütüristik",
-                "lbl": "Tasarım Dili"
-            },
-            {
-                "val": "Rave Kültürü",
-                "lbl": "Konsept Çizgi"
-            }
-        ],
-        "challenge": "Restart İzmir'in büyük ölçekli parti serileri ve açık hava festivalleri için; genç ve dinamik hedef kitleyi yakalayacak 3D ögelerle zenginleştirilmiş, ışıl ışıl ve rave kültürünü yansıtan afiş setleri kurgulamak."
-    },
-    {
-        "id": 42,
-        "title": "Snap İzmir Kampanya Flyerları",
-        "client": "Snap İzmir",
-        "category": "poster",
-        "catLabel": "Afiş & Flyer",
-        "desc": "Snap İzmir'in lezzetli burger dünyasını ve genç kentsel dinamizmini yansıtan, iştah açıcı ve pop-art tarzda flyer tasarımları.",
-        "icon": "fa-burger",
-        "gradient": "brand-gradient",
-        "metrics": [
-            {
-                "val": "Pop-Art",
-                "lbl": "Görsel Stil"
-            },
-            {
-                "val": "Dinamik",
-                "lbl": "Genç Kitle"
-            }
-        ],
-        "challenge": "Snap İzmir'in sokak lezzetleri ve dinamik hamburger menülerini, sokak kültürü ve pop-art illüstrasyonlarla harmanlayarak; genç kitleyi harekete geçirecek dinamik ve eğlenceli flyer/kampanya tasarımları hazırlamak."
-    },
-    {
-        "id": 43,
-        "title": "The Beach In İstanbul Afişleri",
-        "client": "The Beach In İstanbul",
-        "category": "poster",
-        "catLabel": "Afiş & Flyer",
-        "desc": "The Beach In İstanbul'un yazlık sahil enerjisini ve plaj partisi ruhunu yansıtan canlı, dinamik etkinlik afişi tasarımları.",
-        "icon": "fa-umbrella-beach",
-        "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/afis-ve-flyer/TheBeachInİstanbul.pdf",
-        "metrics": [
-            {
-                "val": "Sahil & Plaj",
-                "lbl": "Konsept Çizgi"
-            },
-            {
-                "val": "Canlı",
-                "lbl": "Renk Paleti"
-            }
-        ],
-        "challenge": "İstanbul'un gözde sahil kulüplerinden The Beach In İstanbul'un yaz etkinlikleri ve plaj partileri için; denizin ve güneşin enerjisini modern grafik ögelerle birleştiren canlı afiş tasarımları kurgulamak."
+        "thumb": "thumbs/new-jidarfence.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 44,
-        "title": "Nuba İstanbul Sosyal Medya",
+        "title": "Nuba İstanbul",
         "client": "Nuba İstanbul",
         "category": "social",
         "catLabel": "Sosyal Medya Yönetimi",
         "desc": "Nuba İstanbul'un eğlence, müzik ve dinamizm dolu dünyasını estetik görsel dille sosyal medyaya aktaran özgün içerik serileri.",
         "icon": "fa-music",
         "gradient": "social-gradient",
-        "pdfPath": "tum-markalar/Sosyal Medya Yönetimi/Nubaİstanbul.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/NubaIstanbul-SosyalMedya-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Nuba İstanbul'un seçkin etkinliklerini, canlı sahnesini ve gece hayatı atmosferini, genç ve trend odaklı kitleyi yakalayacak kreatif Reels videoları ve özel tasarım şablonlarıyla sosyal medyada büyütmek.",
+        "categories": [
+            "social"
+        ],
+        "works": [
             {
-                "val": "Dinamik",
-                "lbl": "İçerik Stratejisi"
-            },
-            {
-                "val": "+180%",
-                "lbl": "Etkileşim Artışı"
+                "label": "Sosyal Medya Yönetimi",
+                "section": null,
+                "desc": "Nuba İstanbul'un eğlence, müzik ve dinamizm dolu dünyasını estetik görsel dille sosyal medyaya aktaran özgün içerik serileri.",
+                "challenge": "Nuba İstanbul'un seçkin etkinliklerini, canlı sahnesini ve gece hayatı atmosferini, genç ve trend odaklı kitleyi yakalayacak kreatif Reels videoları ve özel tasarım şablonlarıyla sosyal medyada büyütmek.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/NubaIstanbul-SosyalMedya-DijitalGru.pdf",
+                "thumb": "thumbs/new-nubaistanbul-sosyalmedya.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Nuba İstanbul'un seçkin etkinliklerini, canlı sahnesini ve gece hayatı atmosferini, genç ve trend odaklı kitleyi yakalayacak kreatif Reels videoları ve özel tasarım şablonlarıyla sosyal medyada büyütmek."
-    },
-    {
-        "id": 45,
-        "title": "Dolce Far Niente Sosyal Medya",
-        "client": "Dolce Far Niente",
-        "category": "social",
-        "catLabel": "Sosyal Medya Yönetimi",
-        "desc": "Dolce Far Niente'nin İtalyan tatlı ve keyif konseptini yansıtan, iştah açıcı ve estetik sosyal medya içerik tasarımları.",
-        "icon": "fa-ice-cream",
-        "gradient": "social-gradient",
-        "pdfPath": "tum-markalar/Sosyal Medya Yönetimi/DolceFarNıente.pdf",
-        "metrics": [
-            {
-                "val": "Estetik",
-                "lbl": "Görsel Çizgi"
-            },
-            {
-                "val": "+150%",
-                "lbl": "Erişim Artışı"
-            }
-        ],
-        "challenge": "Dolce Far Niente'nin keyifli İtalyan kafesi ruhunu ve nefis menüsünü, takipçilerinde merak ve iştah uyandıracak estetik Reels serileri ve zengin görsel şablonlarla sosyal medyada konumlandırmak."
-    },
-    {
-        "id": 46,
-        "title": "Limoni Hotel Menü Tasarımı",
-        "client": "Limoni Urla",
-        "category": "print",
-        "catLabel": "Menü & Basılı Grafik",
-        "desc": "Urla'nın huzurlu atmosferini ve Limoni Hotel'in narenciye kokulu konseptini sofralara taşıyan, Akdeniz esintili premium menü tasarımı.",
-        "icon": "fa-lemon",
-        "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/basili-ve-editoryal/limoniotel-menu.pdf",
-        "metrics": [
-            {
-                "val": "Akdeniz",
-                "lbl": "Tasarım Konsepti"
-            },
-            {
-                "val": "Premium",
-                "lbl": "Özel Dokulu Baskı"
-            }
-        ],
-        "challenge": "Limoni Hotel bünyesindeki restoranın taze ve doğal lezzetlerini yansıtmak amacıyla; narenciye tonlarında pastel renk harmonisi, özel illüstrasyonlar ve okumayı kolaylaştıran minimalist grid yapısıyla bezenmiş, otelin samimi ve lüks ruhuna uygun bir menü tasarımı ve baskı kurgusu gerçekleştirmek."
+        "thumb": "thumbs/new-nubaistanbul-sosyalmedya.jpg",
+        "thumbW": 1200,
+        "thumbH": 675
     },
     {
         "id": 47,
-        "title": "Troia Tavaklım Etiket Tasarımı",
+        "title": "Troia Tavaklım",
         "client": "Troia Tavaklım",
         "category": "print",
         "catLabel": "Etiket & Ambalaj Tasarımı",
         "desc": "Troia Tavaklım Naturel Sızma Zeytinyağı için Kaz Dağları'nın doğal ruhunu yansıtan, premium etiket ve ambalaj tasarımı.",
         "icon": "fa-leaf",
         "gradient": "brand-gradient",
-        "pdfPath": "tum-markalar/basili-ve-editoryal/Troia-Tavaklim-Etiket-Sunumu.pdf",
-        "metrics": [
+        "pdfPath": "tum-markalar/Yeni Tasarımlar/Troia-Tavaklim-DijitalGru.pdf",
+        "metrics": [],
+        "challenge": "Naturel sızma zeytinyağının doğal, saf ve yerel karakterini raf üzerinde premium bir etiket diliyle öne çıkarmak.",
+        "categories": [
+            "print"
+        ],
+        "works": [
             {
-                "val": "Naturel Sızma",
-                "lbl": "Ürün Grubu"
-            },
-            {
-                "val": "Etiket",
-                "lbl": "Ambalaj Tasarımı"
+                "label": "Etiket & Ambalaj Tasarımı",
+                "section": null,
+                "desc": "Troia Tavaklım Naturel Sızma Zeytinyağı için Kaz Dağları'nın doğal ruhunu yansıtan, premium etiket ve ambalaj tasarımı.",
+                "challenge": "Naturel sızma zeytinyağının doğal, saf ve yerel karakterini raf üzerinde premium bir etiket diliyle öne çıkarmak.",
+                "pdfPath": "tum-markalar/Yeni Tasarımlar/Troia-Tavaklim-DijitalGru.pdf",
+                "thumb": "thumbs/new-troia-tavaklim.jpg",
+                "thumbW": 1200,
+                "thumbH": 675
             }
         ],
-        "challenge": "Naturel sızma zeytinyağının doğal, saf ve yerel karakterini raf üzerinde premium bir etiket diliyle öne çıkarmak."
+        "thumb": "thumbs/new-troia-tavaklim.jpg",
+        "thumbW": 1200,
+        "thumbH": 675,
+        "home": {
+            "src": "thumbs/home-troia.jpg",
+            "w": 1200,
+            "h": 675,
+            "alt": "Troia Tavaklım zeytinyağı teneke etiket tasarımı",
+            "fit": "contain",
+            "bg": "#0b0c0a"
+        }
     }
 ]
