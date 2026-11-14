@@ -37,6 +37,10 @@ window.processContactForm = function(evt, el) {
     var waText = encodeURIComponent("Merhaba Dijital Gru, web siteniz üzerinden mesaj gönderdim:\n\n👤 Ad Soyad: " + nameVal + "\n📧 E-posta: " + emailVal + "\n📌 Konu: " + subjectVal + "\n\n💬 Mesaj:\n" + messageVal);
     var waUrl = "https://wa.me/905376274415?text=" + waText;
     var honeypotField = contactForm.querySelector('[name="website"]');
+    // Lead olayi yalnizca sunucu formu kabul edince gider; ayni event_id Pixel ve CAPI icin kullanilir (tekillestirme)
+    var leadEventId = 'lead_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+    var leadMarketing = !!(window.dgConsent && window.dgConsent.marketing);
+    function readCookie(n) { var m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : ''; }
     var originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
 
     function showError(customMsg) {
@@ -82,7 +86,7 @@ window.processContactForm = function(evt, el) {
 
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: 'generate_lead', form_subject: subjectVal });
-        if (typeof window.dgTrackLead === 'function') { window.dgTrackLead(); }
+        if (typeof window.dgTrackLead === 'function') { window.dgTrackLead(leadEventId); }
         if (typeof gtag_report_conversion === 'function') {
             gtag_report_conversion();
         }
@@ -98,7 +102,12 @@ window.processContactForm = function(evt, el) {
                 email: emailVal,
                 subject_title: subjectVal,
                 message: messageVal,
-                website: honeypotField ? honeypotField.value : ''
+                website: honeypotField ? honeypotField.value : '',
+                event_id: leadEventId,
+                marketing_consent: leadMarketing,
+                fbp: leadMarketing ? readCookie('_fbp') : '',
+                fbc: leadMarketing ? readCookie('_fbc') : '',
+                page_url: location.origin + location.pathname
             })
         }).then(function(res) {
             return res.json().catch(function() { return {}; }).then(function(d) {

@@ -1,3 +1,4 @@
+import hashlib
 import http.server
 import socketserver
 import json
@@ -26,8 +27,17 @@ WHATSAPP_URL = "https://wa.me/905376274415"
 #   SMTP_USER / SMTP_PASS (veya GMAIL_USER / GMAIL_APP_PASSWORD): Resend yoksa Gmail SMTP yedegi
 #   LEADS_TOKEN      : /api/leads?token=... goruntuleme anahtari (tanimli degilse endpoint kapali)
 #   TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID : istege bagli ek bildirim
+#   META_CAPI_TOKEN  : Meta Conversions API erisim anahtari (yoksa sunucu tarafi Lead gonderimi kapali)
+#   META_PIXEL_ID    : Pixel kimligi (varsayilan 876755502162549)
+#   META_TEST_EVENT_CODE : Events Manager > Test Events kodu (yalnizca test icin)
 
 ALLOWED_SUBJECTS = ["Proje Teklifi", "Mevcut Proje", "İş Başvurusu", "Diğer"]
+LEAD_SECTORS = ["Restoran / Kafe", "Beach club / Gece kulübü", "Otel", "Mimarlık", "Diğer"]
+LEAD_ROLES = ["İşletme sahibi", "Yönetici / Pazarlama", "Mimar / Ofis sahibi", "Diğer"]
+LEAD_BUDGETS = ["30–60 bin TL", "60–120 bin TL", "120 bin TL üzeri", "Henüz belirsiz"]
+LEAD_TIMELINES = ["Hemen", "1 ay içinde", "2–3 ay içinde", "Sadece bilgi alıyorum"]
+LEAD_MIN_FILL_MS = 2500  # bundan hizli doldurulan lead formlari bot sayilir
+PIXEL_ID_DEFAULT = "876755502162549"
 EMAIL_RE = re.compile(r"^[^@\s<>\"',;]+@[^@\s<>\"',;]+\.[^@\s<>\"',;]{2,}$")
 TR_TZ = timezone(timedelta(hours=3))
 
@@ -64,13 +74,15 @@ def rate_limited(ip):
 
 # --- E-posta sablonlari -------------------------------------------------------
 
-def owner_email(name, email, subject, message, date_str):
+def owner_email(name, email, subject, message, date_str, extra=None):
     rows = [
         ("Ad Soyad", escape(name)),
         ("E-posta", '<a href="mailto:%s" style="color:#1a56db;">%s</a>' % (escape(email, quote=True), escape(email))),
         ("Konu", escape(subject)),
         ("Tarih", escape(date_str)),
     ]
+    for k, v in (extra or []):
+        rows.append((escape(k), escape(v)))
     cells = "".join(
         '<tr><td style="padding:10px 12px;border:1px solid #e5e5e5;background:#f7f7f7;width:120px;font-weight:bold;">%s</td>'
         '<td style="padding:10px 12px;border:1px solid #e5e5e5;">%s</td></tr>' % (k, v) for k, v in rows)
@@ -83,8 +95,9 @@ def owner_email(name, email, subject, message, date_str):
         '<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:14px;">%s</table>'
         '<p style="font-size:12px;color:#777;margin-top:16px;">Yanıtlamak için bu e-postayı doğrudan yanıtlayın, yanıt gönderenin adresine gider.</p>'
         '</div>' % cells)
-    text = "Web sitesinden yeni mesaj\n\nAd Soyad: %s\nE-posta: %s\nKonu: %s\nTarih: %s\n\nMesaj:\n%s\n" % (
-        name, email, subject, date_str, message)
+    extra_text = "".join("%s: %s\n" % (k, v) for k, v in (extra or []))
+    text = "Web sitesinden yeni mesaj\n\nAd Soyad: %s\nE-posta: %s\nKonu: %s\nTarih: %s\n%s\nMesaj:\n%s\n" % (
+        name, email, subject, date_str, extra_text, message)
     return "[Dijital Gru] %s — %s" % (subject, name), html, text
 
 
@@ -173,6 +186,75 @@ def send_via_smtp(user, password, sender_name, to, subject, html, text, reply_to
         server.starttls()
         server.login(user, password)
         server.sendmail(user, [to], msg.as_string())
+
+
+# --- Meta Conversions API (sunucu tarafi Lead) ------------------------------------
+
+def _sha256(value):
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def norm_phone(raw):
+    """Telefonu yalnizca rakam ve ulke kodlu hale getirir (Meta icin hash oncesi)."""
+    digits = re.sub(r"\D", "", str(raw or ""))
+    if digits.startswith("00"):
+        digits = digits[2:]
+    if digits.startswith("0"):
+        digits = "90" + digits[1:]
+    elif len(digits) == 10:
+        digits = "90" + digits
+    return digits
+
+
+def send_capi_lead(email, phone, event_id, source_url, ip, user_agent, fbp, fbc):
+    """Pixel 'Lead' olayinin sunucu kopyasi. Ayni event_id ile Meta tekillestirir.
+    Yalnizca e-posta ve telefon SHA-256 ile hashlenerek gonderilir; baska kisisel veri gonderilmez."""
+    token = os.environ.get("META_CAPI_TOKEN", "").strip()
+    if not token:
+        print("[CAPI] META_CAPI_TOKEN tanimli degil, sunucu olayi atlandi")
+        return None
+    pixel_id = os.environ.get("META_PIXEL_ID", "").strip() or PIXEL_ID_DEFAULT
+    version = os.environ.get("META_GRAPH_VERSION", "").strip() or "v21.0"
+    user_data = {"em": [_sha256(email.strip().lower())]}
+    if phone:
+        user_data["ph"] = [_sha256(phone)]
+    if ip:
+        user_data["client_ip_address"] = ip
+    if user_agent:
+        user_data["client_user_agent"] = user_agent
+    if fbp:
+        user_data["fbp"] = fbp
+    if fbc:
+        user_data["fbc"] = fbc
+    payload = {
+        "data": [{
+            "event_name": "Lead",
+            "event_time": int(time.time()),
+            "event_id": event_id,
+            "action_source": "website",
+            "event_source_url": source_url,
+            "user_data": user_data,
+        }],
+        "access_token": token,
+    }
+    test_code = os.environ.get("META_TEST_EVENT_CODE", "").strip()
+    if test_code:
+        payload["test_event_code"] = test_code
+    req = urllib.request.Request(
+        "https://graph.facebook.com/%s/%s/events" % (version, pixel_id),
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json", "User-Agent": "DijitalGru-Site/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+            print("[CAPI OK] status=%s event_id=%s body=%s" % (resp.status, event_id, body[:300]))
+            return body
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        print("[CAPI ERROR] status=%s event_id=%s body=%s" % (e.code, event_id, body[:500]))
+    except Exception as e:
+        print("[CAPI ERROR] baglanti hatasi event_id=%s: %r" % (event_id, e))
+    return None
 
 
 def mail_provider():
@@ -302,6 +384,39 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         if subject not in ALLOWED_SUBJECTS:
             subject = "Diğer"
 
+        # Nitelikli lead formu (reklam sayfalari): ek alanlar, KVKK onayi ve bot kontrolu
+        extra = []
+        phone_raw = clean_line(data.get('phone'), 30)
+        form_type = clean_line(data.get('form_type'), 20)
+        if form_type == 'lead':
+            try:
+                fill_ms = float(data.get('fill_ms', 0))
+            except (TypeError, ValueError):
+                fill_ms = 0
+            if fill_ms < LEAD_MIN_FILL_MS:
+                print("[SPAM] lead formu cok hizli dolduruldu (%sms), yoksayildi" % int(fill_ms))
+                return self._json(200, {"success": True})
+            checks = [
+                ('sector', 'Sektör', LEAD_SECTORS, 'Lütfen sektörünüzü seçin.'),
+                ('role', 'Rol', LEAD_ROLES, 'Lütfen rolünüzü seçin.'),
+                ('budget', 'Bütçe aralığı', LEAD_BUDGETS, 'Lütfen bütçe aralığınızı seçin.'),
+                ('timeline', 'Başlama zamanı', LEAD_TIMELINES, 'Lütfen başlama zamanını seçin.'),
+            ]
+            for key, label, allowed, err in checks:
+                val = clean_line(data.get(key), 60)
+                if val not in allowed:
+                    return self._json(400, {"success": False, "field": key, "error": err})
+                extra.append((label, val))
+            if len(message) < 5:
+                return self._json(400, {"success": False, "field": "message", "error": "Lütfen ihtiyacınızı kısaca yazın."})
+            if phone_raw and not (10 <= len(norm_phone(phone_raw)) <= 15):
+                return self._json(400, {"success": False, "field": "phone", "error": "Lütfen geçerli bir telefon numarası girin."})
+            if data.get('kvkk') not in (True, 'true', 'on', '1', 1):
+                return self._json(400, {"success": False, "field": "kvkk", "error": "Devam etmek için KVKK bilgilendirmesini onaylamanız gerekir."})
+            subject = "Proje Teklifi"
+            extra.append(("Telefon", phone_raw or "-"))
+            extra.append(("Sayfa", clean_line(data.get('page_url'), 200)))
+
         date_str = datetime.now(TR_TZ).strftime("%d.%m.%Y %H:%M")
 
         # Yedek: lead kaydi (Railway disk kalici degildir; asil kayit e-postadir)
@@ -314,6 +429,7 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
             leads.insert(0, {
                 "id": int(time.time()), "date": date_str, "name": name, "email": email,
                 "subject": subject, "message": message,
+                "extra": dict(extra) if extra else None,
             })
             with open(leads_file, "w", encoding="utf-8") as f:
                 json.dump(leads[:500], f, ensure_ascii=False, indent=2)
@@ -324,7 +440,7 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         to_addr = os.environ.get("CONTACT_TO", "dijitalgru@gmail.com").strip() or "dijitalgru@gmail.com"
         owner_sent = False
         try:
-            subj, html, text = owner_email(name, email, subject, message, date_str)
+            subj, html, text = owner_email(name, email, subject, message, date_str, extra)
             send_mail(to_addr, subj, html, text, reply_to=email)
             owner_sent = True
             print("[MAIL] Bildirim gonderildi:", name, "-", subject)
@@ -337,7 +453,8 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         tg_sent = False
         if tg_token and tg_chat:
             try:
-                tg_text = "Dijital Gru yeni form\n\nAd: %s\nE-posta: %s\nKonu: %s\n\n%s" % (name, email, subject, message)
+                tg_text = "Dijital Gru yeni form\n\nAd: %s\nE-posta: %s\nKonu: %s\n%s\n%s" % (
+                    name, email, subject, "".join("%s: %s\n" % (k, v) for k, v in extra), message)
                 payload = json.dumps({"chat_id": tg_chat, "text": tg_text}).encode('utf-8')
                 req = urllib.request.Request(
                     "https://api.telegram.org/bot%s/sendMessage" % tg_token, data=payload,
@@ -349,6 +466,17 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
 
         if not (owner_sent or tg_sent):
             return self._json(502, {"success": False, "field": "server", "error": "Mesaj şu an gönderilemedi."})
+
+        # Sunucu tarafi Lead (Meta CAPI): yalnizca form kabul edildiyse, pazarlama izni ve event_id varsa.
+        event_id = clean_line(data.get('event_id'), 80)
+        if data.get('marketing_consent') in (True, 'true', '1', 1) and re.match(r'^[A-Za-z0-9_.-]{8,80}$', event_id or ''):
+            page_url = clean_line(data.get('page_url'), 300)
+            if not page_url.startswith(SITE_URL):
+                page_url = SITE_URL + '/'
+            threading.Thread(target=send_capi_lead, daemon=True, args=(
+                email, norm_phone(phone_raw) if phone_raw else '', event_id, page_url,
+                self._client_ip(), self.headers.get('User-Agent', '')[:300],
+                clean_line(data.get('fbp'), 100), clean_line(data.get('fbc'), 200))).start()
 
         # 2) Gonderene otomatik yanit: Resend'de yalnizca CONTACT_FROM (dogrulanmis alan adi) tanimliysa denenir.
         #    Basarisiz olsa da kullaniciya hata gosterilmez, sadece loglanir.

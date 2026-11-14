@@ -126,4 +126,16 @@
     <changefreq>yearly</changefreq>
     <priority>0.30</priority>
   </url>
+  <url>
+    <loc>https://dijitalgru.com/otel-web-sitesi-tasarimi.html</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://dijitalgru.com/mimarlik-web-sitesi-tasarimi.html</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
 </urlset>

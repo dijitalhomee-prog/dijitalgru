@@ -103,8 +103,11 @@
     });
 
     /* İletişim/teklif formu gönderilince çağrılır. Hiçbir form verisi iletilmez. */
-    window.dgTrackLead = function () {
-        if (window.dgConsent.marketing && window.fbq) window.fbq('track', 'Lead');
+    window.dgTrackLead = function (eventId) {
+        if (!(window.dgConsent.marketing && window.fbq)) return;
+        /* eventID: sunucu (CAPI) kopyasıyla Meta tarafında tekilleştirme için */
+        if (eventId) window.fbq('track', 'Lead', {}, { eventID: eventId });
+        else window.fbq('track', 'Lead');
     };
 
     /* ---------- İzni uygula ---------- */
