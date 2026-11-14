@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SITE = "https://dijitalgru.com"
 LASTMOD = "2026-11-14"
-LEAD_JS = "/lead-form.js?v=4"
+LEAD_JS = "/lead-form.js?v=6"
 
 RESTORAN = ROOT / "restoran-web-sitesi-tasarimi.html"
 R_TITLE = "Restoran, Beach Club &amp; Gece Kulübü Web Sitesi Tasarımı | Dijital Gru İstanbul"
@@ -34,9 +34,9 @@ def write(p, s):
         f.write(s.replace("\n", "\r\n"))
 
 
-def form_block(sector, title, sub):
+def form_block(sector, title, sub, extra=""):
     return f'''            <div id="teklif" class="svc-form-wrap" style="margin-top: 40px; scroll-margin-top: 110px;">
-                <div data-lead-form data-sector="{sector}" data-title="{title}" data-sub="{sub}"></div>
+                <div data-lead-form data-sector="{sector}" data-title="{title}" data-sub="{sub}"{extra}></div>
             </div>
 '''
 
@@ -88,7 +88,7 @@ PAGES = [
         "tasarım": "Marka renkleri, tipografi ve atmosfer fotoğraflarıyla sayfa akışı tasarlanır; prototip olarak onayınıza sunulur.",
         "geliştirme": "Hızlı, mobil uyumlu site kodlanır; menü, rezervasyon, harita ve sosyal medya bağlantıları eklenir.",
         "faq": [
-            ("Restoran web sitesinin fiyatı neye göre değişir?", "Projeler 30.000 TL'den başlar. Sayfa sayısı, şube sayısı, dil sayısı, rezervasyon veya menü entegrasyonu ve içerik hazırlığı kapsamı belirler. Keşif görüşmesinden sonra net bir teklif paylaşırız."),
+            ("Restoran web sitesinin fiyatı neye göre değişir?", "Projeler 5.999 TL + KDV'den başlar. Sayfa sayısı, şube sayısı, dil sayısı, rezervasyon veya menü entegrasyonu ve içerik hazırlığı kapsamı belirler. Keşif görüşmesinden sonra net bir teklif paylaşırız."),
             ("Site ne kadar sürede hazırlanır?", "Kapsama göre değişir. Tek sayfalık tanıtım sitelerinde süre kısadır; çok sayfalı, menü ve rezervasyon entegrasyonlu sitelerde daha uzundur. Keşif görüşmesinden sonra net bir takvim paylaşırız."),
             ("Fotoğraf ve metin içeriği kimde olur?", "Mevcut fotoğraf ve metinlerinizi kullanırız. Eksik içerik için yönlendirme yapar, gerekirse içerik üretimini ayrıca planlarız."),
             ("Alan adı ve hosting nasıl işliyor?", "Mevcut alan adınız varsa onu kullanırız. Alan adı ve barındırma kurulumunu biz yapabiliriz; kayıtların hangi hesap adına açılacağını ve yıllık maliyetleri teklifte netleştiririz."),
@@ -122,7 +122,7 @@ PAGES = [
         "tasarım": "Marka renkleri, tipografi ve fotoğraf yönü belirlenir; sayfa akışı prototip olarak sunulur.",
         "geliştirme": "Hızlı, mobil uyumlu site kodlanır; rezervasyon, harita ve sosyal medya bağlantıları kurulur.",
         "faq": [
-            ("Otel web sitesinin fiyatı neye göre değişir?", "Projeler 30.000 TL'den başlar. Sayfa sayısı, dil sayısı, rezervasyon altyapısı entegrasyonu ve içerik hazırlığı kapsamı belirler. Keşif görüşmesinden sonra net bir teklif paylaşırız."),
+            ("Otel web sitesinin fiyatı neye göre değişir?", "Projeler 5.999 TL + KDV'den başlar. Sayfa sayısı, dil sayısı, rezervasyon altyapısı entegrasyonu ve içerik hazırlığı kapsamı belirler. Keşif görüşmesinden sonra net bir teklif paylaşırız."),
             ("Site ne kadar sürede hazırlanır?", "Kapsama göre değişir. Sayfa sayısı, dil sayısı ve rezervasyon entegrasyonu süreyi belirler. Keşif görüşmesinden sonra net bir takvim paylaşırız."),
             ("Fotoğraf ve içerik bizden mi gelir?", "Mevcut fotoğraf ve metinlerinizi kullanırız. Eksik içerik için yönlendirme yapar, gerekirse içerik üretimini ayrıca planlarız."),
             ("Alan adı ve hosting nasıl işliyor?", "Mevcut alan adınız varsa onu kullanırız. Alan adı ve barındırma kurulumunu biz yapabiliriz; kayıtların hangi hesap adına açılacağını ve yıllık maliyetleri teklifte netleştiririz."),
@@ -156,7 +156,7 @@ PAGES = [
         "tasarım": "Tipografi, grid ve proje sunum biçimi tasarlanır; sayfa akışı prototip olarak sunulur.",
         "geliştirme": "Hızlı, mobil uyumlu portfolyo sitesi kodlanır; görseller performans için optimize edilir.",
         "faq": [
-            ("Mimarlık sitesinin fiyatı neye göre değişir?", "Projeler 30.000 TL'den başlar. Proje sayısı, sayfa yapısı, dil sayısı ve içerik hazırlığı kapsamı belirler. Keşif görüşmesinden sonra net bir teklif paylaşırız."),
+            ("Mimarlık sitesinin fiyatı neye göre değişir?", "Projeler 5.999 TL + KDV'den başlar. Proje sayısı, sayfa yapısı, dil sayısı ve içerik hazırlığı kapsamı belirler. Keşif görüşmesinden sonra net bir teklif paylaşırız."),
             ("Site ne kadar sürede hazırlanır?", "Proje sayısı, sayfa yapısı ve görsel hazırlığa göre değişir. Keşif görüşmesinden sonra net bir takvim paylaşırız."),
             ("Proje görsel ve metinleri kimden gelir?", "Mevcut proje fotoğraf ve metinlerinizi kullanırız. Eksik içerik için yönlendirme yapar, gerekirse içerik düzenlemesini ayrıca planlarız."),
             ("Alan adı ve hosting nasıl işliyor?", "Mevcut alan adınız varsa onu kullanırız. Alan adı ve barındırma kurulumunu biz yapabiliriz; kayıtların hangi hesap adına açılacağını ve yıllık maliyetleri teklifte netleştiririz."),
@@ -167,6 +167,106 @@ PAGES = [
         "form_title": "Ofisinizin sitesi için teklif alın",
     },
 ]
+
+
+PAGES.append({
+    "slug": "tek-sayfa-web-sitesi",
+    "kind": "tek",
+    "name": "Tek Sayfa Web Sitesi",
+    "title": "Tek Sayfa Web Sitesi 5.999 TL + KDV | Dijital Gru İstanbul",
+    "desc": ("Markaya özel, mobil uyumlu tek sayfa web sitesi 5.999 TL + KDV. SSL, WhatsApp butonu, iletişim formu "
+             "ve Google Haritalar konumu. Ek modüller ayrıca fiyatlandırılır."),
+    "icon": "fa-file-lines", "badge": "Tek Sayfa Web Sitesi",
+    "sector": "",
+    "h1": "Tek Sayfa Web Sitesi",
+    "sub": "İhtiyacınıza göre ek modüller eklenebilir",
+    "included": [
+        ("fa-solid fa-palette", "Markaya özel tek sayfa tasarım", "Markanızın renk ve tarzına göre hazırlanan tek sayfalık özel tasarım."),
+        ("fa-solid fa-mobile-screen", "Mobil uyumlu", "Telefon, tablet ve bilgisayarda düzgün görünen, rahat gezilen yapı."),
+        ("fa-solid fa-lock", "SSL sertifikası", "Ziyaretçileriniz için güvenli (https) bağlantı."),
+        ("fa-brands fa-whatsapp", "WhatsApp butonu + iletişim formu", "Ziyaretçi tek dokunuşla WhatsApp'tan yazabilir ya da formu doldurabilir."),
+        ("fa-solid fa-location-dot", "Google Haritalar konumu", "Konumunuz sayfada harita olarak gösterilir."),
+    ],
+    "modules": ["Ek sayfa", "Çok dilli yapı", "Dijital menü", "Rezervasyon bağlantısı", "Galeri bölümü"],
+    "keşif": "İşletmeniz, sunmak istediğiniz içerik ve iletişim bilgileri alınır.",
+    "tasarım": "Markanıza uygun tek sayfa tasarım hazırlanır ve onayınıza sunulur.",
+    "geliştirme": "Onaylanan tasarım mobil uyumlu şekilde kodlanır; WhatsApp butonu, iletişim formu ve harita eklenir.",
+    "faq": [
+        ("Pakete neler dahil?", "Markaya özel tek sayfa tasarım, mobil uyumlu yapı, SSL sertifikası, WhatsApp butonu ile iletişim formu ve Google Haritalar konumu. Paket bunlardan oluşur."),
+        ("Alan adı ve hosting dahil mi?", "Hayır, alan adı ve hosting paket fiyatına dahil değildir. İhtiyacınızı görüştükten sonra bu konuyu netleştiririz."),
+        ("Ek modül ne demek, nasıl fiyatlandırılıyor?", "Ek sayfa, çok dil, menü ya da rezervasyon bağlantısı gibi pakette olmayan ihtiyaçlar ek modül olarak eklenebilir. Ek modüller ayrıca fiyatlandırılır; ihtiyacınıza göre teklif veririz."),
+        ("Site ne kadar sürede hazırlanır?", "İçeriklerin hazır olup olmamasına ve istediğiniz ek modüllere göre değişir. Görüşmeden sonra net bir takvim paylaşırız."),
+        ("Fotoğraf ve metinleri ben mi vereceğim?", "Evet, mevcut fotoğraf ve metinlerinizi bizimle paylaşırsınız. Eksik içerik için size yönlendirme yapar, gerekirse ek ihtiyaç olarak birlikte değerlendiririz."),
+    ],
+    "others": [("/restoran-web-sitesi-tasarimi.html", "Restoran Web Sitesi"), ("/otel-web-sitesi-tasarimi.html", "Otel Web Sitesi"), ("/kurumsal-web-sitesi-tasarimi.html", "Kurumsal Web Sitesi")],
+    "form_title": "Tek sayfa siteniz için teklif alın",
+})
+
+
+def tek_body(pg):
+    descs = {0: pg["keşif"], 1: pg["tasarım"], 2: pg["geliştirme"]}
+    steps = ""
+    for i, (t, d) in enumerate(STEPS):
+        d = descs.get(i, d)
+        if i == 3:
+            d = "Onayınızla site yayına hazır hale getirilir; alan adı ve barındırma ihtiyacınız birlikte netleştirilir."
+        steps += (f'                <div class="service-row-card"><div class="service-num">0{i+1}</div><div class="service-info">'
+                  f'<h3 class="service-title">{t}</h3><p class="service-desc">{d}</p></div></div>\n')
+    inc = "".join(
+        f'                <div class="svc-project-card glass-card"><span class="svc-project-label"><i class="{ic}"></i></span>'
+        f'<h3>{t}</h3><p>{esc(d)}</p></div>\n' for ic, t, d in pg["included"])
+    mods = "".join(f'                    <li><i class="fa-solid fa-plus"></i> {m}</li>\n' for m in pg["modules"])
+    faq = "".join(
+        f'                <details class="svc-faq-item"><summary>{q}</summary><p>{esc(a)}</p></details>\n' for q, a in pg["faq"])
+    others = "".join(f'<a href="{h}" class="btn btn-secondary">{t}</a>' for h, t in pg["others"])
+    form = form_block("", pg["form_title"], "Birkaç bilgiyi bırakın, size dönüp teklifi netleştirelim.",
+                      ' data-variant="tek" data-package="tek_sayfa"')
+    sinopia = PROJECTS_RESTORAN.split('<a href')[1]
+    sinopia = '                <a href' + sinopia.split('</a>')[0] + '</a>\n'
+    return f'''    <section class="page-banner section-padding" style="padding-top: 140px; padding-bottom: 40px;">
+        <div class="container">
+            <div class="badge-reveal scroll-reveal">
+                <span class="hero-badge"><i class="fa-solid {pg["icon"]}"></i> {pg["badge"]}</span>
+            </div>
+            <h1 class="page-title" style="margin-top: 16px;">{pg["h1"]}</h1>
+            <p class="svc-price" style="margin:14px 0 0;font-weight:800;font-size:clamp(38px,11vw,64px);line-height:1.05;color:#dca963;letter-spacing:-.02em;">5.999 TL <span style="font-size:.5em;color:#fff;font-weight:700;">+ KDV</span></p>
+            <p class="page-subtitle">{pg["sub"]}</p>
+            <div style="margin-top: 28px;"><a href="#teklif" class="btn btn-primary glow-btn" id="svc-hero-cta">Teklif Al</a></div>
+        </div>
+    </section>
+
+    <section class="section-padding" style="padding-top: 20px;">
+        <div class="container svc-section">
+            <h2 class="svc-h2">Pakete dahil olanlar</h2>
+            <div class="svc-project-grid">
+{inc}            </div>
+
+            <h2 class="svc-h2 svc-spaced">Ek modül örnekleri</h2>
+            <div class="svc-intro glass-card">
+                <p>Farklı ihtiyaçlar için pakete ek modüller eklenebilir. Ek modüller ayrıca fiyatlandırılır.</p>
+                <ul class="svc-points">
+{mods}                </ul>
+            </div>
+
+            <h2 class="svc-h2 svc-spaced">Örnek çalışma</h2>
+            <div class="svc-project-grid">
+{sinopia}            </div>
+
+            <h2 class="svc-h2 svc-spaced">Nasıl Çalışıyoruz?</h2>
+            <div class="svc-steps">
+{steps}            </div>
+
+            <h2 class="svc-h2 svc-spaced">Sık Sorulan Sorular</h2>
+            <div class="svc-faq">
+{faq}            </div>
+
+{form}
+            <h2 class="svc-h3-label">Diğer Hizmetlerimiz</h2>
+            <div class="svc-related">{others}</div>
+        </div>
+    </section>
+
+'''
 
 
 def esc(t):
@@ -180,6 +280,8 @@ def jsonld(obj):
 
 
 def body_html(pg):
+    if pg.get("kind") == "tek":
+        return tek_body(pg)
     descs = {0: pg["keşif"], 1: pg["tasarım"], 2: pg["geliştirme"]}
     steps = ""
     for i, (t, d) in enumerate(STEPS):
@@ -212,7 +314,7 @@ def body_html(pg):
                 <span class="hero-badge"><i class="fa-solid {pg["icon"]}"></i> {pg["badge"]}</span>
             </div>
             <h1 class="page-title" style="margin-top: 16px;">{pg["h1"]}</h1>
-            <p class="svc-price" style="{PRICE_STYLE}"><i class="fa-solid fa-tag" style="color:#dca963;"></i> 30.000 TL'den başlayan projeler</p>
+            <p class="svc-price" style="{PRICE_STYLE}"><i class="fa-solid fa-tag" style="color:#dca963;"></i> 5.999 TL + KDV'den başlayan projeler</p>
             <p class="page-subtitle">{pg["sub"]}</p>
             <div style="margin-top: 28px;"><a href="#teklif" class="btn btn-primary glow-btn" id="svc-hero-cta">Teklif Al</a></div>
         </div>
@@ -301,7 +403,7 @@ def add_footer_links():
 def add_hub_cards():
     p = ROOT / "hizmetler.html"
     s = read(p)
-    if "otel-web-sitesi-tasarimi" in s:
+    if "href=\"/otel-web-sitesi-tasarimi.html\" class=\"svc-hub-card" in s:
         return
     anchor = '                <a href="/luks-marka-kimligi-tasarimi.html" class="svc-hub-card'
     assert anchor in s
@@ -334,16 +436,46 @@ def update_site_config():
     p = ROOT / "site-config.js"
     s = read(p)
     if "'restoran-web': '',".replace("'", "'") in s:
-        s = s.replace("'restoran-web': '',", "'restoran-web': '₺30.000',")
+        s = s.replace("'restoran-web': '',", "'restoran-web': '₺5.999 + KDV',")
     if "'otel-web'" not in s:
-        s = s.replace("        'qr-menu': ''", "        'qr-menu': '',\n        'otel-web': '',\n        'mimarlik-web': ''")
+        s = s.replace("        'qr-menu': ''", "        'qr-menu': '',\n        'otel-web': '₺5.999 + KDV',\n        'mimarlik-web': '₺5.999 + KDV'")
     write(p, s)
+
+
+def add_tek_links():
+    """Footer'a ve hizmetler sayfasına Tek Sayfa Web Sitesi bağlantısı ekler (idempotent)."""
+    anchor = '<li><a href="/mimarlik-web-sitesi-tasarimi.html">Mimarlık Web Sitesi</a></li>'
+    new = anchor + '<li><a href="/tek-sayfa-web-sitesi.html">Tek Sayfa Web Sitesi</a></li>'
+    n = 0
+    for p in list(ROOT.glob("*.html")) + list(ROOT.glob("blog/*.html")):
+        s = read(p)
+        if anchor in s and "tek-sayfa-web-sitesi.html" not in s:
+            write(p, s.replace(anchor, new))
+            n += 1
+    hub = ROOT / "hizmetler.html"
+    s = read(hub)
+    if 'href="/tek-sayfa-web-sitesi.html" class="svc-hub-card' not in s:
+        a = '                <a href="/luks-marka-kimligi-tasarimi.html" class="svc-hub-card'
+        assert a in s
+        card = ('                <a href="/tek-sayfa-web-sitesi.html" class="svc-hub-card glass-card scroll-reveal"><span class="svc-hub-icon">'
+                '<i class="fa-solid fa-file-lines"></i></span><h3>Tek Sayfa Web Sitesi</h3>'
+                '<p>Markaya özel, mobil uyumlu tek sayfa web sitesi. Ek modüller ayrıca fiyatlandırılır.</p>'
+                '<span class="svc-hub-price" data-price="tek-sayfa-web"></span>'
+                '<span class="svc-hub-more">Detayları İncele <i class="fa-solid fa-arrow-right"></i></span></a>\n')
+        write(hub, s.replace(a, card + a, 1))
+    cfg = ROOT / "site-config.js"
+    s = read(cfg)
+    if "'tek-sayfa-web'" not in s:
+        s = s.replace("        'qr-menu': ''", "        'qr-menu': '',\n        'tek-sayfa-web': '₺5.999 + KDV'", 1)
+        write(cfg, s)
+    return n
 
 
 if __name__ == "__main__":
     build_pages()
     print("footer güncellenen sayfa:", add_footer_links())
     add_hub_cards()
+    print("tek sayfa linkleri:", add_tek_links())
     update_sitemap()
     update_site_config()
     print("OK")

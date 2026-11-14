@@ -10,13 +10,14 @@ window.DG_SITE = {
     /* İstediğiniz hizmetin fiyatını yalnızca BURAYA yazın, örn: '₺15.000'.
        Boş ('') bırakırsanız kartta "Teklif alın" görünür. */
     prices: {
-        'restoran-web': '₺30.000',
+        'restoran-web': '₺5.999 + KDV',
         'marka-kimligi': '',
-        'kurumsal-web': '',
+        'kurumsal-web': '₺5.999 + KDV',
         'ozel-yazilim': '',
         'qr-menu': '',
-        'otel-web': '',
-        'mimarlik-web': ''
+        'tek-sayfa-web': '₺5.999 + KDV',
+        'otel-web': '₺5.999 + KDV',
+        'mimarlik-web': '₺5.999 + KDV'
     }
 };
 

@@ -401,6 +401,12 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         subject = clean_line(data.get('subject_title', data.get('subject')), 60)
         message = clean_text(data.get('message'), 5000)
 
+        # Tek sayfa paketi: sade form (sektor serbest metin, rol/butce/zaman yok, ek ihtiyac opsiyonel)
+        package = clean_line(data.get('package'), 30) if is_lead else ''
+        tek = is_lead and package == 'tek_sayfa'
+        if tek and not message:
+            message = "(Ek ihtiyaç belirtilmedi)"
+
         if len(name) < 2:
             return self._json(400, {"success": False, "field": "name", "error": "Lütfen adınızı ve soyadınızı girin."})
         if not is_lead and not EMAIL_RE.match(email):
@@ -429,18 +435,26 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"success": False, "field": "email", "error": "Lütfen geçerli bir e-posta adresi girin."})
             if not email and not phone_raw:
                 return self._json(400, {"success": False, "field": "phone", "error": "Lütfen telefon veya e-posta bilgisinden en az birini girin."})
-            checks = [
-                ('sector', 'Sektör', LEAD_SECTORS, 'Lütfen sektörünüzü seçin.'),
-                ('role', 'Rol', LEAD_ROLES, 'Lütfen rolünüzü seçin.'),
-                ('budget', 'Bütçe aralığı', LEAD_BUDGETS, 'Lütfen bütçe aralığınızı seçin.'),
-                ('timeline', 'Başlama zamanı', LEAD_TIMELINES, 'Lütfen başlama zamanını seçin.'),
-            ]
+            if tek:
+                sector_txt = clean_line(data.get('sector'), 100)
+                if len(sector_txt) < 2:
+                    return self._json(400, {"success": False, "field": "sector", "error": "Lütfen sektörünüzü yazın."})
+                extra.append(("Paket", "Tek sayfa web sitesi (5.999 TL + KDV)"))
+                extra.append(("Sektör", sector_txt))
+                checks = []
+            else:
+                checks = [
+                    ('sector', 'Sektör', LEAD_SECTORS, 'Lütfen sektörünüzü seçin.'),
+                    ('role', 'Rol', LEAD_ROLES, 'Lütfen rolünüzü seçin.'),
+                    ('budget', 'Bütçe aralığı', LEAD_BUDGETS, 'Lütfen bütçe aralığınızı seçin.'),
+                    ('timeline', 'Başlama zamanı', LEAD_TIMELINES, 'Lütfen başlama zamanını seçin.'),
+                ]
             for key, label, allowed, err in checks:
                 val = clean_line(data.get(key), 60)
                 if val not in allowed:
                     return self._json(400, {"success": False, "field": key, "error": err})
                 extra.append((label, val))
-            if len(message) < 5:
+            if not tek and len(message) < 5:
                 return self._json(400, {"success": False, "field": "message", "error": "Lütfen ihtiyacınızı kısaca yazın."})
             if phone_raw and not (10 <= len(norm_phone(phone_raw)) <= 15):
                 return self._json(400, {"success": False, "field": "phone", "error": "Lütfen geçerli bir telefon numarası girin."})

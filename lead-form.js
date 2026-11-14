@@ -88,7 +88,17 @@
         var sub = host.getAttribute('data-sub') || 'Formu doldurun, en geç 24 saat içinde size dönelim. Daha hızlı konuşmak isterseniz WhatsApp\'tan yazabilirsiniz.';
         var renderedAt = Date.now();
 
-        var sectorSel = field('sector', 'Sektör', '<select id="lf-sector" name="sector" required>' + opts(OPTIONS.sector, 'Seçiniz') + '</select>');
+        var simple = host.getAttribute('data-variant') === 'tek';
+        var pkg = host.getAttribute('data-package') || '';
+        var sectorSel = simple
+            ? field('sector', 'Sektör', '<input id="lf-sector" name="sector" type="text" maxlength="100" required placeholder="Örn. restoran, otel, mimarlık">', 'lf-full')
+            : field('sector', 'Sektör', '<select id="lf-sector" name="sector" required>' + opts(OPTIONS.sector, 'Seçiniz') + '</select>');
+        var detailFields = simple
+            ? field('message', 'Ek ihtiyacınız var mı?', '<textarea id="lf-message" name="message" maxlength="2000" placeholder="İsteğe bağlı: ek sayfa, çok dil, menü, rezervasyon bağlantısı vb."></textarea>', 'lf-full', '(isteğe bağlı)')
+            : field('role', 'Rolünüz', '<select id="lf-role" name="role" required>' + opts(OPTIONS.role, 'Seçiniz') + '</select>') +
+              field('budget', 'Bütçe aralığı', '<select id="lf-budget" name="budget" required>' + opts(OPTIONS.budget, 'Seçiniz') + '</select>') +
+              field('timeline', 'Ne zaman başlamak istiyorsunuz?', '<select id="lf-timeline" name="timeline" required>' + opts(OPTIONS.timeline, 'Seçiniz') + '</select>', 'lf-full') +
+              field('message', 'İhtiyacınız', '<textarea id="lf-message" name="message" maxlength="2000" required placeholder="Ne yapmak istiyorsunuz? Kısaca anlatın."></textarea>', 'lf-full');
         var form = document.createElement('form');
         form.className = 'lf';
         form.noValidate = true;
@@ -98,15 +108,12 @@
             '<h3>' + title + '</h3><p class="lf-sub">' + sub + '</p>' +
             '<div class="lf-alert" role="alert"></div>' +
             '<div class="lf-grid">' +
-            field('business', 'İşletme adı veya web sitesi', '<input id="lf-business" name="business" type="text" autocomplete="organization" maxlength="150" required>', 'lf-full') +
+            field('business', simple ? 'İşletme adı' : 'İşletme adı veya web sitesi', '<input id="lf-business" name="business" type="text" autocomplete="organization" maxlength="150" required>', 'lf-full') +
             field('name', 'Ad Soyad', '<input id="lf-name" name="name" type="text" autocomplete="name" maxlength="100" required>', 'lf-full') +
             field('phone', 'Telefon', '<input id="lf-phone" name="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="05xx xxx xx xx">', '', '(telefon veya e-posta)') +
             field('email', 'E-posta', '<input id="lf-email" name="email" type="email" autocomplete="email" maxlength="254">', '', '(telefon veya e-posta)') +
             sectorSel +
-            field('role', 'Rolünüz', '<select id="lf-role" name="role" required>' + opts(OPTIONS.role, 'Seçiniz') + '</select>') +
-            field('budget', 'Bütçe aralığı', '<select id="lf-budget" name="budget" required>' + opts(OPTIONS.budget, 'Seçiniz') + '</select>') +
-            field('timeline', 'Ne zaman başlamak istiyorsunuz?', '<select id="lf-timeline" name="timeline" required>' + opts(OPTIONS.timeline, 'Seçiniz') + '</select>', 'lf-full') +
-            field('message', 'İhtiyacınız', '<textarea id="lf-message" name="message" maxlength="2000" required placeholder="Ne yapmak istiyorsunuz? Kısaca anlatın."></textarea>', 'lf-full') +
+            detailFields +
             '<div class="lf-field lf-full" data-field="kvkk"><label class="lf-kvkk"><input type="checkbox" id="lf-kvkk" name="kvkk" required>' +
             '<span><a href="/gizlilik.html" target="_blank" rel="noopener">Gizlilik ve KVKK Aydınlatma Metni</a>\'ni okudum; kişisel verilerimin teklif hazırlanması ve benimle iletişime geçilmesi amacıyla işlenmesini kabul ediyorum.</span></label>' +
             '<p class="lf-err" role="alert"></p></div>' +
@@ -115,7 +122,7 @@
             '<button type="submit" class="lf-btn">Teklif İste</button>';
         host.innerHTML = '';
         host.appendChild(form);
-        if (sector && OPTIONS.sector.indexOf(sector) !== -1) form.querySelector('#lf-sector').value = sector;
+        if (!simple && sector && OPTIONS.sector.indexOf(sector) !== -1) form.querySelector('#lf-sector').value = sector;
 
         function setErr(name, msg) {
             var wrap = form.querySelector('[data-field="' + name + '"]');
@@ -128,7 +135,7 @@
         function clientValidate() {
             var d = {}, bad = null;
             ['business', 'name', 'email', 'phone', 'sector', 'role', 'budget', 'timeline', 'message'].forEach(function (k) {
-                d[k] = (form.elements[k].value || '').trim();
+                d[k] = form.elements[k] ? (form.elements[k].value || '').trim() : '';
                 setErr(k, '');
             });
             setErr('kvkk', '');
@@ -137,11 +144,11 @@
                 ['name', d.name.length >= 2, 'Lütfen adınızı ve soyadınızı girin.'],
                 ['phone', (!d.phone && !!d.email) || d.phone.replace(/\D/g, '').length >= 10, d.phone || d.email ? 'Lütfen geçerli bir telefon numarası girin.' : 'Telefon veya e-posta bilgisinden en az birini girin.'],
                 ['email', (!d.email && !!d.phone) || /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(d.email), d.email || d.phone ? 'Lütfen geçerli bir e-posta adresi girin.' : ''],
-                ['sector', !!d.sector, 'Lütfen sektörünüzü seçin.'],
-                ['role', !!d.role, 'Lütfen rolünüzü seçin.'],
-                ['budget', !!d.budget, 'Lütfen bütçe aralığınızı seçin.'],
-                ['timeline', !!d.timeline, 'Lütfen başlama zamanını seçin.'],
-                ['message', d.message.length >= 5, 'Lütfen ihtiyacınızı kısaca yazın.'],
+                ['sector', simple ? d.sector.length >= 2 : !!d.sector, simple ? 'Lütfen sektörünüzü yazın.' : 'Lütfen sektörünüzü seçin.'],
+                ['role', simple || !!d.role, 'Lütfen rolünüzü seçin.'],
+                ['budget', simple || !!d.budget, 'Lütfen bütçe aralığınızı seçin.'],
+                ['timeline', simple || !!d.timeline, 'Lütfen başlama zamanını seçin.'],
+                ['message', simple || d.message.length >= 5, 'Lütfen ihtiyacınızı kısaca yazın.'],
                 ['kvkk', form.elements.kvkk.checked, 'Devam etmek için KVKK bilgilendirmesini onaylamanız gerekir.']
             ];
             rules.forEach(function (r) {
@@ -172,7 +179,7 @@
         /* Kullanıcı düzelttikçe ilgili hata mesajı kalksın */
         function clearOnEdit(e) {
             var w = e.target.closest ? e.target.closest('[data-field]') : null;
-            if (w) setErr(w.getAttribute('data-field'), '');
+            if (w) { var fn = w.getAttribute('data-field'); setErr(fn, ''); if (fn === 'phone') setErr('email', ''); if (fn === 'email') setErr('phone', ''); }
         }
         form.addEventListener('input', clearOnEdit);
         form.addEventListener('change', clearOnEdit);
@@ -197,7 +204,7 @@
             var payload = {
                 form_type: 'lead',
                 name: d.name, email: d.email, phone: d.phone, subject_title: 'Proje Teklifi',
-                business: d.business,
+                business: d.business, package: pkg,
                 sector: d.sector, role: d.role, budget: d.budget, timeline: d.timeline, message: d.message,
                 kvkk: true,
                 website: form.elements.website.value,
