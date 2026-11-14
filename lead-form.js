@@ -10,7 +10,7 @@
     var OPTIONS = {
         sector: ['Restoran', 'Otel', 'Mimarlık', 'Diğer'],
         role: ['Sahip / ortak', 'Genel müdür', 'Pazarlama', 'Yetkili çalışan', 'Diğer'],
-        budget: ['30.000 TL altı', '30–49 bin TL', '50–79 bin TL', '80 bin TL+'],
+        budget: ['5.999–10.000 TL', '10.000–20.000 TL', '20.000–40.000 TL', '40.000 TL üzeri'],
         timeline: ['Hemen', '1 ay içinde', '1–3 ay', 'Sadece bilgi alıyorum']
     };
     var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];

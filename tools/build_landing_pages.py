@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SITE = "https://dijitalgru.com"
 LASTMOD = "2026-11-14"
-LEAD_JS = "/lead-form.js?v=6"
+LEAD_JS = "/lead-form.js?v=7"
 
 RESTORAN = ROOT / "restoran-web-sitesi-tasarimi.html"
 R_TITLE = "Restoran, Beach Club &amp; Gece Kulübü Web Sitesi Tasarımı | Dijital Gru İstanbul"
