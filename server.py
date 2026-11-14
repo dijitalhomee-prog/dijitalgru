@@ -14,6 +14,24 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from html import escape
 
+
+
+def _load_dotenv():
+    """Yerel gelistirme: .env dosyasini oku (varsa). Zaten tanimli ortam degiskenlerini ezmez."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if not os.path.isfile(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
+
 PORT = int(os.environ.get("PORT", 8000))
 
 SITE_URL = "https://dijitalgru.com"
@@ -32,11 +50,13 @@ WHATSAPP_URL = "https://wa.me/905376274415"
 #   META_TEST_EVENT_CODE : Events Manager > Test Events kodu (yalnizca test icin)
 
 ALLOWED_SUBJECTS = ["Proje Teklifi", "Mevcut Proje", "İş Başvurusu", "Diğer"]
-LEAD_SECTORS = ["Restoran / Kafe", "Beach club / Gece kulübü", "Otel", "Mimarlık", "Diğer"]
-LEAD_ROLES = ["İşletme sahibi", "Yönetici / Pazarlama", "Mimar / Ofis sahibi", "Diğer"]
-LEAD_BUDGETS = ["30–60 bin TL", "60–120 bin TL", "120 bin TL üzeri", "Henüz belirsiz"]
-LEAD_TIMELINES = ["Hemen", "1 ay içinde", "2–3 ay içinde", "Sadece bilgi alıyorum"]
-LEAD_MIN_FILL_MS = 2500  # bundan hizli doldurulan lead formlari bot sayilir
+LEAD_SECTORS = ["Restoran", "Otel", "Mimarlık", "Diğer"]
+LEAD_ROLES = ["Sahip / ortak", "Genel müdür", "Pazarlama", "Yetkili çalışan", "Diğer"]
+LEAD_BUDGETS = ["30.000 TL altı", "30–49 bin TL", "50–79 bin TL", "80 bin TL+"]
+LEAD_TIMELINES = ["Hemen", "1 ay içinde", "1–3 ay", "Sadece bilgi alıyorum"]
+LEAD_MIN_FILL_MS = 3000  # bundan hizli doldurulan lead formlari bot sayilir
+LEAD_RATE_MAX = 3        # lead formu: IP basina 10 dk'da en fazla 3 kabul edilen gonderim
+BOT_ERROR = "Mesajınız şu an gönderilemedi. Lütfen birkaç dakika sonra tekrar deneyin."
 PIXEL_ID_DEFAULT = "876755502162549"
 EMAIL_RE = re.compile(r"^[^@\s<>\"',;]+@[^@\s<>\"',;]+\.[^@\s<>\"',;]{2,}$")
 TR_TZ = timezone(timedelta(hours=3))
@@ -60,11 +80,13 @@ def clean_text(value, limit):
     return value.strip()[:limit]
 
 
-def rate_limited(ip):
+def rate_limited(ip, limit=None, bucket=""):
     now = time.time()
+    limit = limit or RATE_LIMIT_MAX
+    ip = bucket + ip
     with _rate_lock:
         hits = [t for t in _rate.get(ip, []) if now - t < RATE_LIMIT_WINDOW]
-        if len(hits) >= RATE_LIMIT_MAX:
+        if len(hits) >= limit:
             _rate[ip] = hits
             return True
         hits.append(now)
@@ -215,7 +237,9 @@ def send_capi_lead(email, phone, event_id, source_url, ip, user_agent, fbp, fbc)
         return None
     pixel_id = os.environ.get("META_PIXEL_ID", "").strip() or PIXEL_ID_DEFAULT
     version = os.environ.get("META_GRAPH_VERSION", "").strip() or "v21.0"
-    user_data = {"em": [_sha256(email.strip().lower())]}
+    user_data = {}
+    if email:
+        user_data["em"] = [_sha256(email.strip().lower())]
     if phone:
         user_data["ph"] = [_sha256(phone)]
     if ip:
@@ -362,12 +386,14 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         except Exception:
             return self._json(400, {"success": False, "error": "Geçersiz istek."})
 
-        # Honeypot: botlar gizli alani doldurur. Sessizce basarili gibi davran, hicbir sey gonderme.
+        # Honeypot: botlar gizli alani doldurur. Hicbir sey gonderme, genel hata don (basari DONME).
         if str(data.get('website', '')).strip():
-            print("[SPAM] honeypot dolu, istek yoksayildi")
-            return self._json(200, {"success": True})
+            print("[SPAM] honeypot dolu, istek reddedildi")
+            return self._json(400, {"success": False, "error": BOT_ERROR})
 
-        if rate_limited(self._client_ip()):
+        form_type = clean_line(data.get('form_type'), 20)
+        is_lead = form_type == 'lead'
+        if not is_lead and rate_limited(self._client_ip()):
             return self._json(429, {"success": False, "field": "rate_limit", "error": "Çok fazla deneme yaptınız, birkaç dakika sonra tekrar deneyin."})
 
         name = clean_line(data.get('name'), 100)
@@ -377,7 +403,7 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
 
         if len(name) < 2:
             return self._json(400, {"success": False, "field": "name", "error": "Lütfen adınızı ve soyadınızı girin."})
-        if not EMAIL_RE.match(email):
+        if not is_lead and not EMAIL_RE.match(email):
             return self._json(400, {"success": False, "field": "email", "error": "Lütfen geçerli bir e-posta adresi girin."})
         if len(message) < 2:
             return self._json(400, {"success": False, "field": "message", "error": "Lütfen mesajınızı yazın."})
@@ -387,15 +413,22 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         # Nitelikli lead formu (reklam sayfalari): ek alanlar, KVKK onayi ve bot kontrolu
         extra = []
         phone_raw = clean_line(data.get('phone'), 30)
-        form_type = clean_line(data.get('form_type'), 20)
-        if form_type == 'lead':
+        if is_lead:
             try:
                 fill_ms = float(data.get('fill_ms', 0))
             except (TypeError, ValueError):
                 fill_ms = 0
             if fill_ms < LEAD_MIN_FILL_MS:
-                print("[SPAM] lead formu cok hizli dolduruldu (%sms), yoksayildi" % int(fill_ms))
-                return self._json(200, {"success": True})
+                print("[SPAM] lead formu cok hizli dolduruldu (%sms), reddedildi" % int(fill_ms))
+                return self._json(400, {"success": False, "error": BOT_ERROR})
+            business = clean_line(data.get('business'), 150)
+            if len(business) < 2:
+                return self._json(400, {"success": False, "field": "business", "error": "Lütfen işletme adınızı veya web sitenizi yazın."})
+            extra.append(("İşletme / web sitesi", business))
+            if email and not EMAIL_RE.match(email):
+                return self._json(400, {"success": False, "field": "email", "error": "Lütfen geçerli bir e-posta adresi girin."})
+            if not email and not phone_raw:
+                return self._json(400, {"success": False, "field": "phone", "error": "Lütfen telefon veya e-posta bilgisinden en az birini girin."})
             checks = [
                 ('sector', 'Sektör', LEAD_SECTORS, 'Lütfen sektörünüzü seçin.'),
                 ('role', 'Rol', LEAD_ROLES, 'Lütfen rolünüzü seçin.'),
@@ -415,7 +448,13 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"success": False, "field": "kvkk", "error": "Devam etmek için KVKK bilgilendirmesini onaylamanız gerekir."})
             subject = "Proje Teklifi"
             extra.append(("Telefon", phone_raw or "-"))
-            extra.append(("Sayfa", clean_line(data.get('page_url'), 200)))
+            extra.append(("E-posta", email or "-"))
+            extra.append(("Sayfa", clean_line(data.get('page_url'), 600)))
+            for k in ('utm_source', 'utm_medium', 'utm_campaign', 'utm_content'):
+                extra.append((k, clean_line(data.get(k), 120) or "-"))
+            # Dogrulama gecti; simdi kabul edilen gonderim olarak say (hatali denemeler hakkı tüketmez)
+            if rate_limited(self._client_ip(), LEAD_RATE_MAX, "lead:"):
+                return self._json(429, {"success": False, "field": "rate_limit", "error": "Çok fazla deneme yaptınız, birkaç dakika sonra tekrar deneyin."})
 
         date_str = datetime.now(TR_TZ).strftime("%d.%m.%Y %H:%M")
 
@@ -440,8 +479,8 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         to_addr = os.environ.get("CONTACT_TO", "dijitalgru@gmail.com").strip() or "dijitalgru@gmail.com"
         owner_sent = False
         try:
-            subj, html, text = owner_email(name, email, subject, message, date_str, extra)
-            send_mail(to_addr, subj, html, text, reply_to=email)
+            subj, html, text = owner_email(name, email or "-", subject, message, date_str, extra)
+            send_mail(to_addr, subj, html, text, reply_to=email or None)
             owner_sent = True
             print("[MAIL] Bildirim gonderildi:", name, "-", subject)
         except Exception as e:
@@ -469,10 +508,12 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
 
         # Sunucu tarafi Lead (Meta CAPI): yalnizca form kabul edildiyse, pazarlama izni ve event_id varsa.
         event_id = clean_line(data.get('event_id'), 80)
-        if data.get('marketing_consent') in (True, 'true', '1', 1) and re.match(r'^[A-Za-z0-9_.-]{8,80}$', event_id or ''):
-            page_url = clean_line(data.get('page_url'), 300)
-            if not page_url.startswith(SITE_URL):
-                page_url = SITE_URL + '/'
+        if (email or phone_raw) and data.get('marketing_consent') in (True, 'true', '1', 1) and re.match(r'^[A-Za-z0-9_.-]{8,80}$', event_id or ''):
+            page_url = clean_line(data.get('page_url'), 600)
+            if not page_url.startswith(SITE_URL + '/'):
+                from urllib.parse import urlsplit
+                sp = urlsplit(page_url)
+                page_url = SITE_URL + (sp.path if sp.path.startswith('/') else '/') + ('?' + sp.query if sp.query else '')
             threading.Thread(target=send_capi_lead, daemon=True, args=(
                 email, norm_phone(phone_raw) if phone_raw else '', event_id, page_url,
                 self._client_ip(), self.headers.get('User-Agent', '')[:300],
@@ -482,13 +523,13 @@ class DijitalGruHandler(http.server.SimpleHTTPRequestHandler):
         #    Basarisiz olsa da kullaniciya hata gosterilmez, sadece loglanir.
         kind, _cfg = mail_provider()
         autoreply_ok = kind == "smtp" or bool(os.environ.get("CONTACT_FROM", "").strip())
-        if owner_sent and autoreply_ok:
+        if owner_sent and autoreply_ok and email:
             try:
                 subj, html, text = auto_reply_email(name, subject)
                 send_mail(email, subj, html, text, reply_to=to_addr)
             except Exception as e:
                 print("[MAIL WARN] Otomatik yanit gonderilemedi:", repr(e))
-        elif owner_sent:
+        elif owner_sent and email:
             print("[MAIL] CONTACT_FROM tanimli degil, otomatik yanit atlandi")
 
         return self._json(200, {"success": True})

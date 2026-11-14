@@ -4,3 +4,5 @@ leads.json
 __pycache__/
 .shots/
 .scratch/
+
+.env

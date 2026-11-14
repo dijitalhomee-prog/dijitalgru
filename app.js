@@ -107,7 +107,7 @@ window.processContactForm = function(evt, el) {
                 marketing_consent: leadMarketing,
                 fbp: leadMarketing ? readCookie('_fbp') : '',
                 fbc: leadMarketing ? readCookie('_fbc') : '',
-                page_url: location.origin + location.pathname
+                page_url: location.origin + location.pathname + location.search
             })
         }).then(function(res) {
             return res.json().catch(function() { return {}; }).then(function(d) {

@@ -8,11 +8,27 @@
     'use strict';
 
     var OPTIONS = {
-        sector: ['Restoran / Kafe', 'Beach club / Gece kulübü', 'Otel', 'Mimarlık', 'Diğer'],
-        role: ['İşletme sahibi', 'Yönetici / Pazarlama', 'Mimar / Ofis sahibi', 'Diğer'],
-        budget: ['30–60 bin TL', '60–120 bin TL', '120 bin TL üzeri', 'Henüz belirsiz'],
-        timeline: ['Hemen', '1 ay içinde', '2–3 ay içinde', 'Sadece bilgi alıyorum']
+        sector: ['Restoran', 'Otel', 'Mimarlık', 'Diğer'],
+        role: ['Sahip / ortak', 'Genel müdür', 'Pazarlama', 'Yetkili çalışan', 'Diğer'],
+        budget: ['30.000 TL altı', '30–49 bin TL', '50–79 bin TL', '80 bin TL+'],
+        timeline: ['Hemen', '1 ay içinde', '1–3 ay', 'Sadece bilgi alıyorum']
     };
+    var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];
+
+    /* UTM'ler URL'den alınır ve oturum boyunca saklanır (sayfalar arası gezinse de kaybolmaz) */
+    function captureUtm() {
+        var out = {};
+        try {
+            var q = new URLSearchParams(location.search);
+            UTM_KEYS.concat(['fbclid']).forEach(function (k) {
+                var v = q.get(k);
+                if (v) sessionStorage.setItem('dg_' + k, v.slice(0, 200));
+            });
+            UTM_KEYS.concat(['fbclid']).forEach(function (k) { out[k] = sessionStorage.getItem('dg_' + k) || ''; });
+        } catch (e) { /* sessionStorage kapalı olabilir */ }
+        return out;
+    }
+    captureUtm();
 
     var CSS = '' +
         '.lf{background:#fbf8f3;color:#0c1330;border-radius:28px;padding:clamp(22px,3.5vw,40px);box-shadow:0 50px 80px -40px rgba(0,0,0,.6);font-family:"Plus Jakarta Sans",system-ui,sans-serif}' +
@@ -77,13 +93,15 @@
         form.className = 'lf';
         form.noValidate = true;
         form.setAttribute('novalidate', '');
+        form.setAttribute('onsubmit', 'return false');
         form.innerHTML =
             '<h3>' + title + '</h3><p class="lf-sub">' + sub + '</p>' +
             '<div class="lf-alert" role="alert"></div>' +
             '<div class="lf-grid">' +
-            field('name', 'Ad Soyad', '<input id="lf-name" name="name" type="text" autocomplete="name" maxlength="100" required>') +
-            field('email', 'E-posta', '<input id="lf-email" name="email" type="email" autocomplete="email" maxlength="254" required>') +
-            field('phone', 'Telefon', '<input id="lf-phone" name="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="05xx xxx xx xx">', '', '(isteğe bağlı)') +
+            field('business', 'İşletme adı veya web sitesi', '<input id="lf-business" name="business" type="text" autocomplete="organization" maxlength="150" required>', 'lf-full') +
+            field('name', 'Ad Soyad', '<input id="lf-name" name="name" type="text" autocomplete="name" maxlength="100" required>', 'lf-full') +
+            field('phone', 'Telefon', '<input id="lf-phone" name="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="05xx xxx xx xx">', '', '(telefon veya e-posta)') +
+            field('email', 'E-posta', '<input id="lf-email" name="email" type="email" autocomplete="email" maxlength="254">', '', '(telefon veya e-posta)') +
             sectorSel +
             field('role', 'Rolünüz', '<select id="lf-role" name="role" required>' + opts(OPTIONS.role, 'Seçiniz') + '</select>') +
             field('budget', 'Bütçe aralığı', '<select id="lf-budget" name="budget" required>' + opts(OPTIONS.budget, 'Seçiniz') + '</select>') +
@@ -109,15 +127,16 @@
 
         function clientValidate() {
             var d = {}, bad = null;
-            ['name', 'email', 'phone', 'sector', 'role', 'budget', 'timeline', 'message'].forEach(function (k) {
+            ['business', 'name', 'email', 'phone', 'sector', 'role', 'budget', 'timeline', 'message'].forEach(function (k) {
                 d[k] = (form.elements[k].value || '').trim();
                 setErr(k, '');
             });
             setErr('kvkk', '');
             var rules = [
+                ['business', d.business.length >= 2, 'Lütfen işletme adınızı veya web sitenizi yazın.'],
                 ['name', d.name.length >= 2, 'Lütfen adınızı ve soyadınızı girin.'],
-                ['email', /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(d.email), 'Lütfen geçerli bir e-posta adresi girin.'],
-                ['phone', !d.phone || d.phone.replace(/\D/g, '').length >= 10, 'Lütfen geçerli bir telefon numarası girin.'],
+                ['phone', (!d.phone && !!d.email) || d.phone.replace(/\D/g, '').length >= 10, d.phone || d.email ? 'Lütfen geçerli bir telefon numarası girin.' : 'Telefon veya e-posta bilgisinden en az birini girin.'],
+                ['email', (!d.email && !!d.phone) || /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(d.email), d.email || d.phone ? 'Lütfen geçerli bir e-posta adresi girin.' : ''],
                 ['sector', !!d.sector, 'Lütfen sektörünüzü seçin.'],
                 ['role', !!d.role, 'Lütfen rolünüzü seçin.'],
                 ['budget', !!d.budget, 'Lütfen bütçe aralığınızı seçin.'],
@@ -169,6 +188,7 @@
             }
             var d = v.data;
             var eventId = newEventId();
+            var utm = captureUtm();
             var marketing = !!(window.dgConsent && window.dgConsent.marketing);
             var btn = form.querySelector('.lf-btn');
             btn.disabled = true;
@@ -177,15 +197,21 @@
             var payload = {
                 form_type: 'lead',
                 name: d.name, email: d.email, phone: d.phone, subject_title: 'Proje Teklifi',
+                business: d.business,
                 sector: d.sector, role: d.role, budget: d.budget, timeline: d.timeline, message: d.message,
                 kvkk: true,
                 website: form.elements.website.value,
                 fill_ms: Date.now() - renderedAt,
                 event_id: eventId,
                 marketing_consent: marketing,
-                page_url: location.origin + location.pathname
+                page_url: location.origin + location.pathname + location.search
             };
-            if (marketing) { payload.fbp = cookie('_fbp'); payload.fbc = cookie('_fbc'); }
+            if (marketing) {
+                payload.fbp = cookie('_fbp');
+                payload.fbc = cookie('_fbc');
+                if (!payload.fbc && utm.fbclid) payload.fbc = 'fb.1.' + Date.now() + '.' + utm.fbclid;
+            }
+            UTM_KEYS.forEach(function (k) { payload[k] = utm[k] || ''; });
 
             fetch('/api/contact', {
                 method: 'POST',
