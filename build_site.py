@@ -177,7 +177,6 @@ FOOTER_BOTTOM_NEW = (
     '&copy; 2026 Dijital Gru Tasarım Stüdyosu. Tüm Hakları Saklıdır. '
     '<a href="/gizlilik.html" style="font-size:12px;opacity:.55;margin-left:10px;">Gizlilik</a> '
     '<a href="#" data-cookie-prefs style="font-size:12px;opacity:.55;margin-left:10px;">Çerez tercihleri</a> '
-    '<a href="/kariyer.html" style="font-size:12px;opacity:.55;margin-left:10px;">Kariyer</a>'
 )
 
 
@@ -223,7 +222,7 @@ def common_transform(name, s):
         lambda m: m.group(1) + NEW_FOOTER_SERVICES.rstrip("\n") + m.group(3),
         s, count=1, flags=re.S)
     # footer alt satir + kariyer linki
-    s = re.sub(r"&copy; 2026 Dijital Gru[^<]*Tüm Hakları Saklıdır\.(?! <a href=\"/kariyer)", lambda m: FOOTER_BOTTOM_NEW, s)
+    s = re.sub(r"&copy; 2026 Dijital Gru[^<]*Tüm Hakları Saklıdır\.(?! <a href=\"/gizlilik)", lambda m: FOOTER_BOTTOM_NEW, s)
 
     # gizlilik linki (mevcut footer'lara idempotent ekleme)
     if "/gizlilik.html" not in s:
