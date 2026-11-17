@@ -2503,6 +2503,42 @@ def api_admin_audit_logs():
     
     return jsonify({"audit_logs": logs})
 
+@app.route("/api/admin/maintenance/backup", methods=["GET"])
+def api_admin_backup():
+    """Yönetici: kritik tabloların JSON yedeği (migration öncesi güvenlik yedeği)."""
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+    import migrate_fix_records as mfr
+    conn = get_db()
+    cur = conn.cursor()
+    dump = {}
+    for t in mfr.TABLES:
+        try:
+            cur.execute(f"SELECT * FROM {t}")
+            dump[t] = [dict(r) for r in cur.fetchall()]
+        except Exception as e:
+            conn.rollback()
+            dump[t] = f"ERROR: {e}"
+    conn.close()
+    resp = Response(json.dumps(dump, ensure_ascii=False, default=str), mimetype="application/json")
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+@app.route("/api/admin/maintenance/fix-records", methods=["POST"])
+def api_admin_fix_records():
+    """Yönetici: genel kayıt düzeltme (dry_run varsayılan). Yedek alındıktan sonra apply=true ile çalıştırılır."""
+    admin, err_resp = require_admin()
+    if err_resp:
+        return err_resp
+    import migrate_fix_records as mfr
+    apply_changes = bool((request.get_json(silent=True) or {}).get("apply"))
+    stats = mfr.run(apply_changes)
+    log_admin_action(admin["id"], None, "FIX_RECORDS", f"apply={apply_changes} stats={json.dumps(stats)}")
+    return jsonify({"applied": apply_changes, "stats": stats})
+
+
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({"error": "Sunucu hatası oluştu. Lütfen tekrar deneyin."}), 500
