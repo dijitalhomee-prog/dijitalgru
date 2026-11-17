@@ -20,11 +20,22 @@ from qr_engine import generate_qr_image
 from payments import create_checkout_form, verify_and_process_iyzico_callback, PLANS
 from cloud_storage import upload_file_to_cloud
 import meta_capi
+from qr_utils import (
+    SOCIAL_TYPES, VCARD_TYPES, MENU_TYPES, STATIC_TYPES, WHATSAPP_TYPES, DYNAMIC_TYPES,
+    normalize_social_links, normalize_phone_for_wa, is_valid_wa_number, normalize_phone_e164,
+    static_content_for, parse_wifi, parse_phone, parse_sms, parse_whatsapp_target,
+    is_bot_request, mask_ip, to_istanbul, fmt_istanbul, TR_TZ_NAME,
+)
+from qr_service import (
+    clean_text, loads, sanitize_settings, validate_content, resolve_target, SOCIAL_LABELS,
+)
+from plan_limits import FREE_DYNAMIC_LIMIT, limit_for_plan, plan_has_logo
 from migrate_db import run_migrations
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 app.config["SECRET_KEY"] = os.environ.get("JWT_SECRET", "dijitalgru_qr_secret_key_2026")
+app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 # Initialize Database and Migrations on Startup
 try:
@@ -168,118 +179,155 @@ def _is_owner_trial_expired(qr_id):
         pass
     return False
 
+def _error_page(heading, message, icon, status):
+    resp = make_response(render_template("qr_error.html", heading=heading, message=message, icon=icon), status)
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+def _err_not_found():
+    return _error_page("QR Kod Bulunamadı", "Aradığınız QR kod sistemde bulunamadı veya silinmiş olabilir.", "🔍", 404)
+
+
+def _err_paused():
+    return _error_page("Bu QR Kod Pasife Alınmış", "Bu QR kod şu anda aktif değil. Lütfen QR kodun sahibiyle iletişime geçin.", "⏸️", 403)
+
+
+def _err_target_missing():
+    return _error_page("Hedef Adres Bulunamadı", "Bu QR kod için geçerli bir hedef tanımlanmamış. Lütfen QR kodun sahibiyle iletişime geçin.", "🧭", 404)
+
+
+def _err_suspended():
+    return _error_page("Hesap Askıya Alınmış", "Bu QR kodun bağlı olduğu hesap askıya alınmıştır.", "🚫", 403)
+
+
+def _find_qr(ident):
+    """short_code / custom_slug (veya eski sayısal id) ile QR + sahip bilgilerini bulur."""
+    sql = """
+        SELECT q.id, q.type, q.target_url, q.status, q.user_id, q.short_code, q.custom_slug, q.title,
+               u.plan, u.subscription_end, u.account_status
+        FROM qr_codes q LEFT JOIN users u ON q.user_id = u.id
+        WHERE {where}
+    """
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(sql.format(where="q.short_code = ? OR q.custom_slug = ?"), (ident, ident))
+        row = cur.fetchone()
+        legacy = False
+        if not row and str(ident).isdigit() and len(str(ident)) <= 9:
+            cur.execute(sql.format(where="q.id = ?"), (int(ident),))
+            row = cur.fetchone()
+            legacy = True
+        cur.close()
+        return (dict(row), legacy) if row else (None, False)
+    finally:
+        conn.close()
+
+
+def _fetch_page_row(table, qr_id):
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute(f"SELECT * FROM {table} WHERE qr_id = ?", (qr_id,))
+        row = cur.fetchone()
+        cur.close()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def _request_visitor():
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr or "127.0.0.1").split(",")[0].strip()
+    return ip, request.headers.get("User-Agent", "")
+
+
+def _maybe_log_scan(qr_id):
+    """Bot / önizleme / HEAD isteklerini taramaya sayma."""
+    ip, ua = _request_visitor()
+    if is_bot_request(ua, request.method):
+        return
+    threading.Thread(target=_log_scan_async, args=(qr_id, ip, ua), daemon=True).start()
+
+
+def _owner_gate(qr):
+    """Sahibin hesap/deneme durumuna göre erişim kararı. None -> devam."""
+    if qr.get("account_status") == "suspended":
+        return _err_suspended()
+    now = int(time.time())
+    if qr.get("plan") == "free" and qr.get("subscription_end") and qr["subscription_end"] < now:
+        return redirect("https://qrdijitalgru.com", code=302)
+    if qr.get("status") in ("passive", "paused", "deleted", "archived"):
+        return _err_paused()
+    return None
+
+
+def _page_url(kind, qr):
+    return f"/p/{kind}/{qr.get('short_code')}"
+
+
 @app.route("/r/<short_code>")
 def redirect_qr(short_code):
     """
-    Ultra-fast Dynamic QR short URL redirect engine (<50ms).
-    Target is ALWAYS the QR's own target_url/file.
-    If free trial has expired, redirects directly to DijitalGru QR homepage.
+    Dinamik QR yönlendirme motoru. Hem yeni hem de eskiden basılmış kayıtlar türe göre çözülür
+    (statik türler, sosyal medya, WhatsApp, mikro sayfalar). Hata sayfaları marka tasarımlıdır.
     """
-    conn = get_db()
-    cursor = conn.cursor()
-    
     try:
-        cursor.execute("""
-        SELECT q.id, q.type, q.target_url, q.status, q.user_id, u.plan, u.subscription_end, u.account_status
-        FROM qr_codes q
-        LEFT JOIN users u ON q.user_id = u.id
-        WHERE q.short_code = ? OR q.custom_slug = ?
-        """, (short_code, short_code))
-        qr_row = cursor.fetchone()
-        cursor.close()
+        qr, _legacy = _find_qr(short_code)
     except Exception as ex:
-        conn.rollback()
-        conn.close()
         print(f"[/r/{short_code}] DB lookup error:", ex)
-        return "<h3>⚠️ Sunucu Hatası</h3><p>Yönlendirme sırasında bir Hata oluştu.</p>", 500
-        
-    conn.close()
-    
-    if not qr_row:
-        return "<h3>⚠️ QR Kod Bulunamadı</h3><p>Aradığınız QR kod sistemde bulunamadı veya silinmiş olabilir.</p>", 404
-        
-    qr = dict(qr_row)
-    qr_id = qr["id"]
-    status = qr.get("status", "active")
-    target_url = (qr.get("target_url") or "").strip()
-    user_plan = qr.get("plan")
-    sub_end = qr.get("subscription_end")
-    acc_status = qr.get("account_status", "active")
-    
-    if acc_status == "suspended":
-        return "<h3>🚫 Hesabınız Askıya Alınmıştır</h3><p>Lütfen destek ekibi ile iletişime geçin.</p>", 403
+        return _error_page("Geçici Bir Sorun Oluştu", "Yönlendirme sırasında bir hata oluştu. Lütfen biraz sonra tekrar deneyin.", "⚠️", 500)
 
-    now = int(time.time())
-    # If 7-day free trial has expired and user hasn't bought a paid plan, redirect scan to main website
-    if user_plan == "free" and sub_end and sub_end < now:
-        return redirect("https://qrdijitalgru.com", code=302)
-    
-    if status in ["passive", "paused", "deleted", "archived"]:
-        return "<h3>🟡 Bu QR Kod Pasife Alınmıştır</h3><p>Bu QR kod şu anda aktif değildir.</p>", 403
-        
-    if not target_url:
-        try:
-            conn_repair = get_db()
-            r_cursor = conn_repair.cursor()
-            r_cursor.execute("SELECT pdf_url FROM menu_pages WHERE qr_id = ?", (qr_id,))
-            mrow = r_cursor.fetchone()
-            if mrow:
-                m_pdf = mrow["pdf_url"] if isinstance(mrow, dict) else mrow[0]
-                if m_pdf and (m_pdf.startswith("/") or m_pdf.startswith("http")):
-                    target_url = m_pdf
-                else:
-                    target_url = f"micropage://menu/{qr_id}"
-            else:
-                r_cursor.execute("SELECT id FROM vcard_pages WHERE qr_id = ?", (qr_id,))
-                vrow = r_cursor.fetchone()
-                if vrow:
-                    target_url = f"micropage://vcard/{qr_id}"
-                elif qr.get("type") in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"]:
-                    target_url = f"micropage://menu/{qr_id}"
-                elif qr.get("type") in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"]:
-                    target_url = f"micropage://vcard/{qr_id}"
+    # /r/ yalnızca short_code/custom_slug ile çalışır (sıralı id ile gezmeyi engelle)
+    if not qr or (qr.get("short_code") != short_code and qr.get("custom_slug") != short_code):
+        return _err_not_found()
 
-            if target_url:
-                r_cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (target_url, qr_id))
-                conn_repair.commit()
-            r_cursor.close()
-            conn_repair.close()
-        except Exception as repair_ex:
-            print(f"[/r/{short_code}] Target URL repair note:", repair_ex)
+    gate = _owner_gate(qr)
+    if gate is not None:
+        return gate
 
-    if not target_url:
-        return "<h3>⚠️ Hedef Adres Bulunamadı</h3><p>Bu QR kod için geçerli bir hedef bulunamadı.</p>", 404
+    vcard = menu = None
+    t = qr.get("type")
+    try:
+        if t in VCARD_TYPES or t in SOCIAL_TYPES or t == "social":
+            vcard = _fetch_page_row("vcard_pages", qr["id"])
+        if t in MENU_TYPES:
+            menu = _fetch_page_row("menu_pages", qr["id"])
+    except Exception as ex:
+        print(f"[/r/{short_code}] page lookup note:", ex)
 
-    # ---- Async Scan Analytics Logging (Non-blocking Thread) ----
-    visitor_ip = request.headers.get("X-Forwarded-For", request.remote_addr or "127.0.0.1").split(',')[0].strip()
-    user_agent = request.headers.get("User-Agent", "")
-    
-    threading.Thread(
-        target=_log_scan_async,
-        args=(qr_id, visitor_ip, user_agent),
-        daemon=True
-    ).start()
+    res = resolve_target(qr, vcard, menu)
+    kind = res["kind"]
 
-    # ---- Target Resolution: ALWAYS redirect instantly to target_url ----
-    if target_url.endswith(".vcf"):
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
-        row = cursor.fetchone()
-        conn.close()
+    if kind == "error":
+        if res.get("reason") == "social_empty":
+            return _error_page("Profil Bağlantısı Bulunamadı", "Bu QR kod için bir sosyal medya hesabı tanımlanmamış.", "🔗", 404)
+        return _err_target_missing()
+
+    _maybe_log_scan(qr["id"])
+
+    if kind == "redirect":
+        resp = redirect(res["url"], code=302)
+        resp.headers["Cache-Control"] = "no-store"
+        return resp
+    if kind in ("text", "sms", "wifi"):
+        resp = make_response(render_template("static_view.html", kind=kind, data=res["data"]))
+        resp.headers["Cache-Control"] = "no-store"
+        return resp
+    if kind == "social_links":
+        return render_template("social_links.html", links=res["links"])
+    if kind == "micro_vcard":
+        return redirect(_page_url("vcard", qr), code=302)
+    if kind == "micro_menu":
+        return redirect(_page_url("menu", qr), code=302)
+    if kind == "vcf":
+        row = vcard or _fetch_page_row("vcard_pages", qr["id"])
         if row:
-            return render_template("vcard_auto_redirect.html", vcard=dict(row), qr_id=qr_id)
-        return download_vcard(qr_id)
-    elif target_url.startswith("micropage://vcard") or target_url == "vcard":
-        return redirect(f"/p/vcard/{qr_id}", code=302)
-    elif target_url.startswith("micropage://menu") or target_url == "menu" or target_url == "pdf":
-        return redirect(f"/p/menu/{qr_id}", code=302)
-    elif target_url.startswith("/"):
-        return redirect(target_url, code=302)
-    elif not (target_url.startswith("http://") or target_url.startswith("https://")):
-        target_url = "https://" + target_url
-        
-    return redirect(target_url, code=302)
+            return render_template("vcard_auto_redirect.html", vcard=row, qr_id=qr["id"],
+                                   vcf_url=f"/p/vcard/{qr['short_code']}.vcf")
+        return _err_target_missing()
+    return _err_target_missing()
+
 
 def _clean_media_url(url):
     if not url:
@@ -288,159 +336,209 @@ def _clean_media_url(url):
     import re
     return re.sub(r'^https?://(?:qrdijitalgru\.com)?/*p/media/', '/p/media/', url_str, flags=re.IGNORECASE)
 
-@app.route("/p/vcard/<int:qr_id>")
-def public_vcard(qr_id):
-    if _is_owner_trial_expired(qr_id):
-        return redirect("https://qrdijitalgru.com", code=302)
-        
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    if not row:
-        return "Kartvizit Bulunamadı", 404
-        
-    vcard_data = dict(row)
-    if vcard_data.get("card_image_url"):
-        vcard_data["card_image_url"] = _clean_media_url(vcard_data["card_image_url"])
-    if vcard_data.get("avatar_url"):
-        vcard_data["avatar_url"] = _clean_media_url(vcard_data["avatar_url"])
 
-    social_links = {}
-    if vcard_data.get("social_links"):
-        try:
-            if isinstance(vcard_data["social_links"], str):
-                social_links = json.loads(vcard_data["social_links"])
-            elif isinstance(vcard_data["social_links"], dict):
-                social_links = vcard_data["social_links"]
-        except Exception:
-            social_links = {}
+def _json_load(v, default):
+    if isinstance(v, (dict, list)):
+        return v
+    if not v:
+        return default
+    try:
+        return json.loads(v)
+    except Exception:
+        return default
 
-    theme_data = {}
-    if vcard_data.get("theme_settings"):
-        try:
-            if isinstance(vcard_data["theme_settings"], str):
-                theme_data = json.loads(vcard_data["theme_settings"])
-            elif isinstance(vcard_data["theme_settings"], dict):
-                theme_data = vcard_data["theme_settings"]
-        except Exception:
-            theme_data = {}
 
-    return render_template("vcard_template.html", vcard=vcard_data, social=social_links, theme=theme_data)
+def _wa_digits_for(phone):
+    d = normalize_phone_for_wa(phone) if phone else ""
+    return d if is_valid_wa_number(d) else ""
 
-@app.route("/p/vcard/<int:qr_id>.vcf")
-def download_vcard(qr_id):
-    if _is_owner_trial_expired(qr_id):
-        return redirect("https://qrdijitalgru.com", code=302)
-        
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    if not row:
-        return "Kartvizit Bulunamadı", 404
-        
-    v = dict(row)
-    name = v.get("full_name", "Kişi Kartı")
-    title = v.get("title", "")
-    org = v.get("company", "")
-    phone = v.get("phone", "")
-    phone2 = v.get("phone2", "")
-    email = v.get("email", "")
-    website = v.get("website", "")
-    address = v.get("address", "")
-    bio = v.get("bio", "")
-    
-    vcard_lines = [
-        "BEGIN:VCARD",
-        "VERSION:3.0",
-        f"FN;CHARSET=UTF-8:{name}",
-        f"N;CHARSET=UTF-8:{name};;;;",
-    ]
-    if title:
-        vcard_lines.append(f"TITLE;CHARSET=UTF-8:{title}")
-    if org:
-        vcard_lines.append(f"ORG;CHARSET=UTF-8:{org}")
-    if phone:
-        vcard_lines.append(f"TEL;TYPE=CELL:{phone}")
-    if phone2:
-        vcard_lines.append(f"TEL;TYPE=WORK:{phone2}")
-    if email:
-        vcard_lines.append(f"EMAIL;TYPE=INTERNET:{email}")
-    if website:
-        vcard_lines.append(f"URL:{website}")
-    if address:
-        vcard_lines.append(f"ADR;CHARSET=UTF-8:;;{address};;;;")
-    if bio:
-        vcard_lines.append(f"NOTE;CHARSET=UTF-8:{bio}")
-    vcard_lines.append("END:VCARD")
-    
-    vcard_content = "\r\n".join(vcard_lines)
-    user_agent = request.headers.get("User-Agent", "").lower()
-    
-    # Use text/x-vcard on Android OS and system components to trigger native Contacts import intent directly
-    is_android = any(k in user_agent for k in ["android", "dalvik", "stagefright", "downloadmanager"])
-    mimetype = "text/x-vcard" if is_android else "text/vcard"
-    response = Response(vcard_content, mimetype=mimetype)
-    safe_filename = "".join(c for c in name if c.isalnum() or c in (" ", "_", "-")).strip() or "kisi"
-    disposition = "inline" if ("iphone" in user_agent or "ipad" in user_agent or is_android or "mobile" in user_agent) else "attachment"
-    response.headers["Content-Disposition"] = f'{disposition}; filename="{safe_filename}.vcf"'
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    return response
 
-@app.route("/p/menu/<int:qr_id>")
-def public_menu(qr_id):
-    if _is_owner_trial_expired(qr_id):
-        return redirect("https://qrdijitalgru.com", code=302)
-        
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM menu_pages WHERE qr_id = ?", (qr_id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    if not row:
-        return "Menü Bulunamadı", 404
-        
-    menu_data = dict(row)
-    if menu_data.get("card_image_url"):
-        menu_data["card_image_url"] = _clean_media_url(menu_data["card_image_url"])
-    if menu_data.get("cover_url"):
-        menu_data["cover_url"] = _clean_media_url(menu_data["cover_url"])
-    if menu_data.get("pdf_url"):
-        menu_data["pdf_url"] = _clean_media_url(menu_data["pdf_url"])
+def _vcf_escape(s):
+    return (str(s or "").replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,")
+            .replace("\r\n", "\\n").replace("\n", "\\n").replace("\r", "\\n"))
 
+
+def _vcf_fold(line):
+    """RFC 6350: 75 oktetten uzun satırları katla."""
+    raw = line.encode("utf-8")
+    if len(raw) <= 75:
+        return line
+    out, cur = [], ""
+    for ch in line:
+        if len((cur + ch).encode("utf-8")) > (75 if not out else 74):
+            out.append(cur)
+            cur = ch
+        else:
+            cur += ch
+    out.append(cur)
+    return "\r\n ".join(out)
+
+
+def _split_name(full):
+    parts = str(full or "").strip().split()
+    if len(parts) <= 1:
+        return (parts[0] if parts else ""), ""
+    return " ".join(parts[:-1]), parts[-1]
+
+
+def _vcf_photo_line(avatar_url):
+    if not avatar_url:
+        return None
+    avatar_url = _clean_media_url(avatar_url)
+    data = _load_media_bytes(avatar_url) if str(avatar_url).startswith("/p/media/") else None
+    if data:
+        ptype = "PNG" if data[:8] == b"\x89PNG\r\n\x1a\n" else ("GIF" if data[:3] == b"GIF" else "JPEG")
+        return _vcf_fold(f"PHOTO;ENCODING=b;TYPE={ptype}:" + base64.b64encode(data).decode("ascii"))
+    if re.match(r"^https?://", str(avatar_url), re.I):
+        return _vcf_fold(f"PHOTO;VALUE=uri:{avatar_url}")
+    return None
+
+
+def build_vcf(v, qr_type="vcard"):
+    """Rehber dosyası: N:Soyad;Ad;;; , E.164 numaralar, PHOTO, URL ve X-SOCIALPROFILE."""
+    name = (v.get("full_name") or "").strip() or "Kişi Kartı"
+    first, last = _split_name(name)
+    lines = ["BEGIN:VCARD", "VERSION:3.0",
+             f"FN;CHARSET=UTF-8:{_vcf_escape(name)}",
+             f"N;CHARSET=UTF-8:{_vcf_escape(last)};{_vcf_escape(first)};;;"]
+    if v.get("title"):
+        lines.append(f"TITLE;CHARSET=UTF-8:{_vcf_escape(v['title'])}")
+    if v.get("company"):
+        lines.append(f"ORG;CHARSET=UTF-8:{_vcf_escape(v['company'])}")
+    if v.get("phone"):
+        lines.append(f"TEL;TYPE=CELL:{normalize_phone_e164(v['phone'])}")
+    if v.get("phone2"):
+        lines.append(f"TEL;TYPE=WORK:{normalize_phone_e164(v['phone2'])}")
+    for c in (v.get("_contacts") or [])[:12]:
+        if c.get("phone"):
+            lines.append(f"TEL;TYPE=WORK:{normalize_phone_e164(c['phone'])}")
+        if c.get("email"):
+            lines.append(f"EMAIL;TYPE=INTERNET:{c['email']}")
+    if v.get("email"):
+        lines.append(f"EMAIL;TYPE=INTERNET:{v['email']}")
+    if v.get("website"):
+        lines.append(f"URL:{v['website']}")
+    social = normalize_social_links(_json_load(v.get("social_links"), {}))
+    for k, url in social.items():
+        lines.append(f"URL;TYPE={k}:{url}")
+        lines.append(f"X-SOCIALPROFILE;TYPE={k}:{url}")
+    if v.get("address"):
+        lines.append(f"ADR;CHARSET=UTF-8:;;{_vcf_escape(v['address'])};;;;")
+    if v.get("bio"):
+        lines.append(f"NOTE;CHARSET=UTF-8:{_vcf_escape(v['bio'])}")
+    photo = _vcf_photo_line(v.get("avatar_url"))
+    if photo:
+        lines.append(photo)
+    lines.append("END:VCARD")
+    return "\r\n".join(lines) + "\r\n"
+
+
+def _micro_gate(ident):
+    qr, legacy = _find_qr(ident)
+    if not qr:
+        return None, None, _err_not_found()
+    gate = _owner_gate(qr)
+    if gate is not None:
+        return None, None, gate
+    return qr, legacy, None
+
+
+@app.route("/p/vcard/<ident>")
+def public_vcard(ident):
+    want_vcf = ident.endswith(".vcf")
+    if want_vcf:
+        ident = ident[:-4]
+    qr, legacy, err = _micro_gate(ident)
+    if err is not None:
+        return err
+    t = qr.get("type")
+    if t in SOCIAL_TYPES or t == "social":
+        return redirect(f"/r/{qr['short_code']}", code=302)
+
+    # Eski sayısal URL'ler aynı sayfanın rastgele kodlu adresine yönlenir
+    if legacy and ident != qr.get("short_code"):
+        return redirect(f"/p/vcard/{qr['short_code']}" + (".vcf" if want_vcf else ""), code=302)
+
+    v = _fetch_page_row("vcard_pages", qr["id"])
+    if not v:
+        return _error_page("Kartvizit Bulunamadı", "Bu kartvizit sayfası bulunamadı.", "📇", 404)
+
+    for k in ("card_image_url", "avatar_url"):
+        if v.get(k):
+            v[k] = _clean_media_url(v[k])
+    company = _json_load(v.get("extra_json"), {}) if t == "company_card" else {}
+    if company.get("logo_url"):
+        company["logo_url"] = _clean_media_url(company["logo_url"])
+
+    if want_vcf:
+        v["_contacts"] = company.get("contacts") if company else []
+        content = build_vcf(v, t)
+        ua = request.headers.get("User-Agent", "").lower()
+        is_android = any(k in ua for k in ["android", "dalvik", "stagefright", "downloadmanager"])
+        resp = Response(content, mimetype="text/x-vcard" if is_android else "text/vcard")
+        safe = _ascii_filename(v.get("full_name"), "kisi")
+        disposition = "inline" if ("iphone" in ua or "ipad" in ua or is_android or "mobile" in ua) else "attachment"
+        resp.headers["Content-Disposition"] = f'{disposition}; filename="{safe}.vcf"'
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        return resp
+
+    social = normalize_social_links(_json_load(v.get("social_links"), {}))
+    theme = _json_load(v.get("theme_settings"), {})
+    vcf_url = f"/p/vcard/{qr['short_code']}.vcf"
+    phone_e164 = normalize_phone_e164(v.get("phone")) if v.get("phone") else ""
+    wa_digits = _wa_digits_for(v.get("phone"))
+
+    if t == "company_card":
+        contacts = []
+        for c in company.get("contacts") or []:
+            contacts.append({"name": c.get("name"), "title": c.get("title"), "email": c.get("email"),
+                             "tel": normalize_phone_e164(c["phone"]) if c.get("phone") else "",
+                             "wa": _wa_digits_for(c.get("phone"))})
+        social_list = [(k, SOCIAL_LABELS.get(k, k.title()), u) for k, u in social.items()]
+        return render_template("company_template.html", vcard=v, company=company, contacts=contacts,
+                               social_list=social_list, theme=theme, vcf_url=vcf_url, phone_e164=phone_e164)
+
+    return render_template("vcard_template.html", vcard=v, social=social, theme=theme, vcf_url=vcf_url,
+                           phone_e164=phone_e164, wa_digits=wa_digits)
+
+
+@app.route("/p/menu/<ident>")
+def public_menu(ident):
+    qr, legacy, err = _micro_gate(ident)
+    if err is not None:
+        return err
+    if legacy and ident != qr.get("short_code"):
+        return redirect(f"/p/menu/{qr['short_code']}", code=302)
+
+    menu_data = _fetch_page_row("menu_pages", qr["id"])
+    if not menu_data:
+        return _error_page("Menü Bulunamadı", "Bu menü / katalog sayfası bulunamadı.", "📄", 404)
+
+    for k in ("card_image_url", "cover_url", "pdf_url"):
+        if menu_data.get(k):
+            menu_data[k] = _clean_media_url(menu_data[k])
     pdf_url = menu_data.get("pdf_url")
-    if pdf_url in ["None", "null", "undefined", ""]:
+    if pdf_url in ("None", "null", "undefined", ""):
         pdf_url = None
         menu_data["pdf_url"] = None
-        
-    if menu_data.get("categories"):
-        try:
-            menu_data["categories"] = json.loads(menu_data["categories"])
-        except Exception:
-            menu_data["categories"] = []
-    else:
-        menu_data["categories"] = []
-        
-    # If PDF exists and no categories, redirect directly to PDF file for instant viewing
-    if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")) and not menu_data["categories"]:
-        return redirect(pdf_url)
-        
-    theme_data = {}
-    if menu_data.get("theme_settings"):
-        try:
-            if isinstance(menu_data["theme_settings"], str):
-                theme_data = json.loads(menu_data["theme_settings"])
-            elif isinstance(menu_data["theme_settings"], dict):
-                theme_data = menu_data["theme_settings"]
-        except Exception:
-            theme_data = {}
 
+    cats = _json_load(menu_data.get("categories"), [])
+    clean_cats = []
+    for c in cats if isinstance(cats, list) else []:
+        items = [it for it in (c.get("items") or []) if isinstance(it, dict) and (it.get("name") or "").strip()]
+        for it in items:
+            it["description"] = (it.get("description") or it.get("desc") or "").strip()
+        if items:
+            clean_cats.append({"name": c.get("name") or "", "items": items})
+    menu_data["categories"] = clean_cats
+
+    # Yalnızca PDF varsa ve ürün yoksa doğrudan PDF'e git
+    if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")) and not clean_cats \
+            and not (menu_data.get("contact_name") or menu_data.get("phone") or menu_data.get("email")
+                     or menu_data.get("address") or menu_data.get("website") or menu_data.get("card_image_url")):
+        return redirect(pdf_url)
+
+    theme_data = _json_load(menu_data.get("theme_settings"), {})
     return render_template("menu_template.html", menu=menu_data, theme=theme_data)
 
 # --- REST API Endpoints ---
@@ -602,17 +700,38 @@ def serve_media(file_code):
 
     local_path = os.path.join(app.static_folder, "uploads", "media", f"{file_code}.{safe_ext}")
     if os.path.exists(local_path):
-        return send_file(local_path, mimetype=content_type)
+        resp = send_file(local_path, mimetype=content_type)
+        resp.headers["X-Content-Type-Options"] = "nosniff"
+        return resp
 
     try:
         raw_bytes = base64.b64decode(file_data["data_b64"])
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
         with open(local_path, "wb") as f:
             f.write(raw_bytes)
-        return send_file(local_path, mimetype=content_type)
+        resp = send_file(local_path, mimetype=content_type)
+        resp.headers["X-Content-Type-Options"] = "nosniff"
+        return resp
     except Exception as ex:
         print(f"Media decode error for {file_code}:", ex)
         return "Dosya Okunamadı", 500
+
+MAX_PDF_BYTES = 15 * 1024 * 1024
+MAX_IMAGE_BYTES = 5 * 1024 * 1024
+
+
+def _sniff_image(data):
+    """Dosya içeriğine (magic bytes) bakarak görsel türünü döndürür; SVG vb. reddedilir."""
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return "png", "image/png"
+    if data[:3] == b"\xff\xd8\xff":
+        return "jpg", "image/jpeg"
+    if data[:6] in (b"GIF87a", b"GIF89a"):
+        return "gif", "image/gif"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp", "image/webp"
+    return None, None
+
 
 @app.route("/api/upload/pdf", methods=["POST"])
 def api_upload_pdf():
@@ -630,7 +749,11 @@ def api_upload_pdf():
     if not file.filename.lower().endswith(".pdf"):
         return jsonify({"error": "Sadece PDF formatındaki dosyalar yüklenebilir."}), 400
         
-    pdf_bytes = file.read()
+    pdf_bytes = file.read(MAX_PDF_BYTES + 1)
+    if len(pdf_bytes) > MAX_PDF_BYTES:
+        return jsonify({"error": "PDF dosyası en fazla 15 MB olabilir."}), 413
+    if not pdf_bytes.lstrip()[:5] == b"%PDF-" and pdf_bytes[:5] != b"%PDF-":
+        return jsonify({"error": "Dosya geçerli bir PDF değil."}), 400
     pdf_url, file_code = upload_file_to_cloud(pdf_bytes, file.filename, content_type="application/pdf")
     
     return jsonify({"status": "success", "pdf_url": pdf_url, "filename": file.filename})
@@ -638,23 +761,27 @@ def api_upload_pdf():
 @app.route("/api/upload/avatar", methods=["POST"])
 @app.route("/api/upload/image", methods=["POST"])
 def api_upload_image():
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Lütfen önce giriş yapın."}), 401
     file = request.files.get("avatar_file") or request.files.get("image_file") or request.files.get("file")
     if not file or file.filename == "":
         return jsonify({"error": "Lütfen bir görsel dosyası seçin."}), 400
-        
-    ext = file.filename.split(".")[-1].lower() if "." in file.filename else ""
-    if ext not in ["jpg", "jpeg", "png", "webp", "gif", "svg"]:
+
+    img_bytes = file.read(MAX_IMAGE_BYTES + 1)
+    if len(img_bytes) > MAX_IMAGE_BYTES:
+        return jsonify({"error": "Görsel en fazla 5 MB olabilir."}), 413
+    ext, content_type = _sniff_image(img_bytes)
+    if not ext:
         return jsonify({"error": "Sadece JPG, PNG, WEBP veya GIF görselleri yüklenebilir."}), 400
-        
-    img_bytes = file.read()
-    content_type = f"image/{'jpeg' if ext in ['jpg', 'jpeg'] else ext}"
-    image_url, file_code = upload_file_to_cloud(img_bytes, file.filename, content_type=content_type)
+    safe_name = (file.filename.rsplit(".", 1)[0] or "image")[:60] + "." + ext
+    image_url, file_code = upload_file_to_cloud(img_bytes, safe_name, content_type=content_type)
     
     return jsonify({
         "status": "success", 
         "avatar_url": image_url, 
         "image_url": image_url, 
-        "filename": file.filename
+        "filename": safe_name
     })
 
 def sanitize_slug(slug):
@@ -664,6 +791,138 @@ def sanitize_slug(slug):
     clean = str(slug).translate(tr_map).lower().strip().replace(' ', '-')
     clean = re.sub(r'[^a-z0-9_-]', '', clean)
     return clean[:50] if clean else None
+
+def _json_str(v, default="{}"):
+    """dict/list/JSON-str -> güvenli JSON string"""
+    if v is None or v == "":
+        return default
+    if isinstance(v, (dict, list)):
+        return json.dumps(v, ensure_ascii=False)
+    try:
+        json.loads(v)
+        return v
+    except Exception:
+        return default
+
+
+def _load_media_bytes(url):
+    """/p/media/<kod> ile yüklenmiş görseli (logo) veritabanından okur."""
+    m = re.match(r"^/p/media/([A-Za-z0-9_\-]+)", str(url or ""))
+    if not m:
+        return None
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT data_b64 FROM pdf_files WHERE file_code = ?", (m.group(1),))
+        row = cur.fetchone()
+        conn.close()
+        return base64.b64decode(row["data_b64"]) if row else None
+    except Exception as ex:
+        print("[logo] load error:", ex)
+        return None
+
+
+def _qr_content_for(qr, base_url, prefer_slug=False):
+    """QR görseline yazılacak içerik: statik türlerde ham standart içerik, dinamiklerde /r/ kısa linki."""
+    t = qr.get("type")
+    if t in STATIC_TYPES:
+        return static_content_for(t, qr.get("target_url"))
+    code = (qr.get("custom_slug") if prefer_slug else None) or qr.get("short_code", "")
+    return f"{base_url}/r/{code}"
+
+
+def _render_qr(qr, fmt, base_url, prefer_slug=False):
+    settings = loads(qr.get("custom_settings"), {})
+    if not isinstance(settings, dict):
+        settings = {}
+    render_settings = dict(settings)
+    if settings.get("logo_url"):
+        lb = _load_media_bytes(settings.get("logo_url"))
+        if lb:
+            render_settings["_logo_bytes"] = lb
+    return generate_qr_image(_qr_content_for(qr, base_url, prefer_slug), render_settings, format=fmt)
+
+
+def _upsert_page(cursor, table, qr_id, values):
+    """vcard_pages / menu_pages için ekle ya da yalnızca verilen kolonları güncelle."""
+    cursor.execute(f"SELECT id FROM {table} WHERE qr_id = ?", (qr_id,))
+    exists = cursor.fetchone()
+    cols = list(values.keys())
+    if exists:
+        if cols:
+            sets = ", ".join(f"{c} = ?" for c in cols)
+            cursor.execute(f"UPDATE {table} SET {sets} WHERE qr_id = ?", [values[c] for c in cols] + [qr_id])
+    else:
+        names = ["qr_id"] + cols
+        marks = ", ".join("?" for _ in names)
+        cursor.execute(f"INSERT INTO {table} ({', '.join(names)}) VALUES ({marks})", [qr_id] + [values[c] for c in cols])
+
+
+def _apply_content(cursor, qr_id, short_code, qr_type, clean, data, partial, current_target=""):
+    """Doğrulanmış içeriği sayfa tablolarına yazar ve qr_codes.target_url değerini döndürür."""
+    target = clean.get("target_url") or ""
+    card = clean.get("vcard")
+    menu = clean.get("menu")
+
+    if card is not None:
+        vp = data.get("vcard_payload") if isinstance(data.get("vcard_payload"), dict) else {}
+        present = set(vp.keys()) if partial else None
+        vals = {
+            "full_name": card.get("full_name"), "title": card.get("title"), "company": card.get("company"),
+            "phone": card.get("phone"), "phone2": card.get("phone2"), "email": card.get("email"),
+            "website": card.get("website"), "address": card.get("address"), "bio": card.get("bio"),
+            "avatar_url": card.get("avatar_url"), "card_image_url": card.get("card_image_url"),
+            "social_links": json.dumps(card.get("social_links") or {}, ensure_ascii=False),
+            "theme_settings": _json_str(card.get("theme_settings"), None),
+            "extra_json": json.dumps(card.get("extra"), ensure_ascii=False) if card.get("extra") else None,
+        }
+        if present is not None:
+            keep = {"extra_json": "company_info"}
+            vals = {k: v for k, v in vals.items() if keep.get(k, k) in present}
+            # Sosyal türlerde sadece social_links güncellenir
+        if qr_type in SOCIAL_TYPES or qr_type == "social":
+            vals = {k: v for k, v in vals.items() if k in ("social_links", "theme_settings")}
+        _upsert_page(cursor, "vcard_pages", qr_id, vals)
+        if qr_type in SOCIAL_TYPES:
+            target = clean["target_url"]
+        elif qr_type == "social":
+            target = f"micropage://social/{qr_id}"
+        elif qr_type == "vcard" and (card.get("direct_redirect") if not (partial and "direct_redirect" not in vp) else str(current_target).endswith(".vcf")):
+            target = f"/p/vcard/{short_code}.vcf"
+        else:
+            target = f"micropage://vcard/{qr_id}"
+
+    if menu is not None:
+        mp = data.get("menu_payload") if isinstance(data.get("menu_payload"), dict) else {}
+        present = set(mp.keys()) if partial else None
+        vals = {
+            "title": menu.get("title"), "description": menu.get("description"), "cover_url": menu.get("cover_url"),
+            "pdf_url": menu.get("pdf_url"),
+            "categories": json.dumps(menu.get("categories") or [], ensure_ascii=False),
+            "contact_name": menu.get("contact_name"), "contact_title": menu.get("contact_title"),
+            "phone": menu.get("phone"), "phone2": menu.get("phone2"), "email": menu.get("email"),
+            "website": menu.get("website"), "address": menu.get("address"),
+            "card_image_url": menu.get("card_image_url"),
+            "social_links": json.dumps(menu.get("social_links") or {}, ensure_ascii=False),
+            "theme_settings": _json_str(menu.get("theme_settings"), None),
+        }
+        if present is not None:
+            vals = {k: v for k, v in vals.items() if k in present}
+        _upsert_page(cursor, "menu_pages", qr_id, vals)
+        # Güncel menü satırını oku (kısmi güncellemede doğru hedefi seçmek için)
+        cursor.execute("SELECT pdf_url, categories FROM menu_pages WHERE qr_id = ?", (qr_id,))
+        mrow = cursor.fetchone()
+        cur_pdf = (mrow["pdf_url"] if mrow else None) or None
+        direct_pref = menu.get("direct_redirect") if not (partial and "direct_redirect" not in mp) else (not str(current_target).startswith("micropage://"))
+        if cur_pdf and (cur_pdf.startswith("/") or cur_pdf.startswith("http")) and direct_pref and qr_type != "restaurant_menu":
+            target = cur_pdf
+        else:
+            target = f"micropage://menu/{qr_id}"
+    return target
+
+
+ALL_QR_TYPES = set(DYNAMIC_TYPES) | set(STATIC_TYPES)
+
 
 @app.route("/api/qr/create", methods=["POST"])
 def api_qr_create():
@@ -675,21 +934,24 @@ def api_qr_create():
         return jsonify({
             "error": "7 Günlük Ücretsiz Deneme Süreniz Dolmuştur! QR kodlarınız pasife alınmıştır. Kullanmaya devam etmek ve yeni QR oluşturmak için lütfen bir abonelik paketi satın alın."
         }), 403
-        
-    data = request.json or {}
-    title = data.get("title", "Yeni QR Kod")
-    qr_type = data.get("type", "url") # url, vcard, menu, wifi, whatsapp
-    target_url = data.get("target_url", "")
-    settings = data.get("settings", {})
-    vcard_payload = data.get("vcard_payload")
-    menu_payload = data.get("menu_payload")
+
+    data = request.get_json(silent=True) or {}
+    title = clean_text(data.get("title"), 200) or "Yeni QR Kod"
+    qr_type = str(data.get("type") or "url").strip()
+    if qr_type not in ALL_QR_TYPES:
+        return jsonify({"error": "Geçersiz QR türü.", "field_errors": {"type": "Geçersiz QR türü."}}), 400
+
+    clean, field_errors = validate_content(qr_type, data)
     raw_custom_slug = (data.get("custom_slug") or data.get("slug") or "").strip()
     custom_slug = sanitize_slug(raw_custom_slug)
-    
-    # Generate unique short code
+    if field_errors:
+        return jsonify({"error": next(iter(field_errors.values())), "field_errors": field_errors}), 400
+
+    settings = sanitize_settings(data.get("settings"), logo_allowed=plan_has_logo(user))
+
     short_code = uuid.uuid4().hex[:7]
     now = int(time.time())
-    
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -697,171 +959,95 @@ def api_qr_create():
         cursor.execute("SELECT id FROM qr_codes WHERE short_code = ? OR custom_slug = ?", (custom_slug, custom_slug))
         if cursor.fetchone():
             conn.close()
-            return jsonify({"error": f"'{custom_slug}' özel link uzantısı zaten kullanılıyor. Lütfen farklı bir uzantı seçin."}), 400
-    
-    is_dynamic = 1 if qr_type in ["url", "vcard", "company_card", "menu", "pdf_catalog", "pdf_viewer", "restaurant_menu", "social", "dynamic_whatsapp", "instagram", "linkedin", "pinterest", "facebook"] else 0
+            msg = f"'{custom_slug}' özel link uzantısı zaten kullanılıyor. Lütfen farklı bir uzantı seçin."
+            return jsonify({"error": msg, "field_errors": {"custom_slug": msg}}), 400
 
-    # Check user dynamic limits ONLY if creating a dynamic QR code
+    is_dynamic = 1 if qr_type in DYNAMIC_TYPES else 0
+
+    # Sunucu tarafı limit kontrolü (yalnızca dinamik QR) — limit plan tanımından gelir
     if is_dynamic == 1:
         cursor.execute("SELECT COUNT(*) as count FROM qr_codes WHERE user_id = ? AND is_dynamic = 1", (user["id"],))
         count = cursor.fetchone()["count"]
-        
         if count >= user["dynamic_qr_limit"]:
             conn.close()
             return jsonify({"error": f"Paketinizin dinamik QR oluşturma limitine ({user['dynamic_qr_limit']}) ulaştınız. Lütfen paketinizi yükseltin!"}), 403
-            
-    folder_name = (data.get("folder_name") or "Genel").strip() or "Genel"
+
+    folder_name = clean_text(data.get("folder_name"), 100) or "Genel"
 
     cursor.execute("""
     INSERT INTO qr_codes (user_id, short_code, custom_slug, title, type, target_url, is_dynamic, custom_settings, status, folder_name, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
-    """, (user["id"], short_code, custom_slug, title, qr_type, target_url, is_dynamic, json.dumps(settings), folder_name, now, now))
-    
+    """, (user["id"], short_code, custom_slug, title, qr_type, clean["target_url"], is_dynamic, json.dumps(settings), folder_name, now, now))
     qr_id = cursor.lastrowid
-    
-    # Handle micropage payloads
-    if qr_type in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"] and vcard_payload:
-        cursor.execute("""
-        INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, phone2, email, website, address, bio, avatar_url, card_image_url, social_links)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            qr_id,
-            vcard_payload.get("full_name"),
-            vcard_payload.get("title"),
-            vcard_payload.get("company"),
-            vcard_payload.get("phone"),
-            vcard_payload.get("phone2"),
-            vcard_payload.get("email"),
-            vcard_payload.get("website"),
-            vcard_payload.get("address"),
-            vcard_payload.get("bio"),
-            vcard_payload.get("avatar_url"),
-            vcard_payload.get("card_image_url"),
-            json.dumps(vcard_payload.get("social_links", {}))
-        ))
-        direct_vcard = vcard_payload.get("direct_redirect", False)
-        if direct_vcard:
-            cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"/p/vcard/{qr_id}.vcf", qr_id))
-        else:
-            cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://vcard/{qr_id}", qr_id))
-        
-    elif qr_type in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"] and menu_payload:
-        pdf_url = menu_payload.get("pdf_url")
-        if pdf_url in ["None", "null", "undefined", ""]:
-            pdf_url = None
 
-        direct_redirect = menu_payload.get("direct_redirect", True)
+    target = _apply_content(cursor, qr_id, short_code, qr_type, clean, data, partial=False)
+    if target != clean["target_url"]:
+        cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (target, qr_id))
 
-        menu_theme_val = menu_payload.get("theme_settings")
-        if isinstance(menu_theme_val, dict):
-            menu_theme_val = json.dumps(menu_theme_val)
-
-        cursor.execute("""
-        INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, card_image_url, social_links, theme_settings)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            qr_id,
-            menu_payload.get("title"),
-            menu_payload.get("description"),
-            menu_payload.get("cover_url"),
-            pdf_url,
-            json.dumps(menu_payload.get("categories", [])),
-            menu_payload.get("contact_name"),
-            menu_payload.get("contact_title"),
-            menu_payload.get("phone"),
-            menu_payload.get("phone2"),
-            menu_payload.get("email"),
-            menu_payload.get("website"),
-            menu_payload.get("address"),
-            menu_payload.get("card_image_url"),
-            json.dumps(menu_payload.get("social_links", {})),
-            menu_theme_val
-        ))
-        
-        # If PDF is uploaded AND direct_redirect is True, redirect QR scans DIRECTLY to the PDF file!
-        if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")) and direct_redirect:
-            cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (pdf_url, qr_id))
-        else:
-            cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
-    elif qr_type in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"] and not target_url:
-        cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://menu/{qr_id}", qr_id))
-    elif qr_type in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"] and not target_url:
-        cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (f"micropage://vcard/{qr_id}", qr_id))
-        
     conn.commit()
     conn.close()
-    
+
     app_url = request.host_url.rstrip("/")
-    redirect_url = f"{app_url}/r/{short_code}"
-    
-    b64_qr = generate_qr_image(redirect_url, settings, format="base64")
-    
+    qr_row = {"type": qr_type, "short_code": short_code, "custom_slug": custom_slug,
+              "target_url": target, "custom_settings": json.dumps(settings)}
+    b64_qr = _render_qr(qr_row, "base64", app_url)
+    qr_content = _qr_content_for(qr_row, app_url)
+
     return jsonify({
         "status": "success",
         "qr_id": qr_id,
         "short_code": short_code,
-        "short_url": redirect_url,
-        "qr_image": b64_qr
+        "short_url": f"{app_url}/r/{short_code}",
+        "qr_image": b64_qr,
+        "qr_content": qr_content
     })
+
+
+def _ascii_filename(title, fallback):
+    tr_map = str.maketrans("çğıöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
+    s = str(title or "").translate(tr_map).lower().strip()
+    s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")[:60]
+    return s or fallback
+
 
 @app.route("/api/qr/<int:qr_id>/download", methods=["GET"])
 def api_qr_download(qr_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Bu işlem için giriş yapmanız gerekir."}), 401
     try:
         fmt = (request.args.get("format") or "png").lower()
-        
+        if fmt not in ("png", "jpg", "jpeg", "svg", "eps", "pdf"):
+            return jsonify({"error": "Desteklenmeyen format. png, jpg, svg, eps veya pdf seçin."}), 400
+
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM qr_codes WHERE id = ?", (qr_id,))
         row = cursor.fetchone()
         conn.close()
-        
-        if not row:
-            return "QR kod bulunamadı", 404
-            
+
+        # Sahiplik kontrolü: sahibi değilse varlığını da belli etme
+        if not row or (row["user_id"] != user["id"] and not user.get("is_admin")):
+            return jsonify({"error": "QR kod bulunamadı."}), 404
+
         qr = dict(row)
         app_url = request.host_url.rstrip("/")
-        redirect_url = f"{app_url}/r/{qr.get('short_code', '')}"
-        
-        settings = {}
-        raw_settings = qr.get("custom_settings")
-        if raw_settings:
-            if isinstance(raw_settings, dict):
-                settings = raw_settings
-            elif isinstance(raw_settings, str):
-                try:
-                    settings = json.loads(raw_settings)
-                except Exception:
-                    settings = {}
-        if not isinstance(settings, dict):
-            settings = {}
-            
-        img_data = generate_qr_image(redirect_url, settings, format=fmt)
-        
-        mimetype = "image/png"
-        if fmt in ["jpg", "jpeg"]:
-            mimetype = "image/jpeg"
-        elif fmt == "svg":
-            mimetype = "image/svg+xml"
-        elif fmt == "eps":
-            mimetype = "application/postscript"
-        elif fmt == "pdf":
-            mimetype = "application/pdf"
-            
-        raw_title = qr.get("title") or f"qr_code_{qr.get('short_code', '')}"
-        title = str(raw_title).strip().replace(" ", "_")
-        filename = f"{title}.{fmt}"
-        
+        img_data = _render_qr(qr, fmt, app_url)
+
+        mimetype = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "svg": "image/svg+xml",
+                    "eps": "application/postscript", "pdf": "application/pdf"}.get(fmt, "image/png")
+        ext = "jpg" if fmt == "jpeg" else fmt
+        filename = f"qr-{_ascii_filename(qr.get('title'), qr.get('short_code') or qr_id)}.{ext}"
+
         buffer = io.BytesIO(img_data)
         buffer.seek(0)
-        return send_file(
-            buffer,
-            mimetype=mimetype,
-            as_attachment=True,
-            download_name=filename
-        )
+        resp = send_file(buffer, mimetype=mimetype, as_attachment=True, download_name=filename)
+        resp.headers["Cache-Control"] = "private, no-store"
+        return resp
     except Exception as e:
         app.logger.error(f"Error downloading QR #{qr_id}: {e}", exc_info=True)
-        return jsonify({"error": f"QR indirme hatası: {str(e)}"}), 500
+        return jsonify({"error": "QR indirme sırasında bir hata oluştu."}), 500
+
 
 @app.route("/api/qr/<int:qr_id>/update", methods=["POST"])
 def api_qr_update(qr_id):
@@ -873,160 +1059,84 @@ def api_qr_update(qr_id):
         return jsonify({
             "error": "7 Günlük Ücretsiz Deneme Süreniz Dolmuştur! QR kodlarınızı düzenlemek için lütfen abonelik paketi satın alın."
         }), 403
-        
-    data = request.json or {}
-    target_url = data.get("target_url")
-    title = data.get("title")
+
+    data = request.get_json(silent=True) or {}
+    title = clean_text(data.get("title"), 200) if data.get("title") is not None else None
     status = data.get("status")
-    menu_payload = data.get("menu_payload")
-    vcard_payload = data.get("vcard_payload")
-    
+
     conn = get_db()
     cursor = conn.cursor()
-    
-    cursor.execute("SELECT id FROM qr_codes WHERE id = ? AND user_id = ?", (qr_id, user["id"]))
-    if not cursor.fetchone():
+
+    cursor.execute("SELECT * FROM qr_codes WHERE id = ? AND user_id = ?", (qr_id, user["id"]))
+    qr_row = cursor.fetchone()
+    if not qr_row:
         conn.close()
         return jsonify({"error": "QR kod bulunamadı."}), 404
-        
+    qr = dict(qr_row)
+    qr_type = qr["type"]
+
     now = int(time.time())
-    if target_url:
-        cursor.execute("UPDATE qr_codes SET target_url = ?, updated_at = ? WHERE id = ?", (target_url, now, qr_id))
+
+    # İçerik alanı geldiyse tür kurallarıyla doğrula (sunucu tarafı)
+    relevant = {
+        "url": ("target_url",),
+        "vcard": ("vcard_payload",), "company_card": ("vcard_payload",), "social": ("vcard_payload",),
+    }.get(qr_type)
+    if relevant is None:
+        if qr_type in STATIC_TYPES:
+            relevant = ("static_payload", "target_url")
+        elif qr_type in WHATSAPP_TYPES:
+            relevant = ("wa_payload", "target_url")
+        elif qr_type in SOCIAL_TYPES:
+            relevant = ("vcard_payload",)
+        else:
+            relevant = ("menu_payload",)
+    has_content = any(data.get(k) is not None for k in relevant)
+    clean = None
+    if has_content:
+        clean, field_errors = validate_content(qr_type, data, legacy_target=qr.get("target_url") or "", partial=True)
+        if field_errors:
+            conn.close()
+            return jsonify({"error": next(iter(field_errors.values())), "field_errors": field_errors}), 400
+
+    new_slug_val = None
+    slug_given = "custom_slug" in data or "slug" in data
+    if slug_given:
+        raw_slug = data.get("custom_slug") if "custom_slug" in data else data.get("slug")
+        new_slug_val = sanitize_slug(raw_slug)
+        if new_slug_val:
+            cursor.execute("SELECT id FROM qr_codes WHERE (short_code = ? OR custom_slug = ?) AND id != ?", (new_slug_val, new_slug_val, qr_id))
+            if cursor.fetchone():
+                conn.close()
+                msg = f"'{new_slug_val}' özel link uzantısı başka bir QR kod tarafından kullanılıyor."
+                return jsonify({"error": msg, "field_errors": {"custom_slug": msg}}), 400
+
+    if has_content:
+        target = _apply_content(cursor, qr_id, qr.get("short_code"), qr_type, clean, data, partial=True, current_target=qr.get("target_url") or "")
+        if qr_type in ("url",) or qr_type in STATIC_TYPES or qr_type in WHATSAPP_TYPES or qr_type in SOCIAL_TYPES:
+            target = clean["target_url"]
+        cursor.execute("UPDATE qr_codes SET target_url = ?, updated_at = ? WHERE id = ?", (target, now, qr_id))
     if title:
         cursor.execute("UPDATE qr_codes SET title = ?, updated_at = ? WHERE id = ?", (title, now, qr_id))
     if status:
+        if status not in ("active", "passive", "paused", "deleted", "archived"):
+            conn.close()
+            return jsonify({"error": "Geçersiz durum."}), 400
         cursor.execute("UPDATE qr_codes SET status = ?, updated_at = ? WHERE id = ?", (status, now, qr_id))
-
-    if "custom_slug" in data or "slug" in data:
-        raw_slug = data.get("custom_slug") if "custom_slug" in data else data.get("slug")
-        clean_slug = sanitize_slug(raw_slug)
-        if clean_slug:
-            cursor.execute("SELECT id FROM qr_codes WHERE (short_code = ? OR custom_slug = ?) AND id != ?", (clean_slug, clean_slug, qr_id))
-            if cursor.fetchone():
-                conn.close()
-                return jsonify({"error": f"'{clean_slug}' özel link uzantısı başka bir QR kod tarafından kullanılıyor."}), 400
-        cursor.execute("UPDATE qr_codes SET custom_slug = ?, updated_at = ? WHERE id = ?", (clean_slug, now, qr_id))
-
-    folder_name = data.get("folder_name")
+    if slug_given:
+        cursor.execute("UPDATE qr_codes SET custom_slug = ?, updated_at = ? WHERE id = ?", (new_slug_val, now, qr_id))
+    folder_name = clean_text(data.get("folder_name"), 100)
     if folder_name:
         cursor.execute("UPDATE qr_codes SET folder_name = ?, updated_at = ? WHERE id = ?", (folder_name, now, qr_id))
+    if isinstance(data.get("settings"), dict):
+        merged = sanitize_settings(data.get("settings"), logo_allowed=plan_has_logo(user))
+        cursor.execute("UPDATE qr_codes SET custom_settings = ?, updated_at = ? WHERE id = ?", (json.dumps(merged), now, qr_id))
 
-    if vcard_payload:
-        social_links_obj = vcard_payload.get("social_links", {})
-        social_links_str = json.dumps(social_links_obj) if isinstance(social_links_obj, dict) else (social_links_obj or "{}")
-        theme_settings_val = vcard_payload.get("theme_settings")
-        if isinstance(theme_settings_val, dict):
-            theme_settings_val = json.dumps(theme_settings_val)
-
-        cursor.execute("SELECT id FROM vcard_pages WHERE qr_id = ?", (qr_id,))
-        vcard_row = cursor.fetchone()
-        if not vcard_row:
-            cursor.execute("""
-            INSERT INTO vcard_pages (qr_id, full_name, title, company, phone, phone2, email, website, address, bio, avatar_url, card_image_url, social_links, theme_settings)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                qr_id,
-                vcard_payload.get("full_name"),
-                vcard_payload.get("title"),
-                vcard_payload.get("company"),
-                vcard_payload.get("phone"),
-                vcard_payload.get("phone2"),
-                vcard_payload.get("email"),
-                vcard_payload.get("website"),
-                vcard_payload.get("address"),
-                vcard_payload.get("bio"),
-                vcard_payload.get("avatar_url"),
-                vcard_payload.get("card_image_url"),
-                social_links_str,
-                theme_settings_val
-            ))
-        else:
-            cursor.execute("""
-            UPDATE vcard_pages 
-            SET full_name = ?, title = ?, company = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, bio = ?, avatar_url = ?, card_image_url = ?, social_links = ?, theme_settings = ?
-            WHERE qr_id = ?
-            """, (
-                vcard_payload.get("full_name"),
-                vcard_payload.get("title"),
-                vcard_payload.get("company"),
-                vcard_payload.get("phone"),
-                vcard_payload.get("phone2"),
-                vcard_payload.get("email"),
-                vcard_payload.get("website"),
-                vcard_payload.get("address"),
-                vcard_payload.get("bio"),
-                vcard_payload.get("avatar_url"),
-                vcard_payload.get("card_image_url"),
-                social_links_str,
-                theme_settings_val,
-                qr_id
-            ))
-
-    if menu_payload:
-        pdf_url = menu_payload.get("pdf_url")
-        if pdf_url in ["None", "null", "undefined", ""]:
-            pdf_url = None
-
-        menu_theme_val = menu_payload.get("theme_settings")
-        if isinstance(menu_theme_val, dict):
-            menu_theme_val = json.dumps(menu_theme_val)
-
-        cursor.execute("SELECT id FROM menu_pages WHERE qr_id = ?", (qr_id,))
-        mrow = cursor.fetchone()
-        if not mrow:
-            cursor.execute("""
-            INSERT INTO menu_pages (qr_id, title, description, cover_url, pdf_url, categories, contact_name, contact_title, phone, phone2, email, website, address, card_image_url, social_links, theme_settings)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                qr_id,
-                menu_payload.get("title"),
-                menu_payload.get("description"),
-                menu_payload.get("cover_url"),
-                pdf_url,
-                json.dumps(menu_payload.get("categories", [])),
-                menu_payload.get("contact_name"),
-                menu_payload.get("contact_title"),
-                menu_payload.get("phone"),
-                menu_payload.get("phone2"),
-                menu_payload.get("email"),
-                menu_payload.get("website"),
-                menu_payload.get("address"),
-                menu_payload.get("card_image_url"),
-                json.dumps(menu_payload.get("social_links", {})),
-                menu_theme_val
-            ))
-        else:
-            cursor.execute("""
-            UPDATE menu_pages 
-            SET title = ?, description = ?, pdf_url = ?, contact_name = ?, contact_title = ?, phone = ?, phone2 = ?, email = ?, website = ?, address = ?, card_image_url = ?, social_links = ?, theme_settings = ?
-            WHERE qr_id = ?
-            """, (
-                menu_payload.get("title"),
-                menu_payload.get("description"),
-                pdf_url,
-                menu_payload.get("contact_name"),
-                menu_payload.get("contact_title"),
-                menu_payload.get("phone"),
-                menu_payload.get("phone2"),
-                menu_payload.get("email"),
-                menu_payload.get("website"),
-                menu_payload.get("address"),
-                menu_payload.get("card_image_url"),
-                json.dumps(menu_payload.get("social_links", {})),
-                menu_theme_val,
-                qr_id
-            ))
-            
-        direct_redirect = menu_payload.get("direct_redirect", True)
-        if pdf_url and (pdf_url.startswith("/") or pdf_url.startswith("http")) and direct_redirect:
-            cursor.execute("UPDATE qr_codes SET target_url = ?, updated_at = ? WHERE id = ?", (pdf_url, now, qr_id))
-        elif not target_url:
-            cursor.execute("UPDATE qr_codes SET target_url = ?, updated_at = ? WHERE id = ?", (f"micropage://menu/{qr_id}", now, qr_id))
-        
     conn.commit()
     conn.close()
-    
+
     return jsonify({"status": "success", "message": "QR Kodu başarıyla güncellendi."})
+
 
 @app.route("/api/qr/<int:qr_id>/details", methods=["GET"])
 def api_qr_details(qr_id):
@@ -1043,69 +1153,75 @@ def api_qr_details(qr_id):
         return jsonify({"error": "QR Kod bulunamadı."}), 404
 
     qr_data = dict(row)
+    qr_type = qr_data["type"]
 
-    # Fetch vCard data if type is vcard, company_card, social, etc.
     vcard_data = None
-    if qr_data["type"] in ["vcard", "company_card", "social", "instagram", "linkedin", "pinterest", "facebook"]:
+    if qr_type in VCARD_TYPES or qr_type in SOCIAL_TYPES or qr_type == "social":
         cursor.execute("SELECT * FROM vcard_pages WHERE qr_id = ?", (qr_id,))
         vrow = cursor.fetchone()
         if vrow:
             vcard_data = dict(vrow)
-            if vcard_data.get("card_image_url"):
-                vcard_data["card_image_url"] = _clean_media_url(vcard_data["card_image_url"])
-            if vcard_data.get("avatar_url"):
-                vcard_data["avatar_url"] = _clean_media_url(vcard_data["avatar_url"])
-            if vcard_data.get("social_links"):
-                try:
-                    if isinstance(vcard_data["social_links"], str):
-                        vcard_data["social_links"] = json.loads(vcard_data["social_links"])
-                except Exception:
-                    vcard_data["social_links"] = {}
+            for k in ("card_image_url", "avatar_url"):
+                if vcard_data.get(k):
+                    vcard_data[k] = _clean_media_url(vcard_data[k])
+            vcard_data["social_links"] = normalize_social_links(loads(vcard_data.get("social_links"), {}))
+            vcard_data["company_info"] = loads(vcard_data.pop("extra_json", None), {})
+            vcard_data["theme_settings"] = vcard_data.get("theme_settings")
 
-    # Fetch Menu data if type is menu, pdf_catalog, pdf_viewer, or restaurant_menu
     menu_data = None
-    if qr_data["type"] in ["menu", "pdf_catalog", "pdf_viewer", "restaurant_menu"]:
+    if qr_type in MENU_TYPES:
         cursor.execute("SELECT * FROM menu_pages WHERE qr_id = ?", (qr_id,))
         mrow = cursor.fetchone()
         if mrow:
             menu_data = dict(mrow)
-            if menu_data.get("card_image_url"):
-                menu_data["card_image_url"] = _clean_media_url(menu_data["card_image_url"])
-            if menu_data.get("cover_url"):
-                menu_data["cover_url"] = _clean_media_url(menu_data["cover_url"])
-            if menu_data.get("pdf_url"):
-                menu_data["pdf_url"] = _clean_media_url(menu_data["pdf_url"])
-            if menu_data.get("social_links"):
-                try:
-                    if isinstance(menu_data["social_links"], str):
-                        menu_data["social_links"] = json.loads(menu_data["social_links"])
-                except Exception:
-                    menu_data["social_links"] = {}
-
+            for k in ("card_image_url", "cover_url", "pdf_url"):
+                if menu_data.get(k):
+                    menu_data[k] = _clean_media_url(menu_data[k])
+            menu_data["social_links"] = loads(menu_data.get("social_links"), {})
+            menu_data["categories"] = loads(menu_data.get("categories"), [])
     conn.close()
 
-    custom_settings = {}
-    if qr_data.get("custom_settings"):
-        try:
-            custom_settings = json.loads(qr_data["custom_settings"])
-        except Exception:
-            pass
+    custom_settings = loads(qr_data.get("custom_settings"), {})
+    tu = qr_data.get("target_url") or ""
 
+    static_payload = None
+    if qr_type == "phone":
+        static_payload = {"phone": parse_phone(tu)}
+    elif qr_type == "sms":
+        static_payload = parse_sms(tu)
+    elif qr_type == "text":
+        static_payload = {"text": tu}
+    elif qr_type == "wifi":
+        w = parse_wifi(tu)
+        static_payload = {"ssid": w["ssid"], "password": w["password"], "encryption": w["enc"], "hidden": w["hidden"]}
+    elif qr_type == "static_url":
+        static_payload = {"url": tu}
+
+    wa_payload = None
+    if qr_type in WHATSAPP_TYPES:
+        p, m = parse_whatsapp_target(tu)
+        wa_payload = {"phone": normalize_phone_for_wa(p), "message": m}
+
+    app_url = request.host_url.rstrip("/")
     return jsonify({
         "id": qr_data["id"],
         "title": qr_data["title"],
-        "type": qr_data["type"],
-        "target_url": qr_data["target_url"],
+        "type": qr_type,
+        "target_url": tu,
         "status": qr_data["status"],
         "folder_name": qr_data.get("folder_name", "Genel"),
         "is_dynamic": qr_data.get("is_dynamic", 1),
         "custom_settings": custom_settings,
+        "custom_slug": qr_data.get("custom_slug") or "",
+        "short_code": qr_data.get("short_code"),
+        "short_url": f"{app_url}/r/{qr_data.get('short_code')}",
+        "qr_content": _qr_content_for(qr_data, app_url),
+        "static_payload": static_payload,
+        "wa_payload": wa_payload,
         "vcard": vcard_data,
         "menu": menu_data
     })
-    conn.close()
-    
-    return jsonify({"status": "success", "message": "QR Kod güncellendi!"})
+
 
 @app.route("/api/qr/<int:qr_id>", methods=["DELETE"])
 @app.route("/api/qr/<int:qr_id>/delete", methods=["DELETE", "POST"])
@@ -1198,7 +1314,8 @@ def api_qr_list():
             settings = {}
             
         item["settings"] = settings
-        item["qr_image"] = generate_qr_image(item["short_url"], settings, format="base64")
+        item["qr_content"] = _qr_content_for(item, app_url)
+        item["qr_image"] = _render_qr(item, "base64", app_url)
         qr_codes.append(item)
         
     # Stats
@@ -1394,7 +1511,7 @@ def api_qr_analytics(qr_id):
     """, (qr_id,))
     cities = [dict(r) for r in cursor.fetchall()]
 
-    # Recent 100 scan logs
+    # Recent 100 scan logs (UTC saklanır, Europe/Istanbul gösterilir)
     cursor.execute("""
     SELECT scanned_at, ip_address, device_type, browser, country, city, user_agent 
     FROM scan_logs 
@@ -1406,12 +1523,18 @@ def api_qr_analytics(qr_id):
     scans = []
     for r in raw_scans:
         item = dict(r)
-        scanned_at_ts = item.get("scanned_at") or 0
-        try:
-            item["formatted_date"] = datetime.datetime.fromtimestamp(scanned_at_ts).strftime("%Y-%m-%d %H:%M:%S")
-        except Exception:
-            item["formatted_date"] = "Bilinmiyor"
+        item["formatted_date"] = fmt_istanbul(item.get("scanned_at") or 0)
+        item["ip_address"] = mask_ip(item.get("ip_address"))
         scans.append(item)
+
+    # Saatlik yoğunluk (Istanbul saatine göre) — tüm tarama geçmişinden
+    hourly = [0] * 24
+    cursor.execute("SELECT scanned_at FROM scan_logs WHERE qr_id = ?", (qr_id,))
+    for hr in cursor.fetchall():
+        try:
+            hourly[to_istanbul(hr["scanned_at"]).hour] += 1
+        except Exception:
+            pass
 
     conn.close()
 
@@ -1422,7 +1545,9 @@ def api_qr_analytics(qr_id):
         "unique_visitors": unique_visitors,
         "devices": devices,
         "cities": cities,
-        "recent_scans": scans
+        "recent_scans": scans,
+        "hourly": hourly,
+        "timezone": TR_TZ_NAME
     })
 
 @app.route("/api/qr/<int:qr_id>/analytics/export", methods=["GET"])
@@ -1460,10 +1585,9 @@ def api_qr_analytics_export(qr_id):
         json_data = []
         for s in scans:
             row = dict(s)
-            try:
-                row["scanned_at_formatted"] = datetime.datetime.fromtimestamp(row.get("scanned_at") or 0).strftime("%Y-%m-%d %H:%M:%S")
-            except Exception:
-                row["scanned_at_formatted"] = ""
+            row["scanned_at_formatted"] = fmt_istanbul(row.get("scanned_at") or 0)
+            row["timezone"] = TR_TZ_NAME
+            row["ip_address"] = mask_ip(row.get("ip_address"))
             json_data.append(row)
         
         json_bytes = json.dumps({
@@ -1488,23 +1612,22 @@ def api_qr_analytics_export(qr_id):
     writer = csv.writer(output)
 
     # CSV Header
-    writer.writerow(["Tarih / Saat", "Cihaz Tipi", "Tarayıcı", "Şehir", "Ülke", "IP Adresi", "User Agent"])
+    writer.writerow(["Tarih / Saat (Europe/Istanbul)", "Cihaz Tipi", "Tarayıcı", "Şehir", "Ülke", "IP Adresi (maskeli)", "User Agent"])
+
+    def _csv_safe(v):
+        # Excel formül enjeksiyonunu engelle (=, +, -, @ ile başlayan hücreler)
+        v = str(v if v is not None else "-")
+        return ("'" + v) if v[:1] in ("=", "+", "-", "@") else v
 
     for s in scans:
-        ts = s["scanned_at"] or 0
-        try:
-            dt_str = datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
-        except Exception:
-            dt_str = "-"
-        
         writer.writerow([
-            dt_str,
-            s["device_type"] or "Bilinmiyor",
-            s["browser"] or "Bilinmiyor",
-            s["city"] or "Bilinmiyor",
-            s["country"] or "Türkiye",
-            s["ip_address"] or "-",
-            s["user_agent"] or "-"
+            fmt_istanbul(s["scanned_at"] or 0),
+            _csv_safe(s["device_type"] or "Bilinmiyor"),
+            _csv_safe(s["browser"] or "Bilinmiyor"),
+            _csv_safe(s["city"] or "Bilinmiyor"),
+            _csv_safe(s["country"] or "Türkiye"),
+            mask_ip(s["ip_address"]),
+            _csv_safe(s["user_agent"] or "-")
         ])
 
     csv_bytes = output.getvalue().encode('utf-8')
@@ -1520,7 +1643,7 @@ def api_qr_analytics_export(qr_id):
 
 @app.route("/api/subscriptions/plans", methods=["GET"])
 def api_get_plans():
-    return jsonify({"plans": PLANS})
+    return jsonify({"plans": PLANS, "free_dynamic_limit": FREE_DYNAMIC_LIMIT})
 
 @app.route("/api/user/update-billing", methods=["POST"])
 def api_update_billing():
@@ -1887,8 +2010,7 @@ def api_admin_update_plan(user_id):
     if new_plan not in ["free", "starter", "advanced", "business"]:
         return jsonify({"error": "Geçersiz plan seçimi."}), 400
         
-    limits = {"free": 3, "starter": 5, "advanced": 25, "business": 100}
-    qr_limit = int(data.get("dynamic_qr_limit")) if data.get("dynamic_qr_limit") is not None else limits.get(new_plan, 3)
+    qr_limit = limit_for_plan(new_plan)
     
     now = int(time.time())
     if new_plan == "business":
@@ -2389,8 +2511,9 @@ def internal_error(error):
 def not_found_error(error):
     if request.path.startswith("/api/"):
         return jsonify({"error": "İstenen kaynak bulunamadı."}), 404
-    elif request.path.startswith("/static/") or request.path.startswith("/p/pdf/") or request.path.startswith("/p/") or request.path.startswith("/r/"):
-        return "<h3>⚠️ Sayfa veya İçerik Bulunamadı</h3><p>İstediğiniz sayfa veya QR kod mevcut değil.</p>", 404
+        return "Dosya bulunamadı", 404
+    elif request.path.startswith("/p/") or request.path.startswith("/r/"):
+        return _err_not_found()
     return render_template("index.html"), 404
 
 if __name__ == "__main__":

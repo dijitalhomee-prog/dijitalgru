@@ -1,8 +1,31 @@
 let allUsersCache = [];
 let allTransactionsCache = [];
 
+// Kullanıcı kaynaklı her değer HTML'e basılmadan önce bu fonksiyondan geçer (XSS).
+function esc(v) {
+    return String(v == null ? "" : v)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     loadAdminData();
+
+    // Inline onclick içine string gömmek yerine data-* attribute + tek delegasyon
+    document.addEventListener("click", (e) => {
+        const el = e.target.closest("[data-act]");
+        if (!el) return;
+        const act = el.getAttribute("data-act");
+        const id = Number(el.getAttribute("data-id"));
+        const email = el.getAttribute("data-email") || "";
+        if (act === "month") selectMonthFilter(el.getAttribute("data-month") || "");
+        else if (act === "refund") markRefundRecord(id, email, Number(el.getAttribute("data-amount")) || 0);
+        else if (act === "activate") activateUser(id, email);
+        else if (act === "suspend") suspendUser(id, email);
+        else if (act === "detail") openUserDetailModal(id);
+        else if (act === "plan") openPlanUpdateModal(id, email, el.getAttribute("data-plan") || "free");
+        else if (act === "delete") openDeleteUserModal(id, email);
+    });
 });
 
 function getAuthHeader() {
@@ -95,7 +118,7 @@ function renderMonthlyBreakdownTable(months) {
     
     if (monthSelect) {
         monthSelect.innerHTML = `<option value="">Tüm Aylar</option>` + months.map(m => `
-            <option value="${m.month_key}">${m.month_label} (${(m.total_revenue || 0).toLocaleString("tr-TR")} ₺)</option>
+            <option value="${esc(m.month_key)}">${esc(m.month_label)} (${(m.total_revenue || 0).toLocaleString("tr-TR")} ₺)</option>
         `).join("");
     }
 
@@ -108,13 +131,13 @@ function renderMonthlyBreakdownTable(months) {
 
     tbody.innerHTML = months.map(m => `
         <tr>
-            <td style="font-weight: 800; color: white;">📅 ${m.month_label}</td>
+            <td style="font-weight: 800; color: white;">📅 ${esc(m.month_label)}</td>
             <td style="font-weight: 800; color: #34d399;">${(m.total_revenue || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
             <td style="font-size: 13px; color: #cbd5e1;">${(m.net_matrah || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
             <td style="font-size: 13px; color: #60a5fa;">${(m.kdv_amount || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
-            <td style="font-weight: 700; color: #facc15;">${m.count} Ödeme</td>
+            <td style="font-weight: 700; color: #facc15;">${esc(m.count)} Ödeme</td>
             <td>
-                <button class="btn-action btn-view" onclick="selectMonthFilter('${m.month_key}')">İncele</button>
+                <button class="btn-action btn-view" data-act="month" data-month="${esc(m.month_key)}">İncele</button>
             </td>
         </tr>
     `).join("");
@@ -219,7 +242,7 @@ function renderAccountingTransactionsTable(txs) {
 
         const refundBtn = isRefunded
             ? `<span style="font-size: 11px; color: #94a3b8;">-</span>`
-            : `<button class="btn-action btn-delete" onclick="markRefundRecord(${t.id}, '${t.user_email}', ${t.amount})">İade Et</button>`;
+            : `<button class="btn-action btn-delete" data-act="refund" data-id="${esc(t.id)}" data-email="${esc(t.user_email)}" data-amount="${esc(t.amount)}">İade Et</button>`;
 
         const userNameDisplay = (t.user_name && t.user_name.trim()) 
             ? t.user_name 
@@ -227,18 +250,18 @@ function renderAccountingTransactionsTable(txs) {
 
         return `
             <tr>
-                <td>#${t.id}</td>
+                <td>#${esc(t.id)}</td>
                 <td style="font-size: 12px;">${formatDate(t.created_at)}</td>
                 <td>
-                    <div style="font-weight: 700; color: white;">${userNameDisplay}</div>
-                    <div style="font-size: 11px; color: #94a3b8;">${t.user_email || '-'}</div>
+                    <div style="font-weight: 700; color: white;">${esc(userNameDisplay)}</div>
+                    <div style="font-size: 11px; color: #94a3b8;">${esc(t.user_email || '-')}</div>
                 </td>
-                <td style="font-weight: 700;">${t.plan_name}</td>
+                <td style="font-weight: 700;">${esc(t.plan_name)}</td>
                 <td>${sourceBadge}</td>
                 <td style="font-weight: 800; color: #34d399;">${t.amount.toFixed(2)} ₺</td>
                 <td style="font-size: 13px; color: #cbd5e1;">${t.matrah.toFixed(2)} ₺</td>
                 <td style="font-size: 13px; color: #60a5fa;">${t.kdv.toFixed(2)} ₺</td>
-                <td style="font-size: 11px; font-family: monospace;">${t.invoice_no || '-'}</td>
+                <td style="font-size: 11px; font-family: monospace;">${esc(t.invoice_no || '-')}</td>
                 <td>${refundBadge}</td>
                 <td>${refundBtn}</td>
             </tr>
@@ -269,7 +292,31 @@ async function markRefundRecord(subscriptionId, email, amount) {
 async function downloadAccountingCSV() {
     const token = localStorage.getItem("jwt_token");
     if (!token) return;
-    window.location.href = `/api/admin/accounting/export?token=${encodeURIComponent(token)}`;
+    try {
+        // Token URL'de taşınmaz: Authorization başlığı + blob indirme
+        const res = await fetch("/api/admin/accounting/export", { headers: { "Authorization": `Bearer ${token}` } });
+        if (!res.ok) {
+            let msg = "Dışa aktarma başarısız.";
+            try { const j = await res.json(); if (j && j.error) msg = j.error; } catch (_) {}
+            uiToast("⚠️ " + msg);
+            return;
+        }
+        const blob = await res.blob();
+        const cd = res.headers.get("Content-Disposition") || "";
+        const m = /filename\*=UTF-8''([^;]+)/i.exec(cd) || /filename="?([^";]+)"?/i.exec(cd);
+        let name = "muhasebe.csv";
+        if (m) { try { name = decodeURIComponent(m[1]); } catch (_) { name = m[1]; } }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (err) {
+        uiToast("⚠️ Sunucuya bağlanırken bir hata oluştu.");
+    }
 }
 
 function isUserExpired(u) {
@@ -362,27 +409,27 @@ function renderAdminUsersTable(users) {
         }
 
         let suspendBtn = u.account_status === 'suspended' 
-            ? `<button class="btn-action btn-activate" onclick="activateUser(${u.id}, '${u.email}')">Aktif Et</button>`
-            : `<button class="btn-action btn-suspend" onclick="suspendUser(${u.id}, '${u.email}')">Askıya Al</button>`;
+            ? `<button class="btn-action btn-activate" data-act="activate" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Aktif Et</button>`
+            : `<button class="btn-action btn-suspend" data-act="suspend" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Askıya Al</button>`;
 
         return `
             <tr>
-                <td style="white-space: nowrap; font-weight: 800; color: #94a3b8;">#${u.id}</td>
+                <td style="white-space: nowrap; font-weight: 800; color: #94a3b8;">#${esc(u.id)}</td>
                 <td style="min-width: 220px;">
-                    <div style="font-weight: 800; color: #ffffff; font-size: 14px; line-height: 1.3;">${u.name} ${u.is_admin ? '<span style="color: #facc15; font-size: 10px; font-weight: 800; background: rgba(250, 204, 21, 0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(250, 204, 21, 0.3); margin-left: 4px;">ADMIN</span>' : ''}</div>
-                    <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">${u.email}</div>
+                    <div style="font-weight: 800; color: #ffffff; font-size: 14px; line-height: 1.3;">${esc(u.name)} ${u.is_admin ? '<span style="color: #facc15; font-size: 10px; font-weight: 800; background: rgba(250, 204, 21, 0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(250, 204, 21, 0.3); margin-left: 4px;">ADMIN</span>' : ''}</div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">${esc(u.email)}</div>
                 </td>
-                <td style="white-space: nowrap;"><span class="admin-badge ${planClass}">${(u.plan || 'free').toUpperCase()}</span></td>
+                <td style="white-space: nowrap;"><span class="admin-badge ${esc(planClass)}">${esc((u.plan || 'free').toUpperCase())}</span></td>
                 <td style="white-space: nowrap; font-size: 13px;">${subEndText}</td>
                 <td style="white-space: nowrap; font-weight: 800; color: #facc15; font-size: 14px;">${u.total_qr_count || 0} QR</td>
                 <td style="white-space: nowrap;"><span class="admin-badge ${statusClass}">${statusText}</span></td>
                 <td style="white-space: nowrap; font-size: 13px;">${formatDate(u.created_at)}</td>
                 <td style="white-space: nowrap; text-align: right;">
                     <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: nowrap;">
-                        <button class="btn-action btn-view" onclick="openUserDetailModal(${u.id})">Detay</button>
-                        <button class="btn-action btn-plan" onclick="openPlanUpdateModal(${u.id}, '${u.email}', '${u.plan}')">Plan Değiştir</button>
+                        <button class="btn-action btn-view" data-act="detail" data-id="${esc(u.id)}">Detay</button>
+                        <button class="btn-action btn-plan" data-act="plan" data-id="${esc(u.id)}" data-email="${esc(u.email)}" data-plan="${esc(u.plan || 'free')}">Plan Değiştir</button>
                         ${suspendBtn}
-                        <button class="btn-action btn-delete" onclick="openDeleteUserModal(${u.id}, '${u.email}')">Sil</button>
+                        <button class="btn-action btn-delete" data-act="delete" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Sil</button>
                     </div>
                 </td>
             </tr>
@@ -400,14 +447,14 @@ function renderAdminAuditLogs(logs) {
     tbody.innerHTML = logs.map(l => {
         return `
             <tr>
-                <td>#${l.id}</td>
+                <td>#${esc(l.id)}</td>
                 <td>
-                    <div style="font-weight: 700;">${l.admin_name || 'Sistem'}</div>
-                    <div style="font-size: 11px; color: #94a3b8;">${l.admin_email || ''}</div>
+                    <div style="font-weight: 700;">${esc(l.admin_name || 'Sistem')}</div>
+                    <div style="font-size: 11px; color: #94a3b8;">${esc(l.admin_email || '')}</div>
                 </td>
-                <td><span class="admin-badge badge-starter">${l.action_type}</span></td>
-                <td>${l.target_name ? `<strong>${l.target_name}</strong> (${l.target_email})` : `#${l.target_user_id || '-'}`}</td>
-                <td style="font-size: 13px; color: #cbd5e1;">${l.details || ''}</td>
+                <td><span class="admin-badge badge-starter">${esc(l.action_type)}</span></td>
+                <td>${l.target_name ? `<strong>${esc(l.target_name)}</strong> (${esc(l.target_email)})` : `#${esc(l.target_user_id || '-')}`}</td>
+                <td style="font-size: 13px; color: #cbd5e1;">${esc(l.details || '')}</td>
                 <td style="font-size: 12px; color: #94a3b8;">${formatDate(l.created_at)}</td>
             </tr>
         `;
@@ -434,11 +481,11 @@ async function openUserDetailModal(userId) {
 
         container.innerHTML = `
             <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.08);">
-                <div style="font-size: 16px; font-weight: 800; color: white;">${u.name}</div>
-                <div style="font-size: 13px; color: #94a3b8;">E-posta: ${u.email} | ID: #${u.id}</div>
+                <div style="font-size: 16px; font-weight: 800; color: white;">${esc(u.name)}</div>
+                <div style="font-size: 13px; color: #94a3b8;">E-posta: ${esc(u.email)} | ID: #${esc(u.id)}</div>
                 <div style="margin-top: 8px; font-size: 13px;">
-                    Aktif Plan: <strong style="color: #818cf8;">${u.plan.toUpperCase()}</strong> | 
-                    QR Limiti: <strong>${u.dynamic_qr_limit}</strong> | 
+                    Aktif Plan: <strong style="color: #818cf8;">${esc(String(u.plan || 'free').toUpperCase())}</strong> | 
+                    QR Limiti: <strong>${esc(u.dynamic_qr_limit)}</strong> | 
                     Bitiş: <strong>${formatDate(u.subscription_end)}</strong>
                 </div>
             </div>
@@ -448,7 +495,7 @@ async function openUserDetailModal(userId) {
                 ${qrs.length === 0 ? '<div style="font-size: 13px; color: #94a3b8;">Henüz QR kod oluşturulmamış.</div>' : 
                 `<table style="width: 100%; font-size: 13px;">
                     <tr style="text-align: left; color: #94a3b8;"><th>Başlık</th><th>Tür</th><th>Kısa Kod</th><th>Tarama</th></tr>
-                    ${qrs.map(q => `<tr><td>${q.title}</td><td>${q.type}</td><td><code>/r/${q.short_code}</code></td><td>${q.scans_count}</td></tr>`).join("")}
+                    ${qrs.map(q => `<tr><td>${esc(q.title)}</td><td>${esc(q.type)}</td><td><code>/r/${esc(q.short_code)}</code></td><td>${esc(q.scans_count)}</td></tr>`).join("")}
                 </table>`}
             </div>
 
@@ -457,7 +504,7 @@ async function openUserDetailModal(userId) {
                 ${subs.length === 0 ? '<div style="font-size: 13px; color: #94a3b8;">Henüz ödeme kaydı bulunmuyor.</div>' :
                 `<table style="width: 100%; font-size: 13px;">
                     <tr style="text-align: left; color: #94a3b8;"><th>Paket</th><th>Tutar</th><th>Kaynak</th><th>Fatura No</th><th>Tarih</th></tr>
-                    ${subs.map(s => `<tr><td>${s.plan_name}</td><td>${s.amount} ₺</td><td>${s.source || 'iyzico'}</td><td>${s.invoice_no || '-'}</td><td>${formatDate(s.created_at)}</td></tr>`).join("")}
+                    ${subs.map(s => `<tr><td>${esc(s.plan_name)}</td><td>${esc(s.amount)} ₺</td><td>${esc(s.source || 'iyzico')}</td><td>${esc(s.invoice_no || '-')}</td><td>${formatDate(s.created_at)}</td></tr>`).join("")}
                 </table>`}
             </div>
         `;

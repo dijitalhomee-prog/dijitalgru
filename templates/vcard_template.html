@@ -63,9 +63,9 @@
         </div>
 
         <!-- Header Info -->
-        <h1 class="name">{{ vcard.full_name or 'Ad Soyad' }}</h1>
-        <div class="title">{{ vcard.title or 'Unvan' }}</div>
-        <div class="company">{{ vcard.company or 'Şirket Adı' }}</div>
+        <h1 class="name">{{ vcard.full_name }}</h1>
+        {% if vcard.title %}<div class="title">{{ vcard.title }}</div>{% endif %}
+        {% if vcard.company %}<div class="company">{{ vcard.company }}</div>{% endif %}
 
         {% if vcard.card_image_url %}
         <div style="margin: 16px 0; border-radius: 18px; overflow: hidden; border: 1px solid rgba(129, 140, 248, 0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.4); background: rgba(0,0,0,0.2);">
@@ -78,7 +78,7 @@
         {% endif %}
 
         <!-- Primary Action Button: Save to Contacts -->
-        <a href="/p/vcard/{{ vcard.qr_id }}.vcf" id="vcard-download-btn" class="btn-save-vcf" onclick="handleVcfDownload(event, '/p/vcard/{{ vcard.qr_id }}.vcf')" style="position: relative; z-index: 100; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+        <a href="{{ vcf_url }}" id="vcard-download-btn" class="btn-save-vcf" onclick="handleVcfDownload(event, '{{ vcf_url }}')" style="position: relative; z-index: 100; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
             👤 Rehbere Kaydet (.vcf)
         </a>
         <div id="vcf-toast" style="display: none; margin: 10px 0; padding: 12px 16px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 14px; color: #34d399; font-size: 12px; text-align: center; line-height: 1.5;">
@@ -89,14 +89,16 @@
         <!-- Quick Action Buttons Bar -->
         <div class="quick-actions">
             {% if vcard.phone %}
-            <a href="tel:{{ vcard.phone }}" class="qa-btn">
+            <a href="tel:{{ phone_e164 }}" class="qa-btn">
                 <span class="qa-icon">📞</span>
                 <span>Arama</span>
             </a>
-            <a href="https://wa.me/{{ vcard.phone|replace(' ', '')|replace('+', '')|replace('-', '') }}" target="_blank" class="qa-btn">
+            {% if wa_digits %}
+            <a href="https://wa.me/{{ wa_digits }}" target="_blank" rel="noopener" class="qa-btn">
                 <span class="qa-icon">💬</span>
                 <span>WhatsApp</span>
             </a>
+            {% endif %}
             {% endif %}
             {% if vcard.email %}
             <a href="mailto:{{ vcard.email }}" class="qa-btn">
@@ -223,34 +225,12 @@
         </div>
     </div>
     <script>
-    function generateVcardText() {
-        const name = {{ (vcard.full_name or 'Kişi Kartı') | tojson }};
-        const title = {{ (vcard.title or '') | tojson }};
-        const org = {{ (vcard.company or '') | tojson }};
-        const phone = {{ (vcard.phone or '') | tojson }};
-        const phone2 = {{ (vcard.phone2 or '') | tojson }};
-        const email = {{ (vcard.email or '') | tojson }};
-        const website = {{ (vcard.website or '') | tojson }};
-        const address = {{ (vcard.address or '') | tojson }};
-        const bio = {{ (vcard.bio or '') | tojson }};
-
-        let lines = [
-            "BEGIN:VCARD",
-            "VERSION:3.0",
-            `FN;CHARSET=UTF-8:${name}`,
-            `N;CHARSET=UTF-8:${name};;;;`
-        ];
-        if (title) lines.push(`TITLE;CHARSET=UTF-8:${title}`);
-        if (org) lines.push(`ORG;CHARSET=UTF-8:${org}`);
-        if (phone) lines.push(`TEL;TYPE=CELL:${phone}`);
-        if (phone2) lines.push(`TEL;TYPE=WORK:${phone2}`);
-        if (email) lines.push(`EMAIL;TYPE=INTERNET:${email}`);
-        if (website) lines.push(`URL:${website}`);
-        if (address) lines.push(`ADR;CHARSET=UTF-8:;;${address};;;;`);
-        if (bio) lines.push(`NOTE;CHARSET=UTF-8:${bio}`);
-        lines.push("END:VCARD");
-
-        return lines.join("\r\n");
+    const VCF_URL = {{ vcf_url | tojson }};
+    async function generateVcardText() {
+        // Sunucudaki .vcf ile birebir aynı içerik (doğru N alanı, PHOTO, sosyal profiller)
+        const r = await fetch(VCF_URL, { cache: 'no-store', credentials: 'same-origin' });
+        if (!r.ok) throw new Error('vcf fetch failed');
+        return await r.text();
     }
 
     async function handleVcfDownload(e, url) {
@@ -260,12 +240,13 @@
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const toast = document.getElementById('vcf-toast');
         const toastText = document.getElementById('vcf-toast-text');
-        const targetUrl = url || `/p/vcard/{{ vcard.qr_id }}.vcf`;
+        const targetUrl = url || VCF_URL;
 
         const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
         const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
         const fileName = `${safeName}.vcf`;
-        const vcardContent = generateVcardText();
+        let vcardContent = '';
+        try { vcardContent = await generateVcardText(); } catch (fe) { window.location.href = targetUrl; return false; }
 
         // TIER 1: Web Share API File Sharing (Stock Android Chrome)
         if (isAndroid || (!isIOS && navigator.canShare)) {

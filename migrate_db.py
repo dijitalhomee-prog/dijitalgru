@@ -264,6 +264,21 @@ def run_migrations():
         conn.rollback()
         print("⚠️ Custom slug migration note:", e)
 
+    # 8b. vcard_pages.extra_json (Şirket Kartı: logo, sektör, saatler, harita, yetkililer)
+    try:
+        if is_postgres():
+            cursor.execute("ALTER TABLE vcard_pages ADD COLUMN IF NOT EXISTS extra_json TEXT;")
+        else:
+            try:
+                cursor.execute("ALTER TABLE vcard_pages ADD COLUMN extra_json TEXT;")
+            except Exception:
+                pass
+        conn.commit()
+        print("✅ vcard_pages.extra_json ensured.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ extra_json migration note:", e)
+
     # 8. Auto-repair empty target_url in qr_codes for pdf/menu/vcard types
     try:
         if is_postgres():

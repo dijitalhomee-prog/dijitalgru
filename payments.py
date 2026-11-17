@@ -4,6 +4,7 @@ import uuid
 import json
 import iyzipay
 from db import get_db
+from plan_limits import PLAN_LIMITS
 
 IYZICO_API_KEY = os.environ.get("IYZICO_API_KEY", "sandbox-dummy-api-key")
 IYZICO_SECRET_KEY = os.environ.get("IYZICO_SECRET_KEY", "sandbox-dummy-secret-key")
@@ -13,7 +14,7 @@ IYZICO_BASE_URL = os.environ.get("IYZICO_BASE_URL", "https://sandbox-api.iyzipay
 PLANS = {
     "starter": {
         "name": "Başlangıç (Starter)",
-        "dynamic_limit": 5,
+        "dynamic_limit": PLAN_LIMITS["starter"],
         "pricing": {
             "monthly": {"price_per_month": 246.00, "total_price": 246.00, "months": 1, "label": "Aylık Paket"},
             "semi_annual": {"price_per_month": 233.70, "total_price": 1402.20, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
@@ -22,7 +23,7 @@ PLANS = {
     },
     "advanced": {
         "name": "Profesyonel (Advanced)",
-        "dynamic_limit": 25,
+        "dynamic_limit": PLAN_LIMITS["advanced"],
         "pricing": {
             "monthly": {"price_per_month": 615.00, "total_price": 615.00, "months": 1, "label": "Aylık Paket"},
             "semi_annual": {"price_per_month": 584.25, "total_price": 3505.50, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
@@ -31,7 +32,7 @@ PLANS = {
     },
     "business": {
         "name": "Kurumsal (Business)",
-        "dynamic_limit": 100,
+        "dynamic_limit": PLAN_LIMITS["business"],
         "pricing": {
             "monthly": {"price_per_month": 1869.00, "total_price": 1869.00, "months": 1, "label": "Aylık Paket"},
             "semi_annual": {"price_per_month": 1775.55, "total_price": 10653.30, "months": 6, "label": "6 Aylık Peşin (%5 İndirimli)"},
@@ -40,7 +41,7 @@ PLANS = {
     },
     "test": {
         "name": "iyzico Onay Testi",
-        "dynamic_limit": 1,
+        "dynamic_limit": PLAN_LIMITS["test"],
         "pricing": {
             "monthly": {"price_per_month": 1.00, "total_price": 1.00, "months": 1, "label": "iyzico Canlılık Testi (1 ₺)"}
         }

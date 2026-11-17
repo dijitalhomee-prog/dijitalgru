@@ -52,3 +52,17 @@ git push origin qr-studio
 ```
 
 Railway platformundaki `dijitalgru-qr-web` servisi `qr-studio` dalını otomatik algılayarak [qrdijitalgru.com](https://qrdijitalgru.com/) adresinde yayına alacaktır.
+
+---
+
+## 🧩 2026-11-17 — Genel Hata Düzeltmeleri (13 madde)
+
+- **Statik türler** (telefon/SMS/metin/WiFi/web): QR görseli ham içeriği taşır (`tel:`, `SMSTO:`, `WIFI:`…); eski basılmış kayıtlar `/r/<kod>` üzerinde türe göre çözülür (`qr_service.resolve_target`).
+- **Sosyal medya / WhatsApp**: ortak normalizasyon `qr_utils.py` (Python) ↔ `static/js/qr-utils.js` (JS) birebir aynı kuralları uygular; hem kayıtta hem `/r/` katmanında çalışır.
+- **Doğrulama**: sunucu tarafı `qr_service.validate_content` (create + update); `javascript:`/`data:`/`vbscript:` reddedilir.
+- **İndirme**: gerçek vektör EPS/SVG (`qr_engine.py`), kimlik doğrulamalı `/api/qr/<id>/download`.
+- **Mikro sayfalar**: `/p/vcard/<short_code>`, `/p/menu/<short_code>`; eski sayısal adresler yönlenir. Şirket Kartı için `company_template.html`.
+- **Paketler**: tek kaynak `plan_limits.py`; sunucu limit kontrolü; logo (Pro/Kurumsal) QR ortasına, hata düzeltme otomatik H.
+- **Analitik**: panelde/CSV'de Europe/Istanbul, bot/HEAD sayılmaz, CSV'de IP maskeli.
+- **Frontend**: `static/js/studio.js` (stüdyo), `panel.js` (panel), `qr-utils.js`.
+- **Tek seferlik düzeltme**: `migrate_fix_records.py` (`--apply` önce yedek alır). Testler: `tests/test_qr_utils.py`, `tests/test_integration.py` (`QR_DB_PATH` ile geçici DB).

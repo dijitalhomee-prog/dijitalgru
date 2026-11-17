@@ -31,40 +31,18 @@
             👤 <strong>Kişi kartını rehberinize eklemek için aşağıdaki butona dokunun.</strong>
         </div>
 
-        <a id="vcf-trigger-btn" href="/p/vcard/{{ qr_id }}.vcf" class="btn-save" onclick="triggerContactSave(event)">
+        <a id="vcf-trigger-btn" href="{{ vcf_url }}" class="btn-save" onclick="triggerContactSave(event)">
             👤 Rehbere Ekle
         </a>
     </div>
 
     <script>
-    function generateRawVcard() {
-        const name = {{ (vcard.full_name or 'Kişi Kartı') | tojson }};
-        const title = {{ (vcard.title or '') | tojson }};
-        const org = {{ (vcard.company or '') | tojson }};
-        const phone = {{ (vcard.phone or '') | tojson }};
-        const phone2 = {{ (vcard.phone2 or '') | tojson }};
-        const email = {{ (vcard.email or '') | tojson }};
-        const website = {{ (vcard.website or '') | tojson }};
-        const address = {{ (vcard.address or '') | tojson }};
-        const bio = {{ (vcard.bio or '') | tojson }};
-
-        let lines = [
-            "BEGIN:VCARD",
-            "VERSION:3.0",
-            `FN;CHARSET=UTF-8:${name}`,
-            `N;CHARSET=UTF-8:${name};;;;`
-        ];
-        if (title) lines.push(`TITLE;CHARSET=UTF-8:${title}`);
-        if (org) lines.push(`ORG;CHARSET=UTF-8:${org}`);
-        if (phone) lines.push(`TEL;TYPE=CELL:${phone}`);
-        if (phone2) lines.push(`TEL;TYPE=WORK:${phone2}`);
-        if (email) lines.push(`EMAIL;TYPE=INTERNET:${email}`);
-        if (website) lines.push(`URL:${website}`);
-        if (address) lines.push(`ADR;CHARSET=UTF-8:;;${address};;;;`);
-        if (bio) lines.push(`NOTE;CHARSET=UTF-8:${bio}`);
-        lines.push("END:VCARD");
-
-        return lines.join("\r\n");
+    const VCF_URL = {{ vcf_url | tojson }};
+    async function fetchVcardText() {
+        // Sunucudaki .vcf ile birebir aynı içerik (doğru N alanı, PHOTO, sosyal profiller)
+        const r = await fetch(VCF_URL, { cache: 'no-store', credentials: 'same-origin' });
+        if (!r.ok) throw new Error('vcf fetch failed');
+        return await r.text();
     }
 
     async function triggerContactSave(e) {
@@ -73,12 +51,13 @@
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const statusBox = document.getElementById("status-msg");
-        const vcfUrl = "/p/vcard/{{ qr_id }}.vcf";
+        const vcfUrl = VCF_URL;
 
         const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
         const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
         const fileName = `${safeName}.vcf`;
-        const vcardContent = generateRawVcard();
+        let vcardContent = '';
+        try { vcardContent = await fetchVcardText(); } catch (fe) { window.location.href = vcfUrl; return false; }
 
         // TIER 1: Web Share API File Sharing (User gesture required)
         if (isAndroid || (!isIOS && navigator.canShare)) {

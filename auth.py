@@ -5,6 +5,7 @@ import os
 import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db
+from plan_limits import effective_dynamic_limit, FREE_DYNAMIC_LIMIT
 
 # Fail-fast check for JWT_SECRET in Production
 JWT_SECRET_ENV = os.environ.get("JWT_SECRET")
@@ -97,8 +98,8 @@ def register_user(name, email, password):
         
         cursor.execute("""
         INSERT INTO users (name, email, password_hash, plan, subscription_end, dynamic_qr_limit, created_at)
-        VALUES (?, ?, ?, 'free', ?, 3, ?)
-        """, (clean_name, clean_email, pwd_hash, now + (86400 * 7), now))
+        VALUES (?, ?, ?, 'free', ?, ?, ?)
+        """, (clean_name, clean_email, pwd_hash, now + (86400 * 7), FREE_DYNAMIC_LIMIT, now))
         
         user_id = cursor.lastrowid
         conn.commit()
@@ -160,4 +161,8 @@ def get_user_by_id(user_id):
     cursor.execute("SELECT id, name, email, plan, subscription_end, dynamic_qr_limit, is_admin, account_status, created_at, identity_number, gsm_number, address, city FROM users WHERE id = ?", (user_id,))
     row = cursor.fetchone()
     conn.close()
-    return dict(row) if row else None
+    if not row:
+        return None
+    user = dict(row)
+    user["dynamic_qr_limit"] = effective_dynamic_limit(user)
+    return user

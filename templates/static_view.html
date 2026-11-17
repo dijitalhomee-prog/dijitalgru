@@ -1,0 +1,29 @@
+{% extends "public_base.html" %}
+{% block title %}{% if kind == 'wifi' %}Wi-Fi Bilgileri{% elif kind == 'sms' %}SMS Mesajı{% else %}Metin{% endif %} — Dijitalgru QR{% endblock %}
+{% block content %}
+{% if kind == 'wifi' %}
+    <div class="pb-icon" aria-hidden="true">📶</div>
+    <h1>Wi-Fi Ağı</h1>
+    <p class="pb-sub">Telefonunuz bu sayfadan ağa otomatik bağlanamaz. Ağ adını seçip şifreyi kopyalayarak bağlanabilirsiniz.</p>
+    <div class="pb-box"><div class="pb-label">Ağ Adı (SSID)</div><div class="pb-value">{{ data.ssid }}</div></div>
+    {% if data.enc == 'nopass' %}
+    <div class="pb-box"><div class="pb-label">Şifre</div><div class="pb-value">Şifresiz (açık ağ)</div></div>
+    {% else %}
+    <div class="pb-box"><div class="pb-label">Şifre</div><div class="pb-value" id="wifi-pass">{{ data.password }}</div></div>
+    <button type="button" class="pb-btn ok" id="copy-pass-btn" onclick='pbCopy({{ data.password|tojson }}, this)'>Şifreyi Kopyala</button>
+    {% endif %}
+    <button type="button" class="pb-btn secondary" onclick='pbCopy({{ data.ssid|tojson }}, this)'>Ağ Adını Kopyala</button>
+    <p class="pb-sub" style="margin:16px 0 0;font-size:12px;">Güvenlik: {% if data.enc == 'nopass' %}Açık{% elif data.enc == 'WEP' %}WEP{% else %}WPA/WPA2{% endif %}{% if data.hidden %} · Gizli ağ{% endif %}</p>
+{% elif kind == 'sms' %}
+    <div class="pb-icon" aria-hidden="true">💬</div>
+    <h1>SMS Mesajı</h1>
+    <p class="pb-sub">Mesajı kopyalayıp dilediğiniz kişiye gönderebilirsiniz.</p>
+    <div class="pb-box"><div class="pb-label">Mesaj</div><div class="pb-value" id="msg-text">{{ data.message }}</div></div>
+    <button type="button" class="pb-btn ok" id="copy-msg-btn" onclick='pbCopy({{ data.message|tojson }}, this)'>Mesajı Kopyala</button>
+{% else %}
+    <div class="pb-icon" aria-hidden="true">📝</div>
+    <h1>Metin</h1>
+    <div class="pb-box" style="margin-top:14px;"><div class="pb-value" id="plain-text">{{ data.text }}</div></div>
+    <button type="button" class="pb-btn ok" id="copy-text-btn" onclick='pbCopy({{ data.text|tojson }}, this)'>Metni Kopyala</button>
+{% endif %}
+{% endblock %}

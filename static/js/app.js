@@ -3,6 +3,36 @@ let currentQrType = "url";
 let currentCycle = "monthly";
 let uploadedPdfUrl = null;
 
+// ===== Tür grupları & ortak sabitler (sunucudaki qr_utils.py ile aynı gruplama) =====
+const STATIC_RAW_TYPES = ["phone", "sms", "text", "wifi"];
+const STATIC_TYPES = ["static_url", ...STATIC_RAW_TYPES];
+const SOCIAL_SINGLE_TYPES = ["instagram", "linkedin", "pinterest", "facebook"];
+const SOCIAL_PLATFORMS = ["instagram", "facebook", "linkedin", "pinterest", "twitter", "tiktok", "youtube"];
+const MENU_TYPES = ["menu", "pdf_viewer", "pdf_catalog", "restaurant_menu"];
+const WA_TYPES = ["dynamic_whatsapp", "whatsapp"];
+const SAMPLE_SHORT_LINK = "https://qrdijitalgru.com/r/ornek";
+const QR_TYPE_LABELS = {
+    url: "Web Sitesi", static_url: "Web Sitesi (Statik)", vcard: "vCard Plus", company_card: "Şirket Kartı",
+    social: "Sosyal Medya", menu: "Online Katalog", pdf_viewer: "PDF Görüntüleyici", pdf_catalog: "PDF Katalog",
+    restaurant_menu: "Restoran Menü", dynamic_whatsapp: "WhatsApp", whatsapp: "WhatsApp",
+    instagram: "Instagram", linkedin: "LinkedIn", pinterest: "Pinterest", facebook: "Facebook",
+    phone: "Telefon", sms: "SMS", text: "Metin", wifi: "Wi-Fi"
+};
+const DEFAULT_FOLDERS = ["Genel", "Restoran Menüleri", "Kartvizitler", "Etkinlikler"];
+const customFolders = new Set();
+let studioLogoUrl = "";
+let companyContacts = [];
+
+function isStaticType(t) { return STATIC_TYPES.includes(t); }
+
+// Oturum varsa Authorization başlığı (FormData ile birlikte de güvenle kullanılır)
+function authHeaders(extra) {
+    const h = Object.assign({}, extra || {});
+    const token = localStorage.getItem("jwt_token");
+    if (token) h["Authorization"] = `Bearer ${token}`;
+    return h;
+}
+
 // Cycle Pricing Config (6-Month %5 OFF | Annual)
 const CYCLE_PRICES = {
     monthly: {
@@ -46,8 +76,10 @@ document.addEventListener("DOMContentLoaded", () => {
     initColorInputs();
     checkAuthStatus();
     setupForms();
+    initStudioExtras();
     updateLivePreview();
     initUtmLanding();
+    loadPlanLimits();
 });
 
 // Reklam linki: ?utm_content=paketler -> açılışta Paketler bölümüne kaydır
@@ -258,7 +290,7 @@ function filterStudioCategory(category) {
     }
 }
 
-function handlePrimarySocialInput(inputEl) {
+/* [ESKİ SÜRÜM — studio.js içinde yeniden yazıldı: handlePrimarySocialInput + initTypeSelector] function handlePrimarySocialInput(inputEl) {
     if (!inputEl) return;
     const val = inputEl.value.trim();
     const socialConfigs = {
@@ -490,7 +522,7 @@ function initTypeSelector() {
     document.querySelectorAll("input, select, textarea").forEach(el => {
         el.addEventListener("input", updateLivePreview);
     });
-}
+} */
 
 let currentPreviewMode = 'qr';
 
@@ -552,7 +584,7 @@ function downloadSimulatorVcard() {
     document.body.removeChild(link);
 }
 
-function renderLandingPageMockup() {
+/* [ESKİ SÜRÜM — studio.js içinde yeniden yazıldı: renderLandingPageMockup + updateLivePreview] function renderLandingPageMockup() {
     const payload = getQRFormPayload();
     const container = document.getElementById("mockup-landing-content");
     if (!container) return;
@@ -815,7 +847,7 @@ async function updateLivePreview() {
     } catch (err) {
         console.error("Preview error:", err);
     }
-}
+} */
 
 function normalizeUrlInput(val) {
     if (!val) return "";
@@ -1117,6 +1149,7 @@ async function handleVcardAvatarUpload(input) {
             updateLivePreview();
         } else {
             console.error("Avatar upload API error:", data.error);
+            if (data.error) uiToast("❌ " + data.error);
         }
     } catch (err) {
         console.error("Avatar upload network error:", err);
@@ -1145,21 +1178,7 @@ function removeVcardAvatar() {
 }
 
 // --- Interactive Digital Menu Builder State & Functions ---
-let menuCategoriesData = [
-    {
-        name: "Çorbalar",
-        items: [
-            { name: "Süzme Mercimek Çorbası", price: "120 ₺", description: "Tereyağlı ve kruton ekmekli lezzetli mercimek çorbası", image_url: "" }
-        ]
-    },
-    {
-        name: "Ana Yemekler",
-        items: [
-            { name: "Izgara Köfte", price: "320 ₺", description: "Pirinç pilavı, közlenmiş biber ve domates ile", image_url: "" },
-            { name: "Tavuk Külbastı", price: "280 ₺", description: "Özel soslu tavuk göğsü, elma dilim patates", image_url: "" }
-        ]
-    }
-];
+let menuCategoriesData = [];
 
 function renderMenuBuilderUI() {
     const container = document.getElementById("menu-categories-list-container");
@@ -1180,7 +1199,7 @@ function renderMenuBuilderUI() {
             <div class="menu-cat-card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px; margin-bottom: 14px;">
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px;">
                     <span style="font-size: 16px;">📂</span>
-                    <input type="text" class="form-input" value="${cat.name || ''}" placeholder="Kategori Adı (Örn: Başlangıçlar, İçecekler)" oninput="updateMenuCatName(${catIdx}, this.value)" style="font-weight: 700; color: #818cf8; font-size: 13px; flex: 1;">
+                    <input type="text" class="form-input" value="${escapeHtml(cat.name || '')}" placeholder="Örn: Çorbalar" oninput="updateMenuCatName(${catIdx}, this.value)" style="font-weight: 700; color: #818cf8; font-size: 13px; flex: 1;">
                     <button type="button" class="btn-danger" onclick="removeMenuCategory(${catIdx})" style="padding: 6px 10px; font-size: 11px; border-radius: 8px;" title="Kategoriyi Sil">🗑️ Sil</button>
                 </div>
                 
@@ -1191,13 +1210,13 @@ function renderMenuBuilderUI() {
             html += `
                 <div class="menu-item-row" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px;">
                     <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; margin-bottom: 6px;">
-                        <input type="text" class="form-input" value="${item.name || ''}" placeholder="Ürün Adı (Örn: Adana Kebap)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'name', this.value)" style="font-size: 12px;">
-                        <input type="text" class="form-input" value="${item.price || ''}" placeholder="Fiyat (Örn: 250 ₺)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'price', this.value)" style="font-size: 12px; font-weight: 600; color: #34d399;">
+                        <input type="text" class="form-input" value="${escapeHtml(item.name || '')}" placeholder="Örn: Mercimek Çorbası" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'name', this.value)" style="font-size: 12px;">
+                        <input type="text" class="form-input" value="${escapeHtml(item.price || '')}" placeholder="Örn: 120 ₺" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'price', this.value)" style="font-size: 12px; font-weight: 600; color: #34d399;">
                         <button type="button" style="background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.3); color: #f43f5e; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 11px;" onclick="removeMenuItem(${catIdx}, ${itemIdx})">✕</button>
                     </div>
                     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
-                        <input type="text" class="form-input" value="${item.description || item.desc || ''}" placeholder="Ürün İçeriği / Açıklama (Örn: Yanında garnitür ile servisi yapılır)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'description', this.value)" style="font-size: 11px; color: #cbd5e1;">
-                        <input type="text" class="form-input" value="${item.image_url || ''}" placeholder="Görsel URL (İsteğe bağlı)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'image_url', this.value)" style="font-size: 11px;">
+                        <input type="text" class="form-input" value="${escapeHtml(item.description || item.desc || '')}" placeholder="Ürün İçeriği / Açıklama (Örn: Yanında garnitür ile servisi yapılır)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'description', this.value)" style="font-size: 11px; color: #cbd5e1;">
+                        <input type="text" class="form-input" value="${escapeHtml(item.image_url || '')}" placeholder="Görsel URL (İsteğe bağlı)" oninput="updateMenuItemField(${catIdx}, ${itemIdx}, 'image_url', this.value)" style="font-size: 11px;">
                     </div>
                 </div>
             `;
@@ -1216,7 +1235,7 @@ function renderMenuBuilderUI() {
 function addMenuCategory() {
     if (!menuCategoriesData) menuCategoriesData = [];
     menuCategoriesData.push({
-        name: "Yeni Kategori",
+        name: "",
         items: [{ name: "", price: "", description: "", image_url: "" }]
     });
     renderMenuBuilderUI();
@@ -1278,7 +1297,7 @@ window.removeMenuItem = removeMenuItem;
 window.updateMenuItemField = updateMenuItemField;
 window.setMenuPrimaryColor = setMenuPrimaryColor;
 
-function getQRFormPayload() {
+/* [ESKİ SÜRÜM — studio.js içinde yeniden yazıldı: getQRFormPayload] function getQRFormPayload() {
     const title = getVal("qr-title", "Benim QR Kodum");
     const settings = {
         fill_color: getVal("fill-color", "#4F46E5"),
@@ -1368,7 +1387,7 @@ function getQRFormPayload() {
         menu_payload,
         folder_name: getSelectedFolderName()
     };
-}
+} */
 
 // Auth Status Check
 function renderInvoiceNotice() {
@@ -1414,7 +1433,7 @@ async function checkAuthStatus() {
     }
 }
 
-function setUserLoggedIn() {
+/* [ESKİ SÜRÜM — studio.js içinde yeniden yazıldı: setUserLoggedIn/Out] function setUserLoggedIn() {
     document.getElementById("nav-auth-btn").innerText = `Çıkış Yap (${currentUser.name})`;
     document.getElementById("nav-dash-link").style.display = "inline-block";
 }
@@ -1424,7 +1443,7 @@ function setUserLoggedOut() {
     localStorage.removeItem("jwt_token");
     document.getElementById("nav-auth-btn").innerText = "Giriş Yap / Kaydol";
     document.getElementById("nav-dash-link").style.display = "none";
-}
+} */
 
 function logout() {
     setUserLoggedOut();
@@ -1450,9 +1469,10 @@ async function processPendingQRPurchaseOrSave(token) {
             body: JSON.stringify(payload)
         });
 
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         if (res.ok) {
             uiToast(" Hesabınız oluşturuldu ve hazırladığınız QR kod başarıyla hesabınıza kaydedildi!");
+            onQRSavedSuccess(payload);
             loadDashboardData();
             
             // Switch active view to Dashboard Tab
@@ -1469,7 +1489,9 @@ async function processPendingQRPurchaseOrSave(token) {
             }
             return true;
         } else {
-            uiToast("QR Kod kaydedilirken hata oluştu: " + (data.error || "Bilinmeyen hata"));
+            if (!applyServerFieldErrors(data)) {
+                uiToast("QR Kod kaydedilirken hata oluştu: " + (data.error || "Bilinmeyen hata"));
+            }
             return false;
         }
     } catch (err) {
@@ -1576,35 +1598,7 @@ function setupForms() {
         }
     });
 
-    document.getElementById("save-qr-btn").addEventListener("click", async () => {
-        const token = localStorage.getItem("jwt_token");
-        const payload = getQRFormPayload();
-
-        if (!token) {
-            pendingQRPayload = payload; // Temporarily store draft in memory
-            uiToast("QR Kodunuzu hesabınıza kaydetmek için lütfen ücretsiz üye olun veya giriş yapın.");
-            openModal("auth-modal");
-            return;
-        }
-
-        const res = await fetch("/api/qr/create", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-            uiToast(" QR Kodunuz başarıyla hesabınıza kaydedildi!");
-            loadDashboardData();
-            document.getElementById("nav-dash-link").click();
-        } else {
-            uiToast(data.error || "Hata oluştu.");
-        }
-    });
+    document.getElementById("save-qr-btn").addEventListener("click", () => handleSaveQR());
 }
 
 let allQRCodes = [];
@@ -1629,7 +1623,7 @@ function getSelectedFolderName() {
     return selectEl.value || "Genel";
 }
 
-function getCardFolderSelectOptionsHTML(currentFolder, codes) {
+/* [ESKİ SÜRÜM — panel.js içinde yeniden yazıldı: klasör seçenekleri] function getCardFolderSelectOptionsHTML(currentFolder, codes) {
     const defaultFolders = ["Genel", "Restoran Menüleri", "Kartvizitler", "Etkinlikler"];
     const existingFolders = new Set(defaultFolders);
     if (currentFolder) existingFolders.add(currentFolder);
@@ -1666,7 +1660,7 @@ function populateFolderFilterSelect(codes) {
     });
 
     selectEl.innerHTML = optionsHTML;
-}
+} */
 
 function updateFilterCountsAndTabLabels(codes) {
     if (!codes) codes = [];
@@ -1702,7 +1696,7 @@ function filterQRList(type, val) {
     renderQRList(allQRCodes);
 }
 
-async function updateQRFolder(qrId, folderName) {
+/* [ESKİ SÜRÜM — panel.js içinde yeniden yazıldı: updateQRFolder] async function updateQRFolder(qrId, folderName) {
     const token = localStorage.getItem("jwt_token");
     if (!token) return;
 
@@ -1727,7 +1721,7 @@ async function updateQRFolder(qrId, folderName) {
     } catch (err) {
         console.error("Folder update error:", err);
     }
-}
+} */
 
 async function updateQRStatus(qrId, status) {
     const token = localStorage.getItem("jwt_token");
@@ -1745,7 +1739,7 @@ async function updateQRStatus(qrId, status) {
 }
 
 // Dashboard Data
-async function loadDashboardData() {
+/* [ESKİ SÜRÜM — panel.js içinde yeniden yazıldı: loadDashboardData] async function loadDashboardData() {
     const token = localStorage.getItem("jwt_token");
     if (!token) return;
 
@@ -1801,7 +1795,7 @@ async function loadDashboardData() {
             `;
         }
     }
-}
+} */
 
 async function toggleQRStatus(qrId, isChecked) {
     const status = isChecked ? "active" : "passive";
@@ -1852,7 +1846,7 @@ async function permanentDeleteQRCode(qrId) {
     }
 }
 
-function openQRAnalytics(qrId, title) {
+/* [ESKİ SÜRÜM — panel.js içinde yeniden yazıldı: openQRAnalytics, renderQRList, copyShareLink] function openQRAnalytics(qrId, title) {
     uiToast(` "${title}" Analitik Bilgileri:\nEşsiz Ziyaretçiler ve Tüm Cihaz Taramaları başarıyla kaydedilmiştir.`);
 }
 
@@ -2028,7 +2022,7 @@ function copyShareLink(url, btn) {
     } else {
         uiShowText("Paylaşım Linkiniz", url);
     }
-}
+} */
 
 // Modal Helpers
 function openModal(id) {
@@ -2514,9 +2508,11 @@ async function handleCardImageUpload(input, type) {
     try {
         const res = await fetch("/api/upload/image", {
             method: "POST",
+            headers: authHeaders(),
             body: formData
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok && data.error) uiToast("❌ " + data.error);
         if (res.ok && data.image_url) {
             if (hiddenElem) hiddenElem.value = data.image_url;
             if (statusElem) statusElem.innerText = "✅ Kartvizit ön yüz görseli yüklendi!";
@@ -2549,9 +2545,11 @@ async function handleEditAvatarUpload(input) {
     try {
         const res = await fetch('/api/upload/avatar', {
             method: 'POST',
+            headers: authHeaders(),
             body: formData
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok && data.error) uiToast('❌ ' + data.error);
         if (res.ok && (data.avatar_url || data.image_url)) {
             const finalUrl = data.avatar_url || data.image_url;
             if (hiddenInput) hiddenInput.value = finalUrl;
@@ -2597,9 +2595,11 @@ async function handleEditCardImageUpload(input) {
     try {
         const res = await fetch('/api/upload/image', {
             method: 'POST',
+            headers: authHeaders(),
             body: formData
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok && data.error) uiToast('❌ ' + data.error);
         if (res.ok && data.image_url) {
             if (hiddenInput) hiddenInput.value = data.image_url;
             if (statusElem) {
@@ -2645,7 +2645,7 @@ function escapeJsString(str) {
     return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
-async function openQRAnalyticsModal(qrId, title) {
+/* [ESKİ SÜRÜM — panel.js içinde yeniden yazıldı: openQRAnalyticsModal] async function openQRAnalyticsModal(qrId, title) {
     currentAnalyticsQRId = qrId;
     const modalTitle = document.getElementById("analytics-modal-title");
     if (modalTitle) modalTitle.innerText = `${title} — Tarama Analitiği`;
@@ -2751,14 +2751,14 @@ async function openQRAnalyticsModal(qrId, title) {
         uiToast("Sunucuya bağlanırken bir hata oluştu.");
         closeModal("modal-qr-analytics");
     }
-}
+} */
 
 function downloadAnalyticsFile(format) {
     if (!currentAnalyticsQRId) return;
     downloadQRAnalyticsDirect(currentAnalyticsQRId, format);
 }
 
-function downloadQRAnalyticsDirect(qrId, format) {
+/* [ESKİ SÜRÜM — panel.js içinde yeniden yazıldı: downloadQRAnalyticsDirect (Authorization başlığı + blob)] function downloadQRAnalyticsDirect(qrId, format) {
     const token = localStorage.getItem("jwt_token");
     if (!token) {
         uiToast("Lütfen önce oturum açın.");
@@ -2771,12 +2771,12 @@ function downloadQRAnalyticsDirect(qrId, format) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-}
+} */
 
 // QR Code Edit Modal Handlers
 let currentEditQRType = "url";
 
-async function openEditQRModal(qrId) {
+/* [ESKİ SÜRÜM — panel.js içinde yeniden yazıldı: openEditQRModal + saveQREdit] async function openEditQRModal(qrId) {
     const token = localStorage.getItem("jwt_token");
     if (!token) {
         uiToast("QR kodunu düzenlemek için lütfen önce giriş yapın.");
@@ -3198,6 +3198,6 @@ async function saveQREdit(event) {
             saveBtn.innerText = "💾 Değişiklikleri Kaydet";
         }
     }
-}
+} */
 
 
