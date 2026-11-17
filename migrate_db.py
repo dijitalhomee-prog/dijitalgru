@@ -443,7 +443,8 @@ def run_migrations():
     blank_homepage_targets()
     ensure_admin_user()
     sync_missing_subscriptions()
-    cleanup_test_accounts()
+    # cleanup_test_accounts() — KAPALI: e-postası desene uyan gerçek müşteri hesaplarını silme riski var.
+    # Test hesapları gerekirse elle ve tek tek silinir (admin paneli / DELETE /api/admin/users/<id>).
 
 def sync_missing_subscriptions():
     """
