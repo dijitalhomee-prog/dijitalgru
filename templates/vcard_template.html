@@ -1,319 +1,176 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ vcard.full_name or 'Dijital Kartvizit' }} — Dijitalgru QR Studio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --vcard-bg: {{ theme.bg_gradient or 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%)' }};
-            --vcard-primary: {{ theme.primary_color or '#6366f1' }};
-            --vcard-text: {{ theme.text_color or '#ffffff' }};
-            --vcard-subtext: {{ theme.subtext_color or '#94a3b8' }};
-            --vcard-card-bg: {{ theme.card_bg or 'rgba(255, 255, 255, 0.04)' }};
-            --vcard-card-border: {{ theme.card_border or 'rgba(255, 255, 255, 0.08)' }};
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        html, body { height: 100%; width: 100%; }
-        body { background: var(--vcard-bg); color: var(--vcard-text); min-height: 100vh; display: flex; justify-content: center; align-items: stretch; }
-        .card-container { width: 100%; max-width: 500px; min-height: 100vh; background: transparent; padding: 32px 20px 24px 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
-        .card-main-content { width: 100%; }
-        .avatar-img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--vcard-primary); object-fit: cover; margin: 0 auto 16px auto; box-shadow: 0 0 25px rgba(99, 102, 241, 0.3); display: block; }
-        .initials-avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--vcard-primary); border: 3px solid rgba(255,255,255,0.2); margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; color: #ffffff; box-shadow: 0 0 25px rgba(99, 102, 241, 0.3); }
-        .name { font-size: 22px; font-weight: 800; color: var(--vcard-text); margin-bottom: 4px; }
-        .title { font-size: 14px; font-weight: 600; color: var(--vcard-primary); margin-bottom: 4px; }
-        .company { font-size: 13px; color: var(--vcard-subtext); margin-bottom: 16px; font-weight: 500; }
-        .bio { font-size: 13px; color: var(--vcard-text); line-height: 1.5; margin-bottom: 24px; padding: 10px 14px; background: var(--vcard-card-bg); border-radius: 14px; border: 1px solid var(--vcard-card-border); text-align: left; }
-        
-        /* Quick Action Bar */
-        .quick-actions { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px; }
-        .qa-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px 6px; background: var(--vcard-card-bg); border: 1px solid var(--vcard-card-border); border-radius: 16px; color: var(--vcard-text); text-decoration: none; font-size: 11px; font-weight: 700; transition: all 0.2s ease; }
-        .qa-btn:hover { background: rgba(99, 102, 241, 0.2); border-color: var(--vcard-primary); transform: translateY(-2px); }
-        .qa-icon { font-size: 18px; }
-
-        /* Save Contact Button */
-        .btn-save-vcf { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; border-radius: 16px; font-size: 15px; font-weight: 800; color: #ffffff; text-decoration: none; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); margin-bottom: 24px; transition: all 0.3s ease; }
-        .btn-save-vcf:hover { transform: translateY(-2px); filter: brightness(1.1); }
-
-        /* Detail Cards List */
-        .details-list { display: flex; flex-direction: column; gap: 10px; text-align: left; }
-        .detail-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--vcard-card-bg); border: 1px solid var(--vcard-card-border); border-radius: 14px; text-decoration: none; color: var(--vcard-text); transition: all 0.2s ease; }
-        .detail-item:hover { background: rgba(255,255,255,0.08); border-color: var(--vcard-primary); }
-        .detail-icon { font-size: 18px; width: 32px; height: 32px; background: rgba(99, 102, 241, 0.15); color: var(--vcard-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; shrink: 0; }
-        .detail-content { flex: 1; overflow: hidden; }
-        .detail-label { font-size: 10px; font-weight: 700; color: var(--vcard-subtext); text-transform: uppercase; letter-spacing: 0.5px; }
-        .detail-val { font-size: 13px; font-weight: 600; color: var(--vcard-text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-
-        .footer { margin-top: auto; padding-top: 28px; font-size: 11px; color: var(--vcard-subtext); }
-        .footer a { color: var(--vcard-primary); text-decoration: none; font-weight: 700; }
-    </style>
-</head>
-<body>
-    <div class="card-container">
-        <div class="card-main-content">
-        <!-- Avatar -->
-        <div style="position: relative; width: 90px; height: 90px; margin: 0 auto 16px auto;">
-            {% if vcard.avatar_url %}
-            <img src="{{ vcard.avatar_url }}" alt="{{ vcard.full_name }}" class="avatar-img" style="margin:0; position: absolute; top: 0; left: 0; width: 90px; height: 90px; z-index: 2;" onerror="this.style.display='none'; document.getElementById('vcard-fallback-avatar').style.display='flex';">
-            {% endif %}
-            <div id="vcard-fallback-avatar" class="initials-avatar" style="display: {% if vcard.avatar_url %}none{% else %}flex{% endif %}; position: absolute; top: 0; left: 0; width: 90px; height: 90px; margin: 0; z-index: 1;">
-                {{ (vcard.full_name.strip()[0] if vcard.full_name else 'A') | upper }}
-            </div>
-        </div>
-
-        <!-- Header Info -->
-        <h1 class="name">{{ vcard.full_name }}</h1>
-        {% if vcard.title %}<div class="title">{{ vcard.title }}</div>{% endif %}
-        {% if vcard.company %}<div class="company">{{ vcard.company }}</div>{% endif %}
-
-        {% if vcard.card_image_url %}
-        <div style="margin: 16px 0; border-radius: 18px; overflow: hidden; border: 1px solid rgba(129, 140, 248, 0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.4); background: rgba(0,0,0,0.2);">
-            <img src="{{ vcard.card_image_url }}" alt="Kartvizit Ön Yüz Görseli" style="width: 100%; height: auto; display: block; object-fit: contain;" onerror="this.parentElement.style.display='none';">
-        </div>
+{% extends "public_base.html" %}
+{% from '_icons.html' import ic %}
+{% block title %}{{ vcard.full_name or 'Dijital Kartvizit' }} — Dijitalgru QR Studio{% endblock %}
+{% block description %}{{ vcard.full_name or 'Dijital kartvizit' }}{% if vcard.title %} · {{ vcard.title }}{% endif %}{% if vcard.company %} · {{ vcard.company }}{% endif %} — iletişim bilgilerini rehberinize kaydedin.{% endblock %}
+{% block default_primary %}#6366f1{% endblock %}
+{% block page %}
+{% set web = vcard.website or '' %}
+{% set web_href = web if (web.startswith('http://') or web.startswith('https://')) else ('https://' ~ web) %}
+{% set n_actions = (1 if vcard.phone else 0) + (1 if (vcard.phone and wa_digits) else 0) + (1 if vcard.email else 0) + (1 if web else 0) %}
+{% set soc = social or {} %}
+{% set soc_defs = [('instagram','Instagram'),('linkedin','LinkedIn'),('twitter','X (Twitter)'),('facebook','Facebook'),('youtube','YouTube'),('tiktok','TikTok'),('pinterest','Pinterest')] %}
+<main id="main" class="pb-main">
+    <header class="vc-hero">
+        {% if vcard.avatar_url %}
+        <img src="{{ vcard.avatar_url }}" alt="{{ vcard.full_name }} profil fotoğrafı" class="vc-avatar" width="112" height="112" fetchpriority="high" decoding="async"
+             onerror="this.hidden=true;document.getElementById('vcard-fallback-avatar').hidden=false;">
         {% endif %}
+        <div id="vcard-fallback-avatar" class="vc-initials" aria-hidden="true"{% if vcard.avatar_url %} hidden{% endif %}>{{ (((vcard.full_name or '').strip() or 'A')[0]) | upper }}</div>
+        <h1>{{ vcard.full_name }}</h1>
+        {% if vcard.title %}<p class="vc-role">{{ vcard.title }}</p>{% endif %}
+        {% if vcard.company %}<p class="vc-company">{{ vcard.company }}</p>{% endif %}
+    </header>
 
-        {% if vcard.bio %}
-        <p class="bio">📝 {{ vcard.bio }}</p>
-        {% endif %}
+    {% if vcard.bio %}
+    <p class="vc-bio surface">{{ vcard.bio }}</p>
+    {% endif %}
 
-        <!-- Primary Action Button: Save to Contacts -->
-        <a href="{{ vcf_url }}" id="vcard-download-btn" class="btn-save-vcf" onclick="handleVcfDownload(event, '{{ vcf_url }}')" style="position: relative; z-index: 100; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
-            👤 Rehbere Kaydet (.vcf)
-        </a>
-        <div id="vcf-toast" style="display: none; margin: 10px 0; padding: 12px 16px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 14px; color: #34d399; font-size: 12px; text-align: center; line-height: 1.5;">
-            ✅ <strong>Kişi Kartı Hazırlandı</strong><br>
-            <span style="font-size: 11px; color: #cbd5e1;" id="vcf-toast-text">Ekranda veya üst bildirim alanındaki <strong>"AÇ"</strong> ya da <strong>"Kişilere Ekle"</strong> butonuna dokunarak rehbere kaydedebilirsiniz.</span>
-        </div>
-
-        <!-- Quick Action Buttons Bar -->
-        <div class="quick-actions">
-            {% if vcard.phone %}
-            <a href="tel:{{ phone_e164 }}" class="qa-btn">
-                <span class="qa-icon">📞</span>
-                <span>Arama</span>
-            </a>
-            {% if wa_digits %}
-            <a href="https://wa.me/{{ wa_digits }}" target="_blank" rel="noopener" class="qa-btn">
-                <span class="qa-icon">💬</span>
-                <span>WhatsApp</span>
-            </a>
-            {% endif %}
-            {% endif %}
-            {% if vcard.email %}
-            <a href="mailto:{{ vcard.email }}" class="qa-btn">
-                <span class="qa-icon">✉️</span>
-                <span>E-posta</span>
-            </a>
-            {% endif %}
-            {% if vcard.website %}
-            <a href="{{ vcard.website }}" target="_blank" class="qa-btn">
-                <span class="qa-icon">🌐</span>
-                <span>Web Site</span>
-            </a>
-            {% endif %}
-        </div>
-
-        <!-- Social Media Profiles Section -->
-        {% if social and (social.instagram or social.linkedin or social.twitter or social.facebook or social.youtube or social.tiktok or social.pinterest) %}
-        <div style="margin-bottom: 24px;">
-            <div style="font-size: 11px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; text-align: left;">🌐 Sosyal Medya Profilleri</div>
-            <div style="display: flex; gap: 8px; justify-content: flex-start; flex-wrap: wrap;">
-                {% if social.instagram %}
-                <a href="{{ social.instagram if (social.instagram.startswith('http') or social.instagram.startswith('//')) else 'https://' + social.instagram }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(225, 48, 108, 0.15); border-color: rgba(225, 48, 108, 0.4); color: #f472b6;">
-                    <span class="qa-icon">📸</span>
-                    <span>Instagram</span>
-                </a>
-                {% endif %}
-                {% if social.linkedin %}
-                <a href="{{ social.linkedin if (social.linkedin.startswith('http') or social.linkedin.startswith('//')) else 'https://' + social.linkedin }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(10, 102, 194, 0.15); border-color: rgba(10, 102, 194, 0.4); color: #38bdf8;">
-                    <span class="qa-icon">💼</span>
-                    <span>LinkedIn</span>
-                </a>
-                {% endif %}
-                {% if social.twitter %}
-                <a href="{{ social.twitter if (social.twitter.startswith('http') or social.twitter.startswith('//')) else 'https://' + social.twitter }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #ffffff;">
-                    <span class="qa-icon">𝕏</span>
-                    <span>Twitter / X</span>
-                </a>
-                {% endif %}
-                {% if social.facebook %}
-                <a href="{{ social.facebook if (social.facebook.startswith('http') or social.facebook.startswith('//')) else 'https://' + social.facebook }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(24, 119, 242, 0.15); border-color: rgba(24, 119, 242, 0.4); color: #60a5fa;">
-                    <span class="qa-icon">📘</span>
-                    <span>Facebook</span>
-                </a>
-                {% endif %}
-                {% if social.youtube %}
-                <a href="{{ social.youtube if (social.youtube.startswith('http') or social.youtube.startswith('//')) else 'https://' + social.youtube }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(255, 0, 0, 0.15); border-color: rgba(255, 0, 0, 0.4); color: #f87171;">
-                    <span class="qa-icon">▶️</span>
-                    <span>YouTube</span>
-                </a>
-                {% endif %}
-                {% if social.tiktok %}
-                <a href="{{ social.tiktok if (social.tiktok.startswith('http') or social.tiktok.startswith('//')) else 'https://' + social.tiktok }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(0, 242, 234, 0.15); border-color: rgba(0, 242, 234, 0.4); color: #2dd4bf;">
-                    <span class="qa-icon">🎵</span>
-                    <span>TikTok</span>
-                </a>
-                {% endif %}
-                {% if social.pinterest %}
-                <a href="{{ social.pinterest if (social.pinterest.startswith('http') or social.pinterest.startswith('//')) else 'https://' + social.pinterest }}" target="_blank" class="qa-btn" style="flex: initial; min-width: 80px; background: rgba(230, 0, 35, 0.15); border-color: rgba(230, 0, 35, 0.4); color: #f87171;">
-                    <span class="qa-icon">📌</span>
-                    <span>Pinterest</span>
-                </a>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Detailed Information List Cards -->
-        <div class="details-list">
-            {% if vcard.phone %}
-            <a href="tel:{{ vcard.phone }}" class="detail-item">
-                <div class="detail-icon">📱</div>
-                <div class="detail-content">
-                    <div class="detail-label">Cep Telefonu</div>
-                    <div class="detail-val">{{ vcard.phone }}</div>
-                </div>
-            </a>
-            {% endif %}
-
-            {% if vcard.phone2 %}
-            <a href="tel:{{ vcard.phone2 }}" class="detail-item">
-                <div class="detail-icon">🏢</div>
-                <div class="detail-content">
-                    <div class="detail-label">İş Telefonu</div>
-                    <div class="detail-val">{{ vcard.phone2 }}</div>
-                </div>
-            </a>
-            {% endif %}
-
-            {% if vcard.email %}
-            <a href="mailto:{{ vcard.email }}" class="detail-item">
-                <div class="detail-icon">✉️</div>
-                <div class="detail-content">
-                    <div class="detail-label">E-posta Adresi</div>
-                    <div class="detail-val">{{ vcard.email }}</div>
-                </div>
-            </a>
-            {% endif %}
-
-            {% if vcard.website %}
-            <a href="{{ vcard.website }}" target="_blank" class="detail-item">
-                <div class="detail-icon">🌐</div>
-                <div class="detail-content">
-                    <div class="detail-label">Web Sitesi</div>
-                    <div class="detail-val">{{ vcard.website }}</div>
-                </div>
-            </a>
-            {% endif %}
-
-            {% if vcard.address %}
-            <a href="https://maps.google.com/?q={{ vcard.address }}" target="_blank" class="detail-item">
-                <div class="detail-icon">📍</div>
-                <div class="detail-content">
-                    <div class="detail-label">Adres / Şehir</div>
-                    <div class="detail-val">{{ vcard.address }}</div>
-                </div>
-            </a>
-            {% endif %}
-        </div>
-
-        </div>
-
-        <div class="footer">
-            Powered by <a href="/" target="_blank">Dijitalgru QR Studio</a>
-        </div>
+    <a href="{{ vcf_url }}" id="vcard-download-btn" class="pb-btn pb-btn--primary vc-save" onclick='return handleVcfDownload(event, {{ vcf_url|tojson }})'>
+        {{ ic('user-plus') }}<span>Rehbere Kaydet (.vcf)</span>
+    </a>
+    <div id="vcf-toast" class="pb-note" role="status" aria-live="polite">
+        <strong>Kişi kartı hazırlandı</strong><br>
+        <span id="vcf-toast-text">Ekranda veya üst bildirim alanındaki <strong>"Aç"</strong> ya da <strong>"Kişilere Ekle"</strong> düğmesine dokunarak rehbere kaydedebilirsiniz.</span>
     </div>
-    <script>
-    const VCF_URL = {{ vcf_url | tojson }};
-    async function generateVcardText() {
-        // Sunucudaki .vcf ile birebir aynı içerik (doğru N alanı, PHOTO, sosyal profiller)
-        const r = await fetch(VCF_URL, { cache: 'no-store', credentials: 'same-origin' });
-        if (!r.ok) throw new Error('vcf fetch failed');
-        return await r.text();
-    }
 
-    async function handleVcfDownload(e, url) {
-        if (e && e.preventDefault) e.preventDefault();
+    {% if n_actions %}
+    <nav class="actions" style="--n: {{ n_actions }};" aria-label="Hızlı iletişim">
+        {% if vcard.phone %}
+        <a href="tel:{{ phone_e164 or vcard.phone }}" class="act surface">{{ ic('phone') }}<span>Ara</span></a>
+        {% if wa_digits %}
+        <a href="https://wa.me/{{ wa_digits }}" target="_blank" rel="noopener" class="act surface">{{ ic('chat') }}<span>WhatsApp</span></a>
+        {% endif %}
+        {% endif %}
+        {% if vcard.email %}
+        <a href="mailto:{{ vcard.email }}" class="act surface">{{ ic('mail') }}<span>E-posta</span></a>
+        {% endif %}
+        {% if web %}
+        <a href="{{ web_href }}" target="_blank" rel="noopener" class="act surface">{{ ic('globe') }}<span>Web</span></a>
+        {% endif %}
+    </nav>
+    {% endif %}
 
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const toast = document.getElementById('vcf-toast');
-        const toastText = document.getElementById('vcf-toast-text');
-        const targetUrl = url || VCF_URL;
+    {% set ns = namespace(any=false) %}
+    {% for key, label in soc_defs %}{% if soc.get(key) %}{% set ns.any = true %}{% endif %}{% endfor %}
+    {% if ns.any %}
+    <section aria-labelledby="vc-soc-title">
+        <h2 class="sec-title" id="vc-soc-title">Sosyal Medya</h2>
+        <div class="socials">
+            {% for key, label in soc_defs %}{% set u = soc.get(key) %}{% if u %}
+            <a class="soc surface" id="vcard-social-{{ key }}" href="{{ u if (u.startswith('http') or u.startswith('//')) else 'https://' ~ u }}" target="_blank" rel="noopener noreferrer" aria-label="{{ label }}">{{ ic(key) }}</a>
+            {% endif %}{% endfor %}
+        </div>
+    </section>
+    {% endif %}
 
-        const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
-        const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
-        const fileName = `${safeName}.vcf`;
-        let vcardContent = '';
-        try { vcardContent = await generateVcardText(); } catch (fe) { window.location.href = targetUrl; return false; }
+    {% if vcard.phone or vcard.phone2 or vcard.email or web or vcard.address %}
+    <section aria-labelledby="vc-info-title">
+        <h2 class="sec-title" id="vc-info-title">İletişim Bilgileri</h2>
+        <div class="rows">
+            {% if vcard.phone %}
+            <a href="tel:{{ phone_e164 or vcard.phone }}" class="row surface"><span class="row-ico">{{ ic('phone') }}</span><span class="row-txt"><span class="row-lbl">Cep Telefonu</span><span class="row-val" style="display:block;">{{ vcard.phone }}</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% endif %}
+            {% if vcard.phone2 %}
+            <a href="tel:{{ vcard.phone2 }}" class="row surface"><span class="row-ico">{{ ic('building') }}</span><span class="row-txt"><span class="row-lbl">İş Telefonu</span><span class="row-val" style="display:block;">{{ vcard.phone2 }}</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% endif %}
+            {% if vcard.email %}
+            <a href="mailto:{{ vcard.email }}" class="row surface"><span class="row-ico">{{ ic('mail') }}</span><span class="row-txt"><span class="row-lbl">E-posta Adresi</span><span class="row-val" style="display:block;">{{ vcard.email }}</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% endif %}
+            {% if web %}
+            <a href="{{ web_href }}" target="_blank" rel="noopener" class="row surface"><span class="row-ico">{{ ic('globe') }}</span><span class="row-txt"><span class="row-lbl">Web Sitesi</span><span class="row-val" style="display:block;">{{ web }}</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% endif %}
+            {% if vcard.address %}
+            <a href="https://maps.google.com/?q={{ vcard.address | urlencode }}" target="_blank" rel="noopener" class="row surface"><span class="row-ico">{{ ic('pin') }}</span><span class="row-txt"><span class="row-lbl">Adres / Şehir</span><span class="row-val" style="display:block;">{{ vcard.address }}</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
 
-        // TIER 1: Web Share API File Sharing (Stock Android Chrome)
-        if (isAndroid || (!isIOS && navigator.canShare)) {
-            try {
-                const vcfFile = new File([vcardContent], fileName, { type: 'text/vcard' });
-                if (navigator.canShare && navigator.canShare({ files: [vcfFile] })) {
-                    if (toast && toastText) {
-                        toastText.innerHTML = '📱 Açılan menüden <strong>"Kişiler"</strong> seçeneğine dokunarak ekleyebilirsiniz.';
-                        toast.style.display = 'block';
-                        setTimeout(() => { toast.style.display = 'none'; }, 9000);
-                    }
-                    await navigator.share({
-                        files: [vcfFile],
-                        title: rawName,
-                        text: `${rawName} kişi kartı`
-                    });
-                    return false;
-                }
-            } catch (shareErr) {
-                console.warn('Web Share API error / cancelled:', shareErr);
-                if (shareErr && (shareErr.name === 'AbortError' || shareErr.code === 20)) {
-                    return false; // User closed share menu
-                }
-                console.error('Web Share failed, executing fallback download:', shareErr);
-            }
-        }
+    {% if vcard.card_image_url %}
+    <section aria-labelledby="vc-img-title">
+        <h2 class="sec-title" id="vc-img-title">Kartvizit</h2>
+        <div class="vc-cardimg"><img src="{{ vcard.card_image_url }}" alt="{{ vcard.full_name }} kartvizit görseli" loading="lazy" decoding="async" onerror="this.parentElement.hidden=true;"></div>
+    </section>
+    {% endif %}
+</main>
+{% endblock %}
+{% block scripts %}
+<script>
+const VCF_URL = {{ vcf_url | tojson }};
+function showNote(html, ms) {
+    var toast = document.getElementById('vcf-toast'), text = document.getElementById('vcf-toast-text');
+    if (!toast || !text) return;
+    text.innerHTML = html;
+    toast.classList.add('is-on');
+    clearTimeout(showNote._t);
+    showNote._t = setTimeout(function () { toast.classList.remove('is-on'); }, ms || 9000);
+}
+async function generateVcardText() {
+    // Sunucudaki .vcf ile birebir aynı içerik (doğru N alanı, PHOTO, sosyal profiller)
+    const r = await fetch(VCF_URL, { cache: 'no-store', credentials: 'same-origin' });
+    if (!r.ok) throw new Error('vcf fetch failed');
+    return await r.text();
+}
 
-        // TIER 2: Blob Download Fallback
-        if (isAndroid) {
-            try {
-                const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' });
-                const blobUrl = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+async function handleVcfDownload(e, url) {
+    if (e && e.preventDefault) e.preventDefault();
 
-                if (toast && toastText) {
-                    toastText.innerHTML = '✅ <strong>Kişi Kartı (.vcf) İndirildi!</strong><br><span style="font-size: 11px; color: #cbd5e1;">Üst bildirim alanından veya İndirilenler klasöründen dosyaya dokunarak rehbere ekleyin.</span>';
-                    toast.style.display = 'block';
-                    setTimeout(() => { toast.style.display = 'none'; }, 10000);
-                }
-                setTimeout(() => {
-                    window.location.href = targetUrl;
-                }, 300);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const targetUrl = url || VCF_URL;
+
+    const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
+    const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
+    const fileName = `${safeName}.vcf`;
+    let vcardContent = '';
+    try { vcardContent = await generateVcardText(); } catch (fe) { window.location.href = targetUrl; return false; }
+
+    // TIER 1: Web Share API File Sharing (Stock Android Chrome)
+    if (isAndroid || (!isIOS && navigator.canShare)) {
+        try {
+            const vcfFile = new File([vcardContent], fileName, { type: 'text/vcard' });
+            if (navigator.canShare && navigator.canShare({ files: [vcfFile] })) {
+                showNote('Açılan menüden <strong>"Kişiler"</strong> seçeneğine dokunarak ekleyebilirsiniz.', 9000);
+                await navigator.share({ files: [vcfFile], title: rawName, text: `${rawName} kişi kartı` });
                 return false;
-            } catch (blobErr) {
-                console.error('Blob download error:', blobErr);
             }
-        }
-
-        // TIER 3: iOS Safari & Direct Navigation Fallback
-        if (toast && toastText) {
-            if (isIOS) {
-                toastText.innerHTML = 'Açılan kişi kartı penceresinden sağ üstteki <strong>"Kaydet"</strong>e dokunmanız yeterlidir.';
-            } else {
-                toastText.innerHTML = '✅ <strong>Kişi kartı indiriliyor...</strong><br><span style="font-size: 11px; color: #cbd5e1;">İndirilen dosyaya dokunarak rehbere ekleyin.</span>';
+        } catch (shareErr) {
+            console.warn('Web Share API error / cancelled:', shareErr);
+            if (shareErr && (shareErr.name === 'AbortError' || shareErr.code === 20)) {
+                return false; // User closed share menu
             }
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 9000);
+            console.error('Web Share failed, executing fallback download:', shareErr);
         }
-        window.location.href = targetUrl;
-        return false;
     }
-    </script>
-</body>
-</html>
+
+    // TIER 2: Blob Download Fallback
+    if (isAndroid) {
+        try {
+            const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' });
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+            showNote('<strong>Kişi kartı (.vcf) indirildi.</strong><br>Üst bildirim alanından veya İndirilenler klasöründen dosyaya dokunarak rehbere ekleyin.', 10000);
+            setTimeout(() => { window.location.href = targetUrl; }, 300);
+            return false;
+        } catch (blobErr) {
+            console.error('Blob download error:', blobErr);
+        }
+    }
+
+    // TIER 3: iOS Safari & Direct Navigation Fallback
+    if (isIOS) {
+        showNote('Açılan kişi kartı penceresinden sağ üstteki <strong>"Kaydet"</strong> düğmesine dokunmanız yeterlidir.', 9000);
+    } else {
+        showNote('<strong>Kişi kartı indiriliyor...</strong><br>İndirilen dosyaya dokunarak rehbere ekleyin.', 9000);
+    }
+    window.location.href = targetUrl;
+    return false;
+}
+</script>
+{% endblock %}

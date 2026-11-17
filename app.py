@@ -44,6 +44,33 @@ try:
 except Exception as e:
     print(f"⚠️ DB initialization/migration note: {e}")
 
+import gzip as _gzip
+
+_GZIP_TYPES = ("text/html", "text/css", "application/javascript", "text/javascript", "application/json", "image/svg+xml")
+
+
+@app.after_request
+def _compress_response(resp):
+    try:
+        if (resp.status_code != 200 or "Content-Encoding" in resp.headers
+                or "gzip" not in (request.headers.get("Accept-Encoding") or "").lower()):
+            return resp
+        ctype = (resp.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+        if ctype not in _GZIP_TYPES:
+            return resp
+        resp.direct_passthrough = False
+        data = resp.get_data()
+        if len(data) < 1024:
+            return resp
+        resp.set_data(_gzip.compress(data, compresslevel=6))
+        resp.headers["Content-Encoding"] = "gzip"
+        resp.headers["Content-Length"] = str(len(resp.get_data()))
+        resp.headers.add("Vary", "Accept-Encoding")
+    except Exception:
+        pass
+    return resp
+
+
 # --- Helper Auth Middleware ---
 def get_current_user():
     auth_header = request.headers.get("Authorization")
@@ -179,8 +206,8 @@ def _is_owner_trial_expired(qr_id):
         pass
     return False
 
-def _error_page(heading, message, icon, status):
-    resp = make_response(render_template("qr_error.html", heading=heading, message=message, icon=icon), status)
+def _error_page(heading, message, icon, status, **extra):
+    resp = make_response(render_template("qr_error.html", heading=heading, message=message, icon=icon, **extra), status)
     resp.headers["Cache-Control"] = "no-store"
     return resp
 
@@ -197,30 +224,30 @@ def _err_target_missing():
     return _error_page("Hedef Adres Bulunamadı", "Bu QR kod için geçerli bir hedef tanımlanmamış. Lütfen QR kodun sahibiyle iletişime geçin.", "🧭", 404)
 
 
+def _err_unconfigured():
+    return _error_page("Bu QR kod henüz yapılandırılmamış", "Bu QR kodun gideceği adres henüz belirlenmemiş.", "🛠️", 404,
+                       hint="Lütfen daha sonra tekrar deneyin.",
+                       owner_hint="QR kodun sahibiyseniz panelden hedef ekleyin.")
+
+
 def _err_suspended():
     return _error_page("Hesap Askıya Alınmış", "Bu QR kodun bağlı olduğu hesap askıya alınmıştır.", "🚫", 403)
 
 
 def _find_qr(ident):
-    """short_code / custom_slug (veya eski sayısal id) ile QR + sahip bilgilerini bulur."""
-    sql = """
-        SELECT q.id, q.type, q.target_url, q.status, q.user_id, q.short_code, q.custom_slug, q.title,
-               u.plan, u.subscription_end, u.account_status
-        FROM qr_codes q LEFT JOIN users u ON q.user_id = u.id
-        WHERE {where}
-    """
+    """short_code / custom_slug ile QR + sahip bilgilerini bulur (sıralı sayısal id ile ARANMAZ)."""
     conn = get_db()
     try:
         cur = conn.cursor()
-        cur.execute(sql.format(where="q.short_code = ? OR q.custom_slug = ?"), (ident, ident))
+        cur.execute("""
+            SELECT q.id, q.type, q.target_url, q.status, q.user_id, q.short_code, q.custom_slug, q.title,
+                   u.plan, u.subscription_end, u.account_status
+            FROM qr_codes q LEFT JOIN users u ON q.user_id = u.id
+            WHERE q.short_code = ? OR q.custom_slug = ?
+        """, (ident, ident))
         row = cur.fetchone()
-        legacy = False
-        if not row and str(ident).isdigit() and len(str(ident)) <= 9:
-            cur.execute(sql.format(where="q.id = ?"), (int(ident),))
-            row = cur.fetchone()
-            legacy = True
         cur.close()
-        return (dict(row), legacy) if row else (None, False)
+        return (dict(row), False) if row else (None, False)
     finally:
         conn.close()
 
@@ -301,12 +328,18 @@ def redirect_qr(short_code):
 
     if kind == "error":
         if res.get("reason") == "social_empty":
-            return _error_page("Profil Bağlantısı Bulunamadı", "Bu QR kod için bir sosyal medya hesabı tanımlanmamış.", "🔗", 404)
+            return _error_page("Profil Bağlantısı Bulunamadı", "Bu QR kod için bir sosyal medya hesabı tanımlanmamış.", "🔗", 404,
+                               owner_hint="QR kodun sahibiyseniz panelden hesabınızı ekleyin.")
+        if res.get("reason") == "empty":
+            return _err_unconfigured()
         return _err_target_missing()
 
     _maybe_log_scan(qr["id"])
 
     if kind == "redirect":
+        m = re.match(r"^/p/(vcard|menu)/(\d+)(\.vcf)?$", res["url"])
+        if m:  # eski sayısal mikro sayfa hedefi → rastgele kodlu adres
+            return redirect(f"/p/{m.group(1)}/{qr['short_code']}{m.group(3) or ''}", code=302)
         resp = redirect(res["url"], code=302)
         resp.headers["Cache-Control"] = "no-store"
         return resp
@@ -435,7 +468,7 @@ def build_vcf(v, qr_type="vcard"):
 
 def _micro_gate(ident):
     qr, legacy = _find_qr(ident)
-    if not qr:
+    if not qr or qr.get("short_code") != ident:
         return None, None, _err_not_found()
     gate = _owner_gate(qr)
     if gate is not None:
@@ -454,10 +487,6 @@ def public_vcard(ident):
     t = qr.get("type")
     if t in SOCIAL_TYPES or t == "social":
         return redirect(f"/r/{qr['short_code']}", code=302)
-
-    # Eski sayısal URL'ler aynı sayfanın rastgele kodlu adresine yönlenir
-    if legacy and ident != qr.get("short_code"):
-        return redirect(f"/p/vcard/{qr['short_code']}" + (".vcf" if want_vcf else ""), code=302)
 
     v = _fetch_page_row("vcard_pages", qr["id"])
     if not v:
@@ -507,9 +536,6 @@ def public_menu(ident):
     qr, legacy, err = _micro_gate(ident)
     if err is not None:
         return err
-    if legacy and ident != qr.get("short_code"):
-        return redirect(f"/p/menu/{qr['short_code']}", code=302)
-
     menu_data = _fetch_page_row("menu_pages", qr["id"])
     if not menu_data:
         return _error_page("Menü Bulunamadı", "Bu menü / katalog sayfası bulunamadı.", "📄", 404)
@@ -2502,42 +2528,6 @@ def api_admin_audit_logs():
     conn.close()
     
     return jsonify({"audit_logs": logs})
-
-@app.route("/api/admin/maintenance/backup", methods=["GET"])
-def api_admin_backup():
-    """Yönetici: kritik tabloların JSON yedeği (migration öncesi güvenlik yedeği)."""
-    admin, err_resp = require_admin()
-    if err_resp:
-        return err_resp
-    import migrate_fix_records as mfr
-    conn = get_db()
-    cur = conn.cursor()
-    dump = {}
-    for t in mfr.TABLES:
-        try:
-            cur.execute(f"SELECT * FROM {t}")
-            dump[t] = [dict(r) for r in cur.fetchall()]
-        except Exception as e:
-            conn.rollback()
-            dump[t] = f"ERROR: {e}"
-    conn.close()
-    resp = Response(json.dumps(dump, ensure_ascii=False, default=str), mimetype="application/json")
-    resp.headers["Cache-Control"] = "no-store"
-    return resp
-
-
-@app.route("/api/admin/maintenance/fix-records", methods=["POST"])
-def api_admin_fix_records():
-    """Yönetici: genel kayıt düzeltme (dry_run varsayılan). Yedek alındıktan sonra apply=true ile çalıştırılır."""
-    admin, err_resp = require_admin()
-    if err_resp:
-        return err_resp
-    import migrate_fix_records as mfr
-    apply_changes = bool((request.get_json(silent=True) or {}).get("apply"))
-    stats = mfr.run(apply_changes)
-    log_admin_action(admin["id"], None, "FIX_RECORDS", f"apply={apply_changes} stats={json.dumps(stats)}")
-    return jsonify({"applied": apply_changes, "stats": stats})
-
 
 @app.errorhandler(500)
 def internal_error(error):

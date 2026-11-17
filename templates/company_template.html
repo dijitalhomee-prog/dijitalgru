@@ -1,121 +1,103 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <title>{{ company.name or vcard.company or 'Şirket Kartı' }} — Dijitalgru QR Studio</title>
-    <meta name="description" content="{{ company.name or vcard.company or 'Şirket Kartı' }} kurumsal iletişim kartı">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --cc-primary: {{ theme.primary_color or '#0ea5e9' }};
-            --cc-bg: {{ theme.bg_gradient or 'linear-gradient(180deg, #06121f 0%, #0b2540 100%)' }};
-            --cc-text: {{ theme.text_color or '#f8fafc' }};
-            --cc-sub: {{ theme.subtext_color or '#94a3b8' }};
-            --cc-card: {{ theme.card_bg or 'rgba(255,255,255,0.05)' }};
-            --cc-border: {{ theme.card_border or 'rgba(255,255,255,0.1)' }};
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
-        body { background: var(--cc-bg); color: var(--cc-text); min-height: 100vh; display: flex; justify-content: center; -webkit-text-size-adjust: 100%; }
-        .wrap { width: 100%; max-width: 520px; padding: 0 0 28px; }
-        .hero { padding: 40px 22px 30px; text-align: center; background: linear-gradient(180deg, rgba(14,165,233,.22), transparent); border-bottom: 1px solid var(--cc-border); }
-        .logo { width: 104px; height: 104px; border-radius: 26px; object-fit: contain; background: #fff; padding: 10px; margin: 0 auto 16px; display: block; box-shadow: 0 12px 34px rgba(0,0,0,.4); }
-        .logo-fallback { width: 104px; height: 104px; border-radius: 26px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 44px; font-weight: 800; background: var(--cc-primary); color: #fff; box-shadow: 0 12px 34px rgba(0,0,0,.4); }
-        h1 { font-size: 25px; font-weight: 800; line-height: 1.25; }
-        .sector { display: inline-block; margin-top: 10px; padding: 5px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--cc-primary); background: rgba(14,165,233,.14); border: 1px solid rgba(14,165,233,.35); }
-        .desc { margin-top: 14px; font-size: 14px; line-height: 1.6; color: var(--cc-sub); }
-        .section { padding: 0 18px; margin-top: 22px; }
-        .sec-title { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--cc-primary); margin-bottom: 10px; }
-        .row { display: flex; align-items: center; gap: 12px; padding: 13px 15px; margin-bottom: 8px; border-radius: 14px; background: var(--cc-card); border: 1px solid var(--cc-border); color: var(--cc-text); text-decoration: none; }
-        a.row:hover { border-color: var(--cc-primary); }
-        .ico { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(14,165,233,.15); font-size: 16px; }
-        .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--cc-sub); }
-        .val { font-size: 14px; font-weight: 600; word-break: break-word; white-space: pre-line; }
-        .person { padding: 16px; margin-bottom: 10px; border-radius: 18px; background: var(--cc-card); border: 1px solid var(--cc-border); }
-        .person .pn { font-size: 16px; font-weight: 800; }
-        .person .pt { font-size: 12px; color: var(--cc-primary); font-weight: 600; margin-bottom: 10px; }
-        .person .acts { display: flex; gap: 8px; flex-wrap: wrap; }
-        .chip { flex: 1 1 auto; min-width: 84px; text-align: center; padding: 10px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; text-decoration: none; color: var(--cc-text); background: rgba(255,255,255,.07); border: 1px solid var(--cc-border); }
-        .chip.wa { color: #4ade80; border-color: rgba(34,197,94,.4); background: rgba(34,197,94,.12); }
-        .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px; border-radius: 15px; font-size: 15px; font-weight: 800; color: #fff; text-decoration: none; background: linear-gradient(135deg, #0ea5e9, #0369a1); box-shadow: 0 8px 24px rgba(14,165,233,.35); }
-        .btn.green { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 8px 24px rgba(16,185,129,.35); margin-top: 10px; }
-        .socials { display: flex; flex-wrap: wrap; gap: 8px; }
-        .foot { text-align: center; margin-top: 26px; font-size: 11px; color: var(--cc-sub); }
-        .foot a { color: var(--cc-primary); text-decoration: none; font-weight: 700; }
-    </style>
-</head>
-<body>
-<main class="wrap">
-    <header class="hero">
-        {% if company.logo_url %}
-        <img class="logo" id="company-logo" src="{{ company.logo_url }}" alt="{{ company.name or vcard.company }} logosu" onerror="this.style.display='none';document.getElementById('company-logo-fallback').style.display='flex';">
-        <div class="logo-fallback" id="company-logo-fallback" style="display:none;">{{ ((company.name or vcard.company or 'Ş').strip()[0]) | upper }}</div>
-        {% else %}
-        <div class="logo-fallback" id="company-logo-fallback">{{ ((company.name or vcard.company or 'Ş').strip()[0]) | upper }}</div>
-        {% endif %}
-        <h1>{{ company.name or vcard.company or vcard.full_name }}</h1>
-        {% if company.sector %}<div class="sector">{{ company.sector }}</div>{% endif %}
-        {% if vcard.bio %}<p class="desc">{{ vcard.bio }}</p>{% endif %}
-    </header>
-
-    {% if contacts %}
-    <section class="section" aria-label="Yetkili kişiler">
-        <div class="sec-title">Yetkili Kişiler</div>
-        {% for p in contacts %}
-        <div class="person">
-            <div class="pn">{{ p.name }}</div>
-            {% if p.title %}<div class="pt">{{ p.title }}</div>{% endif %}
-            <div class="acts">
-                {% if p.tel %}<a class="chip" href="tel:{{ p.tel }}">📞 Ara</a>{% endif %}
-                {% if p.wa %}<a class="chip wa" href="https://wa.me/{{ p.wa }}" target="_blank" rel="noopener">💬 WhatsApp</a>{% endif %}
-                {% if p.email %}<a class="chip" href="mailto:{{ p.email }}">✉️ E-posta</a>{% endif %}
+{% extends "public_base.html" %}
+{% from '_icons.html' import ic %}
+{% set cname = company.name or vcard.company or vcard.full_name or 'Şirket Kartı' %}
+{% block title %}{{ cname }} — Dijitalgru QR Studio{% endblock %}
+{% block description %}{{ cname }} kurumsal iletişim kartı{% endblock %}
+{% block default_primary %}#0ea5e9{% endblock %}
+{% block default_bg %}linear-gradient(180deg, #06121f 0%, #0b2540 100%){% endblock %}
+{% block page %}
+{% set web = vcard.website or '' %}
+{% set web_href = web if (web.startswith('http://') or web.startswith('https://')) else ('https://' ~ web) %}
+{% set maps = (company.maps_url if (company.maps_url and company.maps_url.startswith('http')) else '') or (('https://maps.google.com/?q=' ~ (vcard.address | urlencode)) if vcard.address else '') %}
+{% set n_actions = (1 if vcard.phone else 0) + (1 if vcard.email else 0) + (1 if web else 0) + (1 if maps else 0) %}
+<main id="main" class="pb-main">
+    <header class="co-head">
+        <div class="co-id">
+            {% if company.logo_url %}
+            <img class="co-logo" id="company-logo" src="{{ company.logo_url }}" alt="{{ cname }} logosu" width="92" height="92" fetchpriority="high" decoding="async"
+                 onerror="this.hidden=true;document.getElementById('company-logo-fallback').hidden=false;">
+            <div class="co-logo-fb" id="company-logo-fallback" aria-hidden="true" hidden>{{ ((cname.strip() or 'Ş')[0]) | upper }}</div>
+            {% else %}
+            <div class="co-logo-fb" id="company-logo-fallback" aria-hidden="true">{{ ((cname.strip() or 'Ş')[0]) | upper }}</div>
+            {% endif %}
+            <div>
+                <h1>{{ cname }}</h1>
+                {% if company.sector %}<span class="co-sector">{{ company.sector }}</span>{% endif %}
             </div>
         </div>
+        {% if vcard.bio %}<p class="co-desc">{{ vcard.bio }}</p>{% endif %}
+    </header>
+
+    {% if n_actions %}
+    <nav class="actions" style="--n: {{ n_actions }};" aria-label="Hızlı iletişim">
+        {% if vcard.phone %}<a class="act surface" href="tel:{{ phone_e164 or vcard.phone }}">{{ ic('phone') }}<span>Ara</span></a>{% endif %}
+        {% if vcard.email %}<a class="act surface" href="mailto:{{ vcard.email }}">{{ ic('mail') }}<span>E-posta</span></a>{% endif %}
+        {% if web %}<a class="act surface" href="{{ web_href }}" target="_blank" rel="noopener">{{ ic('globe') }}<span>Web</span></a>{% endif %}
+        {% if maps %}<a class="act surface" href="{{ maps }}" target="_blank" rel="noopener">{{ ic('route') }}<span>Yol Tarifi</span></a>{% endif %}
+    </nav>
+    {% endif %}
+
+    <a href="{{ vcf_url }}" id="vcard-download-btn" class="pb-btn pb-btn--primary vc-save">{{ ic('user-plus') }}<span>Rehbere Kaydet (.vcf)</span></a>
+
+    {% if contacts %}
+    <section aria-labelledby="co-people">
+        <h2 class="co-sec-title" id="co-people">Yetkili Kişiler</h2>
+        {% for p in contacts %}
+        <article class="co-person surface">
+            <div class="co-person-top">
+                <div class="co-pav" aria-hidden="true">{{ (((p.name or '').strip() or '?')[0]) | upper }}</div>
+                <div>
+                    <h3 class="co-pn">{{ p.name }}</h3>
+                    {% if p.title %}<p class="co-pt">{{ p.title }}</p>{% endif %}
+                </div>
+            </div>
+            {% if p.tel or p.wa or p.email %}
+            <div class="co-pacts">
+                {% if p.tel %}<a class="chip" href="tel:{{ p.tel }}" aria-label="{{ p.name }} kişisini ara">{{ ic('phone') }}Ara</a>{% endif %}
+                {% if p.wa %}<a class="chip" href="https://wa.me/{{ p.wa }}" target="_blank" rel="noopener" aria-label="{{ p.name }} kişisine WhatsApp ile yaz">{{ ic('chat') }}WhatsApp</a>{% endif %}
+                {% if p.email %}<a class="chip" href="mailto:{{ p.email }}" aria-label="{{ p.name }} kişisine e-posta gönder">{{ ic('mail') }}E-posta</a>{% endif %}
+            </div>
+            {% endif %}
+        </article>
         {% endfor %}
     </section>
     {% endif %}
 
-    <section class="section" aria-label="Şirket bilgileri">
-        <div class="sec-title">Şirket Bilgileri</div>
-        {% if vcard.phone %}
-        <a class="row" href="tel:{{ phone_e164 }}"><div class="ico">📞</div><div><div class="lbl">Telefon</div><div class="val">{{ vcard.phone }}</div></div></a>
-        {% endif %}
-        {% if vcard.email %}
-        <a class="row" href="mailto:{{ vcard.email }}"><div class="ico">✉️</div><div><div class="lbl">E-posta</div><div class="val">{{ vcard.email }}</div></div></a>
-        {% endif %}
-        {% if vcard.website %}
-        <a class="row" href="{{ vcard.website }}" target="_blank" rel="noopener"><div class="ico">🌐</div><div><div class="lbl">Web Sitesi</div><div class="val">{{ vcard.website }}</div></div></a>
-        {% endif %}
-        {% if vcard.address %}
-        <a class="row" href="{{ company.maps_url or ('https://maps.google.com/?q=' ~ (vcard.address | urlencode)) }}" target="_blank" rel="noopener"><div class="ico">📍</div><div><div class="lbl">Adres</div><div class="val">{{ vcard.address }}</div></div></a>
-        {% elif company.maps_url %}
-        <a class="row" href="{{ company.maps_url }}" target="_blank" rel="noopener"><div class="ico">📍</div><div><div class="lbl">Konum</div><div class="val">Haritada Göster</div></div></a>
-        {% endif %}
-        {% if company.working_hours %}
-        <div class="row"><div class="ico">🕒</div><div><div class="lbl">Çalışma Saatleri</div><div class="val">{{ company.working_hours }}</div></div></div>
-        {% endif %}
-        {% if company.tax_office or company.tax_no %}
-        <div class="row"><div class="ico">🧾</div><div><div class="lbl">Vergi Bilgileri</div><div class="val">{{ company.tax_office }}{% if company.tax_office and company.tax_no %} · {% endif %}{{ company.tax_no }}</div></div></div>
-        {% endif %}
+    <section aria-labelledby="co-info">
+        <h2 class="co-sec-title" id="co-info">Şirket Bilgileri</h2>
+        <div class="rows">
+            {% if vcard.phone %}
+            <a class="row surface" href="tel:{{ phone_e164 or vcard.phone }}"><span class="row-ico">{{ ic('phone') }}</span><span class="row-txt"><span class="row-lbl">Telefon</span><span class="row-val" style="display:block;">{{ vcard.phone }}</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% endif %}
+            {% if vcard.email %}
+            <a class="row surface" href="mailto:{{ vcard.email }}"><span class="row-ico">{{ ic('mail') }}</span><span class="row-txt"><span class="row-lbl">E-posta</span><span class="row-val" style="display:block;">{{ vcard.email }}</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% endif %}
+            {% if web %}
+            <a class="row surface" href="{{ web_href }}" target="_blank" rel="noopener"><span class="row-ico">{{ ic('globe') }}</span><span class="row-txt"><span class="row-lbl">Web Sitesi</span><span class="row-val" style="display:block;">{{ web }}</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% endif %}
+            {% if vcard.address %}
+            <a class="row surface" href="{{ maps }}" target="_blank" rel="noopener"><span class="row-ico">{{ ic('pin') }}</span><span class="row-txt"><span class="row-lbl">Adres</span><span class="row-val" style="display:block;">{{ vcard.address }}</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% elif maps %}
+            <a class="row surface" href="{{ maps }}" target="_blank" rel="noopener"><span class="row-ico">{{ ic('pin') }}</span><span class="row-txt"><span class="row-lbl">Konum</span><span class="row-val" style="display:block;">Haritada Göster</span></span>{{ ic('arrow-up-right','row-go') }}</a>
+            {% endif %}
+            {% if company.working_hours %}
+            <div class="row surface"><span class="row-ico">{{ ic('clock') }}</span><span class="row-txt"><span class="row-lbl">Çalışma Saatleri</span><span class="row-val" style="display:block;">{{ company.working_hours }}</span></span></div>
+            {% endif %}
+            {% if company.tax_office or company.tax_no %}
+            <div class="row surface"><span class="row-ico">{{ ic('receipt') }}</span><span class="row-txt"><span class="row-lbl">Vergi Bilgileri</span><span class="row-val" style="display:block;">{{ company.tax_office }}{% if company.tax_office and company.tax_no %} · {% endif %}{{ company.tax_no }}</span></span></div>
+            {% endif %}
+        </div>
     </section>
 
     {% if social_list %}
-    <section class="section" aria-label="Sosyal medya">
-        <div class="sec-title">Sosyal Medya</div>
+    <section aria-labelledby="co-soc">
+        <h2 class="co-sec-title" id="co-soc">Sosyal Medya</h2>
         <div class="socials">
             {% for key, label, url in social_list %}
-            <a class="chip" href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ label }}</a>
+            <a class="soc surface" href="{{ url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ label }}">{{ ic(key if key in ('instagram','linkedin','twitter','facebook','youtube','tiktok','pinterest') else 'link') }}</a>
             {% endfor %}
         </div>
     </section>
     {% endif %}
-
-    <section class="section">
-        <a href="{{ vcf_url }}" id="vcard-download-btn" class="btn green">👤 Rehbere Kaydet (.vcf)</a>
-    </section>
-
-    <div class="foot">Powered by <a href="https://qrdijitalgru.com" rel="noopener">Dijitalgru QR Studio</a></div>
 </main>
-</body>
-</html>
+{% endblock %}

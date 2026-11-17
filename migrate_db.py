@@ -5,13 +5,17 @@ from db import get_db, is_postgres
 
 def ensure_admin_user():
     """
-    Ensures that dijitalgru@gmail.com exists with password '459683758' (hashed via Werkzeug pbkdf2:sha256)
-    and is set as is_admin = True in both PostgreSQL and SQLite.
+    Yönetici hesabını ADMIN_EMAIL / ADMIN_PASSWORD ortam değişkenlerinden oluşturur/günceller
+    (pbkdf2:sha256 ile hashlenir, is_admin = True). Değişkenlerden biri yoksa yönetici
+    oluşturulmaz/güncellenmez ve uyarı loglanır. Şifre koda yazılmaz.
     """
+    admin_email = (os.environ.get("ADMIN_EMAIL") or "").strip()
+    admin_pass = os.environ.get("ADMIN_PASSWORD") or ""
+    if not admin_email or not admin_pass:
+        print("⚠️ ADMIN_EMAIL / ADMIN_PASSWORD ortam değişkenleri tanımlı değil — yönetici hesabı oluşturulmadı/güncellenmedi.")
+        return
     conn = get_db()
     cursor = conn.cursor()
-    admin_email = "dijitalgru@gmail.com"
-    admin_pass = "459683758"
     hashed = generate_password_hash(admin_pass, method="pbkdf2:sha256")
     now = int(time.time())
     sub_end = now + (86400 * 3650) # 10 years
@@ -46,7 +50,7 @@ def ensure_admin_user():
                 VALUES (?, ?, ?, 'business', ?, 10000, 1, 'active', ?)
                 """, ('Furkan Egemen Güneş', admin_email, hashed, sub_end, now))
         conn.commit()
-        print("✅ Primary Admin User (dijitalgru@gmail.com) ensured.")
+        print(f"✅ Primary Admin User ({admin_email}) ensured.")
     except Exception as e:
         conn.rollback()
         print("⚠️ ensure_admin_user note:", e)
@@ -90,6 +94,59 @@ def cleanup_test_accounts():
     except Exception as e:
         conn.rollback()
         print("⚠️ cleanup_test_accounts note:", e)
+    finally:
+        conn.close()
+
+def blank_homepage_targets():
+    """Eski onarımın bıraktığı imza: hedef tam olarak 'https://qrdijitalgru.com' (sonda / yok).
+    Bu kayıtlar boş hedefliydi; tekrar boşaltılır (idempotent, tüm hesaplar için)."""
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("UPDATE qr_codes SET target_url = '' WHERE target_url = 'https://qrdijitalgru.com'")
+        n = cursor.rowcount
+        conn.commit()
+        if n and n > 0:
+            print(f"✅ {n} QR'ın ana sayfaya çevrilmiş hedefi tekrar boşaltıldı (yapılandırılmamış sayfası gösterilir).")
+        return n or 0
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ blank_homepage_targets note:", e)
+        return 0
+    finally:
+        conn.close()
+
+
+def fix_numeric_micro_targets():
+    """
+    Genel ve idempotent: hedefi sıralı sayısal mikro sayfa adresi olan kayıtları
+    (/p/vcard/<id>.vcf, /p/vcard/<id>, /p/menu/<id>) rastgele short_code adresine taşır.
+    Sayısal mikro sayfa adresleri artık 404 verdiği için basılı QR'lar bundan etkilenmez
+    (/r/ zaten short_code ile çalışır).
+    """
+    import re
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT id, short_code, target_url FROM qr_codes WHERE target_url LIKE '/p/vcard/%' OR target_url LIKE '/p/menu/%'")
+        rows = cursor.fetchall()
+        fixed = 0
+        for r in rows:
+            m = re.match(r"^/p/(vcard|menu)/(\d+)(\.vcf)?$", r["target_url"] or "")
+            if not m or not r["short_code"]:
+                continue
+            new = f"/p/{m.group(1)}/{r['short_code']}{m.group(3) or ''}"
+            if is_postgres():
+                cursor.execute("UPDATE qr_codes SET target_url = %s WHERE id = %s", (new, r["id"]))
+            else:
+                cursor.execute("UPDATE qr_codes SET target_url = ? WHERE id = ?", (new, r["id"]))
+            fixed += 1
+        conn.commit()
+        if fixed:
+            print(f"✅ {fixed} sayısal mikro sayfa hedefi short_code adresine taşındı.")
+    except Exception as e:
+        conn.rollback()
+        print("⚠️ Numeric micro target migration note:", e)
     finally:
         conn.close()
 
@@ -330,7 +387,9 @@ def run_migrations():
             elif qtype in ["vcard", "company_card"]:
                 new_target = f"micropage://vcard/{qid}"
             else:
-                new_target = "https://qrdijitalgru.com"
+                # Genel (web vb.) QR'ın hedefi boşsa ana sayfaya ÇEVİRME: müşterinin QR'ı sessizce
+                # bizim siteye giderdi. Boş kalır; /r/ 'henüz yapılandırılmamış' sayfasını gösterir.
+                continue
 
             if is_postgres():
                 cursor.execute("UPDATE qr_codes SET target_url = %s WHERE id = %s", (new_target, qid))
@@ -380,6 +439,8 @@ def run_migrations():
     conn.close()
 
     # Always ensure primary admin user is configured, missing subscriptions synced, and test accounts cleaned up
+    fix_numeric_micro_targets()
+    blank_homepage_targets()
     ensure_admin_user()
     sync_missing_subscriptions()
     cleanup_test_accounts()

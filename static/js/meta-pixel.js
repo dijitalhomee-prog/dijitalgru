@@ -102,7 +102,7 @@
       "#mc-consent-banner .mc-btns{display:flex;gap:8px;flex:0 0 auto}" +
       "#mc-consent-banner button{border-radius:10px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;" +
       "font-family:inherit;transition:all .2s}" +
-      "#mc-accept{background:#6366f1;color:#fff;border:1px solid #6366f1}#mc-accept:hover{background:#4f46e5}" +
+      "#mc-accept{background:#4338ca;color:#fff;border:1px solid #4338ca}#mc-accept:hover{background:#4f46e5}" +
       "#mc-reject{background:transparent;color:#cbd5e1;border:1px solid rgba(148,163,184,.5)}#mc-reject:hover{background:rgba(148,163,184,.15)}";
     var st = document.createElement("style");
     st.id = "mc-consent-style";

@@ -1,9 +1,28 @@
 {% extends "public_base.html" %}
+{% from '_icons.html' import ic %}
 {% block title %}{{ heading }} — Dijitalgru QR{% endblock %}
 {% block description %}{{ message }}{% endblock %}
+{#- icon: app.py'nin gönderdiği emoji; sayfada satır içi SVG'ye çevrilir. İsteğe bağlı: hint (alt metin), owner_hint (QR sahibine not). -#}
 {% block content %}
-    <div class="pb-icon" aria-hidden="true">{{ icon }}</div>
+    {% set _i = icon|default('') %}
+    {% if '🔍' in _i %}{% set _n = 'search' %}
+    {% elif '⏸' in _i %}{% set _n = 'pause' %}
+    {% elif '🧭' in _i %}{% set _n = 'compass' %}
+    {% elif '🚫' in _i %}{% set _n = 'ban' %}
+    {% elif '⚠' in _i %}{% set _n = 'alert' %}
+    {% elif '🔗' in _i %}{% set _n = 'link' %}
+    {% elif '📇' in _i %}{% set _n = 'card' %}
+    {% elif '📄' in _i %}{% set _n = 'file' %}
+    {% elif '🛠' in _i or '⚙' in _i or '🧩' in _i %}{% set _n = 'sliders' %}
+    {% else %}{% set _n = 'alert' %}{% endif %}
+    <div class="pb-tile">{{ ic(_n) }}</div>
     <h1>{{ heading }}</h1>
     <p class="pb-sub">{{ message }}</p>
-    <a class="pb-btn" href="https://qrdijitalgru.com">Dijitalgru QR Studio'ya Git</a>
+    {% if hint %}<p class="pb-hint">{{ hint }}</p>{% endif %}
+    {% if owner_hint %}
+    <div class="pb-owner" role="note">{{ ic('sliders') }}<span>{{ owner_hint }}</span></div>
+    <a class="pb-btn pb-btn--primary" href="https://qrdijitalgru.com">Panele git {{ ic('arrow-up-right') }}</a>
+    {% else %}
+    <a class="pb-btn pb-btn--primary" href="https://qrdijitalgru.com">Dijitalgru QR Studio'ya Git {{ ic('arrow-up-right') }}</a>
+    {% endif %}
 {% endblock %}

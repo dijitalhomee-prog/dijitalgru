@@ -1,72 +1,126 @@
+{% from '_icons.html' import ic, sprite -%}
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%234f46e5%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-size=%2720%27 font-family=%27Arial%27 font-weight=%27700%27 text-anchor=%27middle%27 fill=%27white%27%3EG%3C/text%3E%3C/svg%3E">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="color-scheme" content="dark light">
     <meta name="robots" content="noindex, nofollow">
     <title>{% block title %}Dijitalgru QR Studio{% endblock %}</title>
-    <meta name="description" content="{% block description %}Dijitalgru QR Studio{% endblock %}">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
-        html, body { min-height: 100%; }
-        body {
-            background: radial-gradient(1200px 600px at 50% -10%, rgba(99,102,241,.35), transparent 60%),
-                        linear-gradient(180deg, #0b1020 0%, #14123a 100%);
-            color: #f8fafc; min-height: 100vh; min-height: 100dvh;
-            display: flex; align-items: center; justify-content: center;
-            padding: 24px 16px; -webkit-text-size-adjust: 100%;
+    <meta name="description" content="{% block description %}Dijitalgru QR Studio ile hazırlanmış sayfa{% endblock %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap"></noscript>
+    <link rel="stylesheet" href="/static/css/public.css?v=3">
+    {% block head_extra %}{% endblock %}
+    <script>
+    /* Müşteri teması → CSS değişkenleri. Metin/vurgu renkleri arka plana göre WCAG AA (4.5:1) olacak şekilde otomatik seçilir. */
+    (function () {
+        var T = {{ (theme or {})|tojson }};
+        if (!T || typeof T !== 'object') T = {};
+        var DP = "{% block default_primary %}#818cf8{% endblock %}";
+        var DB = "{% block default_bg %}linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%){% endblock %}";
+        var s = document.documentElement.style;
+        function pc(c) {
+            if (typeof c !== 'string') return null;
+            c = c.trim(); var m, a = 1;
+            if ((m = /^#([0-9a-f]{3,8})$/i.exec(c))) {
+                var h = m[1];
+                if (h.length === 3 || h.length === 4) h = h.replace(/./g, '$&$&');
+                if (h.length !== 6 && h.length !== 8) return null;
+                if (h.length === 8) a = parseInt(h.substr(6, 2), 16) / 255;
+                return [parseInt(h.substr(0, 2), 16), parseInt(h.substr(2, 2), 16), parseInt(h.substr(4, 2), 16), a];
+            }
+            if ((m = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,\/]+([\d.]+)(%?))?\s*\)$/i.exec(c))) {
+                if (m[4] !== undefined) a = m[5] ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
+                return [+m[1], +m[2], +m[3], a];
+            }
+            return null;
         }
-        .pb-card {
-            width: 100%; max-width: 440px; text-align: center;
-            background: rgba(30,41,59,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255,255,255,.1); border-radius: 26px;
-            padding: 34px 24px 26px; box-shadow: 0 24px 60px rgba(0,0,0,.5);
-            animation: pb-in .45s ease both;
+        function lum(c) {
+            var v = [0, 1, 2].map(function (i) { var x = c[i] / 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); });
+            return .2126 * v[0] + .7152 * v[1] + .0722 * v[2];
         }
-        @keyframes pb-in { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: none; } }
-        .pb-icon {
-            width: 72px; height: 72px; margin: 0 auto 18px; border-radius: 22px;
-            display: flex; align-items: center; justify-content: center; font-size: 34px;
-            background: linear-gradient(135deg, rgba(99,102,241,.35), rgba(16,185,129,.25));
-            border: 1px solid rgba(255,255,255,.12);
+        function con(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
+        function minC(c, bgs) { var m = 99; bgs.forEach(function (b) { m = Math.min(m, con(c, b)); }); return m; }
+        function mix(a, b, t) { return [0, 1, 2].map(function (i) { return Math.round(a[i] + (b[i] - a[i]) * t); }); }
+        function blend(f, b) { var a = f[3] === undefined ? 1 : f[3]; return [0, 1, 2].map(function (i) { return Math.round(f[i] * a + b[i] * (1 - a)); }); }
+        function rgb(c) { return c[0] + ',' + c[1] + ',' + c[2]; }
+        function hex(c) { return '#' + c.slice(0, 3).map(function (x) { return ('0' + Math.max(0, Math.min(255, x)).toString(16)).slice(-2); }).join(''); }
+        function safe(v) { return typeof v === 'string' && v.length < 400 && !/[;{}<>\\]|url\s*\(|expression|@import/i.test(v); }
+        function fix(c, bgs, target) {          /* kontrast yetmiyorsa açık/koyu yöne kaydır */
+            if (minC(c, bgs) >= target) return c;
+            var dark = bgs.reduce(function (t, b) { return t + lum(b); }, 0) / bgs.length < .45;
+            var to = dark ? [255, 255, 255] : [0, 0, 0];
+            for (var t = .1; t <= 1.001; t += .1) { var n = mix(c, to, t); if (minC(n, bgs) >= target) return n; }
+            return to;
         }
-        h1 { font-size: 21px; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
-        .pb-sub { font-size: 14px; color: #94a3b8; line-height: 1.55; margin-bottom: 20px; }
-        .pb-box {
-            text-align: left; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.08);
-            border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; word-break: break-word;
+        function pick(user, bgs) {
+            var c = pc(user); if (c && minC(c, bgs) >= 4.5) return [c.slice(0, 3), true];
+            var l = [248, 250, 252], d = [15, 23, 42];
+            return [minC(l, bgs) >= minC(d, bgs) ? l : d, false];
         }
-        .pb-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #818cf8; margin-bottom: 4px; }
-        .pb-value { font-size: 16px; font-weight: 600; color: #f1f5f9; white-space: pre-wrap; line-height: 1.5; }
-        .pb-btn {
-            display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-            padding: 15px; margin-top: 10px; border: 0; border-radius: 14px; cursor: pointer;
-            font-size: 15px; font-weight: 700; color: #fff; text-decoration: none;
-            background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 6px 20px rgba(79,70,229,.4);
-            transition: transform .15s, filter .15s;
-        }
-        .pb-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
-        .pb-btn.secondary { background: rgba(255,255,255,.08); box-shadow: none; border: 1px solid rgba(255,255,255,.14); }
-        .pb-btn.ok { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 6px 20px rgba(16,185,129,.35); }
-        .pb-foot { margin-top: 22px; font-size: 12px; color: #64748b; }
-        .pb-foot a { color: #818cf8; text-decoration: none; font-weight: 600; }
-        {% block extra_css %}{% endblock %}
-    </style>
+        try {
+            var bgStr = (safe(T.bg_gradient) && /^(linear|radial)-gradient\(|^#|^rgb/i.test(T.bg_gradient.trim())) ? T.bg_gradient.trim() : DB;
+            var stops = (bgStr.match(/#[0-9a-f]{3,8}\b|rgba?\([^)]*\)/gi) || []).map(pc).filter(Boolean).map(function (c) { return blend(c, [15, 23, 42]); });
+            if (!stops.length) stops = [[15, 23, 42]];
+            var avg = [0, 1, 2].map(function (i) { return Math.round(stops.reduce(function (t, c) { return t + c[i]; }, 0) / stops.length); });
+            var cardC = pc(T.card_bg), cardDef = [255, 255, 255, .07];
+            var card = cardC || cardDef;
+            var comp = stops.map(function (b) { return blend(card, b); });
+            var all = stops.concat(comp);
+            var tx = pick(T.text_color, stops), sb = pick(T.subtext_color, stops);
+            var text = tx[0], sub = sb[0];
+            if (!sb[1]) { var m = mix(text, avg, .2); sub = minC(m, stops) >= 4.5 ? m : text; }
+            var ctx = pick(T.text_color, comp), csb = pick(T.subtext_color, comp);
+            var ct = ctx[0], cs = csb[0];
+            if (!csb[1]) { var m2 = mix(ct, comp[0], .2); cs = minC(m2, comp) >= 4.5 ? m2 : ct; }
+            var pr = pc(T.primary_color) || pc(DP);
+            pr = pr.slice(0, 3);
+            var accent = fix(pr, all, 4.5);
+            var onP = con([15, 23, 42], pr) >= con([255, 255, 255], pr) ? [15, 23, 42] : [255, 255, 255];
+            var price = fix((pc(T.price_color) || [52, 211, 153]).slice(0, 3), comp, 4.5);
+            s.setProperty('--bg', bgStr);
+            s.setProperty('--bg-rgb', rgb(avg));
+            s.setProperty('--text', hex(text)); s.setProperty('--sub', hex(sub));
+            s.setProperty('--ct', hex(ct)); s.setProperty('--cs', hex(cs));
+            s.setProperty('--card', cardC ? 'rgba(' + rgb(cardC) + ',' + Math.max(.06, cardC[3]) + ')' : 'rgba(255,255,255,.07)');
+            s.setProperty('--border', 'rgba(' + rgb(ct) + ',.16)');
+            s.setProperty('--primary', hex(pr)); s.setProperty('--primary-rgb', rgb(pr));
+            s.setProperty('--accent', hex(accent)); s.setProperty('--on-primary', hex(onP));
+            s.setProperty('--price', hex(price));
+            var tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.setAttribute('content', hex(avg));
+        } catch (e) { /* varsayılan koyu tema kalır */ }
+    })();
+    </script>
 </head>
 <body>
-    <main class="pb-card">
-        {% block content %}{% endblock %}
-        <div class="pb-foot">Powered by <a href="https://qrdijitalgru.com" rel="noopener">Dijitalgru QR Studio</a></div>
+    <a class="pb-skip" href="#main">İçeriğe geç</a>
+    {{ sprite() }}
+    <div class="pb-bg" aria-hidden="true"></div>
+    {% block page %}
+    <main id="main" class="pb-main pb-main--center">
+        <div class="pb-card">
+            {% block content %}{% endblock %}
+        </div>
     </main>
+    {% endblock %}
+    <footer class="pb-foot">Powered by <a href="https://qrdijitalgru.com" rel="noopener">Dijitalgru QR Studio</a></footer>
+    <div id="pb-live" class="sr-only" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap"></div>
     <script>
     function pbCopy(text, btn) {
         var done = function () {
+            var live = document.getElementById('pb-live'); if (live) live.textContent = 'Kopyalandı';
             if (!btn) return;
-            var old = btn.getAttribute('data-label') || btn.textContent;
+            var lab = btn.querySelector('.pb-btn-label') || btn;
+            var old = btn.getAttribute('data-label') || lab.textContent;
             btn.setAttribute('data-label', old);
-            btn.textContent = '✓ Kopyalandı';
-            setTimeout(function () { btn.textContent = old; }, 1800);
+            lab.textContent = '✓ Kopyalandı';
+            clearTimeout(btn._t);
+            btn._t = setTimeout(function () { lab.textContent = old; }, 1800);
         };
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(text).then(done, function () { pbFallbackCopy(text); done(); });
@@ -74,7 +128,7 @@
     }
     function pbFallbackCopy(text) {
         var ta = document.createElement('textarea');
-        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
         document.body.appendChild(ta); ta.focus(); ta.select();
         try { document.execCommand('copy'); } catch (e) {}
         document.body.removeChild(ta);

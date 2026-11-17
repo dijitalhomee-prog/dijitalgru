@@ -1,18 +1,18 @@
 {% extends "public_base.html" %}
+{% from '_icons.html' import ic %}
 {% block title %}Sosyal Medya Hesapları — Dijitalgru QR{% endblock %}
-{% block extra_css %}
-.sl-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-.sl-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 16px; border-radius: 14px; text-decoration: none; color: #f1f5f9; font-weight: 700; font-size: 15px; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.1); transition: transform .15s, border-color .15s; }
-.sl-item:hover { transform: translateY(-1px); border-color: #818cf8; }
-.sl-item span.arrow { color: #818cf8; }
-{% endblock %}
+{% block description %}Sosyal medya hesaplarına hızlı erişim{% endblock %}
 {% block content %}
-    <div class="pb-icon" aria-hidden="true">🔗</div>
+    <div class="pb-tile">{{ ic('link') }}</div>
     <h1>Sosyal Medya Hesapları</h1>
-    <p class="pb-sub">Bizi takip edin</p>
+    <p class="pb-sub" style="margin-bottom:0;">Hesaplarımızı takip edebilirsiniz.</p>
     <nav class="sl-list" aria-label="Sosyal medya bağlantıları">
         {% for key, label, url in links %}
-        <a class="sl-item" id="social-link-{{ key }}" href="{{ url }}" target="_blank" rel="noopener noreferrer"><span>{{ label }}</span><span class="arrow">↗</span></a>
+        <a class="sl-item surface" id="social-link-{{ key }}" href="{{ url }}" target="_blank" rel="noopener noreferrer">
+            <span class="row-ico">{{ ic(key if key in ('instagram','linkedin','twitter','facebook','youtube','tiktok','pinterest') else 'link') }}</span>
+            <span style="flex:1;min-width:0;">{{ label }}</span>
+            {{ ic('arrow-up-right', 'row-go') }}
+        </a>
         {% endfor %}
     </nav>
 {% endblock %}

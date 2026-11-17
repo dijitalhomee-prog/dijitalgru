@@ -1,125 +1,100 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ vcard.full_name or 'Rehbere Ekleniyor...' }} — Dijitalgru QR</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
-        .card { width: 100%; max-width: 420px; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        .avatar-initials { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #10b981); margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; color: white; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
-        .name { font-size: 20px; font-weight: 800; color: white; margin-bottom: 4px; }
-        .title { font-size: 13px; font-weight: 600; color: #818cf8; margin-bottom: 4px; }
-        .company { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
-        .status-box { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 14px; padding: 14px; color: #34d399; font-size: 13px; font-weight: 700; margin-bottom: 20px; line-height: 1.4; }
-        .btn-save { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 800; font-size: 15px; border-radius: 16px; text-decoration: none; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: all 0.2s; }
-        .btn-save:hover { transform: translateY(-2px); filter: brightness(1.1); }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <div class="avatar-initials">
-            {{ (vcard.full_name.strip()[0] if vcard.full_name else 'A') | upper }}
-        </div>
-        <h1 class="name">{{ vcard.full_name or 'Ad Soyad' }}</h1>
-        <div class="title">{{ vcard.title or '' }}</div>
-        <div class="company">{{ vcard.company or '' }}</div>
+{% extends "public_base.html" %}
+{% from '_icons.html' import ic %}
+{% block title %}{{ vcard.full_name or 'Rehbere Ekleniyor...' }} — Dijitalgru QR{% endblock %}
+{% block description %}{{ vcard.full_name or 'Kişi kartı' }} — kişi kartını rehberinize ekleyin.{% endblock %}
+{% block default_primary %}#6366f1{% endblock %}
+{% block content %}
+    <div class="vc-initials" aria-hidden="true" style="width:92px;height:92px;font-size:36px;">{{ (((vcard.full_name or '').strip() or 'A')[0]) | upper }}</div>
+    <h1>{{ vcard.full_name or 'Ad Soyad' }}</h1>
+    {% if vcard.title %}<p class="vc-role" style="margin-top:0;">{{ vcard.title }}</p>{% endif %}
+    {% if vcard.company %}<p class="vc-company">{{ vcard.company }}</p>{% endif %}
 
-        <div class="status-box" id="status-msg">
-            👤 <strong>Kişi kartını rehberinize eklemek için aşağıdaki butona dokunun.</strong>
-        </div>
-
-        <a id="vcf-trigger-btn" href="{{ vcf_url }}" class="btn-save" onclick="triggerContactSave(event)">
-            👤 Rehbere Ekle
-        </a>
+    <div class="pb-note is-on" id="status-msg" role="status" aria-live="polite" style="margin:20px 0;">
+        <strong>Kişi kartını rehberinize eklemek için aşağıdaki düğmeye dokunun.</strong>
     </div>
 
-    <script>
-    const VCF_URL = {{ vcf_url | tojson }};
-    async function fetchVcardText() {
-        // Sunucudaki .vcf ile birebir aynı içerik (doğru N alanı, PHOTO, sosyal profiller)
-        const r = await fetch(VCF_URL, { cache: 'no-store', credentials: 'same-origin' });
-        if (!r.ok) throw new Error('vcf fetch failed');
-        return await r.text();
-    }
+    <a id="vcf-trigger-btn" href="{{ vcf_url }}" class="pb-btn pb-btn--primary" style="min-height:56px;font-size:17px;" onclick='return triggerContactSave(event)'>
+        {{ ic('user-plus') }}<span>Rehbere Ekle</span>
+    </a>
+{% endblock %}
+{% block scripts %}
+<script>
+const VCF_URL = {{ vcf_url | tojson }};
+async function fetchVcardText() {
+    // Sunucudaki .vcf ile birebir aynı içerik (doğru N alanı, PHOTO, sosyal profiller)
+    const r = await fetch(VCF_URL, { cache: 'no-store', credentials: 'same-origin' });
+    if (!r.ok) throw new Error('vcf fetch failed');
+    return await r.text();
+}
 
-    async function triggerContactSave(e) {
-        if (e && e.preventDefault) e.preventDefault();
+async function triggerContactSave(e) {
+    if (e && e.preventDefault) e.preventDefault();
 
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const statusBox = document.getElementById("status-msg");
-        const vcfUrl = VCF_URL;
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const statusBox = document.getElementById("status-msg");
+    const vcfUrl = VCF_URL;
 
-        const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
-        const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
-        const fileName = `${safeName}.vcf`;
-        let vcardContent = '';
-        try { vcardContent = await fetchVcardText(); } catch (fe) { window.location.href = vcfUrl; return false; }
+    const rawName = {{ (vcard.full_name or 'kisi') | tojson }};
+    const safeName = rawName.replace(/[^a-zA-Z0-9\s_-]/g, '').trim() || 'kisi';
+    const fileName = `${safeName}.vcf`;
+    let vcardContent = '';
+    try { vcardContent = await fetchVcardText(); } catch (fe) { window.location.href = vcfUrl; return false; }
 
-        // TIER 1: Web Share API File Sharing (User gesture required)
-        if (isAndroid || (!isIOS && navigator.canShare)) {
-            try {
-                const vcfFile = new File([vcardContent], fileName, { type: 'text/vcard' });
-                if (navigator.canShare && navigator.canShare({ files: [vcfFile] })) {
-                    if (statusBox) {
-                        statusBox.innerHTML = '✅ <strong>Kişi Kartı Aktarılıyor...</strong><br><span style="font-size: 11px; font-weight: 500;">Açılan menüden <strong>"Kişiler"</strong> seçeneğine dokunarak ekleyin.</span>';
-                    }
-                    await navigator.share({
-                        files: [vcfFile],
-                        title: rawName,
-                        text: `${rawName} kişi kartı`
-                    });
-                    return false;
-                }
-            } catch (shareErr) {
-                console.warn('Web Share API error / cancelled:', shareErr);
-                if (shareErr && (shareErr.name === 'AbortError' || shareErr.code === 20)) {
-                    // User explicitly cancelled share modal
-                    return false;
-                }
-                console.error('Web Share failed, executing fallback download:', shareErr);
-            }
-        }
-
-        // TIER 2: Blob Download Fallback
-        if (isAndroid) {
-            try {
-                const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' });
-                const blobUrl = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
-
+    // TIER 1: Web Share API File Sharing (User gesture required)
+    if (isAndroid || (!isIOS && navigator.canShare)) {
+        try {
+            const vcfFile = new File([vcardContent], fileName, { type: 'text/vcard' });
+            if (navigator.canShare && navigator.canShare({ files: [vcfFile] })) {
                 if (statusBox) {
-                    statusBox.innerHTML = '✅ <strong>Kişi Kartı (.vcf) İndirildi!</strong><br><span style="font-size: 11px; font-weight: 500;">Üst bildirim alanından veya İndirilenler klasöründen dosyaya dokunarak rehbere ekleyin.</span>';
+                    statusBox.innerHTML = '<strong>Kişi kartı aktarılıyor...</strong><br>Açılan menüden <strong>"Kişiler"</strong> seçeneğine dokunarak ekleyin.';
                 }
-                setTimeout(() => {
-                    window.location.href = vcfUrl;
-                }, 300);
+                await navigator.share({ files: [vcfFile], title: rawName, text: `${rawName} kişi kartı` });
                 return false;
-            } catch (blobErr) {
-                console.error('Blob download error:', blobErr);
             }
-        }
-
-        // TIER 3: Direct HTTP Navigation Fallback
-        if (statusBox) {
-            if (isIOS) {
-                statusBox.innerHTML = '✅ <strong>Kişi Kartı Hazırlandı</strong><br><span style="font-size: 11px; font-weight: 500;">Sağ üstteki <strong>"Kaydet"</strong>e dokunarak rehbere ekleyin.</span>';
-            } else {
-                statusBox.innerHTML = '✅ <strong>Kişi Kartı İndiriliyor...</strong><br><span style="font-size: 11px; font-weight: 500;">İndirilen dosyaya dokunarak rehbere ekleyin.</span>';
+        } catch (shareErr) {
+            console.warn('Web Share API error / cancelled:', shareErr);
+            if (shareErr && (shareErr.name === 'AbortError' || shareErr.code === 20)) {
+                // User explicitly cancelled share modal
+                return false;
             }
+            console.error('Web Share failed, executing fallback download:', shareErr);
         }
-        window.location.href = vcfUrl;
-        return false;
     }
-    </script>
-</body>
-</html>
+
+    // TIER 2: Blob Download Fallback
+    if (isAndroid) {
+        try {
+            const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' });
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+
+            if (statusBox) {
+                statusBox.innerHTML = '<strong>Kişi kartı (.vcf) indirildi.</strong><br>Üst bildirim alanından veya İndirilenler klasöründen dosyaya dokunarak rehbere ekleyin.';
+            }
+            setTimeout(() => { window.location.href = vcfUrl; }, 300);
+            return false;
+        } catch (blobErr) {
+            console.error('Blob download error:', blobErr);
+        }
+    }
+
+    // TIER 3: Direct HTTP Navigation Fallback
+    if (statusBox) {
+        if (isIOS) {
+            statusBox.innerHTML = '<strong>Kişi kartı hazırlandı.</strong><br>Sağ üstteki <strong>"Kaydet"</strong> düğmesine dokunarak rehbere ekleyin.';
+        } else {
+            statusBox.innerHTML = '<strong>Kişi kartı indiriliyor...</strong><br>İndirilen dosyaya dokunarak rehbere ekleyin.';
+        }
+    }
+    window.location.href = vcfUrl;
+    return false;
+}
+</script>
+{% endblock %}

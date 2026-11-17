@@ -242,17 +242,36 @@ function applyTypeUI() {
     switchPreviewMode(rich.includes(t) ? "landing" : "qr");
 }
 
+// Tür seçilince forma yumuşak kaydır (mobilde de çalışır)
+function scrollToStudioForm() {
+    const target = document.querySelector(".studio-grid") || byId(typeFormId(currentQrType));
+    if (!target || !target.scrollIntoView) return;
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+}
+
 function initTypeSelector() {
     document.querySelectorAll(".type-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
+        if (btn._typeInit) return;
+        btn._typeInit = true;
+        btn.setAttribute("role", "button");
+        if (!btn.hasAttribute("tabindex")) btn.setAttribute("tabindex", "0");
+        btn.setAttribute("aria-pressed", btn.classList.contains("active") ? "true" : "false");
+        const choose = () => {
             const newType = btn.getAttribute("data-type");
             const changed = newType !== currentQrType;
             if (changed) resetStudioForm({ keepBasics: true });
-            document.querySelectorAll(".type-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".type-btn").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); });
             btn.classList.add("active");
+            btn.setAttribute("aria-pressed", "true");
             currentQrType = newType;
             applyTypeUI();
             updateLivePreview();
+            setTimeout(scrollToStudioForm, 80);
+        };
+        btn.addEventListener("click", choose);
+        btn.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(); }
         });
     });
 }
@@ -508,7 +527,8 @@ function mkCenter(inner) {
 }
 const SOCIAL_ICONS = { instagram: "📸", facebook: "📘", linkedin: "💼", pinterest: "📌", twitter: "𝕏", tiktok: "🎵", youtube: "▶️" };
 
-function renderLandingPageMockup() {
+// Eski genel mockup: vCard/menü dışındaki türler için kullanılır (yeni sürüm aşağıda).
+function _legacyLandingMockup() {
     const container = byId("mockup-landing-content");
     if (!container) return;
     const payload = getQRFormPayload();
@@ -700,22 +720,259 @@ function removeCompanyContact(i) {
     updateLivePreview();
 }
 
-async function uploadImageFile(file) {
+// ---------------------------------------------------------------------------
+// Yükleme altyapısı: XMLHttpRequest ile ilerleme çubuğu + dosya adı + Kaldır
+// ---------------------------------------------------------------------------
+function suIcon(name) {
+    const P = {
+        copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+        download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+        grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+        plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+        check: '<polyline points="20 6 9 17 4 12"/>',
+        x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+        file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+        edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+        chart: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+        more: '<circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/>',
+        archive: '<polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>',
+        search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+        undo: '<polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/>',
+        trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>'
+    };
+    return '<svg class="su-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[name] || "") + '</svg>';
+}
+
+function xhrUpload(url, formData, onProgress) {
+    return new Promise(resolve => {
+        const x = new XMLHttpRequest();
+        x.open("POST", url);
+        const h = authHeaders();
+        Object.keys(h).forEach(k => x.setRequestHeader(k, h[k]));
+        if (x.upload && onProgress) {
+            x.upload.onprogress = (e) => {
+                if (e.lengthComputable && e.total > 0) onProgress(Math.min(100, Math.round((e.loaded / e.total) * 100)));
+            };
+        }
+        x.onload = () => {
+            let d = {};
+            try { d = JSON.parse(x.responseText); } catch (_) {}
+            resolve({ ok: x.status >= 200 && x.status < 300, status: x.status, data: d || {} });
+        };
+        x.onerror = () => resolve({ ok: false, status: 0, data: {}, networkError: true });
+        x.onabort = () => resolve({ ok: false, status: 0, data: {}, networkError: true });
+        x.send(formData);
+    });
+}
+
+const _upWidgets = {};
+function upWidget(key, anchor, input) {
+    let w = _upWidgets[key];
+    if (w && w.root.isConnected) { if (input) w.input = input; return w; }
+    const root = document.createElement("div");
+    root.className = "up-widget";
+    root.setAttribute("data-up", key);
+    root.innerHTML =
+        '<div class="up-bar" role="progressbar" aria-label="Yükleme durumu" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="up-fill"></div></div>' +
+        '<div class="up-meta"><span class="up-fname"></span><span class="up-pct">0%</span></div>' +
+        '<div class="up-chip">' + suIcon("file") + '<span class="up-name"></span><button type="button" class="up-remove">Kaldır</button></div>';
+    if (anchor && anchor.insertAdjacentElement) anchor.insertAdjacentElement("afterend", root);
+    else if (input && input.parentNode) input.parentNode.appendChild(root);
+    const bar = root.querySelector(".up-bar");
+    w = {
+        root, input: input || null, onRemove: null,
+        start(file) {
+            root.className = "up-widget is-on is-loading";
+            root.querySelector(".up-fname").textContent = file;
+            this.progress(0);
+        },
+        progress(p) {
+            root.querySelector(".up-fill").style.width = p + "%";
+            bar.setAttribute("aria-valuenow", String(p));
+            root.querySelector(".up-pct").textContent = p >= 100 ? "100% · işleniyor" : p + "%";
+        },
+        done(name, onRemove) {
+            this.onRemove = onRemove || null;
+            root.querySelector(".up-name").textContent = name;
+            root.className = "up-widget is-on is-done";
+        },
+        fail() { root.className = "up-widget"; this.onRemove = null; },
+        clear() { root.className = "up-widget"; this.onRemove = null; }
+    };
+    root.querySelector(".up-remove").addEventListener("click", () => { if (w.onRemove) w.onRemove(); });
+    _upWidgets[key] = w;
+    return w;
+}
+function clearUpWidget(key) { if (_upWidgets[key]) _upWidgets[key].clear(); }
+function clearAllUploadWidgets() { Object.keys(_upWidgets).forEach(k => _upWidgets[k].clear()); }
+
+async function uploadImageFile(file, onProgress) {
     const fd = new FormData();
     fd.append("file", file);
-    try {
-        const res = await fetch("/api/upload/image", { method: "POST", headers: authHeaders(), body: fd });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.image_url) {
-            uiToast("❌ " + (data.error || "Görsel yüklenemedi."));
-            return null;
-        }
-        return data.image_url;
-    } catch (err) {
-        console.error("Image upload error:", err);
+    const r = await xhrUpload("/api/upload/image", fd, onProgress);
+    if (r.networkError) {
         uiToast("❌ Sunucuya bağlanırken bir hata oluştu.");
         return null;
     }
+    if (!r.ok || !r.data.image_url) {
+        uiToast("❌ " + (r.data.error || "Görsel yüklenemedi."));
+        return null;
+    }
+    return r.data.image_url;
+}
+
+// PDF (app.js'tekinin yerini alır; davranış aynı + ilerleme + Kaldır)
+async function handlePDFUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+        uiToast("Lütfen geçerli bir PDF dosyası seçin.");
+        input.value = "";
+        return;
+    }
+    const statusText = byId("pdf-status-text");
+    const w = upWidget("pdf", byId("pdf-upload-box"), input);
+    if (statusText) { statusText.innerText = "Yükleniyor..."; statusText.style.color = ""; }
+    w.start(file.name);
+    const fd = new FormData();
+    fd.append("pdf_file", file);
+    const r = await xhrUpload("/api/upload/pdf", fd, p => w.progress(p));
+    const data = r.data || {};
+    if (data.status === "success") {
+        uploadedPdfUrl = data.pdf_url;
+        if (statusText) { statusText.innerText = "PDF yüklendi"; statusText.style.color = "#34d399"; }
+        w.done(file.name, removePdfUpload);
+        uiToast("PDF dosyanız başarıyla yüklendi.", "success");
+        updateLivePreview();
+    } else {
+        w.fail();
+        uiToast(r.networkError ? "Sunucu bağlantı hatası oluştu." : (data.error || "PDF yükleme hatası oluştu."), "error");
+        if (statusText) { statusText.innerText = statusText.dataset.dflt || "Tıklayın ve PDF dosyanızı seçin (.pdf)"; statusText.style.color = ""; }
+        input.value = "";
+    }
+}
+function removePdfUpload() {
+    uploadedPdfUrl = null;
+    const f = byId("pdf-file-input"); if (f) f.value = "";
+    const statusText = byId("pdf-status-text");
+    if (statusText) { statusText.innerText = statusText.dataset.dflt || "Tıklayın ve PDF dosyanızı seçin (.pdf)"; statusText.style.color = ""; }
+    clearUpWidget("pdf");
+    updateLivePreview();
+}
+
+// Profil fotoğrafı (kartvizit)
+async function handleVcardAvatarUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const statusText = byId("vcard-avatar-status");
+    const btnText = byId("vcard-avatar-btn-text");
+    const cropBtn = byId("vcard-avatar-crop-btn");
+    const removeBtn = byId("vcard-avatar-remove-btn");
+    const hiddenInput = byId("vcard-avatar-url");
+    const w = upWidget("vcard-avatar", statusText, input);
+
+    if (statusText) { statusText.innerText = "Fotoğraf işleniyor..."; statusText.style.color = "#f59e0b"; }
+    w.start(file.name);
+
+    // 1. Anında yerel (base64) önizleme
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        uploadedVcardAvatarUrl = e.target.result;
+        if (hiddenInput) hiddenInput.value = uploadedVcardAvatarUrl;
+        if (btnText) btnText.innerText = file.name.substring(0, 14);
+        if (cropBtn) cropBtn.style.display = "inline-block";
+        if (removeBtn) removeBtn.style.display = "inline-block";
+        if (typeof openAvatarCropModal === "function") openAvatarCropModal(e.target.result);
+        updateLivePreview();
+    };
+    reader.readAsDataURL(file);
+
+    // 2. Sunucuya yükle
+    try {
+        const fd = new FormData();
+        fd.append("avatar_file", file);
+        const r = await xhrUpload("/api/upload/avatar", fd, p => w.progress(p));
+        const data = r.data || {};
+        if (data.status === "success" && data.avatar_url) {
+            if (hiddenInput && !hiddenInput.value.startsWith("data:image")) {
+                uploadedVcardAvatarUrl = data.avatar_url;
+                hiddenInput.value = uploadedVcardAvatarUrl;
+            }
+            if (statusText) {
+                statusText.innerText = "Fotoğraf hazır. Dilerseniz “Konumlandır & Kırp” düğmesiyle sürükleyip yakınlaştırabilirsiniz.";
+                statusText.style.color = "#34d399";
+            }
+            w.done(file.name, removeVcardAvatar);
+            updateLivePreview();
+        } else {
+            w.fail();
+            console.error("Avatar upload API error:", data.error);
+            if (data.error) uiToast("❌ " + data.error);
+            else if (r.networkError) uiToast("❌ Sunucuya bağlanırken bir hata oluştu.");
+        }
+    } catch (err) {
+        w.fail();
+        console.error("Avatar upload network error:", err);
+    }
+}
+
+function removeVcardAvatar() {
+    uploadedVcardAvatarUrl = "";
+    const hiddenInput = byId("vcard-avatar-url");
+    const fileInput = byId("vcard-avatar-file");
+    const btnText = byId("vcard-avatar-btn-text");
+    const cropBtn = byId("vcard-avatar-crop-btn");
+    const removeBtn = byId("vcard-avatar-remove-btn");
+    const statusText = byId("vcard-avatar-status");
+    if (hiddenInput) hiddenInput.value = "";
+    if (fileInput) fileInput.value = "";
+    if (btnText) btnText.innerText = "Profil Fotoğrafı Seç / Yükle";
+    if (cropBtn) cropBtn.style.display = "none";
+    if (removeBtn) removeBtn.style.display = "none";
+    if (statusText) {
+        statusText.innerText = "Fotoğraf kaldırıldı. Baş harf simgesi varsayılan olarak gösterilecek.";
+        statusText.style.color = "var(--text-muted)";
+    }
+    clearUpWidget("vcard-avatar");
+    updateLivePreview();
+}
+
+// Kartvizit ön yüz görseli (type: "vcard" | "menu")
+async function handleCardImageUpload(input, type) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const statusElem = byId(type + "-card-img-status");
+    const hiddenElem = byId(type + "-card-image-url");
+    const key = "card-" + type;
+    const w = upWidget(key, statusElem, input);
+    if (statusElem) statusElem.innerText = "Kartvizit görseli yükleniyor...";
+    w.start(file.name);
+    const url = await uploadImageFile(file, p => w.progress(p));
+    if (url) {
+        if (hiddenElem) hiddenElem.value = url;
+        const prev = byId(type + "-card-img-preview");
+        const safe = safeAttrUrl(url);
+        if (prev && safe) { prev.src = safe; prev.style.display = "block"; }
+        if (statusElem) statusElem.innerText = "Kartvizit ön yüz görseli yüklendi.";
+        w.done(file.name, () => removeCardImage(type));
+        updateLivePreview();
+    } else {
+        w.fail();
+        input.value = "";
+        if (statusElem) statusElem.innerText = statusElem.dataset.dflt || "Görsel yüklenemedi. Lütfen tekrar deneyin.";
+    }
+}
+function removeCardImage(type) {
+    const key = "card-" + type;
+    const hidden = byId(type + "-card-image-url"); if (hidden) hidden.value = "";
+    const w = _upWidgets[key];
+    if (w && w.input) w.input.value = "";
+    const prev = byId(type + "-card-img-preview");
+    if (prev) { prev.removeAttribute("src"); prev.style.display = "none"; }
+    const st = byId(type + "-card-img-status");
+    if (st) { st.innerText = st.dataset.dflt || ""; st.style.color = ""; }
+    clearUpWidget(key);
+    updateLivePreview();
 }
 
 function _setLogoUI(prefix, url, btnDefaultText) {
@@ -731,17 +988,24 @@ function _setLogoUI(prefix, url, btnDefaultText) {
 
 async function handleCompanyLogoUpload(input) {
     if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
     const status = byId("comp-logo-status");
-    if (status) { status.innerText = "⏳ Logo yükleniyor..."; status.style.color = "#f59e0b"; }
-    const url = await uploadImageFile(input.files[0]);
+    const w = upWidget("comp-logo", status, input);
+    if (status) { status.innerText = "Logo yükleniyor..."; status.style.color = "#f59e0b"; }
+    w.start(file.name);
+    const url = await uploadImageFile(file, p => w.progress(p));
     input.value = "";
     if (url) {
         byId("comp-logo-url").value = url;
         _setLogoUI("comp-logo", url, "Logo Seç / Yükle");
-        if (status) { status.innerText = "✅ Logo yüklendi."; status.style.color = "#34d399"; }
-    } else if (status) {
-        status.innerText = status.dataset.dflt || "";
-        status.style.color = "";
+        if (status) { status.innerText = "Logo yüklendi."; status.style.color = "#34d399"; }
+        w.done(file.name, removeCompanyLogo);
+    } else {
+        w.fail();
+        if (status) {
+            status.innerText = status.dataset.dflt || "";
+            status.style.color = "";
+        }
     }
     updateLivePreview();
 }
@@ -751,6 +1015,7 @@ function removeCompanyLogo() {
     _setLogoUI("comp-logo", "", "Logo Seç / Yükle");
     const status = byId("comp-logo-status");
     if (status) { status.innerText = status.dataset.dflt || ""; status.style.color = ""; }
+    clearUpWidget("comp-logo");
     updateLivePreview();
 }
 
@@ -775,15 +1040,20 @@ async function handleStudioLogoUpload(input) {
         input.value = "";
         return;
     }
+    const file = input.files[0];
+    const w = upWidget("qr-logo", byId("qr-logo-hint"), input);
     setTxt("qr-logo-btn-text", "Yükleniyor...");
-    const url = await uploadImageFile(input.files[0]);
+    w.start(file.name);
+    const url = await uploadImageFile(file, p => w.progress(p));
     input.value = "";
     if (url) {
         byId("qr-logo-url").value = url;
         studioLogoUrl = url;
         _setLogoUI("qr-logo", url, "Logo Yükle");
         setDisp("qr-logo-note", true);
+        w.done(file.name, removeStudioLogo);
     } else {
+        w.fail();
         _setLogoUI("qr-logo", fVal("qr-logo-url"), "Logo Yükle");
     }
     updateLivePreview();
@@ -794,6 +1064,7 @@ function removeStudioLogo() {
     studioLogoUrl = "";
     _setLogoUI("qr-logo", "", "Logo Yükle");
     setDisp("qr-logo-note", false);
+    clearUpWidget("qr-logo");
     updateLivePreview();
 }
 
@@ -883,6 +1154,7 @@ function resetStudioForm(opts) {
     });
 
     // Avatar / kartvizit görseli / PDF / logo durumları
+    clearAllUploadWidgets();
     uploadedVcardAvatarUrl = "";
     uploadedPdfUrl = null;
     ["vcard-avatar-crop-btn", "vcard-avatar-remove-btn"].forEach(id => setDisp(id, false));
@@ -943,6 +1215,243 @@ function onQRSavedSuccess(payload) {
 }
 
 // ---------------------------------------------------------------------------
+// Kayıt sonrası başarı ekranı (stüdyo üzerinde modal)
+// ---------------------------------------------------------------------------
+let _successState = null;
+
+function closeQRSuccessModal(action) {
+    const st = _successState;
+    if (!st) return;
+    _successState = null;
+    if (st.release) st.release();
+    if (st.overlay.parentNode) st.overlay.parentNode.removeChild(st.overlay);
+    document.body.style.overflow = st.prevOverflow;
+    // Kayıt tamamlandı: yinelenen kaydı önlemek için form her kapanışta sıfırlanır
+    onQRSavedSuccess(st.payload);
+    if (action === "dashboard") {
+        const dashLink = byId("nav-dash-link");
+        if (dashLink) dashLink.click();
+    } else {
+        const studioLink = document.querySelector('.nav-link[data-target="studio-tab"]');
+        const studioSec = byId("studio-tab");
+        if (studioSec && !studioSec.classList.contains("active") && studioLink) studioLink.click();
+        if (action === "new") {
+            const ti = byId("qr-title");
+            if (ti && ti.focus) { try { ti.focus({ preventScroll: true }); } catch (_) {} }
+        } else if (st.prevFocus && st.prevFocus.focus) {
+            try { st.prevFocus.focus(); } catch (_) {}
+        }
+    }
+}
+
+function showQRSuccessModal(data, payload) {
+    closeQRSuccessModal();
+    data = data || {};
+    const isStatic = isStaticType(payload.type);
+    const shortUrl = isStatic ? "" : (data.short_code ? `${window.location.origin}/r/${data.short_code}` : (data.short_url || ""));
+    const qrId = data.qr_id;
+    const title = payload.title || "QR Kodum";
+    const img = safeAttrUrl(data.qr_image);
+
+    const overlay = document.createElement("div");
+    overlay.className = "su-overlay";
+    overlay.id = "qr-success-overlay";
+    const linkBlock = isStatic
+        ? `<div class="su-link-box static" id="qr-success-link">Statik QR: link yok</div>`
+        : `<div class="su-link-box"><code id="qr-success-link" title="${escapeHtml(shortUrl)}">${escapeHtml(shortUrl)}</code>` +
+          `<button type="button" class="su-btn" id="qr-success-copy">${suIcon("copy")}<span>Kopyala</span></button></div>`;
+    overlay.innerHTML =
+        `<div class="su-modal" id="qr-success-modal" role="dialog" aria-modal="true" aria-labelledby="qr-success-title">` +
+        `<div class="su-check">${suIcon("check")}</div>` +
+        `<h2 id="qr-success-title">QR kodunuz hazır</h2>` +
+        `<p class="su-sub">“${escapeHtml(title)}” hesabınıza kaydedildi.</p>` +
+        `<div class="su-qr">${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(title)} QR kodu">` : ""}</div>` +
+        linkBlock +
+        `<div class="su-dl-row">` +
+        ["png", "svg", "eps"].map(f => `<button type="button" class="su-btn" data-su-dl="${f}">${suIcon("download")}<span>${f.toUpperCase()} indir</span></button>`).join("") +
+        `</div>` +
+        `<div class="su-foot">` +
+        `<button type="button" class="su-btn" id="qr-success-dash">${suIcon("grid")}<span>Panele git</span></button>` +
+        `<button type="button" class="su-btn primary" id="qr-success-new">${suIcon("plus")}<span>Yeni QR oluştur</span></button>` +
+        `</div>`;
+    document.body.appendChild(overlay);
+
+    const modal = overlay.querySelector("#qr-success-modal");
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "su-btn";
+    closeBtn.setAttribute("aria-label", "Kapat");
+    closeBtn.style.cssText = "position:absolute;top:12px;right:12px;padding:8px;border-radius:10px;";
+    closeBtn.innerHTML = suIcon("x");
+    modal.style.position = "relative";
+    modal.appendChild(closeBtn);
+
+    _successState = {
+        overlay, payload,
+        prevFocus: document.activeElement,
+        prevOverflow: document.body.style.overflow,
+        release: window.uiTrapFocus ? window.uiTrapFocus(modal, () => closeQRSuccessModal()) : null
+    };
+    document.body.style.overflow = "hidden";
+
+    closeBtn.addEventListener("click", () => closeQRSuccessModal());
+    overlay.addEventListener("mousedown", (e) => { if (e.target === overlay) closeQRSuccessModal(); });
+    overlay.querySelector("#qr-success-dash").addEventListener("click", () => closeQRSuccessModal("dashboard"));
+    overlay.querySelector("#qr-success-new").addEventListener("click", () => closeQRSuccessModal("new"));
+
+    const copyBtn = overlay.querySelector("#qr-success-copy");
+    if (copyBtn) copyBtn.addEventListener("click", async () => {
+        const ok = await uiCopyText(shortUrl);
+        if (!ok) { uiShowText("Kısa bağlantınız", shortUrl); return; }
+        const label = copyBtn.querySelector("span");
+        copyBtn.classList.add("ok");
+        label.textContent = "Kopyalandı";
+        clearTimeout(copyBtn._t);
+        copyBtn._t = setTimeout(() => { copyBtn.classList.remove("ok"); label.textContent = "Kopyala"; }, 2000);
+    });
+
+    overlay.querySelectorAll("[data-su-dl]").forEach(b => b.addEventListener("click", async () => {
+        const fmt = b.getAttribute("data-su-dl");
+        if (qrId == null) { uiToast("Dosya şu an indirilemiyor. Panelinizden tekrar deneyin.", "error"); return; }
+        b.disabled = true;
+        try {
+            await fetchAndSaveFile(`/api/qr/${encodeURIComponent(qrId)}/download?format=${encodeURIComponent(fmt)}`,
+                `qr-${slugifyFileName(title)}.${fmt}`, fmt.toUpperCase());
+        } finally { b.disabled = false; }
+    }));
+
+    setTimeout(() => { const p = overlay.querySelector("#qr-success-new"); if (p) p.focus(); }, 40);
+}
+
+// app.js'teki bekleyen kayıt akışı: panele atmak yerine başarı ekranını gösterir
+async function processPendingQRPurchaseOrSave(token) {
+    if (!pendingQRPayload) return false;
+    const payload = pendingQRPayload;
+    pendingQRPayload = null; // çift gönderimi önlemek için hemen temizle
+    try {
+        const res = await fetch("/api/qr/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+            if (payload.folder_name) customFolders.add(payload.folder_name);
+            uiToast("Hesabınız oluşturuldu ve QR kodunuz hesabınıza kaydedildi.", "success");
+            loadDashboardData();
+            const dashLink = byId("nav-dash-link");
+            if (dashLink) dashLink.style.display = "inline-block";
+            const studioLink = document.querySelector('.nav-link[data-target="studio-tab"]');
+            const studioSec = byId("studio-tab");
+            if (studioSec && !studioSec.classList.contains("active") && studioLink) studioLink.click();
+            showQRSuccessModal(data, payload);
+            return true;
+        }
+        if (!applyServerFieldErrors(data)) {
+            uiToast("QR kod kaydedilirken bir hata oluştu: " + (data.error || "Bilinmeyen hata"), "error");
+        }
+        return false;
+    } catch (err) {
+        console.error("Pending QR save error:", err);
+        return false;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Mobil sayfa önizlemesi — gerçek herkese açık şablonlarla aynı metin/etiketler
+// ---------------------------------------------------------------------------
+function _mkSection(title) {
+    return `<div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin:14px 0 6px;text-align:left;letter-spacing:.04em;">${escapeHtml(title)}</div>`;
+}
+
+function renderLandingPageMockup() {
+    const container = byId("mockup-landing-content");
+    if (!container) return;
+    const payload = getQRFormPayload();
+    const t = payload.type;
+    if (t !== "vcard" && !MENU_TYPES.includes(t)) { _legacyLandingMockup(); return; }
+
+    const start = `<div style="width:100%;min-height:100%;box-sizing:border-box;background:linear-gradient(180deg,#0f172a 0%,#1e1b4b 100%);color:#fff;padding:24px 16px 20px 16px;display:flex;flex-direction:column;justify-content:space-between;border-radius:26px;"><div style="width:100%;">`;
+    const end = `</div><div style="text-align:center;margin-top:auto;padding-top:20px;font-size:11px;color:#64748b;font-weight:500;">Powered by <strong style="color:#818cf8;">Dijitalgru QR Studio</strong></div></div>`;
+    let body = "";
+
+    if (t === "vcard") {
+        const v = payload.vcard_payload;
+        const fullName = v.full_name || "Ad Soyad";
+        const initial = escapeHtml((fullName.trim()[0] || "A").toUpperCase());
+        const av = safeAttrUrl(v.avatar_url);
+        const circle = "width:76px;height:76px;border-radius:50%;";
+        const avatar = av
+            ? `<div style="${circle}margin:0 auto 12px auto;"><img src="${escapeHtml(av)}" alt="" style="${circle}object-fit:cover;box-shadow:0 0 25px rgba(99,102,241,0.5);border:2px solid #6366f1;display:block;"></div>`
+            : `<div style="${circle}background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;margin:0 auto 12px auto;box-shadow:0 0 25px rgba(99,102,241,0.5);border:2px solid rgba(255,255,255,0.2);">${initial}</div>`;
+        let actions = "";
+        if (v.phone) actions += mkAction("📞", "Ara", "rgba(255,255,255,0.06)", "rgba(255,255,255,0.1)", "#fff") + mkAction("💬", "WhatsApp", "rgba(16,185,129,0.15)", "rgba(16,185,129,0.3)", "#34d399");
+        if (v.email) actions += mkAction("✉️", "E-posta", "rgba(99,102,241,0.15)", "rgba(99,102,241,0.3)", "#a5b4fc");
+        if (v.website) actions += mkAction("🌐", "Web", "rgba(6,182,212,0.15)", "rgba(6,182,212,0.3)", "#06b6d4");
+        let rows = "";
+        if (v.phone) rows += mkRow("📱", "Cep Telefonu", v.phone, "rgba(99,102,241,0.15)");
+        if (v.phone2) rows += mkRow("🏢", "İş Telefonu", v.phone2, "rgba(59,130,246,0.15)");
+        if (v.email) rows += mkRow("✉️", "E-posta Adresi", v.email, "rgba(236,72,153,0.15)");
+        if (v.website) rows += mkRow("🌐", "Web Sitesi", v.website, "rgba(6,182,212,0.15)");
+        if (v.address) rows += mkRow("📍", "Adres / Şehir", v.address, "rgba(245,158,11,0.15)");
+        const socials = Object.entries(v.social_links || {}).filter(([, u]) => u).map(([p, u]) => mkRow(SOCIAL_ICONS[p] || "🔗", SOCIAL_LABELS[p] || p, u, "rgba(244,114,182,0.15)")).join("");
+        const cardImg = safeAttrUrl(v.card_image_url);
+        body = `${avatar}
+            <div style="font-size:18px;font-weight:800;color:#fff;text-align:center;">${escapeHtml(fullName)}</div>
+            ${v.title ? `<div style="font-size:12px;color:#818cf8;margin-top:2px;font-weight:600;text-align:center;">${escapeHtml(v.title)}</div>` : ""}
+            ${v.company ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;font-weight:500;text-align:center;">${escapeHtml(v.company)}</div>` : ""}
+            ${v.bio ? `<div style="font-size:11px;color:#cbd5e1;margin-top:10px;line-height:1.4;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.06);text-align:left;">${escapeHtml(v.bio)}</div>` : ""}
+            <button type="button" onclick="downloadSimulatorVcard()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:14px;font-size:13px;font-weight:800;color:#fff;border:none;background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 15px rgba(16,185,129,0.3);margin:16px 0 12px 0;cursor:pointer;">Rehbere Kaydet (.vcf)</button>
+            ${actions ? `<div style="display:flex;gap:6px;justify-content:center;margin-bottom:6px;">${actions}</div>` : ""}
+            ${socials ? _mkSection("Sosyal Medya") + `<div style="display:flex;flex-direction:column;gap:8px;text-align:left;">${socials}</div>` : ""}
+            ${rows ? _mkSection("İletişim Bilgileri") + `<div style="display:flex;flex-direction:column;gap:8px;text-align:left;">${rows}</div>` : ""}
+            ${cardImg ? _mkSection("Kartvizit") + `<img src="${escapeHtml(cardImg)}" alt="" style="width:100%;border-radius:12px;display:block;">` : ""}
+            ${v.direct_redirect ? '<div style="font-size:10px;color:#f59e0b;margin-top:12px;font-weight:700;background:rgba(245,158,11,0.1);padding:6px;border-radius:8px;text-align:center;">Doğrudan .vcf indirme açık</div>' : ""}`;
+    } else {
+        const m = payload.menu_payload;
+        const cats = m.categories || [];
+        const items = cats.reduce((n, c) => n + c.items.length, 0);
+        const price = (p) => (p && !/[₺$€]/.test(p) ? "₺" + p : p);
+        const surface = "background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;";
+        const tabs = cats.length > 1
+            ? `<div style="display:flex;gap:6px;overflow:hidden;margin:14px 0 4px;">${cats.map((c, i) => `<span style="flex-shrink:0;padding:5px 11px;border-radius:999px;font-size:10px;font-weight:700;${i === 0 ? "background:#6366f1;color:#fff;" : "background:rgba(255,255,255,0.06);color:#cbd5e1;"}">${escapeHtml(c.name || "Diğer")}</span>`).join("")}</div>`
+            : "";
+        const list = cats.map(c => {
+            const shown = c.items.slice(0, 4);
+            const more = c.items.length - shown.length;
+            return `<div style="text-align:left;margin-top:12px;"><div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:6px;">${escapeHtml(c.name || "Diğer")}</div>` +
+                shown.map(it => `<div style="${surface}padding:9px 11px;margin-bottom:6px;"><div style="display:flex;justify-content:space-between;gap:8px;"><span style="font-size:12px;font-weight:700;color:#f1f5f9;">${escapeHtml(it.name)}</span>${it.price ? `<span style="font-size:12px;font-weight:800;color:#a5b4fc;white-space:nowrap;">${escapeHtml(price(it.price))}</span>` : ""}</div>` +
+                    `${it.description ? `<div style="font-size:10px;color:#94a3b8;margin-top:3px;">${escapeHtml(it.description)}</div>` : ""}</div>`).join("") +
+                (more > 0 ? `<div style="font-size:10px;color:#64748b;">+${more} ürün daha</div>` : "") + `</div>`;
+        }).join("");
+        const pdfBlock = m.pdf_url
+            ? `<div style="${surface}padding:14px;margin-top:14px;text-align:center;"><div style="font-size:13px;font-weight:800;color:#fff;">PDF Menü &amp; Katalog</div>` +
+              `<div style="margin:10px 0 6px;padding:10px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#4f46e5);font-size:12px;font-weight:800;color:#fff;">PDF'i Tam Ekran Aç</div>` +
+              `<div style="font-size:10px;color:#94a3b8;">Tüm sayfaları görmek için PDF'i tam ekran açmanız önerilir.</div></div>`
+            : "";
+        let rows = "";
+        if (m.phone) rows += mkRow("📞", "Telefon · Hemen Ara", m.phone, "rgba(99,102,241,0.15)");
+        if (m.phone2) rows += mkRow("💬", "WhatsApp", m.phone2, "rgba(16,185,129,0.15)");
+        if (m.email) rows += mkRow("✉️", "E-posta", m.email, "rgba(236,72,153,0.15)");
+        if (m.website) rows += mkRow("🌐", "Siteye Git", m.website, "rgba(6,182,212,0.15)");
+        if (m.address) rows += mkRow("📍", "Adres · Haritada Gör", m.address, "rgba(245,158,11,0.15)");
+        const hasContact = m.contact_name || rows;
+        const cardImg = safeAttrUrl(m.card_image_url);
+        const contact = hasContact
+            ? `<div style="${surface}padding:14px;margin-top:16px;text-align:left;"><div style="font-size:13px;font-weight:800;color:#fff;">${escapeHtml(m.contact_name || "İşletme & İletişim Bilgileri")}</div>` +
+              `${m.contact_title ? `<div style="font-size:11px;color:#94a3b8;">${escapeHtml(m.contact_title)}</div>` : ""}` +
+              `<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">${rows}</div>` +
+              `${cardImg ? `<img src="${escapeHtml(cardImg)}" alt="" style="width:100%;border-radius:12px;display:block;margin-top:10px;">` : ""}</div>`
+            : "";
+        body = `<div style="text-align:center;padding-top:6px;"><div style="font-size:19px;font-weight:800;color:#fff;">${escapeHtml(m.title || "İşletme Adı")}</div>` +
+            `${m.description ? `<div style="font-size:12px;color:#fbbf24;margin-top:4px;font-weight:600;">${escapeHtml(m.description)}</div>` : ""}</div>` +
+            pdfBlock + tabs + list + contact +
+            (!m.pdf_url && !items && !hasContact ? '<div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:16px;">Soldaki alanları doldurdukça sayfanız burada şekillenir.</div>' : "");
+    }
+    container.innerHTML = start + body + end;
+}
+
+// ---------------------------------------------------------------------------
 // Kaydet
 // ---------------------------------------------------------------------------
 async function handleSaveQR() {
@@ -973,11 +1482,9 @@ async function handleSaveQR() {
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok) {
-            uiToast(" QR Kodunuz başarıyla hesabınıza kaydedildi!");
-            onQRSavedSuccess(payload);
+            if (payload.folder_name) customFolders.add(payload.folder_name);
             loadDashboardData();
-            const dashLink = byId("nav-dash-link");
-            if (dashLink) dashLink.click();
+            showQRSuccessModal(data, payload);
         } else if (res.status === 401) {
             uiToast("Oturumunuz sona erdi. Lütfen tekrar giriş yapın.");
             pendingQRPayload = payload;
@@ -1006,7 +1513,7 @@ function platformFromInputId(id) {
 
 function initStudioExtras() {
     // Varsayılan metinleri hatırla (sıfırlama için)
-    ["vcard-avatar-status", "comp-logo-status", "pdf-status-text", "pdf-status-subtext"].forEach(id => {
+    ["vcard-avatar-status", "comp-logo-status", "pdf-status-text", "pdf-status-subtext", "vcard-card-img-status", "menu-card-img-status"].forEach(id => {
         const el = byId(id); if (el) el.dataset.dflt = el.innerText;
     });
 

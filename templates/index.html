@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%234f46e5%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-size=%2720%27 font-family=%27Arial%27 font-weight=%27700%27 text-anchor=%27middle%27 fill=%27white%27%3EG%3C/text%3E%3C/svg%3E">
     <title>Dijitalgru QR Studio — Dinamik QR Kod & SaaS Platformu</title>
     <meta name="facebook-domain-verification" content="xxvcjcmoa4hmjilac9u41f6hk6tin0" />
     <meta name="description" content="Basılı materyallerinizdeki QR kodları değiştirmeden hedef adresinizi anında güncelleyin. Dijital Kartvizit, Restoran Menüsü ve Gelişmiş Analizler.">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/style.css?v=20261113_bill">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=optional" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=optional"></noscript>
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="/static/css/style.css?v=20261117_ds">
     <!-- Meta Pixel (yalnızca çerez onayı verildiyse yüklenir; ID sunucudan META_PIXEL_ID env ile gelir) -->
     <script>window.META_PIXEL_ID = {{ (meta_pixel_id or '') | tojson }};</script>
-    <script src="/static/js/meta-pixel.js?v=20261113_reg"></script>
+    <script src="/static/js/meta-pixel.js?v=20261117_a11y"></script>
     <style>
         /* Color Swatches & Preset Palette */
         .color-palette {
@@ -420,22 +422,70 @@
             border-radius: 14px; padding: 12px; margin-bottom: 12px;
         }
 
-        /* ---- Stüdyo düzeni: sol = formlar, sağ = önizleme + kaydet ---- */
+        /* ---- Stüdyo düzeni: sol = formlar (1-2-3), sağ = sticky önizleme + kaydet ---- */
+        .studio-grid { grid-template-columns: minmax(0, 1fr) 420px; align-items: start; }
         .studio-grid > .glass-card { min-width: 0; }
         .studio-right {
-            position: sticky; top: 90px; align-self: start; display: flex; flex-direction: column; gap: 14px;
-            max-height: calc(100vh - 110px); overflow-y: auto; scrollbar-width: none;
+            position: sticky; top: 24px; align-self: start; display: flex; flex-direction: column; gap: 14px;
+            max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none;
         }
         .studio-right::-webkit-scrollbar { display: none; }
         .studio-right .phone-simulator { position: relative; top: 0; flex-shrink: 0; }
         .studio-right #save-qr-btn { margin-top: 0 !important; flex-shrink: 0; }
-        @media (max-width: 960px) {
-            .studio-right { position: static; max-height: none; overflow: visible; width: 100%; max-width: 380px; margin: 0 auto; }
+        @media (max-width: 1023px) {
+            .studio-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 20px; }
+            .studio-right { order: -1; position: static; max-height: none; overflow: visible; width: 100%; max-width: 420px; margin: 0 auto; }
             .studio-right .phone-simulator { max-width: none; margin: 0; }
+            /* Kaydet butonu ekranın altına sabit */
+            .studio-right #save-qr-btn {
+                position: fixed; left: 0; right: 0; bottom: 0; z-index: 900; width: 100% !important; border-radius: 0;
+                padding: 16px 20px calc(16px + env(safe-area-inset-bottom)) !important; font-size: 16px !important;
+                box-shadow: 0 -8px 24px rgba(0,0,0,.45);
+            }
+            #studio-tab { padding-bottom: 88px; }
         }
+
     </style>
 </head>
 <body>
+
+    <a class="skip-link" href="#main-content">İçeriğe geç</a>
+
+    <!-- SVG ikon sprite (lucide tarzı, stroke ikonlar). Kullanım: <svg class="icon"><use href="#i-ad"/></svg> -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true" focusable="false">
+        <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+        <symbol id="i-bar" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+        <symbol id="i-phone-device" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+        <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+        <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol>
+        <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+        <symbol id="i-building" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+        <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+        <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></symbol>
+        <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol>
+        <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.29 1.29L3 12l5.8 1.9a2 2 0 0 1 1.29 1.29L12 21l1.9-5.8a2 2 0 0 1 1.29-1.29L21 12l-5.8-1.9a2 2 0 0 1-1.29-1.29Z"/></symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+        <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></symbol>
+        <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+        <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+        <symbol id="i-qr" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></symbol>
+        <symbol id="i-card" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></symbol>
+        <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+        <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+        <symbol id="i-utensils" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol>
+        <symbol id="i-contact" viewBox="0 0 24 24"><path d="M16 2v2"/><path d="M7 22v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/><path d="M8 2v2"/><circle cx="12" cy="11" r="3"/><rect x="3" y="4" width="18" height="18" rx="2"/></symbol>
+        <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+        <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    </svg>
 
     <!-- Header Navigation -->
     <header class="navbar">
@@ -459,56 +509,125 @@
     </header>
 
     <!-- Main Container -->
-    <main class="main-container">
+    <main class="main-container" id="main-content">
 
         <!-- 1. HERO & HOME TAB -->
         <section id="home-tab" class="page-section active">
             <div class="hero">
                 <div class="badge">Türkiye'nin Profesyonel QR Kod Platformu</div>
-                <h1 class="hero-title">Akıllı, Dinamik & Değiştirilebilir<br>QR Kodlar Oluşturun</h1>
+                <h1 class="hero-title">QR kodunuzu bir kez basın,<br>içeriğini istediğiniz zaman değiştirin</h1>
                 <p class="hero-subtitle">
                     Basılan broşür, kartvizit ve menülerinizdeki QR kodu <strong>tekrar bastırmanıza gerek kalmadan</strong> hedef linkini istediğiniz an değiştirin. Taranma istatistiklerini anlık takip edin.
                 </p>
                 <div class="hero-btn-group">
-                    <button class="btn-primary" style="padding: 14px 28px; font-size: 16px;" data-target="studio-tab">Ücretsiz QR Oluştur</button>
-                    <button class="btn-secondary" style="padding: 14px 28px; font-size: 16px;" data-target="pricing-tab">Paketleri İncele</button>
+                    <button type="button" class="btn-primary btn-lg" data-target="studio-tab">Ücretsiz QR Oluştur <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
+                    <button type="button" class="btn-secondary btn-lg" data-target="pricing-tab">Paketleri İncele</button>
                 </div>
+                <ul class="hero-trust">
+                    <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> Statik QR kodlar sınırsız ve ücretsiz</li>
+                    <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> Ücretsiz denemede 3 dinamik QR</li>
+                    <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> Taramaları anında izleyin</li>
+                </ul>
             </div>
 
             <!-- Features Grid -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 40px;">
                 <div class="glass-card">
-                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Dinamik Yönlendirme</h3>
+                    <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Dinamik Yönlendirme</h2>
                     <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">QR kodunuz basıldıktan sonra bile panelinizden hedef adresi tek tıkla değiştirebilirsiniz.</p>
                 </div>
                 <div class="glass-card">
-                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">vCard Plus & Menü</h3>
+                    <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">vCard Plus & Menü</h2>
                     <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">Web siteniz olmasa bile dijital kartvizit ve PDF restoran menü mikro-sayfaları oluşturun.</p>
                 </div>
                 <div class="glass-card">
-                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Gelişmiş Analitik</h3>
+                    <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Gelişmiş Analitik</h2>
                     <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">Kaç kişi taradı, hangi cihaz kullanıldı, saatlik yoğunluk gibi kritik verileri izleyin.</p>
                 </div>
+            </div>
+
+            <!-- Nasıl çalışır -->
+            <div class="home-block">
+                <h2 class="home-h2">Nasıl çalışır?</h2>
+                <p class="home-lead">Üç adımda QR kodunuz hazır.</p>
+                <ol class="steps-grid">
+                    <li class="step-card"><span class="step-num" aria-hidden="true">1</span><h3>Türü seçin</h3><p>Web sitesi, restoran menüsü, kartvizit, WhatsApp... ihtiyacınıza uygun QR türünü seçin.</p></li>
+                    <li class="step-card"><span class="step-num" aria-hidden="true">2</span><h3>İçeriği ve tasarımı girin</h3><p>Bilgilerinizi yazın, renk ve logonuzu seçin; sağdaki önizlemede sonucu anında görün.</p></li>
+                    <li class="step-card"><span class="step-num" aria-hidden="true">3</span><h3>Kaydedin ve paylaşın</h3><p>QR kodu indirip bastırın. Dinamik QR'ların hedefini sonradan Panelim'den değiştirebilirsiniz.</p></li>
+                </ol>
+            </div>
+
+            <!-- Kullanım örnekleri -->
+            <div class="home-block">
+                <h2 class="home-h2">Kimler kullanıyor?</h2>
+                <p class="home-lead">En sık tercih edilen üç kullanım şekli.</p>
+                <div class="usecase-grid">
+                    <article class="usecase-card">
+                        <div class="usecase-icon"><svg class="icon" aria-hidden="true"><use href="#i-utensils"/></svg></div>
+                        <h3>Restoran / kafe menüsü</h3>
+                        <p>Masalara QR koyun. Menü veya fiyatlar değiştiğinde yeniden bastırmanıza gerek kalmaz.</p>
+                    </article>
+                    <article class="usecase-card">
+                        <div class="usecase-icon"><svg class="icon" aria-hidden="true"><use href="#i-contact"/></svg></div>
+                        <h3>Kartvizit</h3>
+                        <p>vCard ile iletişim bilgileriniz tek taramada karşınızdakinin rehberine eklenir.</p>
+                    </article>
+                    <article class="usecase-card">
+                        <div class="usecase-icon"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></div>
+                        <h3>PDF katalog</h3>
+                        <p>Ürün kataloglarınızı PDF olarak yükleyin; müşterileriniz kodu tarar taramaz açılsın.</p>
+                    </article>
+                </div>
+            </div>
+
+            <!-- Sık sorulan sorular -->
+            <div class="home-block home-faq">
+                <h2 class="home-h2">Sık sorulan sorular</h2>
+                <details class="faq-details">
+                    <summary>Dinamik ve statik QR arasındaki fark nedir?</summary>
+                    <p>Statik QR'da içerik kodun içine gömülür; sonradan değiştirilemez ve taramalar sayılamaz. Dinamik QR kısa bir yönlendirme adresi kullanır; böylece basıldıktan sonra da hedefini değiştirebilir ve taramaları izleyebilirsiniz.</p>
+                </details>
+                <details class="faq-details">
+                    <summary>Ücretsiz kullanabilir miyim?</summary>
+                    <p>Evet. Statik QR kodları sınırsız ve ücretsiz oluşturabilirsiniz. Ücretsiz denemede 3 dinamik QR hakkınız vardır; daha fazlası için Paketler &amp; Fiyatlar sayfasına bakın.</p>
+                </details>
+                <details class="faq-details">
+                    <summary>Dinamik QR limitim dolarsa ne olur?</summary>
+                    <p>Mevcut QR kodlarınız çalışmaya devam eder. Yeni bir dinamik QR oluşturmak istediğinizde paketinizi yükseltebilirsiniz.</p>
+                </details>
+                <details class="faq-details">
+                    <summary>QR koduna logomu ekleyebilir miyim?</summary>
+                    <p>Logo ekleme Profesyonel ve Kurumsal paketlerde bulunur. Başlangıç paketinde logo eklenemez.</p>
+                </details>
             </div>
         </section>
 
         <!-- 2. QR STUDIO TAB -->
         <section id="studio-tab" class="page-section">
-            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">QR Kod Stüdyosu</h2>
-            <p style="color: var(--text-muted); margin-bottom: 24px;">QR kodunuzun tipini seçin, renklerini özelleştirin ve canlı simülatörde anında önizleyin.</p>
+            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">QR Stüdyosu</h2>
+            <p style="color: var(--text-muted); margin-bottom: 16px;">QR kodunuzun türünü seçin, renklerini özelleştirin ve canlı önizlemede anında görün.</p>
+
+            <ol class="step-strip" aria-label="QR oluşturma adımları">
+                <li class="is-current"><span class="step-dot">1</span> Tür</li>
+                <li><span class="step-dot">2</span> İçerik</li>
+                <li><span class="step-dot">3</span> Tasarım</li>
+                <li class="step-save"><span class="step-dot"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span> Kaydet</li>
+            </ol>
+
+            <p class="studio-type-note"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><span><strong>Dinamik QR:</strong> basıldıktan sonra da hedefini değiştirebilirsiniz. <strong>Statik QR:</strong> içerik koda gömülür, sonradan değişmez.</span></p>
 
             <!-- QR Category Filter Tabs: Dinamik QR Kodlar vs Statik QR Kodlar -->
             <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
                 <button type="button" class="studio-cat-btn active" data-cat="all" onclick="filterStudioCategory('all')" style="padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 13px; border: 1px solid var(--primary); background: var(--primary); color: #ffffff; cursor: pointer; transition: all 0.2s;">
-                    ✨ Tüm QR Türleri
+                    <svg class="icon" aria-hidden="true"><use href="#i-sparkles"/></svg> Tüm QR Türleri
                 </button>
                 <button type="button" class="studio-cat-btn" data-cat="dynamic" onclick="filterStudioCategory('dynamic')" style="padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 13px; border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.12); color: #a5b4fc; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
-                    <span>⚡ Dinamik QR Kodlar</span>
+                    <span><svg class="icon" aria-hidden="true"><use href="#i-bolt"/></svg> Dinamik QR Kodlar</span>
                     <span style="font-size: 10px; background: rgba(99, 102, 241, 0.25); color: #c7d2fe; padding: 2px 8px; border-radius: 6px; font-weight: 800;">Değiştirilebilir & Analizli</span>
                 </button>
                 <button type="button" class="studio-cat-btn" data-cat="static" onclick="filterStudioCategory('static')" style="padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 13px; border: 1px solid var(--card-border); background: rgba(255, 255, 255, 0.05); color: var(--text-muted); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
-                    <span>📌 Statik QR Kodlar</span>
-                    <span style="font-size: 10px; background: rgba(255, 255, 255, 0.08); color: #94a3b8; padding: 2px 8px; border-radius: 6px; font-weight: 800;">Süresiz • Sınırsız • Takipsiz</span>
+                    <span><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg> Statik QR Kodlar</span>
+                    <span style="font-size: 10px; background: rgba(255, 255, 255, 0.08); color: #b4c0d4; padding: 2px 8px; border-radius: 6px; font-weight: 800;">Süresiz • Sınırsız • Takipsiz</span>
                 </button>
             </div>
 
@@ -767,11 +886,11 @@
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label class="form-label">Klasör Seçin</label>
                                     <select id="qr-folder" class="form-select" onchange="toggleCustomFolderInput(this.value)">
-                                        <option value="Genel" selected>📁 Genel</option>
-                                        <option value="Restoran Menüleri">📁 Restoran Menüleri</option>
-                                        <option value="Kartvizitler">📁 Kartvizitler</option>
-                                        <option value="Etkinlikler">📁 Etkinlikler</option>
-                                        <option value="__new__">➕ Yeni Klasör Oluştur...</option>
+                                        <option value="Genel" selected>Genel</option>
+                                        <option value="Restoran Menüleri">Restoran Menüleri</option>
+                                        <option value="Kartvizitler">Kartvizitler</option>
+                                        <option value="Etkinlikler">Etkinlikler</option>
+                                        <option value="__new__">Yeni Klasör Oluştur...</option>
                                     </select>
                                     <input type="text" id="custom-folder-input" class="form-input" placeholder="Yeni klasör adını yazın..." style="display: none; margin-top: 8px;">
                                 </div>
@@ -794,23 +913,23 @@
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label id="url-form-label" class="form-label">Hedef Web Adresi (URL)</label>
                                     <input type="text" inputmode="url" id="target-url" class="form-input" placeholder="https://siteniz.com" autocomplete="off">
-                                    <div id="url-form-hint" class="form-hint">http:// veya https:// ile başlayan geçerli bir web adresi girin.</div>
+                                    <div id="url-form-hint" class="form-hint">Örn: siteniz.com — https:// otomatik eklenir</div>
                                 </div>
                             </div>
 
                             <!-- Type 1b: Şirket Kartı (vCard'dan ayrı form) -->
                             <div id="form-company" class="type-form" style="display: none;">
-                                <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;">🏢 Kurumsal Şirket Kartı Bilgileri</h4>
+                                <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px;"><svg class="icon" aria-hidden="true"><use href="#i-building"/></svg> Kurumsal Şirket Kartı Bilgileri</h4>
 
                                 <div class="form-group">
                                     <label class="form-label">Şirket Logosu</label>
                                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                                         <label for="comp-logo-file" class="btn-secondary" style="padding: 12px 18px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; margin: 0; border-radius: 12px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; display: inline-flex; align-items: center; gap: 8px;">
-                                            <span>🏢</span><span id="comp-logo-btn-text">Logo Seç / Yükle</span>
+                                            <span><svg class="icon" aria-hidden="true"><use href="#i-building"/></svg></span><span id="comp-logo-btn-text">Logo Seç / Yükle</span>
                                         </label>
                                         <input type="file" id="comp-logo-file" accept="image/png,image/jpeg,image/webp" style="display: none;" onchange="handleCompanyLogoUpload(this)">
                                         <img id="comp-logo-preview" alt="Logo önizleme" style="display: none; width: 44px; height: 44px; border-radius: 12px; object-fit: contain; background: #fff; padding: 3px; border: 2px solid #6366f1;">
-                                        <button type="button" id="comp-logo-remove-btn" onclick="removeCompanyLogo()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; font-weight: 700;">🗑️ Logoyu Kaldır</button>
+                                        <button type="button" id="comp-logo-remove-btn" onclick="removeCompanyLogo()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; font-weight: 700;"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg> Logoyu Kaldır</button>
                                     </div>
                                     <input type="hidden" id="comp-logo-url" value="">
                                     <div id="comp-logo-status" class="form-hint">İsteğe bağlı. Kartın üst kısmında görünür (PNG / JPG / WebP).</div>
@@ -922,10 +1041,10 @@
                                         </label>
                                         <input type="file" id="vcard-avatar-file" accept="image/*" style="display: none;" onchange="handleVcardAvatarUpload(this)">
                                         <button type="button" id="vcard-avatar-crop-btn" onclick="openAvatarCropModal()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; font-weight: 700;">
-                                            ⚙️ Konumlandır & Kırp
+                                            <svg class="icon" aria-hidden="true"><use href="#i-gear"/></svg> Konumlandır & Kırp
                                         </button>
                                         <button type="button" id="vcard-avatar-remove-btn" onclick="removeVcardAvatar()" style="display: none; padding: 10px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; font-weight: 700;">
-                                            🗑️ Görseli Kaldır
+                                            <svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg> Görseli Kaldır
                                         </button>
                                     </div>
                                     <input type="hidden" id="vcard-avatar-url" value="">
@@ -986,7 +1105,7 @@
                                 <div id="vcard-social-accordion-item" class="studio-accordion-item" style="margin-top: 16px; margin-bottom: 16px; border: 1px solid rgba(244, 114, 182, 0.3);">
                                     <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)" style="background: rgba(244, 114, 182, 0.08);">
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <span>🌐</span>
+                                            <span><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg></span>
                                             <span style="color: #f472b6; font-size: 13px; font-weight: 700;">Sosyal Medya Profilleri (İsteğe Bağlı)</span>
                                         </div>
                                         <span class="studio-accordion-arrow">▼</span>
@@ -1038,7 +1157,7 @@
                                 <div id="vcard-theme-accordion-item" class="studio-accordion-item" style="margin-top: 16px; margin-bottom: 16px; border: 1px solid rgba(99, 102, 241, 0.35);">
                                     <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)" style="background: rgba(99, 102, 241, 0.08);">
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <span>🎨</span>
+                                            <span><svg class="icon" aria-hidden="true"><use href="#i-palette"/></svg></span>
                                             <span style="color: #818cf8; font-size: 13px; font-weight: 700;">Kartvizit Açılış Sayfası Tasarım & Renk Teması</span>
                                         </div>
                                         <span class="studio-accordion-arrow">▼</span>
@@ -1134,7 +1253,7 @@
                                 <div id="menu-theme-section" class="studio-accordion-item" style="margin-top: 16px; margin-bottom: 16px; border: 1px solid rgba(129, 140, 248, 0.25);">
                                     <div class="studio-accordion-header" onclick="toggleStudioAccordion(this)" style="background: rgba(99, 102, 241, 0.08);">
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <span>🎨</span>
+                                            <span><svg class="icon" aria-hidden="true"><use href="#i-palette"/></svg></span>
                                             <span style="color: #818cf8; font-size: 13px; font-weight: 700;">Markaya Özel Tasarım & Renk Düzenleme</span>
                                         </div>
                                         <span class="studio-accordion-arrow">▼</span>
@@ -1169,7 +1288,7 @@
                                 <div id="menu-pdf-group" class="form-group">
                                     <label id="menu-pdf-upload-label" class="form-label">PDF Menü / Katalog Dosyası Yükleyin (İsteğe Bağlı)</label>
                                     <div class="pdf-upload-box" id="pdf-upload-box" onclick="document.getElementById('pdf-file-input').click()">
-                                        <div style="font-size: 28px; margin-bottom: 6px;">📄</div>
+                                        <div style="font-size: 28px; margin-bottom: 6px; color: #a5b4fc;"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></div>
                                         <div id="pdf-status-text" style="font-size: 13px; font-weight: 600; color: #ffffff;">Tıklayın ve PDF Dosyanızı Seçin (.pdf)</div>
                                         <div id="pdf-status-subtext" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Müşterileriniz QR tarattığında hazırladığınız PDF belgesini hemen görüntüler</div>
                                     </div>
@@ -1235,7 +1354,7 @@
                                     <input type="tel" id="phone-number" class="form-input" placeholder="+90 537 627 44 15" autocomplete="off">
                                     <div class="form-hint">QR kod tarandığında telefon arama ekranı açılır.</div>
                                 </div>
-                                <div class="static-note"><span>📌</span><span>Statik QR: numara doğrudan kodun içine yazılır; takip edilemez, süresi dolmaz, sınırsız.</span></div>
+                                <div class="static-note"><span><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg></span><span>Statik QR: numara doğrudan kodun içine yazılır; takip edilemez, süresi dolmaz, sınırsız.</span></div>
                             </div>
 
                             <!-- Type 5: SMS (Statik) -->
@@ -1248,7 +1367,7 @@
                                     <label class="form-label">Mesaj (Opsiyonel)</label>
                                     <textarea id="sms-message" class="form-input" rows="3" maxlength="500" placeholder="Kod tarandığında SMS'e hazır gelecek mesaj..."></textarea>
                                 </div>
-                                <div class="static-note"><span>📌</span><span>Statik QR: numara ve mesaj kodun içine yazılır; takip edilemez, süresi dolmaz, sınırsız.</span></div>
+                                <div class="static-note"><span><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg></span><span>Statik QR: numara ve mesaj kodun içine yazılır; takip edilemez, süresi dolmaz, sınırsız.</span></div>
                             </div>
 
                             <!-- Type 6: Metin (Statik) -->
@@ -1258,7 +1377,7 @@
                                     <textarea id="static-text" class="form-input" rows="4" maxlength="1200" placeholder="QR kod tarandığında görüntülenecek metni buraya yazın..."></textarea>
                                     <div class="form-hint">En fazla 1200 karakter.</div>
                                 </div>
-                                <div class="static-note"><span>📌</span><span>Statik QR: metin doğrudan kodun içine yazılır; takip edilemez, süresi dolmaz, sınırsız.</span></div>
+                                <div class="static-note"><span><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg></span><span>Statik QR: metin doğrudan kodun içine yazılır; takip edilemez, süresi dolmaz, sınırsız.</span></div>
                             </div>
 
                             <!-- Type 7: Wi-Fi (Statik) -->
@@ -1291,7 +1410,7 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="static-note"><span>📌</span><span>Statik QR: Wi-Fi bilgisi doğrudan kodun içine yazılır; takip edilemez, süresi dolmaz, sınırsız.</span></div>
+                                <div class="static-note"><span><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg></span><span>Statik QR: Wi-Fi bilgisi doğrudan kodun içine yazılır; takip edilemez, süresi dolmaz, sınırsız.</span></div>
                             </div>
 
                             <!-- Type 8: WhatsApp -->
@@ -1307,7 +1426,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
                     <!-- Panel 3: Görsel Tasarım & Renk Paleti -->
                     <div class="studio-accordion-item">
@@ -1410,14 +1528,14 @@
                                     </label>
                                     <input type="file" id="qr-logo-file" accept="image/png,image/jpeg,image/webp" style="display: none;" onchange="handleStudioLogoUpload(this)">
                                     <img id="qr-logo-preview" alt="Logo önizleme" style="display: none; width: 40px; height: 40px; border-radius: 10px; object-fit: contain; background: #fff; padding: 3px; border: 2px solid #6366f1;">
-                                    <button type="button" id="qr-logo-remove-btn" onclick="removeStudioLogo()" style="display: none; padding: 9px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; font-weight: 700;">🗑️ Logoyu Kaldır</button>
+                                    <button type="button" id="qr-logo-remove-btn" onclick="removeStudioLogo()" style="display: none; padding: 9px 14px; font-size: 12px; cursor: pointer; border-radius: 12px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; font-weight: 700;"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg> Logoyu Kaldır</button>
                                 </div>
                                 <input type="hidden" id="qr-logo-url" value="">
                                 <div id="qr-logo-hint" class="form-hint">QR kodun tam ortasına marka logonuzu yerleştirin (PNG / JPG / WebP).</div>
                                 <div id="qr-logo-note" class="form-hint" style="display: none; color: #fbbf24;">Hata düzeltme seviyesi otomatik Yüksek (H) yapılır.</div>
                             </div>
 
-                            <div id="contrast-warning" class="contrast-warning" role="alert">⚠️ Düşük kontrast: QR kodunuz taranamayabilir. Koyu QR + açık zemin önerilir.</div>
+                            <div id="contrast-warning" class="contrast-warning" role="alert"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg> Düşük kontrast: QR kodunuz taranamayabilir. Koyu QR + açık zemin önerilir.</div>
                         </div>
                     </div>
                 </div>
@@ -1450,25 +1568,25 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn-primary" id="save-qr-btn" style="width: 100%; padding: 14px; justify-content: center; font-size: 15px; font-weight: 800;">🚀 QR Kodu Hesabıma Kaydet</button>
+                <button class="btn-primary" id="save-qr-btn" style="width: 100%; padding: 14px; justify-content: center; font-size: 15px; font-weight: 800;"><svg class="icon" aria-hidden="true"><use href="#i-rocket"/></svg> QR Kodu Hesabıma Kaydet</button>
                 </div>
             </div>
         </section>
 
         <!-- 3. DASHBOARD TAB -->
         <section id="dashboard-tab" class="page-section">
-            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px;">Yönetim Paneli</h2>
+            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px;">Panelim</h2>
 
             <!-- Fatura Bildirimi (ödeme yapmış kullanıcılar) -->
             <div id="invoice-notice" role="status" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); padding: 16px 20px; border-radius: 16px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
                     <div style="font-size: 14px; line-height: 1.6; color: #d1fae5;">
-                        <strong style="color: #fff;">🧾 Faturanız için bizimle iletişime geçin</strong><br>
+                        <strong style="color: #fff;"><svg class="icon" aria-hidden="true"><use href="#i-receipt"/></svg> Faturanız için bizimle iletişime geçin</strong><br>
                         Ödemeniz alındı. Faturanızı düzenleyebilmemiz için lütfen <a href="mailto:dijitalgru@gmail.com?subject=Fatura%20Bilgileri" style="color: #6ee7b7; font-weight: 700;">dijitalgru@gmail.com</a> adresine e-posta göndererek fatura bilgilerinizi iletin:
                         ad-soyad / unvan, T.C. kimlik veya vergi numarası, vergi dairesi (kurumsalsa) ve fatura adresi.
                         <span id="invoice-notice-ref" style="display:block; font-size: 12px; color: #a7f3d0; margin-top: 4px;"></span>
                     </div>
-                    <button type="button" onclick="dismissInvoiceNotice()" aria-label="Kapat" style="background: none; border: none; color: #fff; font-size: 18px; cursor: pointer;">✕</button>
+                    <button type="button" onclick="dismissInvoiceNotice()" aria-label="Kapat" style="background: none; border: none; color: #fff; font-size: 18px; cursor: pointer;"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
                 </div>
             </div>
 
@@ -1480,12 +1598,12 @@
                             <i class="fa-solid fa-triangle-exclamation" style="font-size: 20px; color: #f87171;"></i>
                         </div>
                         <div>
-                            <strong style="font-size: 16px; color: #ffffff; display: block; margin-bottom: 2px;">⚠️ 7 Günlük Ücretsiz Deneme Süreniz Dolmuştur!</strong>
+                            <strong style="font-size: 16px; color: #ffffff; display: block; margin-bottom: 2px;"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg> 7 günlük ücretsiz deneme süreniz doldu</strong>
                             <span style="font-size: 13px; color: #fca5a5;">Mevcut QR kodlarınız pasife alınmış olup taratıldığında siteye yönlendirilmektedir. Kodlarınızı tekrar aktif etmek için paket satın alın.</span>
                         </div>
                     </div>
-                    <button onclick="switchTab('pricing-tab')" class="btn-primary" style="padding: 10px 20px; font-size: 13px; background: #ef4444; border: none; font-weight: 700; cursor: pointer; border-radius: 10px;">
-                        🚀 Hemen Paket Satın Al
+                    <button type="button" onclick="document.querySelector('.nav-link[data-target=\'pricing-tab\']').click()" class="btn-primary" style="padding: 10px 20px; font-size: 13px; background: #ef4444; border: none; font-weight: 700; cursor: pointer; border-radius: 10px;">
+                        <svg class="icon" aria-hidden="true"><use href="#i-rocket"/></svg> Hemen Paket Satın Al
                     </button>
                 </div>
             </div>
@@ -1511,6 +1629,9 @@
                 <div class="glass-card" style="padding: 20px;">
                     <div style="font-size: 12px; color: var(--text-muted);">Dinamik Limit Kullanımı</div>
                     <div id="stat-limit" style="font-size: 26px; font-weight: 800; color: var(--accent); margin-top: 6px;">0 / 3</div>
+                    <div id="limit-progress-bar" class="progress" role="progressbar" aria-label="Dinamik QR limit kullanımı" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div class="bar-fill" style="width: 0%;"></div>
+                    </div>
                 </div>
                 <div class="glass-card" style="padding: 20px;">
                     <div style="font-size: 12px; color: var(--text-muted);">Aktif Paket</div>
@@ -1522,7 +1643,53 @@
             <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px;">
                 <h3 style="font-size: 20px; font-weight: 700; margin: 0;">QR Kodlarım</h3>
 
-                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div class="panel-toolbar" role="search">
+                    <div class="panel-search-wrap">
+                        <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+                        <input type="search" id="panel-search" class="form-input" placeholder="QR ara (başlık veya adres)" aria-label="QR kodlarımın içinde ara" autocomplete="off">
+                    </div>
+                    <select id="filter-type" class="form-select" aria-label="QR türüne göre filtrele">
+                        <option value="all">Tüm türler</option>
+                        <optgroup label="Dinamik">
+                            <option value="url">Web sitesi</option>
+                            <option value="restaurant_menu">Restoran menü</option>
+                            <option value="vcard">vCard (kartvizit)</option>
+                            <option value="company_card">Şirket kartı</option>
+                            <option value="dynamic_whatsapp">WhatsApp</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="social">Sosyal medya</option>
+                            <option value="menu">Online katalog / menü</option>
+                            <option value="pdf_catalog">PDF katalog</option>
+                            <option value="pdf_viewer">PDF görüntüleyici</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="pinterest">Pinterest</option>
+                        </optgroup>
+                        <optgroup label="Statik">
+                            <option value="static_url">Web sitesi (statik)</option>
+                            <option value="phone">Telefon</option>
+                            <option value="sms">SMS</option>
+                            <option value="text">Metin</option>
+                            <option value="wifi">Wi-Fi</option>
+                        </optgroup>
+                    </select>
+                    <select id="filter-folder" class="form-select" aria-label="Klasöre göre filtrele">
+                        <option value="all">Tüm klasörler</option>
+                        <option value="Genel">Genel</option>
+                        <option value="Restoran Menüleri">Restoran Menüleri</option>
+                        <option value="Kartvizitler">Kartvizitler</option>
+                        <option value="Etkinlikler">Etkinlikler</option>
+                    </select>
+                    <select id="filter-status" class="form-select" aria-label="Duruma göre filtrele">
+                        <option value="all">Tüm durumlar</option>
+                        <option value="active">Aktif</option>
+                        <option value="passive">Pasif</option>
+                        <option value="deleted">Arşiv / silinmiş</option>
+                    </select>
+                </div>
+
+                <!-- Eski kontroller: mevcut JS bağları kopmasın diye DOM'da gizli tutulur -->
+                <div class="legacy-filters" hidden aria-hidden="true">
                     <!-- Status Filter Tabs -->
                     <div style="display: flex; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
                         <button class="filter-tab-btn active" data-status="all" onclick="filterQRList('status', 'all')">Tümü</button>
@@ -1545,20 +1712,42 @@
             <div id="qr-list-container">
                 <!-- Rendered dynamically -->
             </div>
+
+            <!-- Boş durum: hiç QR yokken (JS "hidden" özniteliğini kaldırır / gösterir) -->
+            <div id="panel-empty-state" class="panel-empty glass-card" hidden>
+                <svg class="panel-empty-art" viewBox="0 0 160 160" role="img" aria-label="Boş QR kodu çizimi" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="20" y="20" width="120" height="120" rx="20" fill="rgba(99,102,241,0.12)" stroke="#6366f1" stroke-width="2" stroke-dasharray="6 6"/>
+                    <rect x="40" y="40" width="28" height="28" rx="6" fill="none" stroke="#a5b4fc" stroke-width="4"/>
+                    <rect x="92" y="40" width="28" height="28" rx="6" fill="none" stroke="#a5b4fc" stroke-width="4"/>
+                    <rect x="40" y="92" width="28" height="28" rx="6" fill="none" stroke="#a5b4fc" stroke-width="4"/>
+                    <rect x="50" y="50" width="8" height="8" rx="2" fill="#a5b4fc"/>
+                    <rect x="102" y="50" width="8" height="8" rx="2" fill="#a5b4fc"/>
+                    <rect x="50" y="102" width="8" height="8" rx="2" fill="#a5b4fc"/>
+                    <rect x="92" y="92" width="10" height="10" rx="2" fill="#22d3ee"/>
+                    <rect x="110" y="92" width="10" height="10" rx="2" fill="#6366f1"/>
+                    <rect x="92" y="110" width="10" height="10" rx="2" fill="#6366f1"/>
+                    <rect x="110" y="110" width="10" height="10" rx="2" fill="#22d3ee"/>
+                </svg>
+                <h3>Henüz QR kodunuz yok</h3>
+                <p>İlk QR kodunuzu bir dakikadan kısa sürede oluşturun; sonrasında burada yönetip tarama sayılarını izleyebilirsiniz.</p>
+                <button type="button" id="panel-empty-cta" class="btn-primary" onclick="document.querySelector('.nav-link[data-target=\'studio-tab\']').click()">
+                    <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg> İlk QR'ını oluştur
+                </button>
+            </div>
         </section>
 
         <!-- 4. PRICING & SUBSCRIPTIONS TAB -->
         <section id="pricing-tab" class="page-section">
             <div style="text-align: center; margin-bottom: 30px;">
-                <div class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800; font-size: 13px; padding: 8px 16px;">⚡ PEŞİN ÖDEMELERDE %8'E KADAR İNDİRİM FIRSATI!</div>
-                <h2 style="font-size: 36px; font-weight: 800; margin-top: 12px;">Abonelik Paketleri</h2>
+                <div class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800; font-size: 13px; padding: 8px 16px;"><svg class="icon" aria-hidden="true"><use href="#i-bolt"/></svg> Peşin ödemelerde %8'e kadar indirim</div>
+                <h2 style="font-size: 36px; font-weight: 800; margin-top: 12px;">Paketler &amp; Fiyatlar</h2>
                 <p style="color: var(--text-muted); margin-top: 8px;">İhtiyacınıza uygun paketi seçin, iyzico güvencesiyle 7/24 kesintisiz dinamik QR hizmeti alın.<br><span style="font-size: 13px;">Ücretsiz denemede <strong data-plan-limit="free">3</strong> dinamik QR hakkınız vardır. Statik QR kodlar sınırsız ve süresizdir.</span></p>
 
                 <!-- Billing Cycle Selector Toggle -->
-                <div class="cycle-selector-container" style="display: flex; justify-content: center; gap: 8px; margin-top: 24px; background: rgba(21, 25, 34, 0.9); border: 1px solid var(--card-border); padding: 6px; border-radius: 16px; width: fit-content; margin-left: auto; margin-right: auto;">
-                    <button class="cycle-btn active" data-cycle="monthly" onclick="setBillingCycle('monthly')">Aylık Ödeme</button>
-                    <button class="cycle-btn" data-cycle="semi_annual" onclick="setBillingCycle('semi_annual')">6 Aylık Peşin <span style="background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%5 İndirim</span></button>
-                    <button class="cycle-btn" data-cycle="annual" onclick="setBillingCycle('annual')">Yıllık Peşin <span style="background: rgba(99, 102, 241, 0.2); color: var(--primary); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%8 İndirim (1 Yıl)</span></button>
+                <div class="cycle-selector-container" role="group" aria-label="Ödeme dönemi" style="display: flex; justify-content: center; gap: 8px; margin-top: 24px; background: rgba(21, 25, 34, 0.9); border: 1px solid var(--card-border); padding: 6px; border-radius: 16px; width: fit-content; margin-left: auto; margin-right: auto;">
+                    <button class="cycle-btn active" data-cycle="monthly" onclick="setBillingCycle('monthly')">Aylık</button>
+                    <button class="cycle-btn" data-cycle="semi_annual" onclick="setBillingCycle('semi_annual')">6 Aylık <span style="background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 2px 6px; border-radius: 8px; font-size: 11px;">%5 indirim</span></button>
+                    <button class="cycle-btn" data-cycle="annual" onclick="setBillingCycle('annual')">Yıllık <span style="background: rgba(99, 102, 241, 0.2); color: #c7d2fe; padding: 2px 6px; border-radius: 8px; font-size: 11px;">%8 indirim</span></button>
                 </div>
             </div>
 
@@ -1568,12 +1757,14 @@
                     <h3 style="font-size: 20px; font-weight: 700;">Başlangıç (Starter)</h3>
                     <p style="font-size: 13px; color: var(--text-muted);">Küçük işletmeler & şahsi kullanım için</p>
                     <div class="pricing-price" id="price-starter"><span style="font-size: 44px; color: #ffffff; font-weight: 900; letter-spacing: -1px;">₺246</span> <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">/ ay</span></div>
-                    <div id="subtext-starter" style="font-size: 15px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 10px 14px; border-radius: 12px; margin-top: -4px; margin-bottom: 16px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center;">💳 Aylık Ödeme: <span style="font-size: 20px; font-weight: 900; color: #38bdf8;">246 ₺</span> <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">/ Ay</span></div>
+                    <div id="subtext-starter" style="font-size: 15px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 10px 14px; border-radius: 12px; margin-top: -4px; margin-bottom: 16px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center;"><svg class="icon" aria-hidden="true"><use href="#i-card"/></svg> Aylık Ödeme: <span style="font-size: 20px; font-weight: 900; color: #38bdf8;">246 ₺</span> <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">/ Ay</span></div>
                     <ul class="pricing-features">
-                        <li><span data-plan-limit="starter">5</span> Adet Dinamik QR Kod</li>
-                        <li>15.000 Tarama / ay</li>
-                        <li>Özel Renk & Kart Çerçevesi</li>
-                        <li>vCard Dijital Kartvizit</li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span><strong data-plan-limit="starter">5</strong> adet dinamik QR kod</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Sınırsız statik QR kod</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Sınırsız tarama</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Özel renk &amp; kart çerçevesi</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>vCard dijital kartvizit</span></li>
+                        <li class="is-off"><svg class="icon off" aria-hidden="true"><use href="#i-x"/></svg><span>Logo ekleme (Profesyonel ve Kurumsal'da)</span></li>
                     </ul>
                     <button class="btn-secondary" onclick="buyPlan('starter')">Başlangıç Paketini Seç</button>
                 </div>
@@ -1584,13 +1775,14 @@
                     <h3 style="font-size: 20px; font-weight: 700;">Profesyonel (Advanced)</h3>
                     <p style="font-size: 13px; color: var(--text-muted);">Büyüyen markalar ve ajanslar için</p>
                     <div class="pricing-price" id="price-advanced"><span style="font-size: 44px; color: #ffffff; font-weight: 900; letter-spacing: -1px;">₺615</span> <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">/ ay</span></div>
-                    <div id="subtext-advanced" style="font-size: 15px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 10px 14px; border-radius: 12px; margin-top: -4px; margin-bottom: 16px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center;">💳 Aylık Ödeme: <span style="font-size: 20px; font-weight: 900; color: #38bdf8;">615 ₺</span> <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">/ Ay</span></div>
+                    <div id="subtext-advanced" style="font-size: 15px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 10px 14px; border-radius: 12px; margin-top: -4px; margin-bottom: 16px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center;"><svg class="icon" aria-hidden="true"><use href="#i-card"/></svg> Aylık Ödeme: <span style="font-size: 20px; font-weight: 900; color: #38bdf8;">615 ₺</span> <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">/ Ay</span></div>
                     <ul class="pricing-features">
-                        <li><span data-plan-limit="advanced">25</span> Adet Dinamik QR Kod</li>
-                        <li>Limitsiz Tarama Sayısı</li>
-                        <li>Restoran Dijital Menü & PDF Katalog</li>
-                        <li>Gelişmiş Cihaz & Konum Analitiği</li>
-                        <li>Logo Ekleme Özelliği</li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span><strong data-plan-limit="advanced">25</strong> adet dinamik QR kod</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Sınırsız statik QR kod</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Sınırsız tarama</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Restoran dijital menü &amp; PDF katalog</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Gelişmiş cihaz &amp; konum analizi</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>QR koduna logo ekleme</span></li>
                     </ul>
                     <button class="btn-primary" onclick="buyPlan('advanced')">Profesyonel Paketini Seç</button>
                 </div>
@@ -1600,15 +1792,15 @@
                     <h3 style="font-size: 20px; font-weight: 700;">Kurumsal (Business)</h3>
                     <p style="font-size: 13px; color: var(--text-muted);">Zincir markalar ve büyük ölçek için</p>
                     <div class="pricing-price" id="price-business"><span style="font-size: 44px; color: #ffffff; font-weight: 900; letter-spacing: -1px;">₺1.869</span> <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">/ ay</span></div>
-                    <div id="subtext-business" style="font-size: 15px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 10px 14px; border-radius: 12px; margin-top: -4px; margin-bottom: 16px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center;">💳 Aylık Ödeme: <span style="font-size: 20px; font-weight: 900; color: #38bdf8;">1.869 ₺</span> <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">/ Ay</span></div>
+                    <div id="subtext-business" style="font-size: 15px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 10px 14px; border-radius: 12px; margin-top: -4px; margin-bottom: 16px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center;"><svg class="icon" aria-hidden="true"><use href="#i-card"/></svg> Aylık Ödeme: <span style="font-size: 20px; font-weight: 900; color: #38bdf8;">1.869 ₺</span> <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">/ Ay</span></div>
                     <ul class="pricing-features">
-                        <li><span data-plan-limit="business">100</span> Adet Dinamik QR Kod</li>
-                        <li>Limitsiz Tarama Sayısı</li>
-                        <li>Restoran Dijital Menü & PDF Katalog</li>
-                        <li>Gelişmiş Cihaz & Konum Analitiği</li>
-                        <li>Logo Ekleme Özelliği</li>
-                        <li>Özel Subdomain / Domain Yönlendirme</li>
-                        <li>VIP 7/24 Destek & Özel Danışmanlık</li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span><strong data-plan-limit="business">100</strong> adet dinamik QR kod</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Sınırsız statik QR kod</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Sınırsız tarama</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Restoran dijital menü &amp; PDF katalog</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>Gelişmiş cihaz &amp; konum analizi</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>QR koduna logo ekleme</span></li>
+                        <li><svg class="icon ok" aria-hidden="true"><use href="#i-check"/></svg><span>E-posta ile destek</span></li>
                     </ul>
                     <button class="btn-secondary" onclick="buyPlan('business')">Kurumsal Paketini Seç</button>
                 </div>
@@ -1638,7 +1830,7 @@
                             </tr>
                             <tr style="border-bottom: 1px solid var(--card-border);">
                                 <td style="padding: 14px 20px; color: #e2e8f0; font-weight: 600;">Aylık Tarama Limiti</td>
-                                <td style="padding: 14px 20px; text-align: center; color: var(--text-muted);">15.000 / ay</td>
+                                <td style="padding: 14px 20px; text-align: center; color: var(--success); font-weight: 700;">Sınırsız</td>
                                 <td style="padding: 14px 20px; text-align: center; color: var(--success); font-weight: 700; background: rgba(99, 102, 241, 0.05);">Limitsiz</td>
                                 <td style="padding: 14px 20px; text-align: center; color: var(--success); font-weight: 700;">Limitsiz</td>
                             </tr>
@@ -1651,6 +1843,12 @@
                             <tr style="border-bottom: 1px solid var(--card-border);">
                                 <td style="padding: 14px 20px; color: #e2e8f0; font-weight: 600;">Restoran Dijital Menü & PDF Katalog</td>
                                 <td style="padding: 14px 20px; text-align: center; color: var(--text-muted);">Harici</td>
+                                <td style="padding: 14px 20px; text-align: center; color: var(--success); font-weight: 700; background: rgba(99, 102, 241, 0.05);">Dahil</td>
+                                <td style="padding: 14px 20px; text-align: center; color: var(--success); font-weight: 700;">Dahil</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--card-border);">
+                                <td style="padding: 14px 20px; color: #e2e8f0; font-weight: 600;">QR koduna logo ekleme</td>
+                                <td style="padding: 14px 20px; text-align: center; color: var(--text-muted);">Yok</td>
                                 <td style="padding: 14px 20px; text-align: center; color: var(--success); font-weight: 700; background: rgba(99, 102, 241, 0.05);">Dahil</td>
                                 <td style="padding: 14px 20px; text-align: center; color: var(--success); font-weight: 700;">Dahil</td>
                             </tr>
@@ -1792,7 +1990,7 @@
         <div class="modal-content" style="max-width: 650px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
                 <h3 style="font-size: 18px; font-weight: 700;">Hakkımızda</h3>
-                <button onclick="closeModal('modal-about')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+                <button type="button" aria-label="Kapat" onclick="closeModal('modal-about')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
             <div style="font-size: 13px; color: var(--text-muted); line-height: 1.7; max-height: 500px; overflow-y: auto; padding-right: 6px;">
                 <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); padding: 14px; border-radius: 12px; margin-bottom: 16px; text-align: center;">
@@ -1830,7 +2028,7 @@
         <div class="modal-content" style="max-width: 750px; max-height: 85vh;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
                 <h3 style="font-size: 18px; font-weight: 700;">Gizlilik ve Güvenlik Politikası</h3>
-                <button onclick="closeModal('modal-privacy')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+                <button type="button" aria-label="Kapat" onclick="closeModal('modal-privacy')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
             <div style="font-size: 13px; color: var(--text-muted); line-height: 1.7; max-height: 550px; overflow-y: auto; padding-right: 8px;">
                 <p style="text-align: center; font-weight: 700; color: #fff; margin-bottom: 16px;">GİZLİLİK VE GÜVENLİK POLİTİKASI</p>
@@ -1905,7 +2103,7 @@
         <div class="modal-content" style="max-width: 750px; max-height: 85vh;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
                 <h3 style="font-size: 18px; font-weight: 700;">Mesafeli Satış Sözleşmesi</h3>
-                <button onclick="closeModal('modal-sales')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+                <button type="button" aria-label="Kapat" onclick="closeModal('modal-sales')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
             <div style="font-size: 13px; color: var(--text-muted); line-height: 1.7; max-height: 550px; overflow-y: auto; padding-right: 8px;">
                 <p style="text-align: center; font-weight: 700; color: #fff; margin-bottom: 16px;">MESAFELİ SATIŞ SÖZLEŞMESİ</p>
@@ -1986,7 +2184,7 @@
         <div class="modal-content" style="max-width: 750px; max-height: 85vh;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
                 <h3 style="font-size: 18px; font-weight: 700;">Teslimat ve İade Şartları</h3>
-                <button onclick="closeModal('modal-delivery')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+                <button type="button" aria-label="Kapat" onclick="closeModal('modal-delivery')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
             <div style="font-size: 13px; color: var(--text-muted); line-height: 1.7; max-height: 550px; overflow-y: auto; padding-right: 8px;">
                 <p style="text-align: center; font-weight: 700; color: #fff; margin-bottom: 16px;">TESLİMAT VE İADE ŞARTLARI</p>
@@ -2035,7 +2233,7 @@
     <!-- IYZICO CHECKOUT MODAL -->
     <div class="modal-overlay" id="modal-iyzico-checkout" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);">
         <div style="position: absolute; top: 20px; right: 24px; z-index: 10001;">
-            <button onclick="closeModal('modal-iyzico-checkout')" style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); color: #fff; font-size: 20px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">✕</button>
+            <button type="button" aria-label="Kapat" onclick="closeModal('modal-iyzico-checkout')" style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); color: #fff; font-size: 20px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
         </div>
         <div id="iyzico-checkout-container" style="position: relative; width: 100%; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #ffffff;">
             <!-- Dynamic iyzico Form or Spinner -->
@@ -2066,7 +2264,7 @@
         <div class="modal-content billing-compact" role="dialog" aria-modal="true" aria-labelledby="billing-title">
             <div class="auth-head">
                 <h3 id="billing-title">Son adım: Ödeme bilgileri</h3>
-                <button type="button" class="auth-close" aria-label="Kapat" onclick="closeModal('billing-modal')">✕</button>
+                <button type="button" class="auth-close" aria-label="Kapat" onclick="closeModal('billing-modal')"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
             <div id="billing-plan-summary" style="display:none; margin-bottom:10px; padding:9px 14px; border-radius:12px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4); color:#d1fae5; font-size:13px; font-weight:600;"></div>
             <div id="billing-error" role="alert" style="display:none; margin-bottom:10px; padding:9px 14px; border-radius:12px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.45); color:#fecaca; font-size:13px;"></div>
@@ -2094,7 +2292,7 @@
                     <textarea id="billing-address" class="form-input" rows="2" autocomplete="street-address" placeholder="Mahalle, sokak, no, ilçe" required></textarea>
                 </div>
                 <button type="submit" class="btn-primary auth-submit">Ödemeye Geç</button>
-                <p class="billing-note">🔒 Bilgiler yalnızca iyzico 3D Secure doğrulaması ve fatura için kullanılır. Kart bilgisi bizde tutulmaz.</p>
+                <p class="billing-note"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg> Bilgiler yalnızca iyzico 3D Secure doğrulaması ve fatura için kullanılır. Kart bilgisi bizde tutulmaz.</p>
             </form>
         </div>
     </div>
@@ -2103,8 +2301,8 @@
     <div class="modal-overlay" id="avatar-crop-modal">
         <div class="modal-content" style="max-width: 380px; text-align: center;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 style="font-size: 16px; font-weight: 700; color: #ffffff;">📷 Profil Fotoğrafını Konumlandır & Kırp</h3>
-                <button onclick="closeModal('avatar-crop-modal')" style="background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+                <h3 style="font-size: 16px; font-weight: 700; color: #ffffff;">Profil Fotoğrafını Konumlandır ve Kırp</h3>
+                <button type="button" aria-label="Kapat" class="icon-btn" onclick="closeModal('avatar-crop-modal')"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
             
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Görseli dairesel çerçeve içinde sürükleyerek kaydırın, zoom barı ile yakınlaştırın.</p>
@@ -2117,16 +2315,16 @@
             <!-- Zoom Slider Control -->
             <div style="margin-bottom: 20px; background: rgba(255,255,255,0.04); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
                 <div style="display: flex; justify-content: space-between; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; font-weight: 600;">
-                    <span>🔍 Yakınlaştırma (Zoom)</span>
+                    <span><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg> Yakınlaştırma (Zoom)</span>
                     <span id="crop-zoom-label">1.0x</span>
                 </div>
-                <input type="range" id="crop-zoom-slider" min="1" max="3" step="0.05" value="1" style="width: 100%; cursor: pointer;" oninput="updateCropCanvasZoom(this.value)">
+                <input type="range" id="crop-zoom-slider" aria-label="Yakınlaştırma" min="1" max="3" step="0.05" value="1" style="width: 100%; cursor: pointer;" oninput="updateCropCanvasZoom(this.value)">
             </div>
 
             <!-- Modal Actions -->
             <div style="display: flex; gap: 10px;">
                 <button type="button" class="btn-secondary" style="flex: 1; justify-content: center; padding: 12px; font-size: 13px;" onclick="closeModal('avatar-crop-modal')">İptal</button>
-                <button type="button" class="btn-primary" style="flex: 2; justify-content: center; padding: 12px; font-size: 13px; background: linear-gradient(135deg, #10b981, #059669);" onclick="applyAvatarCrop()">✓ Konumlandırmayı Uygula</button>
+                <button type="button" class="btn-primary" style="flex: 2; justify-content: center; padding: 12px; font-size: 13px;" onclick="applyAvatarCrop()">Konumlandırmayı Uygula</button>
             </div>
         </div>
     </div>
@@ -2136,25 +2334,25 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
                 <div>
                     <h3 style="font-size: 18px; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
-                        <span>📊</span> <span id="analytics-modal-title">QR Analitik & Raporlama</span>
+                        <svg class="icon" aria-hidden="true"><use href="#i-bar"/></svg> <span id="analytics-modal-title">QR Analitik &amp; Raporlama</span>
                     </h3>
                     <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Cihaz, şehir, tarih ve saat bazlı detaylı tarama verileri · <strong style="color: #a5b4fc;">Saatler Türkiye saatine (UTC+3) göredir.</strong></div>
                 </div>
-                <button onclick="closeModal('modal-qr-analytics')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+                <button type="button" aria-label="Kapat" class="icon-btn" onclick="closeModal('modal-qr-analytics')"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
 
             <!-- Export Buttons Banner -->
             <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 14px; padding: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
-                    <div style="font-size: 13px; font-weight: 700; color: #ffffff;">📥 Tarama Verilerini İndir / Dışa Aktar</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #ffffff;"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg> Tarama verilerini dışa aktarın</div>
                     <div style="font-size: 11px; color: var(--text-muted);">Tüm tarih, cihaz, şehir ve IP tarama verilerini Excel/CSV olarak bilgisayarınıza indirin.</div>
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <button onclick="downloadAnalyticsFile('csv')" class="btn-primary" style="padding: 8px 14px; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669); font-weight: 700; border-radius: 10px; cursor: pointer;">
-                        📊 Excel / CSV İndir
+                        <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg> Excel / CSV İndir
                     </button>
                     <button onclick="downloadAnalyticsFile('json')" class="btn-secondary" style="padding: 8px 14px; font-size: 12px; font-weight: 700; border-radius: 10px; cursor: pointer;">
-                        📄 JSON İndir
+                        <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg> JSON İndir
                     </button>
                 </div>
             </div>
@@ -2183,27 +2381,27 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;" class="responsive-grid-2">
                 <!-- Device Breakdown -->
                 <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px;">
-                    <h4 style="font-size: 13px; font-weight: 700; color: #818cf8; margin-bottom: 10px; margin-top: 0;">📱 Cihaz Dağılımı</h4>
+                    <h4 style="font-size: 13px; font-weight: 700; color: #a5b4fc; margin-bottom: 10px; margin-top: 0;"><svg class="icon" aria-hidden="true"><use href="#i-phone-device"/></svg> Cihaz Dağılımı</h4>
                     <div id="analytics-device-list" style="font-size: 12px;">Yükleniyor...</div>
                 </div>
 
                 <!-- City Breakdown -->
                 <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px;">
-                    <h4 style="font-size: 13px; font-weight: 700; color: #f472b6; margin-bottom: 10px; margin-top: 0;">📍 Şehir / Konum Dağılımı</h4>
+                    <h4 style="font-size: 13px; font-weight: 700; color: #f9a8d4; margin-bottom: 10px; margin-top: 0;"><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg> Şehir / Konum Dağılımı</h4>
                     <div id="analytics-city-list" style="font-size: 12px;">Yükleniyor...</div>
                 </div>
             </div>
 
             <!-- Hourly Density -->
             <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; margin-bottom: 20px;">
-                <h4 style="font-size: 13px; font-weight: 700; color: #34d399; margin-bottom: 4px; margin-top: 0;">⏰ Saatlik Yoğunluk</h4>
+                <h4 style="font-size: 13px; font-weight: 700; color: #34d399; margin-bottom: 4px; margin-top: 0;"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg> Saatlik Yoğunluk</h4>
                 <div class="form-hint" style="margin: 0 0 10px 0;">Saatler Türkiye saatine (UTC+3) göredir.</div>
                 <div id="analytics-hourly" style="font-size: 11px; color: var(--text-muted);">Yükleniyor...</div>
             </div>
 
             <!-- Recent Scans Table -->
             <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px;">
-                <h4 style="font-size: 13px; font-weight: 700; color: #ffffff; margin-bottom: 12px; margin-top: 0;">🕒 Son Tarama Kayıtları <span style="font-weight: 500; color: var(--text-muted);">(Türkiye saati)</span></h4>
+                <h4 style="font-size: 13px; font-weight: 700; color: #ffffff; margin-bottom: 12px; margin-top: 0;">Son Tarama Kayıtları <span style="font-weight: 500; color: var(--text-muted);">(Türkiye saati)</span></h4>
                 <div style="overflow-x: auto;">
                     <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
                         <thead>
@@ -2228,16 +2426,16 @@
         <div class="modal-content" style="max-width: 750px; width: 95%; max-height: 90vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
                 <h3 style="font-size: 18px; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
-                    <span>✏️</span> <span id="edit-qr-modal-header">QR Kodu Düzenle</span>
+                    <svg class="icon" aria-hidden="true"><use href="#i-pencil"/></svg> <span id="edit-qr-modal-header">QR Kodu Düzenle</span>
                 </h3>
-                <button type="button" onclick="closeModal('modal-edit-qr')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+                <button type="button" aria-label="Kapat" class="icon-btn" onclick="closeModal('modal-edit-qr')"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
 
             <!-- Dinamik QR Güvencesi Bilgilendirme Kutusu -->
             <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 22px;">🛡️</span>
+                <span style="font-size: 22px; color: #34d399;"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></span>
                 <span style="font-size: 12px; color: #34d399; font-weight: 600; line-height: 1.5;">
-                    <strong>Dinamik QR Güvencesi:</strong> Güncellediğiniz tüm bilgiler (Ad, Telefon, Sosyal Medya, Tema vb.) anında canlıya yansır. Basılmış kartvizitinizdeki veya fiziksel ürününüzdeki <strong>QR KOD GÖRSELİ KESİNLİKLE DEĞİŞMEZ</strong>. Tekrar baskı yapmanıza gerek yoktur.
+                    <strong>Dinamik QR güvencesi:</strong> Güncellediğiniz tüm bilgiler (ad, telefon, sosyal medya, tema vb.) anında yayına girer. Basılmış kartvizitinizdeki veya ürününüzdeki <strong>QR kod görseli kesinlikle değişmez</strong>; yeniden baskı yapmanız gerekmez.
                 </span>
             </div>
 
@@ -2264,7 +2462,7 @@
                 <!-- Modal Actions -->
                 <div style="display: flex; gap: 10px;">
                     <button type="button" class="btn-secondary" style="flex: 1; justify-content: center; padding: 12px; font-size: 13px;" onclick="closeModal('modal-edit-qr')">İptal</button>
-                    <button type="submit" id="edit-qr-save-btn" class="btn-primary" style="flex: 2; justify-content: center; padding: 12px; font-size: 14px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5);">💾 Değişiklikleri Kaydet</button>
+                    <button type="submit" id="edit-qr-save-btn" class="btn-primary" style="flex: 2; justify-content: center; padding: 12px; font-size: 14px;">Değişiklikleri Kaydet</button>
                 </div>
             </form>
         </div>
@@ -2275,43 +2473,82 @@
         <div class="modal-content auth-compact" role="dialog" aria-modal="true" aria-labelledby="auth-title">
             <div class="auth-head">
                 <h3 id="auth-title">Ücretsiz Hesap Aç</h3>
-                <button type="button" class="auth-close" aria-label="Kapat" onclick="closeModal('auth-modal')">✕</button>
+                <button type="button" class="auth-close" aria-label="Kapat" onclick="closeModal('auth-modal')"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
             <div id="auth-plan-note" role="status" class="auth-plan-note" style="display:none;"></div>
 
             <!-- Register Form (varsayılan) -->
             <form id="register-form">
                 <div class="form-group">
-                    <input type="text" id="reg-name" class="form-input" placeholder="Adınız Soyadınız" autocomplete="name" required>
+                    <input type="text" id="reg-name" class="form-input" aria-label="Ad soyad" placeholder="Adınız Soyadınız" autocomplete="name" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" id="reg-email" class="form-input" placeholder="E-posta Adresiniz" autocomplete="email" required>
+                    <input type="email" id="reg-email" class="form-input" aria-label="E-posta adresi" placeholder="E-posta Adresiniz" autocomplete="email" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" id="reg-password" class="form-input" placeholder="Şifre Oluşturun" autocomplete="new-password" required>
+                    <input type="password" id="reg-password" class="form-input" aria-label="Şifre" placeholder="Şifre Oluşturun" autocomplete="new-password" required>
                 </div>
                 <button type="submit" class="btn-primary auth-submit">Ücretsiz Üye Ol</button>
-                <p class="auth-switch">Zaten hesabım var → <a href="#" id="auth-to-login" onclick="setAuthMode('login'); return false;">Giriş yap</a></p>
+                <p class="auth-switch">Zaten hesabınız var mı? <a href="#" id="auth-to-login" onclick="setAuthMode('login'); return false;">Giriş yapın</a></p>
             </form>
 
             <!-- Login Form -->
             <form id="login-form" style="display:none;">
                 <div class="form-group">
-                    <input type="email" id="login-email" class="form-input" placeholder="E-posta Adresiniz" autocomplete="email" required>
+                    <input type="email" id="login-email" class="form-input" aria-label="E-posta adresi" placeholder="E-posta Adresiniz" autocomplete="email" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" id="login-password" class="form-input" placeholder="Şifreniz" autocomplete="current-password" required>
+                    <input type="password" id="login-password" class="form-input" aria-label="Şifre" placeholder="Şifreniz" autocomplete="current-password" required>
                 </div>
                 <button type="submit" class="btn-primary auth-submit">Giriş Yap</button>
-                <p class="auth-switch">Hesabın yok mu? → <a href="#" id="auth-to-register" onclick="setAuthMode('register'); return false;">Ücretsiz üye ol</a></p>
+                <p class="auth-switch">Hesabınız yok mu? <a href="#" id="auth-to-register" onclick="setAuthMode('register'); return false;">Ücretsiz üye olun</a></p>
             </form>
         </div>
     </div>
 
-    <script src="/static/js/ui-dialogs.js?v=20261110_1"></script>
+    <script src="/static/js/ui-dialogs.js?v=20261117_2"></script>
     <script src="/static/js/qr-utils.js?v=20261117_1"></script>
     <script src="/static/js/app.js?v=20261117_1"></script>
-    <script src="/static/js/studio.js?v=20261117_1"></script>
-    <script src="/static/js/panel.js?v=20261117_1"></script>
+    <script src="/static/js/studio.js?v=20261117_2"></script>
+    <script src="/static/js/panel.js?v=20261117_2"></script>
+    <script>
+    /* Erişilebilirlik: etiket–alan bağlama, alt/lazy. İşlev değiştirmez; JS ile sonradan eklenen içerik için de çalışır. */
+    (function () {
+        var n = 0;
+        function fixLabels(root) {
+            (root || document).querySelectorAll('.form-group, .studio-accordion-body, .modal-content').forEach(function (g) {
+                g.querySelectorAll('label:not([for])').forEach(function (lb) {
+                    if (lb.querySelector('input,select,textarea')) return;
+                    var ctl = null, sib = lb.nextElementSibling;
+                    while (sib && !ctl) {
+                        if (/^(INPUT|SELECT|TEXTAREA)$/.test(sib.tagName) && sib.type !== 'hidden') ctl = sib;
+                        else ctl = sib.querySelector && sib.querySelector('input:not([type=hidden]):not([type=file]),select,textarea');
+                        sib = sib.nextElementSibling;
+                        if (!ctl && !sib) break;
+                    }
+                    if (ctl) { if (!ctl.id) ctl.id = 'auto-field-' + (++n); lb.setAttribute('for', ctl.id); }
+                });
+            });
+            (root || document).querySelectorAll('input:not([type=hidden]):not([type=file]),select,textarea').forEach(function (el) {
+                if (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')) return;
+                if (el.id && document.querySelector('label[for="' + el.id + '"]')) return;
+                if (el.closest('label')) return;
+                var t = el.getAttribute('placeholder') || el.getAttribute('title') || el.name || '';
+                if (t) el.setAttribute('aria-label', t);
+            });
+        }
+        function fixImages(root) {
+            (root || document).querySelectorAll('img').forEach(function (im) {
+                if (!im.hasAttribute('alt')) im.setAttribute('alt', '');
+                if (!im.hasAttribute('loading')) im.setAttribute('loading', 'lazy');
+            });
+        }
+        function run() { fixLabels(); fixImages(); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+        var timer;
+        new MutationObserver(function () { clearTimeout(timer); timer = setTimeout(function () { fixImages(); fixLabels(); }, 250); })
+            .observe(document.body, { childList: true, subtree: true });
+    })();
+    </script>
 </body>
 </html>

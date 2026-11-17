@@ -5,6 +5,9 @@
  *   uiConfirm(mesaj, opts?)     -> Promise<boolean>
  *   uiPrompt(mesaj, opts?)      -> Promise<string|null>
  *   uiShowText(baslik, metin)   -> kopyalanabilir metin modalı
+ *   confirmDialog({title,message,confirmText,cancelText,danger}) -> Promise<boolean> (markalı onay penceresi)
+ *   uiTrapFocus(container, onEscape?) -> release()  (Tab odak tuzağı + Esc)
+ *   uiCopyText(metin)           -> Promise<boolean> (panoya kopyalama)
  */
 (function () {
   "use strict";
@@ -34,12 +37,64 @@
     ".ud-btn.danger{background:#ef4444;color:#fff}.ud-btn.danger:hover{background:#dc2626}" +
     ".ud-btn.ghost{background:transparent;color:#cbd5e1;border-color:rgba(148,163,184,.45)}.ud-btn.ghost:hover{background:rgba(148,163,184,.15)}";
 
+  function injectStudioCss() {
+    if (document.getElementById("studio-ui-css") || !document.head) return;
+    var l = document.createElement("link");
+    l.id = "studio-ui-css";
+    l.rel = "stylesheet";
+    l.href = "/static/css/studio-ui.css?v=20261117_1";
+    document.head.appendChild(l);
+  }
+
   function injectCss() {
+    injectStudioCss();
     if (document.getElementById("ud-style")) return;
     var st = document.createElement("style");
     st.id = "ud-style";
     st.appendChild(document.createTextNode(CSS));
     document.head.appendChild(st);
+  }
+  injectStudioCss();
+
+  var FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+  // Kapsayıcı içinde Tab odağını döndürür; Esc için onEscape çağrılır. release() ile kaldırılır.
+  function trapFocus(container, onEscape) {
+    function handler(e) {
+      if (e.key === "Escape" && onEscape) { e.preventDefault(); e.stopPropagation(); onEscape(); return; }
+      if (e.key !== "Tab") return;
+      var nodes = Array.prototype.filter.call(container.querySelectorAll(FOCUSABLE), function (n) {
+        return n.offsetParent !== null || n === document.activeElement;
+      });
+      if (!nodes.length) { e.preventDefault(); return; }
+      var first = nodes[0], last = nodes[nodes.length - 1];
+      if (!container.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+    document.addEventListener("keydown", handler, true);
+    return function release() { document.removeEventListener("keydown", handler, true); };
+  }
+
+  function copyText(text) {
+    text = String(text == null ? "" : text);
+    function legacy() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.cssText = "position:fixed;top:-1000px;opacity:0";
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) { return false; }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacy(); });
+    }
+    return Promise.resolve(legacy());
   }
 
   function toastRoot() {
@@ -98,9 +153,15 @@
       ov.className = "ud-overlay";
       var dlg = document.createElement("div");
       dlg.className = "ud-dialog";
-      dlg.setAttribute("role", "dialog");
+      dlg.setAttribute("role", opts.role || "dialog");
       dlg.setAttribute("aria-modal", "true");
-      if (opts.title) { var h = document.createElement("h3"); h.textContent = opts.title; dlg.appendChild(h); }
+      if (opts.title) {
+        var h = document.createElement("h3");
+        h.id = "ud-title-" + Date.now();
+        h.textContent = opts.title;
+        dlg.setAttribute("aria-labelledby", h.id);
+        dlg.appendChild(h);
+      }
       if (opts.message) { var p = document.createElement("p"); p.textContent = opts.message; dlg.appendChild(p); }
       var input = null;
       if (opts.input) {
@@ -140,6 +201,14 @@
       function onKey(e) {
         if (e.key === "Escape") { e.preventDefault(); finish(opts.cancelValue); }
         else if (e.key === "Enter" && input && !input.readOnly) { e.preventDefault(); finish(input.value); }
+        else if (e.key === "Tab") {
+          var nodes = Array.prototype.slice.call(dlg.querySelectorAll("input,button"));
+          if (!nodes.length) return;
+          var first = nodes[0], last = nodes[nodes.length - 1];
+          if (!dlg.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+          else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
       }
       document.addEventListener("keydown", onKey, true);
       document.body.appendChild(ov);
@@ -158,10 +227,23 @@
       title: o.title || "Onay",
       message: message,
       cancelValue: false,
+      role: o.danger ? "alertdialog" : "dialog",
       buttons: [
-        { text: o.cancelText || "Vazgeç", cls: "ghost", value: false },
-        { text: o.okText || "Evet, devam et", cls: o.danger ? "danger" : "primary", value: true, primary: true }
+        // Tehlikeli işlemlerde varsayılan odak "Vazgeç" üzerindedir
+        { text: o.cancelText || "Vazgeç", cls: "ghost", value: false, primary: !!o.danger },
+        { text: o.okText || "Evet, devam et", cls: o.danger ? "danger" : "primary", value: true, primary: !o.danger }
       ]
+    });
+  }
+
+  // Markalı onay penceresi: confirm() yerine. -> Promise<boolean>
+  function confirmDialog(o) {
+    o = o || {};
+    return confirmDlg(o.message || "", {
+      title: o.title || "Onay",
+      okText: o.confirmText || "Evet, devam et",
+      cancelText: o.cancelText || "Vazgeç",
+      danger: !!o.danger
     });
   }
 
@@ -201,8 +283,11 @@
   window.uiToast = toast;
   window.uiFlash = flash;
   window.uiConfirm = confirmDlg;
+  window.confirmDialog = confirmDialog;
   window.uiPrompt = promptDlg;
   window.uiShowText = showText;
+  window.uiTrapFocus = trapFocus;
+  window.uiCopyText = copyText;
 
   document.addEventListener("DOMContentLoaded", function () {
     try {

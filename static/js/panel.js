@@ -160,12 +160,14 @@ async function loadDashboardData() {
         if (res.ok) {
             const st = data.stats || {};
             const put = (id, v) => { const el = byId(id); if (el) el.innerText = v; };
-            put("stat-total-qr", st.total_qr || 0);
-            put("stat-total-scans", st.total_scans || 0);
-            put("stat-unique-visitors", st.unique_visitors || 0);
-            put("stat-avg-scans", st.avg_scans_per_qr || 0.0);
+            const fmtNum = (n) => (Number(n) || 0).toLocaleString("tr-TR");
+            put("stat-total-qr", fmtNum(st.total_qr));
+            put("stat-total-scans", fmtNum(st.total_scans));
+            put("stat-unique-visitors", fmtNum(st.unique_visitors));
+            put("stat-avg-scans", (Math.round((Number(st.avg_scans_per_qr) || 0) * 10) / 10).toLocaleString("tr-TR"));
             // Efektif limit: sunucudaki user.dynamic_qr_limit (paket sayfasıyla aynı kaynak)
             put("stat-limit", `${st.dynamic_qr_count || 0} / ${(data.user || {}).dynamic_qr_limit}`);
+            updateLimitBar(st.dynamic_qr_count, (data.user || {}).dynamic_qr_limit);
 
             const alertElem = byId("trial-expired-alert");
             const planElem = byId("stat-plan");
@@ -187,8 +189,144 @@ async function loadDashboardData() {
     }
 }
 
+// Dinamik limit çubuğu: #limit-progress-bar .bar-fill (yoksa kart içinde oluşturulur)
+function updateLimitBar(used, limit) {
+    let bar = byId("limit-progress-bar");
+    if (!bar) {
+        const host = byId("stat-limit") && byId("stat-limit").parentNode;
+        if (!host) return;
+        bar = document.createElement("div");
+        bar.id = "limit-progress-bar";
+        bar.className = "pn-limit-bar";
+        host.appendChild(bar);
+    }
+    let fill = bar.querySelector(".bar-fill");
+    if (!fill) {
+        fill = document.createElement("span");
+        fill.className = "bar-fill";
+        bar.appendChild(fill);
+    }
+    const u = Number(used) || 0;
+    const l = Number(limit);
+    const pct = l > 0 ? Math.max(0, Math.min(100, Math.round((u / l) * 100))) : 0;
+    fill.style.width = pct + "%";
+    bar.setAttribute("role", "progressbar");
+    bar.setAttribute("aria-label", "Dinamik QR limit kullanımı");
+    bar.setAttribute("aria-valuemin", "0");
+    bar.setAttribute("aria-valuemax", "100");
+    bar.setAttribute("aria-valuenow", String(pct));
+    bar.classList.toggle("is-high", pct >= 90);
+}
+
 function qrById(id) {
     return (allQRCodes || []).find(q => String(q.id) === String(id));
+}
+
+function _goTab(id) {
+    const link = document.querySelector(`.nav-link[data-target="${id}"]`) || document.querySelector(`[data-target="${id}"]`);
+    if (link) link.click();
+}
+
+// Kart eylemleri (hem kart içi düğmeler hem '…' / İndir menüleri bunu kullanır)
+async function _panelDownload(id, fmt, title, btn) {
+    fmt = String(fmt || "png").toLowerCase();
+    if (btn) btn.disabled = true;
+    uiToast(fmt.toUpperCase() + " dosyası hazırlanıyor...", "info");
+    try {
+        await fetchAndSaveFile(`/api/qr/${encodeURIComponent(id)}/download?format=${encodeURIComponent(fmt)}`,
+            `qr-${slugifyFileName(title)}.${fmt}`, fmt.toUpperCase());
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+function runPanelAction(b) {
+    const id = Number(b.getAttribute("data-id"));
+    const qr = qrById(id) || {};
+    switch (b.getAttribute("data-act")) {
+        case "restore": restoreQRCode(id); break;
+        case "perm-delete": permanentDeleteQRCode(id); break;
+        case "edit": openEditQRModal(id); break;
+        case "delete": deleteQRCode(id); break;
+        case "copy": copyShareLink(b.getAttribute("data-url") || "", b); break;
+        case "analytics": openQRAnalyticsModal(id, qr.title || "QR Kod"); break;
+        case "csv": downloadQRAnalyticsDirect(id, "csv"); break;
+        case "dl": _panelDownload(id, b.getAttribute("data-fmt"), qr.title, b); break;
+        case "go-studio": _goTab("studio-tab"); break;
+    }
+}
+
+// ---- '…' ve İndir menüleri (erişilebilir; klavye + dışarı tıklama) ----
+let _pnMenu = null;
+function closePanelMenu(focusTrigger) {
+    if (!_pnMenu) return;
+    const m = _pnMenu;
+    _pnMenu = null;
+    if (m.list.parentNode) m.list.parentNode.removeChild(m.list);
+    m.trigger.setAttribute("aria-expanded", "false");
+    if (focusTrigger && m.trigger.isConnected) m.trigger.focus();
+}
+function _menuItem(act, id, label, icon, extra, cls) {
+    return `<button type="button" role="menuitem" class="pn-menu-item${cls ? " " + cls : ""}" data-act="${act}" data-id="${id}"${extra || ""}>${suIcon(icon)}<span>${escapeHtml(label)}</span></button>`;
+}
+function _menuItemsHTML(kind, qr, id) {
+    if (kind === "dl") {
+        return [["png", "PNG (Görsel)"], ["jpg", "JPG (Görsel)"], ["svg", "SVG (Vektörel)"], ["pdf", "PDF"], ["eps", "EPS (Baskı)"]]
+            .map(([f, l]) => _menuItem("dl", id, l, "download", ` data-fmt="${f}"`)).join("");
+    }
+    const isStatic = isStaticType(qr.type) || qr.is_dynamic === false || qr.is_dynamic === 0;
+    return (isStatic ? "" : _menuItem("csv", id, "Analiz raporunu indir (CSV)", "chart") + '<div class="pn-menu-sep" role="separator"></div>') +
+        _menuItem("delete", id, "Arşive kaldır", "archive", "", "danger");
+}
+function openPanelMenu(trigger) {
+    if (_pnMenu && _pnMenu.trigger === trigger) { closePanelMenu(true); return; }
+    closePanelMenu();
+    const id = Number(trigger.getAttribute("data-id"));
+    const kind = trigger.getAttribute("data-menu");
+    const list = document.createElement("div");
+    list.className = "pn-menu-list is-open";
+    list.setAttribute("role", "menu");
+    list.setAttribute("aria-label", kind === "dl" ? "İndirme biçimleri" : "Diğer işlemler");
+    list.innerHTML = _menuItemsHTML(kind, qrById(id) || {}, id);
+    document.body.appendChild(list);
+    const r = trigger.getBoundingClientRect();
+    const w = list.offsetWidth, h = list.offsetHeight;
+    let left = kind === "more" ? r.right - w : r.left;
+    left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
+    let top = r.bottom + 6;
+    if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 6);
+    list.style.left = left + "px";
+    list.style.top = top + "px";
+    trigger.setAttribute("aria-expanded", "true");
+    _pnMenu = { list, trigger };
+    list.addEventListener("click", (e) => {
+        const it = e.target.closest("[data-act]");
+        if (!it) return;
+        closePanelMenu(true);
+        runPanelAction(it);
+    });
+    list.addEventListener("keydown", (e) => {
+        const items = Array.prototype.slice.call(list.querySelectorAll(".pn-menu-item"));
+        const i = items.indexOf(document.activeElement);
+        if (e.key === "ArrowDown") { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+        else if (e.key === "ArrowUp") { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+        else if (e.key === "Home") { e.preventDefault(); items[0].focus(); }
+        else if (e.key === "End") { e.preventDefault(); items[items.length - 1].focus(); }
+        else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closePanelMenu(true); }
+        else if (e.key === "Tab") { closePanelMenu(false); }
+    });
+    const first = list.querySelector(".pn-menu-item");
+    if (first) first.focus();
+}
+if (!window._pnMenuGlobals) {
+    window._pnMenuGlobals = true;
+    document.addEventListener("mousedown", (e) => {
+        if (!_pnMenu) return;
+        if (_pnMenu.list.contains(e.target) || _pnMenu.trigger.contains(e.target)) return;
+        closePanelMenu(false);
+    });
+    document.addEventListener("scroll", (e) => { if (_pnMenu && !_pnMenu.list.contains(e.target)) closePanelMenu(false); }, true);
+    window.addEventListener("resize", () => closePanelMenu(false));
 }
 
 function initPanelDelegation() {
@@ -198,18 +336,13 @@ function initPanelDelegation() {
     c.addEventListener("click", (e) => {
         const b = e.target.closest("[data-act]");
         if (!b || !c.contains(b)) return;
-        const id = Number(b.getAttribute("data-id"));
-        const qr = qrById(id) || {};
-        switch (b.getAttribute("data-act")) {
-            case "restore": restoreQRCode(id); break;
-            case "perm-delete": permanentDeleteQRCode(id); break;
-            case "edit": openEditQRModal(id); break;
-            case "delete": deleteQRCode(id); break;
-            case "copy": copyShareLink(b.getAttribute("data-url") || "", b); break;
-            case "analytics": openQRAnalyticsModal(id, qr.title || "QR Kod"); break;
-            case "csv": downloadQRAnalyticsDirect(id, "csv"); break;
-            case "dl": downloadQRFile(id, b.getAttribute("data-fmt"), qr.title, b); break;
-        }
+        if (b.getAttribute("data-act") === "menu") { openPanelMenu(b); return; }
+        closePanelMenu(false);
+        runPanelAction(b);
+    });
+    c.addEventListener("keydown", (e) => {
+        const t = e.target.closest && e.target.closest('[data-act="menu"]');
+        if (t && (e.key === "ArrowDown" || e.key === "ArrowUp")) { e.preventDefault(); if (!(_pnMenu && _pnMenu.trigger === t)) openPanelMenu(t); }
     });
     c.addEventListener("change", (e) => {
         const t = e.target;
@@ -231,7 +364,8 @@ function openQRAnalytics(qrId, title) {
 // ---------------------------------------------------------------------------
 const _B = (bg, bd, col) => `background:${bg};border:1px solid ${bd};color:${col};padding:6px 10px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:700;`;
 
-function renderQRList(codes) {
+// [ESKİ SÜRÜM — kullanılmıyor; yerini aşağıdaki renderQRList (kart tasarımı v2) aldı]
+function _legacyRenderQRList(codes) {
     const container = byId("qr-list-container");
     if (!container) return;
     initPanelDelegation();
@@ -330,7 +464,8 @@ function renderQRList(codes) {
     }).join("");
 }
 
-function copyShareLink(url, btn) {
+// [ESKİ SÜRÜM — kullanılmıyor; yerini aşağıdaki copyShareLink aldı]
+function _legacyCopyShareLink(url, btn) {
     const done = () => {
         if (!btn) return;
         const orig = btn.innerText;
@@ -741,3 +876,280 @@ async function saveQREdit(event) {
         if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = "💾 Değişiklikleri Kaydet"; }
     }
 }
+
+// ---------------------------------------------------------------------------
+// Panel v2: araç çubuğu (arama + filtreler), kartlar, boş durum
+// ---------------------------------------------------------------------------
+let panelSearchTerm = "";
+let panelTypeFilter = "all";
+
+function _isAutoSelect(el) { return el && (el.dataset.auto === "1" || el.options.length <= 1); }
+
+function ensurePanelToolbar(container) {
+    if (!container || !container.parentNode) return;
+    // Yalnızca HTML'de OLMAYAN elemanlar için araç çubuğu üretilir (çift oluşturma yok)
+    if (!byId("panel-toolbar")) {
+        let html = "";
+        if (!byId("panel-search")) {
+            html += `<div class="pn-search">${suIcon("search")}<input type="search" id="panel-search" placeholder="QR başlığında ara" aria-label="QR başlığında ara" autocomplete="off"></div>`;
+        }
+        if (!byId("filter-type")) html += `<select id="filter-type" data-auto="1" aria-label="Türe göre filtrele"></select>`;
+        if (!byId("filter-folder") && !byId("folder-filter-select")) html += `<select id="filter-folder" data-auto="1" aria-label="Klasöre göre filtrele"></select>`;
+        if (!byId("filter-status") && !document.querySelector(".filter-tab-btn")) html += `<select id="filter-status" data-auto="1" aria-label="Duruma göre filtrele"></select>`;
+        if (html) {
+            const tb = document.createElement("div");
+            tb.id = "panel-toolbar";
+            tb.className = "pn-toolbar";
+            tb.setAttribute("role", "search");
+            tb.innerHTML = html;
+            container.parentNode.insertBefore(tb, container);
+        }
+    }
+    const search = byId("panel-search");
+    if (search && !search._pnBound) {
+        search._pnBound = true;
+        let t = null;
+        search.addEventListener("input", () => {
+            clearTimeout(t);
+            t = setTimeout(() => { panelSearchTerm = search.value; renderQRList(allQRCodes); }, 150);
+        });
+    }
+    const typeSel = byId("filter-type");
+    if (typeSel && !typeSel._pnBound) {
+        typeSel._pnBound = true;
+        typeSel.addEventListener("change", () => { panelTypeFilter = typeSel.value || "all"; renderQRList(allQRCodes); });
+    }
+    const folderSel = byId("filter-folder");
+    if (folderSel && !folderSel._pnBound) {
+        folderSel._pnBound = true;
+        folderSel.addEventListener("change", () => filterQRList("folder", folderSel.value || "all"));
+    }
+    const statusSel = byId("filter-status");
+    if (statusSel && !statusSel._pnBound) {
+        statusSel._pnBound = true;
+        statusSel.addEventListener("change", () => filterQRList("status", statusSel.value || "all"));
+    }
+}
+
+function syncPanelFilters(codes) {
+    const live = codes.filter(q => (q.status || "active") !== "deleted");
+    const typeSel = byId("filter-type");
+    if (typeSel) {
+        if (_isAutoSelect(typeSel)) {
+            const types = Array.from(new Set(codes.map(q => q.type).filter(Boolean)));
+            typeSel.innerHTML = `<option value="all">Tüm türler</option>` +
+                types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(QR_TYPE_LABELS[t] || t)}</option>`).join("");
+            typeSel.dataset.auto = "1";
+        }
+        if (!Array.from(typeSel.options).some(o => o.value === panelTypeFilter)) panelTypeFilter = "all";
+        typeSel.value = panelTypeFilter;
+    }
+    const folderSel = byId("filter-folder");
+    if (folderSel) {
+        if (_isAutoSelect(folderSel)) {
+            const set = new Set(["Genel"]);
+            customFolders.forEach(f => set.add(f));
+            live.forEach(q => { if (q.folder_name) set.add(q.folder_name); });
+            folderSel.innerHTML = `<option value="all">Tüm klasörler (${live.length})</option>` +
+                Array.from(set).map(f => `<option value="${escapeHtml(f)}">${escapeHtml(f)} (${live.filter(q => (q.folder_name || "Genel") === f).length})</option>`).join("");
+            folderSel.dataset.auto = "1";
+        }
+        if (Array.from(folderSel.options).some(o => o.value === currentFolderFilter)) folderSel.value = currentFolderFilter;
+    }
+    const statusSel = byId("filter-status");
+    if (statusSel) {
+        if (_isAutoSelect(statusSel)) {
+            const c = (s) => codes.filter(q => (q.status || "active") === s).length;
+            statusSel.innerHTML = `<option value="all">Tümü (${live.length})</option><option value="active">Aktif (${c("active")})</option>` +
+                `<option value="passive">Pasif (${c("passive")})</option><option value="deleted">Arşiv (${c("deleted")})</option>`;
+            statusSel.dataset.auto = "1";
+        }
+        if (Array.from(statusSel.options).some(o => o.value === currentStatusFilter)) statusSel.value = currentStatusFilter;
+    }
+}
+
+const _EMPTY_ILLU = '<svg class="pn-illu" viewBox="0 0 160 160" fill="none" aria-hidden="true">' +
+    '<rect x="22" y="22" width="116" height="116" rx="22" fill="rgba(99,102,241,.12)" stroke="rgba(129,140,248,.5)" stroke-width="2" stroke-dasharray="6 6"/>' +
+    '<rect x="44" y="44" width="30" height="30" rx="6" fill="#818cf8"/><rect x="86" y="44" width="30" height="30" rx="6" fill="#6366f1"/>' +
+    '<rect x="44" y="86" width="30" height="30" rx="6" fill="#6366f1"/><rect x="86" y="86" width="12" height="12" rx="3" fill="#a5b4fc"/>' +
+    '<rect x="104" y="86" width="12" height="12" rx="3" fill="#818cf8"/><rect x="86" y="104" width="12" height="12" rx="3" fill="#818cf8"/>' +
+    '<circle cx="124" cy="124" r="18" fill="#10b981"/><path d="M124 115v18M115 124h18" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>';
+
+function renderPanelEmptyState(container) {
+    const ext = byId("panel-empty-state");
+    const tb = byId("panel-toolbar");
+    if (tb) tb.style.display = "none";
+    if (ext && !container.contains(ext)) {
+        ext.style.display = "block";
+        container.innerHTML = "";
+        if (!ext._pnBound) {
+            ext._pnBound = true;
+            ext.addEventListener("click", (e) => {
+                if (e.target.closest("#panel-empty-cta, [data-act=\"go-studio\"]")) _goTab("studio-tab");
+            });
+        }
+        return;
+    }
+    container.innerHTML = `<div id="panel-empty-state" class="glass-card pn-empty">${_EMPTY_ILLU}` +
+        `<h3>Henüz QR kodunuz yok</h3>` +
+        `<p>İlk QR kodunuzu QR Stüdyosu'nda dakikalar içinde oluşturabilir, tarama istatistiklerini buradan takip edebilirsiniz.</p>` +
+        `<button type="button" class="su-btn primary" data-act="go-studio">${suIcon("plus")}<span>İlk QR'ınızı oluşturun</span></button></div>`;
+}
+
+function _qrCardHTML(qr, codes) {
+    const id = Number(qr.id);
+    const isStatic = isStaticType(qr.type) || qr.is_dynamic === false || qr.is_dynamic === 0;
+    const shareUrl = qr.short_url || (qr.short_code ? `${window.location.origin}/r/${qr.short_code}` : "");
+    const status = qr.status || "active";
+    const deleted = status === "deleted";
+    const createdDate = new Date((qr.created_at || Date.now() / 1000) * 1000).toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const typeLabel = QR_TYPE_LABELS[qr.type] || String(qr.type || "QR");
+    const img = safeAttrUrl(qr.qr_image);
+    const title = qr.title || "Adsız QR";
+    const total = Number(qr.scan_count || qr.scans_count) || 0;
+    const unique = Number(qr.unique_scans) || 0;
+
+    const linkRow = isStatic
+        ? `<span>Statik QR: link yok</span>`
+        : `<code title="${escapeHtml(shareUrl)}">${escapeHtml(shareUrl)}</code>` +
+          `<button type="button" class="pn-copy" data-act="copy" data-url="${escapeHtml(shareUrl)}" aria-label="${escapeHtml(title)} bağlantısını kopyala">${suIcon("copy")}<span>Kopyala</span></button>`;
+
+    let side = "";
+    if (!deleted) {
+        const state = isStatic
+            ? `<span class="inf">Süresiz</span>`
+            : `<span class="${status === "active" ? "on" : "off"}">${status === "active" ? "Aktif" : "Pasif"}</span>` +
+              `<label class="switch" style="width:40px;height:22px;"><input type="checkbox" ${status === "active" ? "checked" : ""} data-act="toggle" data-id="${id}" aria-label="${escapeHtml(title)} durumunu değiştir"><span class="slider" style="border-radius:20px;"></span></label>`;
+        const scans = isStatic
+            ? `<div class="pn-scans">Takip edilemez</div>`
+            : `<div class="pn-scans"><strong>${total.toLocaleString("tr-TR")}</strong> tarama${unique ? ` · ${unique.toLocaleString("tr-TR")} eşsiz` : ""}</div>`;
+        side = `<div class="pn-side"><div class="pn-state">${state}</div>${scans}</div>`;
+    }
+
+    const folderSelect = deleted ? "" :
+        `<label>Klasör: <select data-act="folder" data-id="${id}" aria-label="Klasör">${getCardFolderSelectOptionsHTML(qr.folder_name || "Genel", codes)}</select></label>`;
+
+    const actions = deleted
+        ? `<button type="button" class="pn-btn ok" data-act="restore" data-id="${id}">${suIcon("undo")}<span>Geri yükle</span></button>` +
+          `<button type="button" class="pn-btn danger" data-act="perm-delete" data-id="${id}">${suIcon("trash")}<span>Kalıcı sil</span></button>`
+        : `<button type="button" class="pn-btn primary" data-act="edit" data-id="${id}" title="QR kodunu düzenle">${suIcon("edit")}<span>Düzenle</span></button>` +
+          (isStatic ? "" : `<button type="button" class="pn-btn" data-act="analytics" data-id="${id}">${suIcon("chart")}<span>Analitik</span></button>`) +
+          `<button type="button" class="pn-btn" data-act="menu" data-menu="dl" data-id="${id}" aria-haspopup="menu" aria-expanded="false">${suIcon("download")}<span>İndir</span></button>` +
+          `<span class="pn-spacer"></span>` +
+          `<button type="button" class="pn-btn" data-act="menu" data-menu="more" data-id="${id}" aria-haspopup="menu" aria-expanded="false" aria-label="Diğer işlemler">${suIcon("more")}</button>`;
+
+    return `<article class="glass-card pn-card${deleted ? " is-deleted" : ""}" aria-label="${escapeHtml(title)}">
+        <div class="pn-top">
+            <div class="pn-thumb">${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(title)} QR kodu">` : `<span></span>`}</div>
+            <div class="pn-main">
+                <div class="pn-title-row">
+                    <h4 class="pn-title">${escapeHtml(title)}</h4>
+                    <span class="pn-badge">${escapeHtml(typeLabel)}</span>
+                    <span class="pn-badge ${isStatic ? "sta" : "dyn"}">${isStatic ? "Statik" : "Dinamik"}</span>
+                    ${deleted ? '<span class="pn-badge arc">Arşivlendi</span>' : ""}
+                </div>
+                <div class="pn-link">${linkRow}</div>
+            </div>
+            ${side}
+        </div>
+        <div class="pn-meta">${folderSelect}<span>Oluşturulma: ${escapeHtml(createdDate)}</span></div>
+        <div class="pn-actions">${actions}</div>
+    </article>`;
+}
+
+function renderQRList(codes) {
+    const container = byId("qr-list-container");
+    if (!container) return;
+    initPanelDelegation();
+    closePanelMenu(false);
+    if (!codes) codes = [];
+
+    ensurePanelToolbar(container);
+    updateFilterCountsAndTabLabels(codes);
+    populateFolderFilterSelect(codes);
+    syncPanelFilters(codes);
+
+    const ext = byId("panel-empty-state");
+    if (codes.length === 0) { renderPanelEmptyState(container); return; }
+    if (ext && !container.contains(ext)) ext.style.display = "none";
+    const tb = byId("panel-toolbar");
+    if (tb) tb.style.display = "";
+
+    let filtered = codes;
+    if (currentStatusFilter === "all") filtered = filtered.filter(qr => (qr.status || "active") !== "deleted");
+    else filtered = filtered.filter(qr => (qr.status || "active") === currentStatusFilter);
+    if (currentFolderFilter !== "all") filtered = filtered.filter(qr => (qr.folder_name || "Genel") === currentFolderFilter);
+    if (panelTypeFilter !== "all") filtered = filtered.filter(qr => qr.type === panelTypeFilter);
+    const term = String(panelSearchTerm || "").trim().toLocaleLowerCase("tr");
+    if (term) filtered = filtered.filter(qr => String(qr.title || "").toLocaleLowerCase("tr").includes(term));
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="glass-card pn-noresult" role="status">Sonuç bulunamadı. Arama veya filtreleri değiştirerek tekrar deneyin.</div>`;
+        return;
+    }
+    container.innerHTML = filtered.map(qr => _qrCardHTML(qr, allQRCodes)).join("");
+}
+
+function copyShareLink(url, btn) {
+    uiCopyText(url).then((ok) => {
+        if (!ok) { uiShowText("Paylaşım bağlantınız", url); return; }
+        if (!btn) { uiToast("Bağlantı kopyalandı.", "success"); return; }
+        const label = btn.querySelector("span");
+        const orig = label ? label.textContent : btn.innerText;
+        if (label) label.textContent = "Kopyalandı"; else btn.innerText = "Kopyalandı";
+        btn.classList.add("is-ok");
+        clearTimeout(btn._t);
+        btn._t = setTimeout(() => {
+            if (label) label.textContent = orig; else btn.innerText = orig;
+            btn.classList.remove("is-ok");
+        }, 2000);
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Markalı onaylı arşivleme / kalıcı silme (app.js'tekilerin yerini alır)
+// ---------------------------------------------------------------------------
+async function deleteQRCode(qrId) {
+    const qr = qrById(qrId) || {};
+    const ok = await confirmDialog({
+        title: "QR kodunu arşive kaldır",
+        message: `“${qr.title || "Bu QR kod"}” arşive taşınacak. Dilerseniz daha sonra geri yükleyebilirsiniz.`,
+        confirmText: "Arşive kaldır",
+        danger: true
+    });
+    if (!ok) return;
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+    try {
+        const res = await fetch(`/api/qr/${qrId}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } });
+        if (res.ok) uiToast("QR kod arşive taşındı.", "success");
+        else uiToast("QR kod arşive taşınamadı. Lütfen tekrar deneyin.", "error");
+        loadDashboardData();
+    } catch (err) {
+        console.error("Delete error:", err);
+        uiToast("Bağlantı hatası oluştu. Lütfen tekrar deneyin.", "error");
+    }
+}
+
+async function permanentDeleteQRCode(qrId) {
+    const qr = qrById(qrId) || {};
+    const ok = await confirmDialog({
+        title: "QR kodunu kalıcı olarak sil",
+        message: `“${qr.title || "Bu QR kod"}” kalıcı olarak silinecek. Bu işlem geri alınamaz.`,
+        confirmText: "Kalıcı olarak sil",
+        danger: true
+    });
+    if (!ok) return;
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return;
+    try {
+        const res = await fetch(`/api/qr/${qrId}/permanent_delete`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } });
+        if (res.ok) uiToast("QR kod kalıcı olarak silindi.", "success");
+        else uiToast("QR kod silinemedi. Lütfen tekrar deneyin.", "error");
+        loadDashboardData();
+    } catch (err) {
+        console.error("Permanent delete error:", err);
+        uiToast("Bağlantı hatası oluştu. Lütfen tekrar deneyin.", "error");
+    }
+}
+

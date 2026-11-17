@@ -66,3 +66,21 @@ Railway platformundaki `dijitalgru-qr-web` servisi `qr-studio` dalını otomatik
 - **Analitik**: panelde/CSV'de Europe/Istanbul, bot/HEAD sayılmaz, CSV'de IP maskeli.
 - **Frontend**: `static/js/studio.js` (stüdyo), `panel.js` (panel), `qr-utils.js`.
 - **Tek seferlik düzeltme**: `migrate_fix_records.py` (`--apply` önce yedek alır). Testler: `tests/test_qr_utils.py`, `tests/test_integration.py` (`QR_DB_PATH` ile geçici DB).
+
+## 🎨 2026-11-17 — 2. Tur: Kalan Düzeltmeler + Genel Tasarım Geçişi
+
+**Düzeltmeler**
+- Stüdyo düzeni: ≥1024px solda form (1-2-3), sağda sticky (`top:24px`) önizleme + "QR Kodu Hesabıma Kaydet"; <1024px tek sütun, önizleme üstte, kaydet butonu alta sabit çubuk.
+- `/api/admin/maintenance/*` (yedek/düzeltme) uçları silindi.
+- Yönetici hesabı artık koda gömülü şifre kullanmaz. `ADMIN_EMAIL` + `ADMIN_PASSWORD` ortam değişkenleri **isteğe bağlıdır**: yoksa yeni yönetici oluşturulmaz (uyarı loglanır), mevcut hesap aynen çalışır.
+- `/p/vcard/<sayı>`, `/p/menu/<sayı>`, `.vcf` sayısal adresleri 404 verir; `/r/` hedefindeki sayısal adresler açılışta `short_code` adresine taşınır (`migrate_db.fix_numeric_micro_targets`).
+- Hedefi boş QR: ana sayfaya çevrilmez, "Bu QR kod henüz yapılandırılmamış" sayfası gösterilir. Eski otomatik onarımın ana sayfaya çevirdiği kayıtlar açılışta boşaltılır (`blank_homepage_targets`).
+- Paket sayfası: gerçekte olmayan iddialar (aylık tarama limiti, özel alan adı, 7/24 VIP destek) kaldırıldı; limitler `plan_limits.py` ile aynı.
+- Metin yanıtları gzip ile sıkıştırılır (Lighthouse mobil performans).
+
+**Tasarım**
+- CSS değişkenli ortak tasarım sistemi, SVG ikon seti (emoji yok), buton/alan varyantları, AA kontrast.
+- Ana sayfa: hero, Nasıl çalışır, kullanım örnekleri, SSS.
+- Stüdyo: adım şeridi, Dinamik/Statik açıklaması, kayıt sonrası başarı ekranı (kopyala, PNG/SVG/EPS indir), yükleme ilerleme çubukları.
+- Panel: sade kartlar, "…" menüsü, arama + filtreler, limit çubuğu, boş durum, markalı onay penceresi (`confirmDialog`).
+- Herkese açık mikro sayfalar: ortak `public_base.html` + `static/css/public.css` + `templates/_icons.html`; menüde sabit kategori sekmeleri; vCard'da "Rehbere Kaydet" birincil buton.
