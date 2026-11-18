@@ -169,7 +169,7 @@ function applyTypeUI() {
         setTxt("url-form-label", t === "static_url" ? "Web Adresi (Statik QR — doğrudan koda yazılır)" : "Hedef Web Adresi (URL)");
         setTxt("url-form-hint", t === "static_url"
             ? "Adres doğrudan QR koduna yazılır; sunucudan geçmez, takip edilemez, süresi dolmaz."
-            : "http:// veya https:// ile başlayan geçerli bir web adresi girin.");
+            : "Örn: siteniz.com — https:// otomatik eklenir");
     }
 
     // vCard / Sosyal / Şirket ortak form bölümü (form-vcard)

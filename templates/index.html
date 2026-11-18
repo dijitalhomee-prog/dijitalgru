@@ -427,11 +427,18 @@
         .studio-grid > .glass-card { min-width: 0; }
         .studio-right {
             position: sticky; top: 24px; align-self: start; display: flex; flex-direction: column; gap: 14px;
-            max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none;
         }
-        .studio-right::-webkit-scrollbar { display: none; }
-        .studio-right .phone-simulator { position: relative; top: 0; flex-shrink: 0; }
+        .studio-right .phone-simulator { position: relative; top: 0; flex-shrink: 0; border-width: 10px; padding: 16px 14px; }
+        /* Telefon ekranı pencere yüksekliğine uyar: önizleme + kaydet butonu her zaman birlikte görünür */
+        .studio-right .phone-screen { height: clamp(320px, calc(100vh - 300px), 580px); min-height: 320px; padding: 16px 14px; }
+        .studio-right .qr-preview-img { max-width: clamp(150px, calc(100vh - 500px), 240px); }
         .studio-right #save-qr-btn { margin-top: 0 !important; flex-shrink: 0; }
+        @media (min-width: 1024px) and (max-width: 1279px) {
+            .studio-grid { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; }
+        }
+        /* Okunabilirlik: yardımcı metin ve etiketler */
+        #studio-tab .form-hint { font-size: 13px; color: #aab6cc; line-height: 1.5; }
+        #studio-tab .form-label { font-size: 14px; color: #e6ebf5; }
         @media (max-width: 1023px) {
             .studio-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 20px; }
             .studio-right { order: -1; position: static; max-height: none; overflow: visible; width: 100%; max-width: 420px; margin: 0 auto; }
@@ -2509,7 +2516,7 @@
     <script src="/static/js/ui-dialogs.js?v=20261117_2"></script>
     <script src="/static/js/qr-utils.js?v=20261117_1"></script>
     <script src="/static/js/app.js?v=20261117_1"></script>
-    <script src="/static/js/studio.js?v=20261117_2"></script>
+    <script src="/static/js/studio.js?v=20261118_1"></script>
     <script src="/static/js/panel.js?v=20261117_2"></script>
     <script>
     /* Erişilebilirlik: etiket–alan bağlama, alt/lazy. İşlev değiştirmez; JS ile sonradan eklenen içerik için de çalışır. */
